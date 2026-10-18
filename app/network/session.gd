@@ -12,7 +12,11 @@ var model = Model.new()
 var local_id: int = 1
 var mode: String = "offline"
 var connection_status: String = "离线试玩 · 同行伙伴待命"
-var _peer: ENetMultiplayerPeer
+var _peer: MultiplayerPeer
+var steam
+var preferred_transport := "steam"
+var transport := "offline"
+var _connect_deadline := 0
 var _snapshot_clock := 0.0
 var _last_event_id := 0
 var _last_phase := "lobby"
@@ -31,6 +35,76 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	steam = preload("res://app/network/steam_lobby.gd").new()
+	steam.name = "SteamLobby"
+	add_child(steam)
+	steam.peer_ready.connect(_on_steam_peer)
+	steam.failed.connect(_on_steam_failure)
+	steam.changed.connect(func(): state_changed.emit())
+	steam.join_requested.connect(_on_steam_invite)
+	if DisplayServer.get_name() != "headless":
+		steam.prepare_if_running.call_deferred()
+
+func host_steam() -> Error:
+	if steam.is_busy():
+		return ERR_BUSY
+	offline()
+	preferred_transport = "steam"
+	var error: Error = steam.create_room()
+	connection_status = steam.status
+	_emit_state()
+	return error
+
+func join_steam(code: String) -> Error:
+	code = code.strip_edges()
+	if not code.is_valid_int() or code.length() > 20 or int(code) <= 0:
+		connection_status = "请输入有效的 Steam 房间号，或接受好友邀请"
+		notice.emit(connection_status)
+		return ERR_INVALID_PARAMETER
+	if steam.is_busy():
+		return ERR_BUSY
+	offline()
+	preferred_transport = "steam"
+	var error: Error = steam.join_room(int(code))
+	connection_status = steam.status
+	_emit_state()
+	return error
+
+func network_status() -> Dictionary:
+	return {"transport": preferred_transport, "active": transport,
+		"lobby_id": str(steam.lobby_id) if steam != null and steam.lobby_id != 0 else "",
+		"busy": steam != null and steam.is_busy(),
+		"steam_status": steam.status if steam != null else "",
+		"app_id": steam.app_id if steam != null else 480}
+
+func _on_steam_peer(peer: MultiplayerPeer, hosting: bool) -> void:
+	_peer = peer
+	transport = "steam"
+	preferred_transport = "steam"
+	mode = "host" if hosting else "client"
+	local_id = 1 if hosting else 0
+	connection_status = steam.status
+	if hosting:
+		model.state.players[1].name = str(steam.api.getPersonaName()).left(20)
+	else:
+		model.state.players.clear()
+		_received_snapshot_serial = -1
+		_connect_deadline = Time.get_ticks_msec() + 25000
+	multiplayer.multiplayer_peer = peer
+	multiplayer.server_relay = false
+	_emit_state()
+
+func _on_steam_failure(message: String) -> void:
+	offline()
+	connection_status = message
+	notice.emit(message)
+	_emit_state()
+
+func _on_steam_invite(lobby: int) -> void:
+	if model.state.phase != "lobby" or mode != "offline" or steam.is_busy():
+		notice.emit("请先离开当前房间，再接受 Steam 邀请")
+		return
+	join_steam(str(lobby))
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	offline()
@@ -38,7 +112,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 		connection_status = "端口需要在 1024–65535 之间"
 		return ERR_INVALID_PARAMETER
 	_peer = ENetMultiplayerPeer.new()
-	var error := _peer.create_server(port, 4)
+	var error: Error = _peer.call("create_server", port, 4)
 	if error != OK:
 		connection_status = "建房失败：端口可能被占用（%s）" % error_string(error)
 		notice.emit(connection_status)
@@ -48,6 +122,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	# Disabling relay also avoids transport sends to other peers exiting together.
 	multiplayer.server_relay = false
 	mode = "host"
+	transport = "enet"
 	local_id = 1
 	connection_status = "房间已开放 · UDP %d · 2–5 人" % port
 	_emit_state()
@@ -60,7 +135,7 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 		connection_status = "请输入房主的局域网 IP 与有效端口"
 		return ERR_INVALID_PARAMETER
 	_peer = ENetMultiplayerPeer.new()
-	var error := _peer.create_client(address, port)
+	var error: Error = _peer.call("create_client", address, port)
 	if error != OK:
 		connection_status = "连接失败：%s" % error_string(error)
 		notice.emit(connection_status)
@@ -70,6 +145,8 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	_received_snapshot_serial = -1
 	multiplayer.multiplayer_peer = _peer
 	mode = "client"
+	transport = "enet"
+	_connect_deadline = Time.get_ticks_msec() + 25000
 	local_id = 0
 	connection_status = "正在连接 %s:%d…" % [address, port]
 	_emit_state()
@@ -81,6 +158,10 @@ func offline() -> void:
 	if _peer != null:
 		_peer.close()
 		_peer = null
+	if steam != null:
+		steam.close()
+	transport = "offline"
+	_connect_deadline = 0
 	mode = "offline"
 	local_id = 1
 	connection_status = "离线试玩 · 同行伙伴待命"
@@ -99,7 +180,7 @@ func offline() -> void:
 	_emit_state()
 
 func start_solo() -> void:
-	if mode != "offline":
+	if mode != "offline" or (steam != null and (steam.is_busy() or steam.lobby_id != 0)):
 		offline()
 	if model.state.phase == "results":
 		model.reset_lobby()
@@ -127,7 +208,11 @@ func send(action: String, payload: Dictionary = {}) -> void:
 
 func _physics_process(delta: float) -> void:
 	if mode == "client":
+		if _connect_deadline != 0 and Time.get_ticks_msec() > _connect_deadline:
+			_on_steam_failure("连接房主游戏传输超时，请检查 Steam/网络及测试包版本" if transport == "steam" else "连接超时，请检查 IP、UDP 24567 和房主在线")
 		return
+	if transport == "steam":
+		steam.set_phase(str(model.state.phase))
 	model.tick(delta)
 	_snapshot_clock += delta
 	var phase_changed: bool = _last_phase != str(model.state.phase)
@@ -209,8 +294,9 @@ func _broadcast_snapshot(reliable_control: bool = false) -> void:
 		return
 	_stamp_snapshot()
 	for peer_id in multiplayer.get_peers():
-		var transport_peer := _peer.get_peer(peer_id)
-		if transport_peer == null or transport_peer.get_state() != ENetPacketPeer.STATE_CONNECTED:
+		var transport_peer = _peer.call("get_peer", peer_id)
+		var connected_state := ENetPacketPeer.STATE_CONNECTED if transport == "enet" else ClassDB.class_get_integer_constant("SteamPacketPeer", "STATE_CONNECTED")
+		if transport_peer == null or transport_peer.get_state() != connected_state:
 			continue
 		if reliable_control:
 			_snapshot_reliable.rpc_id(peer_id, model.state)
@@ -226,13 +312,19 @@ func _refused(message: String) -> void:
 func _on_peer_connected(peer_id: int) -> void:
 	if mode != "host":
 		return
+	if transport == "steam" and not steam.member_allowed(int(_peer.call("get_steam_id_for_peer_id", peer_id))):
+		_peer.disconnect_peer(peer_id)
+		return
 	if model.state.phase != "lobby" or model.state.players.size() >= 5:
 		_refused.rpc_id(peer_id, "本局已经开始或房间已满，请等待房主下一局")
 		await get_tree().create_timer(0.15).timeout
 		if mode == "host" and _peer != null:
 			_peer.disconnect_peer(peer_id)
 		return
-	model.add_player(peer_id, NAMES[mini(model.state.players.size(), 4)])
+	var display_name: String = NAMES[mini(model.state.players.size(), 4)]
+	if transport == "steam":
+		display_name = str(steam.api.getFriendPersonaName(int(_peer.call("get_steam_id_for_peer_id", peer_id)))).left(20)
+	model.add_player(peer_id, display_name)
 	_broadcast_snapshot(true)
 	_emit_state()
 
@@ -248,14 +340,18 @@ func _on_connected() -> void:
 	if mode != "client":
 		return
 	local_id = multiplayer.get_unique_id()
-	connection_status = "已加入房间 · 等待房主开始"
+	_connect_deadline = 0
+	connection_status = "Steam 传输已连接 · 等待房主开始" if transport == "steam" else "已加入房间 · 等待房主开始"
+	if transport == "steam":
+		print("STEAM_TRANSPORT_CONNECTED peer_id=", local_id)
 	_emit_state()
 
 func _on_connection_failed() -> void:
 	if mode != "client":
 		return
+	var was_steam := transport == "steam"
 	offline()
-	connection_status = "无法连接房间，请检查 IP、相同版本及 UDP 24567 防火墙"
+	connection_status = "Steam 传输连接失败，请检查房主在线、账号及相同测试包" if was_steam else "无法连接房间，请检查 IP、相同版本及 UDP 24567 防火墙"
 	notice.emit(connection_status)
 	_emit_state()
 

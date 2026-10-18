@@ -3,6 +3,7 @@
 *.import
 export.cfg
 export_credentials.cfg
+steam_appid.txt
 exports/
 build/
 addons/

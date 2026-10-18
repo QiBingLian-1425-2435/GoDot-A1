@@ -37,6 +37,7 @@ func _ready() -> void:
 	camera = view.camera
 	hud.action_requested.connect(_on_action)
 	session.notice.connect(_on_notice)
+	session.state_changed.connect(update_hud)
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--demo-preview" or arg == "--ui-smoke":
 			session.start_solo()
@@ -85,7 +86,7 @@ func _unhandled_key_input(event:InputEvent)->void:
 
 func update_hud()->void:
 	if hud!=null:
-		hud.update_view(session.model.state,session.local_id,session.mode,session.connection_status)
+		hud.update_view(session.model.state,session.local_id,session.mode,session.connection_status,session.network_status())
 
 func _on_notice(message:String)->void:
 	if hud!=null:
@@ -96,6 +97,10 @@ func _on_action(action:String,payload:Dictionary)->void:
 		"solo":
 			session.start_solo()
 		"host":
+			if session.preferred_transport == "steam":
+				session.host_steam()
+				update_hud()
+				return
 			var err:int=session.host()
 			if err==OK:
 				var ip:="127.0.0.1"
@@ -105,7 +110,20 @@ func _on_action(action:String,payload:Dictionary)->void:
 						break
 				session.connection_status="房间已开放 · "+ip+"\n等待同行者加入后，点击全员出发。"
 		"join":
-			session.join(hud.address.text)
+			if session.preferred_transport == "steam":
+				session.join_steam(hud.address.text)
+			else:
+				session.join(hud.address.text)
+		"transport":
+			if session.mode == "offline" and not session.steam.is_busy():
+				session.preferred_transport = str(payload.get("transport", "steam"))
+				hud.address.text = "" if session.preferred_transport == "steam" else "127.0.0.1"
+		"invite":
+			session.steam.invite_friends()
+		"copy_room":
+			if session.steam.lobby_id != 0:
+				DisplayServer.clipboard_set(str(session.steam.lobby_id))
+				hud.toast("Steam 房间号已复制")
 		"leave":
 			session.offline()
 		"help":

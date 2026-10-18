@@ -248,4 +248,4 @@ func update_corpses(state:Dictionary,focus:Vector2,restricted:bool)->void:
 
 func update_hud()->void:
 	if hud!=null:
-		hud.update_view(session.model.state,session.local_id,session.mode,session.connection_status)
+		hud.update_view(session.model.state,session.local_id,session.mode,session.connection_status,session.network_status())

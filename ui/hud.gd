@@ -51,6 +51,12 @@ var lobby_start: Button
 var result_start: Button
 var result_lobby: Button
 var detach_button: Button
+var transport_choice: OptionButton
+var host_button: Button
+var join_button: Button
+var invite_button: Button
+var copy_room_button: Button
+var shown_room_code := ""
 
 func _ready() -> void:
 	root=Control.new()
@@ -165,19 +171,29 @@ func build_sidebar()->void:
 	label(lobby,"站稳 4 秒，锁定你的全部收获。",Vector2(0,197),13,MUTED)
 	button(lobby,"点亮提灯 · 单人出发",Vector2(0,259),Vector2(286,52),"solo")
 	label(lobby,"含 AI 同伴  /  一局约 6 分钟",Vector2(28,321),12,MUTED)
-	button(lobby,"创建 2–5 人房间",Vector2(0,363),Vector2(286,46),"host")
+	transport_choice = OptionButton.new()
+	transport_choice.position = Vector2(0, 340)
+	transport_choice.size = Vector2(286, 34)
+	transport_choice.add_item("Steam 联机 · 测试 App ID 480")
+	transport_choice.add_item("ENet 局域网 · 开发验证")
+	transport_choice.item_selected.connect(func(index): action_requested.emit("transport", {"transport": "steam" if index == 0 else "enet"}))
+	lobby.add_child(transport_choice)
+	host_button = button(lobby,"创建 Steam 好友房间",Vector2(0,384),Vector2(286,42),"host")
 	address=LineEdit.new()
-	address.position=Vector2(0,423)
-	address.size=Vector2(187,44)
-	address.placeholder_text="房主局域网 IP"
-	address.text="127.0.0.1"
+	address.position=Vector2(0,437)
+	address.size=Vector2(187,42)
+	address.placeholder_text="Steam 房间号"
+	address.text=""
 	lobby.add_child(address)
-	button(lobby,"加入",Vector2(197,423),Vector2(89,44),"join")
-	lobby_start=button(lobby,"全员出发",Vector2(0,480),Vector2(182,42),"start")
-	button(lobby,"离开",Vector2(192,480),Vector2(94,42),"leave")
-	network_info=label(lobby,"外部群语音协作  ·  UDP 24567",Vector2(0,543),12,MUTED)
+	join_button = button(lobby,"加入",Vector2(197,437),Vector2(89,42),"join")
+	copy_room_button = button(lobby,"复制",Vector2(197,437),Vector2(89,42),"copy_room")
+	copy_room_button.tooltip_text = "一键复制 Steam 房间号"
+	invite_button = button(lobby,"邀请 Steam 好友",Vector2(0,489),Vector2(286,34),"invite")
+	lobby_start=button(lobby,"全员出发",Vector2(0,535),Vector2(182,38),"start")
+	button(lobby,"离开",Vector2(192,535),Vector2(94,38),"leave")
+	network_info=label(lobby,"Steam 测试模式 · App ID 480",Vector2(0,588),12,MUTED)
 	network_info.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	network_info.size=Vector2(286,80)
+	network_info.size=Vector2(286,60)
 	raid=Control.new()
 	raid.position=Vector2(22,100)
 	side.add_child(raid)
@@ -285,7 +301,7 @@ func build_modals()->void:
 	result_lobby=button(result,"返回准备",Vector2(405,536),Vector2(354,52),"lobby")
 	result.visible=false
 
-func update_view(snapshot:Dictionary,player_id:int,mode:String,connection:String)->void:
+func update_view(snapshot:Dictionary,player_id:int,mode:String,connection:String,network:Dictionary={})->void:
 	state=snapshot
 	local_id=player_id
 	var phase:String=state.get("phase","lobby")
@@ -294,7 +310,32 @@ func update_view(snapshot:Dictionary,player_id:int,mode:String,connection:String
 	var secs:=maxi(0,int(ceil(float(state.get("time_left",360)))))
 	time_label.text="%02d:%02d"%[secs/60,secs%60]
 	time_label.add_theme_color_override("font_color",DANGER if secs<60 else GOLD)
-	net_label.text="●  " + {"offline":"单人体验 · AI 同伴","host":"局域网房主","client":"局域网同行"}.get(mode,"准备中")
+	var is_steam: bool = network.get("transport", "steam") == "steam"
+	var busy: bool = network.get("busy", false)
+	transport_choice.select(0 if is_steam else 1)
+	transport_choice.disabled = mode != "offline" or busy
+	host_button.text = "创建 Steam 好友房间" if is_steam else "创建局域网房间"
+	host_button.disabled = mode != "offline" or busy
+	join_button.disabled = mode != "offline" or busy
+	address.editable = mode == "offline" and not busy
+	address.placeholder_text = "Steam 房间号" if is_steam else "房主局域网 IP"
+	invite_button.visible = is_steam
+	var room_code: String = str(network.get("lobby_id", "")) if is_steam else ""
+	var has_room_code := not room_code.is_empty()
+	copy_room_button.visible = has_room_code
+	join_button.visible = not has_room_code
+	address.add_theme_font_size_override("font_size", 14 if has_room_code else 17)
+	if has_room_code:
+		address.text = room_code
+		address.tooltip_text = "Steam 房间号 · 点击右侧复制后发给好友"
+	elif not shown_room_code.is_empty():
+		address.text = ""
+		address.tooltip_text = ""
+	shown_room_code = room_code
+	invite_button.disabled = mode != "host" or network.get("lobby_id", "").is_empty()
+	copy_room_button.disabled = network.get("lobby_id", "").is_empty()
+	var prefix := "Steam" if network.get("active", "offline") == "steam" else "局域网"
+	net_label.text="●  " + {"offline":"单人体验 · AI 同伴","host":prefix+"房主","client":prefix+"同行"}.get(mode,"准备中")
 	var living:=0
 	for p in players.values():
 		if p.get("status", "alive") in ["alive","downed"]:
@@ -307,7 +348,8 @@ func update_view(snapshot:Dictionary,player_id:int,mode:String,connection:String
 	var names:PackedStringArray=[]
 	for p in players.values():
 		names.append(p.get("name","旅人"))
-	network_info.text=connection+"\n旅人："+" / ".join(names)
+	var detail: String = str(network.get("steam_status", connection)) if is_steam and mode == "offline" else connection
+	network_info.text=detail+"\n旅人："+" / ".join(names)
 	lobby_start.disabled=mode=="client" or players.size()<2
 	lobby_start.text="等待房主出发" if mode=="client" else "全员出发"
 	result_start.disabled=mode=="client"

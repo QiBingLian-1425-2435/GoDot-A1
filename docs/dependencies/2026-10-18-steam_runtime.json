@@ -1,0 +1,31 @@
+{
+  "version": "4.23.1",
+  "godot_minimum": "4.4",
+  "tested_godot": "4.5.2",
+  "steamworks": "1.65",
+  "app_id": 480,
+  "url": "https://codeberg.org/godotsteam/godotsteam/releases/download/v4.23.1/godotsteam-4.23.1-gdextension-plugin-4.4.zip.tar.xz",
+  "archive_sha256": "37d53ede5eda11d2247d70c1af91f95a4777ad2a419fc8a24de1cc816d21cc0a",
+  "files": {
+    "godotsteam.gdextension": {
+      "bytes": 2073,
+      "sha256": "f02059cdf3199a97ab2abfb88ba226af500402f7f9053daa09c158d6b47eda77"
+    },
+    "win64/libgodotsteam.windows.template_debug.x86_64.dll": {
+      "bytes": 4325888,
+      "sha256": "2f94c4ef1142534f332d0cbb41ee597f67af6fb6498a110c3644984488ed28ce"
+    },
+    "win64/libgodotsteam.windows.template_release.x86_64.dll": {
+      "bytes": 3982336,
+      "sha256": "799e1917061854661ab53c8ef6d297366193ed495088b34f5e32a280fa4ef744"
+    },
+    "win64/steam_api64.dll": {
+      "bytes": 319128,
+      "sha256": "8de54d32508e216c9135b8bf025749243d44e404c1c22a8e5fe35acecabe7a9c"
+    },
+    "license.md": {
+      "bytes": 1110,
+      "sha256": "4b72012dba000de1e0b4c0183e5ed99f4fe8e949f50e570442f692ce3995bae2"
+    }
+  }
+}

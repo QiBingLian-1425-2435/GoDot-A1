@@ -31,13 +31,13 @@ func click_button(text:String)->void:
 	var point:Vector2=b.get_global_rect().get_center()
 	var motion:=InputEventMouseMotion.new()
 	motion.position=point
-	Input.parse_input_event(motion)
+	root.push_input(motion, true) # Coordinates above are already viewport-local, independent of window stretch.
 	for pressed in [true,false]:
 		var e:=InputEventMouseButton.new()
 		e.position=point
 		e.button_index=MOUSE_BUTTON_LEFT
 		e.pressed=pressed
-		Input.parse_input_event(e)
+		root.push_input(e, true)
 		await process_frame
 
 func find_buttons(node:Node,text:String,out:Array)->void:
