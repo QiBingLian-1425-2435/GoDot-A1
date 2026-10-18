@@ -10,6 +10,14 @@ var phase := 0.0
 var hit_flash := 0.0
 var is_monster := false
 var previous_hp := 100.0
+var model: Node3D
+var facing_yaw := 0.0
+var initialized := false
+var display_velocity := Vector3.ZERO
+var previous_state := "alive"
+var previous_bag_count := 0
+var action_serial := 0
+var was_extracting := false
 
 func setup(texture_path: String, tint: Color, title: String, monster := false) -> void:
 	is_monster = monster
@@ -41,6 +49,17 @@ func setup(texture_path: String, tint: Color, title: String, monster := false) -
 	marker.material_override = mat
 	marker.position.y = 0.105
 	add_child(marker)
+	if not monster:
+		model = preload("res://features/player/visuals/rigged_survivor.tscn").instantiate()
+		model.hooded = texture_path.ends_with("companion.png")
+		add_child(model)
+		model.set_accent(tint)
+	else:
+		_create_sprite(texture_path, monster)
+	_create_tag(title)
+	last_pos = position
+
+func _create_sprite(texture_path: String, monster: bool) -> void:
 	sprite = Sprite3D.new()
 	if ResourceLoader.exists(texture_path):
 		sprite.texture = load(texture_path)
@@ -59,6 +78,8 @@ func setup(texture_path: String, tint: Color, title: String, monster := false) -
 	sprite.shaded = false
 	sprite.no_depth_test = false
 	add_child(sprite)
+
+func _create_tag(title: String) -> void:
 	tag = Label3D.new()
 	tag.text = title
 	tag.font_size = 22
@@ -74,12 +95,19 @@ func setup(texture_path: String, tint: Color, title: String, monster := false) -
 func update_actor(data: Dictionary, delta: float, local := false) -> void:
 	var p: Vector2 = data.get("pos", Vector2.ZERO)
 	var target := Vector3(p.x, 0.05, p.y)
-	if last_pos == Vector3.ZERO:
+	if not initialized:
 		position = target
+		last_pos = target
+		initialized = true
 	var speed := position.distance_to(target)
+	var before := position
 	position = position.lerp(target, minf(1.0, delta * 16.0))
+	display_velocity = (position - before) / maxf(delta, 0.0001)
 	phase += delta * (11.0 if speed > 0.035 else 2.0)
 	var state: String = data.get("status", "alive")
+	if model != null:
+		_update_model(data, state, delta, local, target)
+		return
 	var bob := absf(sin(phase)) * 0.095 if speed > 0.035 else sin(phase) * 0.025
 	if is_monster:
 		bob = sin(phase * 0.7) * 0.13
@@ -118,4 +146,48 @@ func update_actor(data: Dictionary, delta: float, local := false) -> void:
 	else:
 		tag.text = data.get("name", "旅人") + (" · 你" if local else "")
 		tag.modulate = base_color
+	last_pos = target
+
+func _update_model(data: Dictionary, state: String, delta: float, local: bool, target: Vector3) -> void:
+	var look: Vector2 = data.get("look", Vector2.RIGHT)
+	if look.length_squared() > 0.001:
+		facing_yaw = rotate_toward(facing_yaw, atan2(-look.x, -look.y), delta * 12.0)
+	model.rotation.y = facing_yaw
+	var motion := display_velocity
+	# Snapshot interpolation drives display only; no second motor or collision body.
+	if not data.get("moving", false) or state != "alive":
+		motion = Vector3.ZERO
+	motion = motion.limit_length(3.5)
+	var hp: float = data.get("hp", 100.0)
+	var bag_count: int = data.get("bag", []).size()
+	var extracting: bool = float(data.get("extract_progress", 0.0)) > 0.0
+	var action: StringName = &""
+	var duration := 0.0
+	if previous_state == "downed" and state == "alive":
+		action = &"get_up"
+		duration = 1.2
+	elif hp < previous_hp and state == "alive":
+		action = &"hit"
+		duration = 0.32
+	elif bag_count != previous_bag_count and state == "alive":
+		action = &"pickup" if bag_count > previous_bag_count else &"drop"
+		duration = 0.85 if bag_count > previous_bag_count else 0.65
+	elif extracting and not was_extracting:
+		action = &"extract"
+		duration = 4.0
+	elif was_extracting and not extracting:
+		model.set_action_state(&"", action_serial, 0.0)
+	if action != &"":
+		action_serial += 1
+		model.set_action_state(action, action_serial, duration)
+	previous_hp = hp
+	previous_state = state
+	previous_bag_count = bag_count
+	was_extracting = extracting
+	model.update_pose(Basis(Vector3.UP, -facing_yaw) * motion, &"walk",
+		&"downed" if state == "downed" else &"active", delta)
+	marker.visible = state not in ["dead", "extracted"]
+	marker.scale = Vector3.ONE * (1.15 if local else 0.86)
+	tag.text = data.get("name", "旅人") + (" · 等待救援" if state == "downed" else (" · 你" if local else ""))
+	tag.modulate = Color("f3a582") if state == "downed" else base_color
 	last_pos = target

@@ -1,0 +1,40 @@
+{
+  "source": "E:/code/Game1/modules/character_3d/assets/kaykit",
+  "files": [
+    {
+      "path": "characters/kaykit/LICENSE.txt",
+      "bytes": 891,
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+    },
+    {
+      "path": "characters/kaykit/provenance.json",
+      "bytes": 1526,
+      "sha256": "f870a737d4fc7df4d0735a5746130ff19e0732f43742bac0e713284be2ee7c0a"
+    },
+    {
+      "path": "characters/kaykit/Rogue_Hooded_rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "path": "characters/kaykit/Rogue_Hooded.glb",
+      "bytes": 3597652,
+      "sha256": "93e6e25213009952276d9cf34f5d96a243767334c66f280db0433ddfabb91545"
+    },
+    {
+      "path": "characters/kaykit/Rogue_rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "path": "characters/kaykit/rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "path": "characters/kaykit/Rogue.glb",
+      "bytes": 3616284,
+      "sha256": "e825437cd4d2ee9c1960b517a74a69101e33eb409ae7fa8cedc7134a998fbb7d"
+    }
+  ]
+}

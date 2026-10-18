@@ -1,0 +1,42 @@
+{
+  "author": "Kay Lousberg",
+  "pack": "KayKit - Character Pack: Adventurers 1.0",
+  "source": "https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0",
+  "upstream_commit": "672074b73ba276876a19e8816ecdc5241817ab47",
+  "retrieved_on": "2026-10-18",
+  "license": "CC0 1.0 Universal",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "modifications": "Source binaries unchanged. Visual adapter scales, rotates, hides demo weapons, duplicates animation resources and applies own shaders at runtime.",
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "bytes": 891,
+      "sha256": "ae322141814056dda0deea7540d74c41d87aee1da319977cd1bd84ee5a923629"
+    },
+    {
+      "file": "Rogue_Hooded_rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "file": "Rogue_Hooded.glb",
+      "bytes": 3597652,
+      "sha256": "93e6e25213009952276d9cf34f5d96a243767334c66f280db0433ddfabb91545"
+    },
+    {
+      "file": "Rogue_rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "file": "rogue_texture.png",
+      "bytes": 16670,
+      "sha256": "a4032e877c3b91939f5cdbb630349c1998fdbc3211bbd587c111125500fe4cc5"
+    },
+    {
+      "file": "Rogue.glb",
+      "bytes": 3616284,
+      "sha256": "e825437cd4d2ee9c1960b517a74a69101e33eb409ae7fa8cedc7134a998fbb7d"
+    }
+  ]
+}
