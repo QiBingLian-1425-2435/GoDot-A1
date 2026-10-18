@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="雾灯旅店 · The Lantern Below"
+run/main_scene="res://app/main.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+
+[autoload]
+
+_mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=1000
+window/size/window_width_override=1440
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_3d=2
+environment/defaults/default_clear_color=Color(0.06, 0.12, 0.17, 1)

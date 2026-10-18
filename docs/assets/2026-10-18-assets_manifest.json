@@ -1,0 +1,55 @@
+{
+  "source": "assets",
+  "files": [
+    {
+      "path": "audio/ambient.wav",
+      "bytes": 1058444,
+      "sha256": "335B5879B815C1867CCD198B430B9BB74415AC494C3482AAF1006F7EBEAF0340"
+    },
+    {
+      "path": "audio/danger.wav",
+      "bytes": 48554,
+      "sha256": "7C870301D3030746A64862DD90037329244DA97055503341118F538F3FE29716"
+    },
+    {
+      "path": "audio/down.wav",
+      "bytes": 41940,
+      "sha256": "0CEA22675ADBBC244E458DB6785F35BB2F881D61E9AFCA91875C44F948DD1BB4"
+    },
+    {
+      "path": "audio/extract.wav",
+      "bytes": 72808,
+      "sha256": "A9E6213C83577C7216C618D6454C0EBF8A22A6ECAC041C9EA322DA026B428DA6"
+    },
+    {
+      "path": "audio/pickup.wav",
+      "bytes": 28708,
+      "sha256": "DCAB53992D81B8565E11D24EDC3EA44926572EFE980790B83DD566FE43E19026"
+    },
+    {
+      "path": "audio/rescue.wav",
+      "bytes": 50758,
+      "sha256": "01288FDB1167F1C33B9E86C0BF05299FDF8753786E23002368312F013F568539"
+    },
+    {
+      "path": "audio/step.wav",
+      "bytes": 7100,
+      "sha256": "C7F8F01A9D40A9ABE79EBE3415D1C01FCA27ADFBD58651D01210A62C20BE598B"
+    },
+    {
+      "path": "characters/companion.png",
+      "bytes": 1595212,
+      "sha256": "30673C440C96E15D4A1AD4F3EC1F97F415089F961AE6C904CF50A5F8BF0631F4"
+    },
+    {
+      "path": "characters/hero.png",
+      "bytes": 1269411,
+      "sha256": "362820802A84024A4B1C403048115E7CCDA38668F08DC8A4ED09E5A8EF1B6144"
+    },
+    {
+      "path": "characters/monster.png",
+      "bytes": 1207306,
+      "sha256": "9914C552524639A348FF4FA75D94F380E1036E62E250C48E95D56757B2BB7DE8"
+    }
+  ]
+}
