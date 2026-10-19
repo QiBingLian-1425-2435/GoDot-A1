@@ -82,6 +82,9 @@ func _ready()->void:
 	var tracer_mat:=StandardMaterial3D.new()
 	tracer_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
 	tracer_mat.albedo_color=Color("ffd997")
+	tracer_mat.emission_enabled=true
+	tracer_mat.emission=Color("ffd997")
+	tracer_mat.emission_energy_multiplier=1.2
 	tracer_mat.vertex_color_use_as_albedo=true
 	tracer_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
 	tracer_node.material_override=tracer_mat

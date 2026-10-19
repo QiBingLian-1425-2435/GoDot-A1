@@ -1,4 +1,5 @@
 extends RefCounted
+const ShotFeedback = preload("res://features/combat/shot_feedback.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _setup_environment(ctx)->void:
@@ -39,6 +40,10 @@ static func _update_camera(ctx, delta:float)->void:
 	ctx.camera_focus=ctx.camera_focus.lerp(target,minf(1,delta*6))
 	ctx.camera.position=ctx.camera_focus+Vector3(15,23,21)
 	ctx.camera.look_at(ctx.camera_focus)
+	var feedback = ctx.get_node_or_null("ShotFeedback")
+	if feedback != null:
+		var time := float(Time.get_ticks_msec())*.001
+		ctx.camera.position += ctx.camera.basis.x*sin(time*83.0)*feedback.kick + ctx.camera.basis.y*cos(time*67.0)*feedback.kick*.6
 	ctx.camera.size=lerpf(ctx.camera.size,ctx.camera_zoom,minf(1,delta*8))
 
 static func _update_actors(ctx, delta:float)->void:
@@ -59,7 +64,8 @@ static func _update_actors(ctx, delta:float)->void:
 		if ctx.session.mode=="client":display=ctx.session.motion_buffer.sample_player(id,players[id])
 		ctx.actors[id].update_actor(display,delta,id==ctx.session.local_id)
 		var shots:int=players[id].get("shots",0)
-		if shots>int(ctx.last_shots.get(id,shots)):ctx.sound.play("fire")
+		if shots>int(ctx.last_shots.get(id,shots)):
+			ctx.sound.play("pistol" if players[id].equipment.weapon.get("kind","")=="pistol" else "fire")
 		ctx.last_shots[id]=shots
 	var targets:Array=ctx.session.model.state.get("targets",[])
 	if ctx.world.has_method("update_targets"):ctx.world.update_targets(targets)
@@ -112,6 +118,11 @@ static func _update_drops(ctx)->void:
 
 static func _update_tracers(ctx)->void:
 	ctx.tracer_mesh.clear_surfaces()
+	var feedback = ctx.get_node_or_null("ShotFeedback")
+	if feedback == null:
+		feedback = ShotFeedback.new()
+		feedback.name = "ShotFeedback"; feedback.context = ctx
+		ctx.add_child(feedback)
 	var shots:Array=ctx.session.model.state.get("shots",[])
 	if shots.is_empty():return
 	var started:=false
@@ -119,28 +130,34 @@ static func _update_tracers(ctx)->void:
 		# Draw a moving streak, never a full ray frozen at the old firing position.
 		# The hit point stays authoritative; actor motion cannot drag it through walls.
 		var age:float=maxf(0.0,0.16-float(shot.ttl)+ctx.session.snapshot_age())
+		feedback.observe(shot,age)
+		var rifle:bool=shot.get("weapon","rifle")!="pistol"
+		var length:float=3.8 if rifle else 2.6
 		var origin:Vector2=shot.from
 		var end:Vector2=shot.to
 		var distance:float=origin.distance_to(end)
 		if distance<=0.01:continue
 		var direction:Vector2=(end-origin)/distance
 		var muzzle:float=minf(0.7,distance)
-		var travel:float=(distance-muzzle)/220.0
-		var lifetime:float=minf(0.16,travel+0.025)
+		var travel:float=(distance-muzzle)/140.0
+		var lifetime:float=minf(0.16,travel+0.055)
 		if age>=lifetime:continue
-		var head:float=minf(distance,muzzle+age*220.0+1.8)
-		var tail:float=maxf(muzzle,head-1.8)
+		var head:float=minf(distance,muzzle+age*140.0+length)
+		var tail:float=maxf(muzzle,head-length)
 		if head-tail<=0.01:continue
 		if not started:
-			ctx.tracer_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+			ctx.tracer_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
 			started=true
-		var alpha:float=clampf((lifetime-age)/0.025,0.0,1.0)
+		var alpha:float=clampf((lifetime-age)/0.055,0.0,1.0)
 		var start:Vector2=origin+direction*tail
 		var finish:Vector2=origin+direction*head
-		ctx.tracer_mesh.surface_set_color(Color(1,1,1,alpha*0.3))
-		ctx.tracer_mesh.surface_add_vertex(Vector3(start.x,0.9,start.y))
-		ctx.tracer_mesh.surface_set_color(Color(1,1,1,alpha))
-		ctx.tracer_mesh.surface_add_vertex(Vector3(finish.x,0.9,finish.y))
+		var a:=Vector3(start.x,0.9,start.y)
+		var b:=Vector3(finish.x,0.9,finish.y)
+		var side:Vector3=(b-a).normalized().cross(ctx.camera.global_basis.z).normalized()*(0.045 if rifle else 0.028)
+		var color:=Color(1.0,.95,.70,alpha) if rifle else Color(1.0,.70,.35,alpha*.8)
+		for vertex in [a-side,a+side,b+side,a-side,b+side,b-side]:
+			ctx.tracer_mesh.surface_set_color(color)
+			ctx.tracer_mesh.surface_add_vertex(vertex)
 	if started:ctx.tracer_mesh.surface_end()
 
 static func _capture(ctx)->void:
