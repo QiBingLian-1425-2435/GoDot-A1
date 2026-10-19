@@ -7,7 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
-    'fast': [('ammo_supply_test', True, []), ('movement_smoothing_test', True, []), ('duckov_model_test', True, []), ('duckov_animation_model_test', True, []),
+    'fast': [('tracer_view_test', True, []), ('ammo_supply_test', True, []), ('movement_smoothing_test', True, []), ('duckov_model_test', True, []), ('duckov_animation_model_test', True, []),
              ('duckov_actor_animation_test', True, []), ('migration_contract_test', True, []),
              ('steam_service_test', True, []), ('steam_main_integration_test', True, [])],
     'network': [('ammo_supply_network_test', True, []), ('movement_scene_network_test', True, []), ('duckov_network_test', True, []), ('duckov_network_test', True, ['--host-loss']),

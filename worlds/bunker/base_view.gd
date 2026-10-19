@@ -116,14 +116,31 @@ static func _update_tracers(ctx)->void:
 	if shots.is_empty():return
 	var started:=false
 	for shot in shots:
-		if float(shot.ttl)<=ctx.session.snapshot_age():continue
+		# Draw a moving streak, never a full ray frozen at the old firing position.
+		# The hit point stays authoritative; actor motion cannot drag it through walls.
+		var age:float=maxf(0.0,0.16-float(shot.ttl)+ctx.session.snapshot_age())
+		var origin:Vector2=shot.from
+		var end:Vector2=shot.to
+		var distance:float=origin.distance_to(end)
+		if distance<=0.01:continue
+		var direction:Vector2=(end-origin)/distance
+		var muzzle:float=minf(0.7,distance)
+		var travel:float=(distance-muzzle)/220.0
+		var lifetime:float=minf(0.16,travel+0.025)
+		if age>=lifetime:continue
+		var head:float=minf(distance,muzzle+age*220.0+1.8)
+		var tail:float=maxf(muzzle,head-1.8)
+		if head-tail<=0.01:continue
 		if not started:
 			ctx.tracer_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 			started=true
-		var start:Vector2=shot.from
-		var end:Vector2=shot.to
+		var alpha:float=clampf((lifetime-age)/0.025,0.0,1.0)
+		var start:Vector2=origin+direction*tail
+		var finish:Vector2=origin+direction*head
+		ctx.tracer_mesh.surface_set_color(Color(1,1,1,alpha*0.3))
 		ctx.tracer_mesh.surface_add_vertex(Vector3(start.x,0.9,start.y))
-		ctx.tracer_mesh.surface_add_vertex(Vector3(end.x,0.9,end.y))
+		ctx.tracer_mesh.surface_set_color(Color(1,1,1,alpha))
+		ctx.tracer_mesh.surface_add_vertex(Vector3(finish.x,0.9,finish.y))
 	if started:ctx.tracer_mesh.surface_end()
 
 static func _capture(ctx)->void:
