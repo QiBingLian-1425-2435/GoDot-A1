@@ -53,6 +53,14 @@ func run() -> void:
 	for station in game.world.interactions():
 		if station.kind == "range": range_pos = station.pos
 	var p: Dictionary = game.session.model.state.players[1]
+	var original_bag: Array = p.bag.duplicate(true)
+	p.pos = Vector2(7.2,2.7)
+	game._update_interaction()
+	check(game.nearest.get("kind","") == "ammo_supply","actual ammo box is selected for interaction")
+	game._interact()
+	check(game.session.model._count(p.bag,"ammo") == 120,"world interaction grants authoritative reserve")
+	p.bag = original_bag
+	game.session.model._update_weight(p)
 	check(game.session.model._free(range_pos),"range firing origin is collision-free")
 	p.pos = range_pos
 	for target in game.session.model.state.targets:

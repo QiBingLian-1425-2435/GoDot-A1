@@ -99,6 +99,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			return true
 		"craft": return _craft(p)
 		"buy_ammo": return _buy_ammo(p)
+		"resupply_ammo": return Facilities.resupply_ammo(self,p)
 		"train", "reset_targets":
 			if not _near(p, "range"): return _reject("靠近靶场控制台重置训练靶")
 			for target in state.targets: target.hp = int(target.get("max_hp",100)); target.hits = 0

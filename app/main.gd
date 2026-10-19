@@ -306,6 +306,7 @@ func _interact()->void:
 		"workbench":session.send("craft")
 		"trader","merchant":session.send("buy_ammo")
 		"range":session.send("reset_targets")
+		"ammo_supply":session.send("resupply_ammo")
 		"exit":
 			station_dialog.dialog_text="基地出口\n\n本版本开放地下基地、物资整理和联机训练。\n野外地图与任务战役尚未开放。\n\n可前往东南侧靶场试射，或邀请队友进入基地。"
 			station_dialog.popup_centered()

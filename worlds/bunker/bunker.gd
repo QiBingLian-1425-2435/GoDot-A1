@@ -15,6 +15,7 @@ var _points: Array = [
 	{"id":"medical","title":"医疗站 · 治疗","pos":Vector2(-10,-5.2),"kind":"medical"},
 	{"id":"exit","title":"地下出口 · 准备出发","pos":Vector2(0,-8.2),"kind":"exit"},
 	{"id":"range","title":"训练场 · 重置全部训练靶","pos":Vector2(9,4.2),"kind":"range"},
+	{"id":"ammo_supply","title":"弹药补给箱 · 免费补至120发备用弹，R装填","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
 	{"id":"trader","title":"商人 · 60币购买30发训练弹","pos":Vector2(-5,-2.6),"kind":"trader"}
 ]
 var target_nodes: Dictionary = {}
@@ -292,6 +293,7 @@ func _build_range() -> void:
 	G.box(self,Vector3(7.2,1.06,2.7),Vector3(.81,.30,.55),Color("68744f"),.2)
 	G.box(self,Vector3(7.2,1.23,2.7),Vector3(.86,.065,.59),Color("829067"),.2)
 	G.text(self,"AMMO",Vector3(7.2,1.05,3.0),22,Color("cec8a1"))
+	G.text(self,"弹药补给 · E 免费领取",Vector3(7.2,1.65,2.7),22,YELLOW)
 	for i in range(22):
 		var x := 8.0+fmod(i*1.79,4.8)
 		var z := 5.5+fmod(i*.63,1.8)
