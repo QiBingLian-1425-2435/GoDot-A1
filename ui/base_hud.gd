@@ -1,0 +1,556 @@
+extends CanvasLayer
+
+const InventoryPanel = preload("res://ui/inventory/inventory_panel.gd")
+const MenuScreen = preload("res://ui/menu/menu_screen.gd")
+const SteamPanel = preload("res://ui/network/steam_panel.gd")
+
+signal action_requested(action: String, payload: Dictionary)
+
+const Items = preload("res://features/inventory/item_catalog.gd")
+const Slot = preload("res://ui/widgets/item_slot.gd")
+const Portrait = preload("res://ui/widgets/base_portrait.gd")
+const INK := Color("e8ecdd")
+const MUTED := Color("a8b7b2")
+const GOLD := Color("f1d38b")
+const TEAL := Color("5d9ba4")
+const GREEN := Color("679b6e")
+const PANEL := Color(0.10, 0.15, 0.17, 0.97)
+
+var _root: Control
+var _menu: Control
+var _menu_buttons: Control
+var _press_screen: Button
+var _hud: Control
+var _inventory: Control
+var _dialog: Control
+var _pause_panel: Control
+var _pause_shade: ColorRect
+var _popup: PopupMenu
+var _context_data: Dictionary = {}
+var _bag_slots: Array = []
+var _stash_slots: Array = []
+var _equip_slots: Dictionary = {}
+var _quick_slots: Array = []
+var _bars: Dictionary = {}
+var _stat_labels: Dictionary = {}
+var _inventory_stats: Dictionary = {}
+var _state: Dictionary = {}
+var _local_id := 1
+var _mode := "solo"
+var _status := ""
+var _menu_revealed := false
+var _in_game := false
+var _stash_access := true
+var _dialog_kind := ""
+var _font: SystemFont
+var _bold_font: SystemFont
+var _interaction: Label
+var _toast_label: Label
+var _toast_timer := 0.0
+var _network_label: Label
+var _ammo_label: Label
+var _reload_label: Label
+var _inventory_weight: Label
+var _stash_note: Label
+var _player_name: Label
+var _credits_label: Label
+var _details_name: Label
+var _details_text: Label
+var _portrait: Control
+var _join_address: LineEdit
+var _port_input: LineEdit
+var _connection_text: Label
+var _help_panel: Control
+var _menu_title: Control
+var _reticle: Control
+var _connection_dispatched := false
+var _steam_info: Dictionary = {"available":false,"initialized":false,"status":"正在检查 Steam…","persona":"","app_id":480,"lobby_id":"","transport":"offline","pending":false,"scanning":false,"lobbies":[]}
+var _steam_status: Label
+var _steam_persona: Label
+var _steam_connect_button: Button
+var _steam_host_button: Button
+var _steam_join_button: Button
+var _steam_refresh_button: Button
+var _steam_back_button: Button
+var _steam_ip_button: Button
+var _steam_lobby_input: LineEdit
+var _steam_lobby_list: VBoxContainer
+var _steam_empty_label: Label
+var _steam_lobbies_shown: Array = []
+var _steam_lobby_buttons: Array[Button] = []
+var _steam_room_label: Label
+var _steam_invite_button: Button
+var _steam_copy_button: Button
+
+func _ready() -> void:
+	layer = 20
+	_font = SystemFont.new()
+	_font.font_names = PackedStringArray(["Microsoft YaHei", "Noto Sans CJK SC", "Arial"])
+	_bold_font = SystemFont.new()
+	_bold_font.font_names = _font.font_names
+	_bold_font.font_weight = 700
+	_root = Control.new()
+	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_root)
+	var theme := Theme.new()
+	theme.default_font = _font
+	theme.default_font_size = 20
+	theme.set_color("font_color", "Label", INK)
+	_root.theme = theme
+	_build_menu()
+	_build_hud()
+	_build_inventory()
+	_build_popup()
+	_build_pause()
+	_toast_label = _label(_root, "", Rect2(350, 125, 900, 46), 20, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
+	_toast_label.add_theme_stylebox_override("normal", _style(Color(0.07, 0.12, 0.14, 0.92), Color("667d78"), 8, 1))
+	_toast_label.visible = false
+	show_menu()
+
+func _process(delta: float) -> void:
+	if _toast_timer > 0.0:
+		_toast_timer -= delta
+		_toast_label.visible = _toast_timer > 0.0
+	if _press_screen and _press_screen.visible:
+		_press_screen.modulate.a = 0.65 + sin(Time.get_ticks_msec() * 0.0025) * 0.25
+
+func _input(event: InputEvent) -> void:
+	if not _in_game:
+		if _press_screen.visible:
+			if (event is InputEventKey and event.pressed and not event.echo) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
+				_reveal_menu()
+				get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE and is_instance_valid(_dialog):
+			_dialog_close_pressed()
+			get_viewport().set_input_as_handled()
+
+func show_menu() -> void:
+	_in_game = false
+	_menu.visible = true
+	_hud.visible = false
+	_inventory.visible = false
+	_pause_panel.visible = false
+	_pause_shade.visible = false
+	_close_dialog()
+	_popup.hide()
+	_menu_buttons.visible = _menu_revealed
+	_press_screen.visible = not _menu_revealed
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func show_game() -> void:
+	_in_game = true
+	_menu_revealed = true
+	_menu.visible = false
+	_hud.visible = true
+	_inventory.visible = false
+	_pause_panel.visible = false
+	_pause_shade.visible = false
+	_close_dialog()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func toggle_inventory(force_open: bool = false) -> void:
+	if not _in_game:
+		return
+	_inventory.visible = true if force_open else not _inventory.visible
+	_hud.visible = not _inventory.visible
+	_pause_panel.visible = false
+	_pause_shade.visible = false
+	_popup.hide()
+	if _inventory.visible:
+		_close_dialog()
+		_update_inventory()
+
+func close_inventory() -> void:
+	_inventory.visible = false
+	_hud.visible = _in_game
+	_popup.hide()
+	if _dialog:
+		_close_dialog()
+	_pause_panel.visible = false
+	_pause_shade.visible = false
+
+func is_blocking() -> bool:
+	return not _in_game or _inventory.visible or _pause_panel.visible or is_instance_valid(_dialog)
+
+func inventory_is_open() -> bool:
+	return _inventory.visible
+
+func toggle_pause() -> void:
+	if not _in_game:
+		return
+	if _inventory.visible or is_instance_valid(_dialog):
+		close_inventory()
+		return
+	_pause_panel.visible = not _pause_panel.visible
+	_pause_shade.visible = _pause_panel.visible
+
+func set_stash_access(value: bool) -> void:
+	_stash_access = value
+	if _inventory:
+		_stash_note.text = "安全区仓库 · 拖动存取物品" if value else "靠近基地仓库后可存取物品"
+		for slot in _stash_slots:
+			slot.locked = not value
+			slot.modulate.a = 1.0 if value else 0.4
+
+func update_state(state: Dictionary, local_id: int, mode: String, status: String) -> void:
+	_state = state
+	_local_id = local_id
+	_mode = mode
+	_status = status
+	if not is_instance_valid(_root):
+		return
+	var p := _player()
+	var player_count := _players().size()
+	var session_name := "单人基地"
+	if mode == "host":
+		session_name = "房主 · %d 人在线" % player_count
+	elif mode == "client" or mode == "join":
+		session_name = "队员 · %d 人在线" % player_count
+	_network_label.text = session_name + ("  |  " + status if not status.is_empty() else "")
+	if is_instance_valid(_connection_text):
+		_connection_text.text = status if not status.is_empty() else "正在连接基地…"
+	if p.is_empty():
+		return
+	for key in ["hp", "stamina", "hunger", "thirst"]:
+		var value := float(p.get(key, 100.0))
+		_bars[key].value = value
+		_stat_labels[key].text = "%d" % roundi(value)
+	_ammo_label.text = "%02d" % int(p.get("ammo", 0))
+	var reserve := 0
+	for item in p.get("bag", []):
+		if item.get("kind", "") == "ammo":
+			reserve += int(item.get("count", 1))
+	_reload_label.text = "装填中… %d%%" % int(float(p.get("reload_progress", 0.0)) * 100.0) if p.get("reloading", false) else "/  %03d     [R] 装填" % reserve
+	var bag: Array = p.get("bag", [])
+	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
+	for i in range(_quick_slots.size()):
+		var quick_item: Dictionary = {}
+		for item in bag:
+			if item.get("kind", "") == quick_kinds[i]:
+				quick_item = item
+				break
+		var weapon: Dictionary = p.get("equipment", {}).get("weapon", {})
+		if weapon.get("kind", "") == quick_kinds[i]:
+			quick_item = weapon
+		_quick_slots[i].set_item(quick_item, _definition(quick_item))
+	if _inventory.visible:
+		_update_inventory()
+
+func set_interaction(text: String) -> void:
+	if _interaction:
+		_interaction.text = text
+		_interaction.visible = not text.is_empty()
+
+func update_steam(info: Dictionary) -> void:
+	# IDs remain decimal strings throughout the UI; networking owns validation and joining.
+	_steam_info.merge(info, true)
+	_refresh_steam_controls()
+	_refresh_steam_room()
+
+func toast(text: String) -> void:
+	if _toast_label:
+		_toast_label.position = Vector2(490,52) if _inventory.visible else Vector2(350,125)
+		_toast_label.size = Vector2(760,44) if _inventory.visible else Vector2(900,46)
+		_toast_label.text = text
+		_toast_label.visible = true
+		_toast_timer = 3.8
+
+func _build_menu() -> void:
+	MenuScreen._build_menu(self)
+
+func _reveal_menu() -> void:
+	MenuScreen._reveal_menu(self)
+
+func _menu_button(text: String, index: int, color: Color, callback: Callable) -> Button:
+	return MenuScreen._menu_button(self, text, index, color, callback)
+
+func _build_hud() -> void:
+	_hud = _full_control(_root)
+	var top := _panel(_hud, Rect2(28,24,465,68), Color(0.05,0.11,0.14,0.76), Color(0.50,0.69,0.70,0.35), 10)
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label(top, "避 难 所", Rect2(18,7,210,29), 24, Color("f0e8c6"))
+	_label(top, "安全区域  ·  基地仓库 / 工作台 / 射击区", Rect2(18,39,440,21), 14, Color("b2c7c2"))
+	_network_label = _label(_hud, "单人基地", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
+	var hp_panel := _panel(_hud, Rect2(26,710,350,154), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
+	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label(hp_panel, "鸭鸭", Rect2(18,10,100,25), 21, INK)
+	_label(hp_panel, "生命体征", Rect2(202,13,130,23), 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	var keys := ["hp", "stamina", "hunger", "thirst"]
+	var names := ["生命", "耐力", "能量", "水分"]
+	var colors := [Color("cf8375"),Color("c3cb86"),Color("c9ab69"),Color("73b6c7")]
+	for i in range(keys.size()):
+		_label(hp_panel,names[i],Rect2(18,44+i*24,45,22),14,MUTED)
+		_bars[keys[i]] = _progress(hp_panel, Rect2(69,51+i*24,219,9), colors[i])
+		_stat_labels[keys[i]] = _label(hp_panel,"100",Rect2(295,43+i*24,38,22),14,INK,HORIZONTAL_ALIGNMENT_RIGHT)
+	for i in range(4):
+		var slot: Control = Slot.new()
+		slot.position = Vector2(620+i*75,791)
+		slot.size = Vector2(65,65)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.container_name = "bag"
+		slot.slot_index = i
+		_hud.add_child(slot)
+		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_quick_slots.append(slot)
+		_label(_hud,["1", "2", "4", "5"][i],Rect2(623+i*75,765,60,24),16,Color("d8dfc5"),HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_hud,"切换武器    /    医疗 · 饮水",Rect2(617,861,290,22),13,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	var ammo := _panel(_hud, Rect2(1300,760,268,103), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
+	ammo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label(ammo,"当前武器",Rect2(17,10,240,24),15,MUTED)
+	_ammo_label = _label(ammo,"00",Rect2(16,35,75,54),42,INK)
+	_reload_label = _label(ammo,"/  000     [R] 装填",Rect2(92,54,164,28),15,Color("c5cbbb"))
+	var guide := _panel(_hud,Rect2(635,68,930,34),Color(0.03,0.07,0.10,0.72),Color(0.35,0.5,0.55,0.2),6)
+	guide.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	_label(guide,"WASD 移动   Shift 冲刺   C 蹲行   右键 瞄准   Tab 背包   Esc 菜单",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
+	_interaction = _label(_hud,"",Rect2(400,645,800,44),23,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_interaction.add_theme_constant_override("outline_size",5)
+	_interaction.add_theme_color_override("font_outline_color",Color(0.06,0.1,0.12,0.9))
+
+func _build_inventory() -> void:
+	InventoryPanel._build_inventory(self)
+
+func _make_slot(parent: Control, container: String, index: int, pos: Vector2, slot_size: Vector2) -> Control:
+	return InventoryPanel._make_slot(self, parent, container, index, pos, slot_size)
+
+func _build_popup() -> void:
+	InventoryPanel._build_popup(self)
+
+func _slot_action(action: String, payload: Dictionary) -> void:
+	InventoryPanel._slot_action(self, action, payload)
+
+func _quick_transfer(payload: Dictionary) -> void:
+	InventoryPanel._quick_transfer(self, payload)
+
+func _context_selected(id: int) -> void:
+	InventoryPanel._context_selected(self, id)
+
+func _inspect(item: Dictionary) -> void:
+	InventoryPanel._inspect(self, item)
+
+func _update_inventory() -> void:
+	InventoryPanel._update_inventory(self)
+
+func _build_pause() -> void:
+	_pause_shade = _shade(_root,Color(0.02,0.04,0.06,0.66))
+	_pause_shade.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pause_panel = _panel(_root,Rect2(540,112,520,676),PANEL,Color("748f86"),16)
+	_label(_pause_panel,"基地菜单",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_pause_panel,"联机游戏不会暂停",Rect2(30,82,460,27),16,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_button(_pause_panel,"继续游戏",Rect2(65,124,390,54),toggle_pause,GREEN,23)
+	_button(_pause_panel,"保存存档",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
+	_button(_pause_panel,"操作指南",Rect2(65,250,390,48),_open_help,TEAL,21)
+	_button(_pause_panel,"设置",Rect2(65,310,390,48),_open_settings,TEAL,21)
+	_steam_room_label = _label(_pause_panel,"当前未使用 Steam 房间",Rect2(30,376,460,58),17,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_steam_room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_steam_invite_button = _button(_pause_panel,"邀请 Steam 好友",Rect2(65,444,390,48),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
+	_steam_copy_button = _button(_pause_panel,"复制房间号",Rect2(65,504,390,48),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
+	_button(_pause_panel,"返回开始画面",Rect2(65,588,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
+	_refresh_steam_room()
+
+func _open_steam() -> void:
+	SteamPanel._open_steam(self)
+
+func _steam_ready() -> bool:
+	return SteamPanel._steam_ready(self)
+
+func _refresh_steam_controls() -> void:
+	SteamPanel._refresh_steam_controls(self)
+
+func _rebuild_steam_lobbies(lobbies: Array) -> void:
+	SteamPanel._rebuild_steam_lobbies(self, lobbies)
+
+func _join_steam_input() -> void:
+	SteamPanel._join_steam_input(self)
+
+func _join_steam_lobby(lobby_id: String) -> void:
+	SteamPanel._join_steam_lobby(self, lobby_id)
+
+func _steam_input_error(message: String) -> void:
+	SteamPanel._steam_input_error(self, message)
+
+func _steam_action(action: String, payload: Dictionary = {}) -> void:
+	SteamPanel._steam_action(self, action, payload)
+
+func _refresh_steam_room() -> void:
+	SteamPanel._refresh_steam_room(self)
+
+func _open_network() -> void:
+	_dialog_panel("IP 直连",Vector2(680,600))
+	_label(_dialog,"同一个基地，一起做好出发准备。",Rect2(34,84,610,30),19,MUTED)
+	_label(_dialog,"服务器地址",Rect2(34,145,190,28),18,INK)
+	_join_address = _line_edit(_dialog,"127.0.0.1",Rect2(34,184,612,49))
+	_join_address.placeholder_text = "输入房主 IP，例如 192.168.1.20"
+	_label(_dialog,"端口",Rect2(34,252,180,28),18,INK)
+	_port_input = _line_edit(_dialog,"24567",Rect2(34,290,200,49))
+	_label(_dialog,"房主需允许防火墙访问；异地联机需路由映射或虚拟局域网。",Rect2(34,363,612,65),16,MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_button(_dialog,"创建基地",Rect2(34,454,292,60),func() -> void: _connect_action("host"),GREEN,24)
+	_button(_dialog,"加入基地",Rect2(346,454,300,60),func() -> void: _connect_action("join"),TEAL,24)
+	_label(_dialog,"房主保留本机进度；客机角色仅在本次房间内保留",Rect2(34,539,612,27),15,Color("90aaa2"),HORIZONTAL_ALIGNMENT_CENTER)
+
+func _connect_action(action: String) -> void:
+	var port_text := _port_input.text.strip_edges()
+	if not port_text.is_valid_int() or int(port_text) < 1024 or int(port_text) > 65535:
+		toast("端口应为 1024–65535 之间的数字")
+		return
+	var address := _join_address.text.strip_edges()
+	if action == "join" and address.is_empty():
+		toast("请输入房主 IP 地址")
+		return
+	var payload := {"port":int(port_text)}
+	if action == "join":
+		payload["address"] = address
+	_dialog_panel("正在连接基地",Vector2(600,340))
+	_dialog_kind = "connection"
+	_connection_dispatched = true
+	_connection_text = _label(_dialog,"正在创建基地…" if action == "host" else "正在连接 %s:%d…" % [address,int(port_text)],Rect2(34,104,532,86),21,INK,HORIZONTAL_ALIGNMENT_CENTER)
+	_connection_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_button(_dialog,"取消连接",Rect2(130,235,340,55),_cancel_connection,Color("617c7b"),22)
+	action_requested.emit(action,payload)
+
+func _cancel_connection() -> void:
+	action_requested.emit("menu",{})
+	show_menu()
+
+func _open_settings() -> void:
+	MenuScreen._open_settings(self)
+
+func _open_help() -> void:
+	MenuScreen._open_help(self)
+
+func _dialog_panel(title: String, dialog_size: Vector2) -> void:
+	_close_dialog()
+	var overlay := _full_control(_root,Control.MOUSE_FILTER_STOP)
+	overlay.name = "DialogOverlay"
+	_shade(overlay,Color(0.025,0.055,0.075,0.77))
+	_dialog = _panel(overlay,Rect2((Vector2(1600,900)-dialog_size)*0.5,dialog_size),Color("193239"),Color("72978e"),18)
+	_dialog.set_meta("overlay",overlay)
+	_label(_dialog,title,Rect2(32,22,dialog_size.x-105,50),31,GOLD)
+	_button(_dialog,"×",Rect2(dialog_size.x-68,20,44,44),_dialog_close_pressed,Color("506d70"),28,10)
+	_dialog_kind = title
+
+func _dialog_close_pressed() -> void:
+	if _dialog_kind == "connection":
+		_cancel_connection()
+	elif _dialog_kind == "steam" and bool(_steam_info.get("pending",false)):
+		action_requested.emit("steam_cancel",{})
+		_close_dialog()
+	else:
+		_close_dialog()
+
+func _close_dialog() -> void:
+	if is_instance_valid(_dialog):
+		var overlay: Node = _dialog.get_meta("overlay",null)
+		if is_instance_valid(overlay):
+			overlay.queue_free()
+		else:
+			_dialog.queue_free()
+	_dialog = null
+	_connection_text = null
+	_dialog_kind = ""
+
+func _players() -> Dictionary:
+	return _state.get("players",{})
+
+func _player() -> Dictionary:
+	var players := _players()
+	return players.get(_local_id,players.get(str(_local_id),{}))
+
+func _definition(item: Dictionary) -> Dictionary:
+	return {} if item.is_empty() else Items.definition(str(item.get("kind","")))
+
+func _full_control(parent: Node, filter: int = Control.MOUSE_FILTER_IGNORE) -> Control:
+	var control := Control.new()
+	control.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	control.mouse_filter = filter
+	parent.add_child(control)
+	return control
+
+func _label(parent: Node, text: String, rect: Rect2, font_size: int = 20, color: Color = INK, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.position = rect.position
+	label.size = rect.size
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = align
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size",font_size)
+	label.add_theme_color_override("font_color",color)
+	parent.add_child(label)
+	return label
+
+func _button(parent: Node, text: String, rect: Rect2, callback: Callable, color: Color = TEAL, font_size: int = 20, radius: int = 10) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.position = rect.position
+	button.size = rect.size
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	button.add_theme_font_size_override("font_size",font_size)
+	button.add_theme_color_override("font_color",Color("f5f4e4"))
+	button.add_theme_color_override("font_hover_color",Color.WHITE)
+	button.add_theme_color_override("font_pressed_color",Color("f5efcf"))
+	button.add_theme_stylebox_override("normal",_style(color,color.lightened(0.22),radius,1))
+	button.add_theme_stylebox_override("hover",_style(color.lightened(0.13),Color("e7eac9"),radius,2))
+	button.add_theme_stylebox_override("pressed",_style(color.darkened(0.2),color.lightened(0.35),radius,1))
+	button.add_theme_stylebox_override("focus",_style(Color.TRANSPARENT,Color("f7dca0"),radius,2))
+	button.pressed.connect(callback)
+	parent.add_child(button)
+	return button
+
+func _panel(parent: Node, rect: Rect2, bg: Color, border: Color, radius: int = 10) -> Panel:
+	var panel := Panel.new()
+	panel.position = rect.position
+	panel.size = rect.size
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.add_theme_stylebox_override("panel",_style(bg,border,radius,1))
+	parent.add_child(panel)
+	return panel
+
+func _style(bg: Color, border: Color, radius: int = 8, border_width: int = 1) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(border_width)
+	style.set_corner_radius_all(radius)
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	return style
+
+func _shade(parent: Node, color: Color) -> ColorRect:
+	var shade := ColorRect.new()
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	shade.color = color
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(shade)
+	return shade
+
+func _line(parent: Node, pos: Vector2, line_size: Vector2, color: Color = Color("465f59")) -> void:
+	var line := ColorRect.new()
+	line.position = pos
+	line.size = line_size
+	line.color = color
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(line)
+
+func _progress(parent: Node, rect: Rect2, color: Color) -> ProgressBar:
+	var bar := ProgressBar.new()
+	bar.position = rect.position
+	bar.size = rect.size
+	bar.show_percentage = false
+	bar.value = 100
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.add_theme_stylebox_override("background",_style(Color("283b3e"),Color.TRANSPARENT,3,0))
+	bar.add_theme_stylebox_override("fill",_style(color,Color.TRANSPARENT,3,0))
+	parent.add_child(bar)
+	return bar
+
+func _line_edit(parent: Node, text: String, rect: Rect2) -> LineEdit:
+	var edit := LineEdit.new()
+	edit.text = text
+	edit.position = rect.position
+	edit.size = rect.size
+	edit.add_theme_font_size_override("font_size",22)
+	edit.add_theme_stylebox_override("normal",_style(Color("0e262d"),Color("6a8981"),8,1))
+	edit.add_theme_stylebox_override("focus",_style(Color("132d32"),GOLD,8,2))
+	parent.add_child(edit)
+	return edit

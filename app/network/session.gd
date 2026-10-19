@@ -1,32 +1,35 @@
 extends Node
-## Keep this node at the identical /root/.../Session path on every peer.
-
+## Identical Session node path on all peers. Every item mutation runs only on host.
 signal state_changed()
 signal notice(text: String)
-
-const Model = preload("res://features/match/match_model.gd")
+const Model = preload("res://features/base/base_model.gd")
 const DEFAULT_PORT := 24567
-const NAMES := ["阿烬", "薇拉", "诺恩", "罗温", "艾琳"]
-
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","train","reset_targets"]
 var model = Model.new()
-var local_id: int = 1
-var mode: String = "offline"
-var connection_status: String = "离线试玩 · 同行伙伴待命"
+var local_id := 1
+var mode := "offline"
+var connection_status := "离线基地"
 var _peer: MultiplayerPeer
-var steam
-var preferred_transport := "steam"
 var transport := "offline"
-var _connect_deadline := 0
+var peer_validator: Callable
+var peer_name_provider: Callable
 var _snapshot_clock := 0.0
-var _last_event_id := 0
-var _last_phase := "lobby"
-var _rate_limits: Dictionary = {}
 var _snapshot_serial := 0
-var _received_snapshot_serial := -1
+var _received_serial := -1
+var _session_token := 0
+var _movement_seq := 0
+var _intent_seq := 0
+var _last_movement: Dictionary = {}
+var _last_intent: Dictionary = {}
+var _rate_limits: Dictionary = {}
+var _move_clock := 0.0
+var _move_pending: Dictionary = {}
+var _connect_elapsed := 0.0
+var _local_profile: Dictionary = {}
 
 func _init() -> void:
 	name = "Session"
-	model.add_player(1, NAMES[0])
+	model.add_player(1,"旅鸭")
 
 func _ready() -> void:
 	name = "Session"
@@ -35,339 +38,254 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	steam = preload("res://app/network/steam_lobby.gd").new()
-	steam.name = "SteamLobby"
-	add_child(steam)
-	steam.peer_ready.connect(_on_steam_peer)
-	steam.failed.connect(_on_steam_failure)
-	steam.changed.connect(func(): state_changed.emit())
-	steam.join_requested.connect(_on_steam_invite)
-	if DisplayServer.get_name() != "headless":
-		steam.prepare_if_running.call_deferred()
-
-func host_steam() -> Error:
-	if steam.is_busy():
-		return ERR_BUSY
-	offline()
-	preferred_transport = "steam"
-	var error: Error = steam.create_room()
-	connection_status = steam.status
-	_emit_state()
-	return error
-
-func join_steam(code: String) -> Error:
-	code = code.strip_edges()
-	if not code.is_valid_int() or code.length() > 20 or int(code) <= 0:
-		connection_status = "请输入有效的 Steam 房间号，或接受好友邀请"
-		notice.emit(connection_status)
-		return ERR_INVALID_PARAMETER
-	if steam.is_busy():
-		return ERR_BUSY
-	offline()
-	preferred_transport = "steam"
-	var error: Error = steam.join_room(int(code))
-	connection_status = steam.status
-	_emit_state()
-	return error
-
-func network_status() -> Dictionary:
-	return {"transport": preferred_transport, "active": transport,
-		"lobby_id": str(steam.lobby_id) if steam != null and steam.lobby_id != 0 else "",
-		"busy": steam != null and steam.is_busy(),
-		"steam_status": steam.status if steam != null else "",
-		"app_id": steam.app_id if steam != null else 480}
-
-func _on_steam_peer(peer: MultiplayerPeer, hosting: bool) -> void:
-	_peer = peer
-	transport = "steam"
-	preferred_transport = "steam"
-	mode = "host" if hosting else "client"
-	local_id = 1 if hosting else 0
-	connection_status = steam.status
-	if hosting:
-		model.state.players[1].name = str(steam.api.getPersonaName()).left(20)
-	else:
-		model.state.players.clear()
-		_received_snapshot_serial = -1
-		_connect_deadline = Time.get_ticks_msec() + 25000
-	multiplayer.multiplayer_peer = peer
-	multiplayer.server_relay = false
-	_emit_state()
-
-func _on_steam_failure(message: String) -> void:
-	offline()
-	connection_status = message
-	notice.emit(message)
-	_emit_state()
-
-func _on_steam_invite(lobby: int) -> void:
-	if model.state.phase != "lobby" or mode != "offline" or steam.is_busy():
-		notice.emit("请先离开当前房间，再接受 Steam 邀请")
-		return
-	join_steam(str(lobby))
 
 func host(port: int = DEFAULT_PORT) -> Error:
 	offline()
 	if port < 1024 or port > 65535:
-		connection_status = "端口需要在 1024–65535 之间"
+		connection_status = "端口需要在1024–65535之间"; notice.emit(connection_status)
 		return ERR_INVALID_PARAMETER
-	_peer = ENetMultiplayerPeer.new()
-	var error: Error = _peer.call("create_server", port, 4)
+	var enet := ENetMultiplayerPeer.new()
+	_peer = enet
+	var error := enet.create_server(port,4)
 	if error != OK:
+		_peer = null
 		connection_status = "建房失败：端口可能被占用（%s）" % error_string(error)
 		notice.emit(connection_status)
 		return error
 	multiplayer.multiplayer_peer = _peer
-	# All gameplay is host-authoritative; no peer-to-peer relaying is needed.
-	# Disabling relay also avoids transport sends to other peers exiting together.
 	multiplayer.server_relay = false
-	mode = "host"
-	transport = "enet"
-	local_id = 1
-	connection_status = "房间已开放 · UDP %d · 2–5 人" % port
-	_emit_state()
+	mode = "host"; transport = "enet"; local_id = 1; _session_token = randi_range(1,2147483647)
+	connection_status = "基地房间已开放 · UDP %d · 最多5人" % port
+	state_changed.emit()
 	return OK
 
 func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	offline()
 	address = address.strip_edges().left(253)
 	if address.is_empty() or port < 1024 or port > 65535:
-		connection_status = "请输入房主的局域网 IP 与有效端口"
+		connection_status = "请输入房主IP和有效端口"; notice.emit(connection_status)
 		return ERR_INVALID_PARAMETER
-	_peer = ENetMultiplayerPeer.new()
-	var error: Error = _peer.call("create_client", address, port)
+	var enet := ENetMultiplayerPeer.new()
+	_peer = enet
+	var error := enet.create_client(address,port)
 	if error != OK:
-		connection_status = "连接失败：%s" % error_string(error)
-		notice.emit(connection_status)
+		_peer = null
+		connection_status = "连接失败：%s" % error_string(error); notice.emit(connection_status)
 		return error
 	model.state.players.clear()
-	_last_event_id = 0
-	_received_snapshot_serial = -1
 	multiplayer.multiplayer_peer = _peer
-	mode = "client"
-	transport = "enet"
-	_connect_deadline = Time.get_ticks_msec() + 25000
-	local_id = 0
-	connection_status = "正在连接 %s:%d…" % [address, port]
-	_emit_state()
+	mode = "client"; transport = "enet"; local_id = 0; _connect_elapsed = 0.0
+	connection_status = "正在连接 %s:%d…" % [address,port]
+	state_changed.emit()
+	return OK
+
+func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = Callable(), names: Callable = Callable()) -> Error:
+	if peer == null or peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
+		return ERR_CANT_CONNECT
+	offline()
+	_peer = peer
+	peer_validator = validator
+	peer_name_provider = names
+	transport = "steam"
+	mode = "host" if as_host else "client"
+	local_id = 1 if as_host else 0
+	if as_host:
+		_session_token = randi_range(1,2147483647)
+	else:
+		model.state.players.clear()
+	multiplayer.multiplayer_peer = _peer
+	multiplayer.server_relay = false
+	connection_status = "Steam 好友基地已开放 · 最多5人" if as_host else "Steam P2P 连接中…"
+	state_changed.emit()
 	return OK
 
 func offline() -> void:
-	if is_inside_tree():
-		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
-	if _peer != null:
-		_peer.close()
-		_peer = null
-	if steam != null:
-		steam.close()
-	transport = "offline"
-	_connect_deadline = 0
-	mode = "offline"
-	local_id = 1
-	connection_status = "离线试玩 · 同行伙伴待命"
-	model.state.players.clear()
-	model.state.events.clear()
-	model.state.total_banked = 0
-	model.state.round = 0
-	model.reset_lobby()
-	model.add_player(1, NAMES[0])
-	_rate_limits.clear()
-	_snapshot_clock = 0.0
-	_snapshot_serial = 0
-	_received_snapshot_serial = -1
-	_last_event_id = 0
-	_last_phase = "lobby"
-	_emit_state()
+	if mode != "client" and model.state.players.has(local_id):
+		_local_profile = model.state.players[local_id].duplicate(true)
+	if is_inside_tree(): multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	if _peer != null: _peer.close(); _peer = null
+	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
+	peer_validator = Callable(); peer_name_provider = Callable()
+	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
+	model._inputs.clear()
+	model.add_player(1,"旅鸭")
+	if not _local_profile.is_empty():
+		model.state.players[1] = _local_profile.duplicate(true)
+		model.state.players[1].id = 1
+		model.state.players[1].pos = Vector2(-1,4)
+		model.state.players[1].reloading = false
+		model.state.players[1].fire_timer = 0.0
+	model.reset_transients(1)
+	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
+	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
+	_movement_seq = 0; _intent_seq = 0; _connect_elapsed = 0.0
+	state_changed.emit()
 
 func start_solo() -> void:
-	if mode != "offline" or (steam != null and (steam.is_busy() or steam.lobby_id != 0)):
-		offline()
-	if model.state.phase == "results":
-		model.reset_lobby()
-	if model.state.phase != "lobby":
-		return
-	if not model.state.players.has(2):
-		model.add_player(2, "薇拉", true)
-	model.start_round()
-	_emit_state()
+	if mode != "offline": offline()
+	connection_status = "离线基地 · 自动保存在本机"
+	state_changed.emit()
 
 func send(action: String, payload: Dictionary = {}) -> void:
+	var clean := _clean_payload(action,payload)
+	if action != "move" and not action in ACTIONS: return
+	if action == "move" and clean.is_empty(): return
 	if mode == "client":
-		if local_id == 0 or _peer == null or _peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-			return
+		if local_id == 0 or _session_token == 0 or _peer == null or _peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED: return
 		if action == "move":
-			var direction: Variant = payload.get("direction", Vector2.ZERO)
-			if direction is Vector2 and direction.is_finite():
-				_movement.rpc_id(1, direction.limit_length(1.0), bool(payload.get("interact", false)), int(model.state.round))
+			_move_pending = clean
 		else:
-			_intent.rpc_id(1, action, _clean_payload(action, payload), int(model.state.round))
+			_intent_seq += 1
+			_intent.rpc_id(1,action,clean,_session_token,_intent_seq)
 	else:
-		model.command(local_id, action, _clean_payload(action, payload))
+		model.command(local_id,action,clean)
+		if not model.last_notice.is_empty(): notice.emit(model.last_notice)
 		if action != "move":
-			_emit_state()
+			state_changed.emit()
+			if mode == "host": _broadcast_snapshot(true)
 
 func _physics_process(delta: float) -> void:
 	if mode == "client":
-		if _connect_deadline != 0 and Time.get_ticks_msec() > _connect_deadline:
-			_on_steam_failure("连接房主游戏传输超时，请检查 Steam/网络及测试包版本" if transport == "steam" else "连接超时，请检查 IP、UDP 24567 和房主在线")
+		if local_id == 0 or _session_token == 0:
+			_connect_elapsed += delta
+			if _connect_elapsed > (25.0 if transport == "steam" else 10.0): _on_connection_failed()
+		_move_clock += delta
+		if _move_clock >= 0.05:
+			_move_clock = 0
+			if not _move_pending.is_empty() and local_id > 0 and _peer != null and _peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+				_movement_seq += 1
+				_movement.rpc_id(1,_move_pending,_session_token,_movement_seq)
+				_move_pending = {}
 		return
-	if transport == "steam":
-		steam.set_phase(str(model.state.phase))
 	model.tick(delta)
 	_snapshot_clock += delta
-	var phase_changed: bool = _last_phase != str(model.state.phase)
-	if _snapshot_clock >= 0.0833 or phase_changed:
+	if _snapshot_clock >= 1.0 / 15.0:
 		_snapshot_clock = 0.0
-		_last_phase = str(model.state.phase)
-		_emit_state()
-		if mode == "host" and _peer != null and multiplayer.has_multiplayer_peer():
-			_broadcast_snapshot(phase_changed)
+		state_changed.emit()
+		if mode == "host": _broadcast_snapshot(false)
 
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
+	var clean: Dictionary = {}
 	match action:
 		"move":
-			var direction: Variant = payload.get("direction", Vector2.ZERO)
-			if direction is Vector2 and direction.is_finite():
-				return {"direction": direction.limit_length(1.0), "interact": bool(payload.get("interact", false))}
-		"drop":
-			if payload.get("item_id") is int:
-				return {"item_id": payload.item_id}
-		"possession_request":
-			if payload.get("target") is int:
-				return {"target": payload.target}
-	return {}
+			var direction: Variant = payload.get("direction",Vector2.ZERO)
+			var aim: Variant = payload.get("aim",Vector2.UP)
+			if not direction is Vector2 or not aim is Vector2 or not direction.is_finite() or not aim.is_finite(): return {}
+			return {"direction":direction.limit_length(1.0),"aim":aim.limit_length(1.0),"sprint":payload.get("sprint",false) == true,"crouch":payload.get("crouch",false) == true,"ads":payload.get("ads",false) == true}
+		"transfer":
+			for key in ["from","to","slot"]:
+				if payload.get(key) is String: clean[key] = str(payload[key]).left(16)
+			for key in ["index","target"]:
+				if payload.get(key) is int: clean[key] = payload[key]
+				elif payload.get(key) is String: clean[key] = str(payload[key]).left(16)
+		"use","drop","equip":
+			if payload.get("index") is int: clean.index = payload.index
+		"split":
+			if payload.get("container") is String: clean.container = str(payload.container).left(16)
+			if payload.get("index") is int: clean.index = payload.index
+			if payload.has("count"): clean.count = payload.count if payload.count is int else 0
+		"pickup":
+			if payload.get("uid") is String: clean.uid = str(payload.uid).left(64)
+		"sort":
+			if payload.get("container") is String: clean.container = str(payload.container).left(16)
+		"unequip":
+			if payload.get("slot") is String: clean.slot = str(payload.slot).left(16)
+	return clean
 
-func _allowed_sender(sender: int, action: String, round_number: int) -> bool:
-	if mode != "host" or sender <= 1 or not model.state.players.has(sender):
-		return false
-	if round_number != int(model.state.round):
-		return false
-	if not action in ["move", "pickup", "drop", "interact", "possession_request", "possession_accept", "possession_decline", "detach"]:
-		return false
+func _allowed(sender: int, token: int, action: String) -> bool:
+	if mode != "host" or token != _session_token or sender <= 1 or not model.state.players.has(sender): return false
+	if action != "move" and not action in ACTIONS: return false
 	var second := int(Time.get_ticks_msec() / 1000)
-	var counter: Dictionary = _rate_limits.get(sender, {"second": second, "count": 0})
-	if counter.second != second:
-		counter = {"second": second, "count": 0}
-	counter.count += 1
-	_rate_limits[sender] = counter
+	var counter: Dictionary = _rate_limits.get(sender,{"second":second,"count":0})
+	if int(counter.second) != second: counter = {"second":second,"count":0}
+	counter.count += 1; _rate_limits[sender] = counter
 	return counter.count <= 100
 
-@rpc("any_peer", "call_remote", "unreliable_ordered", 1)
-func _movement(direction: Vector2, interact: bool, round_number: int) -> void:
+@rpc("any_peer","call_remote","unreliable_ordered",1)
+func _movement(payload: Dictionary, token: int, seq: int) -> void:
 	var sender := multiplayer.get_remote_sender_id()
-	if not _allowed_sender(sender, "move", round_number) or not direction.is_finite():
-		return
-	model.command(sender, "move", {"direction": direction.limit_length(1.0), "interact": interact})
+	if not _allowed(sender,token,"move") or seq <= int(_last_movement.get(sender,-1)): return
+	var clean := _clean_payload("move",payload)
+	if clean.is_empty(): return
+	_last_movement[sender] = seq
+	model.command(sender,"move",clean)
 
-@rpc("any_peer", "call_remote", "reliable", 0)
-func _intent(action: String, payload: Dictionary, round_number: int) -> void:
+@rpc("any_peer","call_remote","reliable",0)
+func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	var sender := multiplayer.get_remote_sender_id()
-	if not _allowed_sender(sender, action, round_number):
-		return
-	model.command(sender, action, _clean_payload(action, payload))
-	_emit_state()
+	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
+	_last_intent[sender] = seq
+	model.command(sender,action,_clean_payload(action,payload))
+	if not model.last_notice.is_empty(): _notice.rpc_id(sender,model.last_notice)
+	state_changed.emit()
+	_broadcast_snapshot(true)
 
-@rpc("authority", "call_remote", "reliable", 2)
-func _snapshot(snapshot: Dictionary) -> void:
-	_receive_snapshot(snapshot)
+@rpc("authority","call_remote","reliable",2)
+func _snapshot(snapshot: Dictionary, token: int, seq: int) -> void:
+	_receive_snapshot(snapshot,token,seq)
 
-@rpc("authority", "call_remote", "reliable", 0)
-func _snapshot_reliable(snapshot: Dictionary) -> void:
-	_receive_snapshot(snapshot)
+@rpc("authority","call_remote","reliable",0)
+func _snapshot_control(snapshot: Dictionary, token: int, seq: int) -> void:
+	_receive_snapshot(snapshot,token,seq)
 
-func _receive_snapshot(snapshot: Dictionary) -> void:
-	if mode != "client" or multiplayer.get_remote_sender_id() != 1:
-		return
-	var serial := int(snapshot.get("snapshot_seq", 0))
-	if serial <= _received_snapshot_serial:
-		return
-	_received_snapshot_serial = serial
+func _receive_snapshot(snapshot: Dictionary, token: int, seq: int) -> void:
+	if mode != "client" or multiplayer.get_remote_sender_id() != 1 or seq <= _received_serial: return
+	if _session_token != 0 and token != _session_token: return
+	_session_token = token; _received_serial = seq
 	model.state = snapshot
-	_emit_state()
+	state_changed.emit()
 
-func _stamp_snapshot() -> void:
+func _broadcast_snapshot(control: bool) -> void:
+	if mode != "host" or _peer == null: return
 	_snapshot_serial += 1
-	model.state.snapshot_seq = _snapshot_serial
-
-func _broadcast_snapshot(reliable_control: bool = false) -> void:
-	if mode != "host" or _peer == null:
-		return
-	_stamp_snapshot()
 	for peer_id in multiplayer.get_peers():
-		var transport_peer = _peer.call("get_peer", peer_id)
-		var connected_state := ENetPacketPeer.STATE_CONNECTED if transport == "enet" else ClassDB.class_get_integer_constant("SteamPacketPeer", "STATE_CONNECTED")
-		if transport_peer == null or transport_peer.get_state() != connected_state:
-			continue
-		if reliable_control:
-			_snapshot_reliable.rpc_id(peer_id, model.state)
-		else:
-			_snapshot.rpc_id(peer_id, model.state)
+		if _peer is ENetMultiplayerPeer:
+			var enet_transport := (_peer as ENetMultiplayerPeer).get_peer(peer_id)
+			if enet_transport == null or enet_transport.get_state() != ENetPacketPeer.STATE_CONNECTED: continue
+		if control: _snapshot_control.rpc_id(peer_id,model.state,_session_token,_snapshot_serial)
+		else: _snapshot.rpc_id(peer_id,model.state,_session_token,_snapshot_serial)
 
-@rpc("authority", "call_remote", "reliable", 0)
-func _refused(message: String) -> void:
-	if mode == "client" and multiplayer.get_remote_sender_id() == 1:
-		connection_status = message
-		notice.emit(message)
+@rpc("authority","call_remote","reliable",0)
+func _notice(message: String) -> void:
+	if mode == "client" and multiplayer.get_remote_sender_id() == 1: notice.emit(message)
 
 func _on_peer_connected(peer_id: int) -> void:
-	if mode != "host":
-		return
-	if transport == "steam" and not steam.member_allowed(int(_peer.call("get_steam_id_for_peer_id", peer_id))):
+	if mode != "host": return
+	if model.state.players.size() >= 5 or (peer_validator.is_valid() and not peer_validator.call(peer_id)):
 		_peer.disconnect_peer(peer_id)
 		return
-	if model.state.phase != "lobby" or model.state.players.size() >= 5:
-		_refused.rpc_id(peer_id, "本局已经开始或房间已满，请等待房主下一局")
-		await get_tree().create_timer(0.15).timeout
-		if mode == "host" and _peer != null:
-			_peer.disconnect_peer(peer_id)
-		return
-	var display_name: String = NAMES[mini(model.state.players.size(), 4)]
-	if transport == "steam":
-		display_name = str(steam.api.getFriendPersonaName(int(_peer.call("get_steam_id_for_peer_id", peer_id)))).left(20)
-	model.add_player(peer_id, display_name)
+	var player_name := "旅鸭 %d" % model.state.players.size()
+	if peer_name_provider.is_valid(): player_name = str(peer_name_provider.call(peer_id)).left(24)
+	model.add_player(peer_id,player_name)
 	_broadcast_snapshot(true)
-	_emit_state()
+	notice.emit("一位旅鸭加入了基地")
+	state_changed.emit()
 
 func _on_peer_disconnected(peer_id: int) -> void:
-	if mode == "host":
-		model.remove_player(peer_id)
-		_rate_limits.erase(peer_id)
-		_emit_state()
-		# Publish next physics tick, after all pending disconnects have been polled.
-		_snapshot_clock = 0.1
+	if mode != "host": return
+	model.remove_player(peer_id)
+	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
+	_snapshot_clock = 1.0
+	notice.emit("一位旅鸭离开了基地")
+	state_changed.emit()
 
 func _on_connected() -> void:
-	if mode != "client":
-		return
+	if mode != "client": return
 	local_id = multiplayer.get_unique_id()
-	_connect_deadline = 0
-	connection_status = "Steam 传输已连接 · 等待房主开始" if transport == "steam" else "已加入房间 · 等待房主开始"
-	if transport == "steam":
-		print("STEAM_TRANSPORT_CONNECTED peer_id=", local_id)
-	_emit_state()
+	connection_status = "Steam 已连接 · 共建基地" if transport == "steam" else "已连接 · 共建基地"
+	state_changed.emit()
 
 func _on_connection_failed() -> void:
-	if mode != "client":
-		return
+	if mode != "client": return
 	var was_steam := transport == "steam"
 	offline()
-	connection_status = "Steam 传输连接失败，请检查房主在线、账号及相同测试包" if was_steam else "无法连接房间，请检查 IP、相同版本及 UDP 24567 防火墙"
+	connection_status = "Steam 连接失败：确认双方在线、使用不同账号且版本一致" if was_steam else "连接失败：检查房主IP、端口和防火墙"
 	notice.emit(connection_status)
-	_emit_state()
+	state_changed.emit()
 
 func _on_server_disconnected() -> void:
-	if mode != "client":
-		return
-	var was_rejected := connection_status.contains("已经开始")
+	if mode != "client": return
 	offline()
-	connection_status = "本局已经开始或房间已满，请等待下一局" if was_rejected else "房主已关闭房间，当前联机已结束"
+	connection_status = "房主已离开，已返回本机离线基地"
 	notice.emit(connection_status)
-	_emit_state()
-
-func _emit_state() -> void:
-	for event in model.state.events:
-		if int(event.id) > _last_event_id:
-			_last_event_id = int(event.id)
-			if int(event.get("player_id", 0)) == 0 or int(event.player_id) == local_id:
-				notice.emit(str(event.text))
 	state_changed.emit()

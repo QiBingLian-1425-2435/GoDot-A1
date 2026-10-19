@@ -9,7 +9,7 @@ func _ready() -> void:
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
 	safe_margin = 0.001
 	var shape := CapsuleShape3D.new()
-	shape.radius = 0.25
+	shape.radius = 0.32
 	shape.height = 1.5
 	var collider := CollisionShape3D.new()
 	collider.shape = shape

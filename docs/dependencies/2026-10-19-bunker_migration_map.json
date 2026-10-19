@@ -1,0 +1,177 @@
+[
+  {
+    "source": "duckov/main.gd",
+    "target": "app/main.gd",
+    "source_sha256": "cd77230c082b112fa832d29d652b28b30d63776f48a36035e3d41b50fef612e3"
+  },
+  {
+    "source": "duckov/scenes/main.tscn",
+    "target": "app/main.tscn",
+    "source_sha256": "2379e6faabdf5a1a6d3fe142eac781e706890e9310dc9ac766348b06d5233108"
+  },
+  {
+    "source": "duckov/session.gd",
+    "target": "app/network/session.gd",
+    "source_sha256": "ed8c3df12c9c6d2134dfd2c94a27e4af92e49e6e3b78feeead1e39a4177e28ae"
+  },
+  {
+    "source": "duckov/steam_service.gd",
+    "target": "app/network/steam_service.gd",
+    "source_sha256": "0902ec89fce004882774b629d49c8c77e1bd2b530c6a495785b7287a5b53bac3"
+  },
+  {
+    "source": "duckov/model.gd",
+    "target": "features/base/base_model.gd",
+    "source_sha256": "7ebce5cc488d47160bcbe45d657744bea8cca2247861cff21d0d31960aa0c995"
+  },
+  {
+    "source": "duckov/items.gd",
+    "target": "features/inventory/item_catalog.gd",
+    "source_sha256": "fdee4a9e20892e361c236cdebe000cc31514e6b872a99517e18e580311f5916c"
+  },
+  {
+    "source": "duckov/actor.gd",
+    "target": "features/player/base_actor.gd",
+    "source_sha256": "45d504f1661a1e557f05879f70ce7cfc3335ecaa64a3557c416f3441a35475a6"
+  },
+  {
+    "source": "duckov/characters/duck_motion.gd",
+    "target": "features/player/animation/duck_motion.gd",
+    "source_sha256": "6a15cdb25bc783e1efaecff7b8e60d103259867c357cd0337017dd1430e77fd9"
+  },
+  {
+    "source": "duckov/characters/duck_animations.tres",
+    "target": "features/player/animation/duck_animations.tres",
+    "source_sha256": "32038d916cd77f9f11401c380a586adb3c2692340f0f91b431a937eb456276c5"
+  },
+  {
+    "source": "duckov/characters/duck_rig_editable.tscn",
+    "target": "features/player/animation/duck_rig_editable.tscn",
+    "source_sha256": "6c25ef2f3c3e91e77e5b0531dd2addd4652bbbffd56f254ccb3fce0bbe3bbc60"
+  },
+  {
+    "source": "duckov/characters/animation_preview.gd",
+    "target": "features/player/animation/animation_preview.gd",
+    "source_sha256": "7730ba1d82507daaab90d121bb18f1f618ac96223936aa611631b0954d6c3cc9"
+  },
+  {
+    "source": "duckov/scenes/animation_preview.tscn",
+    "target": "features/player/animation/animation_preview.tscn",
+    "source_sha256": "451bdc4b5da7a9939f4b62bb6b5ece3efd991d49b4d8d42ac14902807cdfdb03"
+  },
+  {
+    "source": "duckov/world.gd",
+    "target": "worlds/bunker/bunker.gd",
+    "source_sha256": "7a3bb065128405e26ad795574ea40999d2626fe4d939ea2bd3538a0ec36da1a1"
+  },
+  {
+    "source": "duckov/geometry.gd",
+    "target": "features/geometry/geometry.gd",
+    "source_sha256": "195494ffaef32a450b0dfdd3e3bb4124077b7c55557a44f634b5e9625e9f377c"
+  },
+  {
+    "source": "duckov/menu_stage.gd",
+    "target": "ui/menu/menu_stage.gd",
+    "source_sha256": "b31064b2d2c7c12fbb951bd5f5466c24e993a9c4bda529317e547a7adc5c108f"
+  },
+  {
+    "source": "duckov/ui.gd",
+    "target": "ui/base_hud.gd",
+    "source_sha256": "cca70f57cb7a36556649e11ab7d914a8638f0233b569ce0df9a3fc94dcc78dfc"
+  },
+  {
+    "source": "duckov/ui_portrait.gd",
+    "target": "ui/widgets/base_portrait.gd",
+    "source_sha256": "210a7cb1cc264505512d51eba3c355b4db46fc77449612bab24da1f4acba5019"
+  },
+  {
+    "source": "duckov/item_slot.gd",
+    "target": "ui/widgets/item_slot.gd",
+    "source_sha256": "01ecc6815d46bdcd319f4b69aee33cb18f4284a4e9b9f0399e1cec42fccf5ba9"
+  },
+  {
+    "source": "duckov/crosshair.gd",
+    "target": "ui/widgets/crosshair.gd",
+    "source_sha256": "ca2c88a2e9af723774577db240b7ae73ad311267521266e23f4c13cab88303c4"
+  },
+  {
+    "source": "duckov/sound.gd",
+    "target": "features/audio/base_sound.gd",
+    "source_sha256": "f69d6ee2466e4ca435d5d76c65efc76d733fe05aecc67dbbc654a9db4b2dcbd9"
+  },
+  {
+    "source": "tests/duckov_actor_animation_test.gd",
+    "target": "tests/base/duckov_actor_animation_test.gd",
+    "source_sha256": "dd68493e9c57474a5bb6573ba79653ff9d5455b9c3107e2c515e1d2a41a3dc74"
+  },
+  {
+    "source": "tests/duckov_animation_integration_test.gd",
+    "target": "tests/base/duckov_animation_integration_test.gd",
+    "source_sha256": "8ae2845325351a2babe2ff88ff068270f4b680383a4e1e88e804d4b14e8384c1"
+  },
+  {
+    "source": "tests/duckov_animation_model_test.gd",
+    "target": "tests/base/duckov_animation_model_test.gd",
+    "source_sha256": "92e5e18da8d910a75673719ca3b2af5a728b9ba51cdfba81fd0fe2b728016682"
+  },
+  {
+    "source": "tests/duckov_animation_network_test.gd",
+    "target": "tests/base/duckov_animation_network_test.gd",
+    "source_sha256": "2d88b80098166cdfd561137c01d65793eab5db2749fb5a81424cfbd26b7134b2"
+  },
+  {
+    "source": "tests/duckov_four_peer_test.gd",
+    "target": "tests/base/duckov_four_peer_test.gd",
+    "source_sha256": "84734b6bc220940b7ca51f73780464ae707f8692731d346595ba0175cc2fc3d3"
+  },
+  {
+    "source": "tests/duckov_integration_test.gd",
+    "target": "tests/base/duckov_integration_test.gd",
+    "source_sha256": "c7117051e1d6f0b24e1f506951330b57265109c2a5f2a8817db73db4688766f4"
+  },
+  {
+    "source": "tests/duckov_model_test.gd",
+    "target": "tests/base/duckov_model_test.gd",
+    "source_sha256": "78ea8d5d5e5690b0dc07a0396ebde191c6286eb6afd38fdd226f753d9554fe6e"
+  },
+  {
+    "source": "tests/duckov_network_test.gd",
+    "target": "tests/base/duckov_network_test.gd",
+    "source_sha256": "9de31dd48cd2c297bd586009adfdf91fb24e2f54eeef2c40ce758072b3cf44de"
+  },
+  {
+    "source": "tests/fake_peer.gd",
+    "target": "tests/base/fake_peer.gd",
+    "source_sha256": "17580c4b114536184ca1420b8869f12ff0733e9d9df74073e01e0b9ec10b0ae8"
+  },
+  {
+    "source": "tests/fake_steam.gd",
+    "target": "tests/base/fake_steam.gd",
+    "source_sha256": "42ffc72ab05d5bbfcbd0b77e1699176f59645c91a854c4e8e574e9616c2b5f51"
+  },
+  {
+    "source": "tests/steam_live_main.gd",
+    "target": "tests/base/steam_live_main.gd",
+    "source_sha256": "6caa108d93405e47979d38b904cef46388ecd7aea03a3cf6cb5eda266f1f19d1"
+  },
+  {
+    "source": "tests/steam_live_smoke.gd",
+    "target": "tests/base/steam_live_smoke.gd",
+    "source_sha256": "377297ebf4b9add753018e546be73f662f77fbd73407fea4bd06d7637ba08938"
+  },
+  {
+    "source": "tests/steam_main_integration_test.gd",
+    "target": "tests/base/steam_main_integration_test.gd",
+    "source_sha256": "f1c31d06b4146c75c51be691c4e800184cefa0062f51a739e6e05e415e621a2b"
+  },
+  {
+    "source": "tests/steam_service_test.gd",
+    "target": "tests/base/steam_service_test.gd",
+    "source_sha256": "c8d960d7481e627aad03e1bb7d01b955f38d3b85551f96b047b2554670f5c737"
+  },
+  {
+    "source": "tests/steam_ui_test.gd",
+    "target": "tests/base/steam_ui_test.gd",
+    "source_sha256": "ce83df638ffe35920cd5cc64e95fb886de76c61cc9f3e036ee4b0302000910bc"
+  }
+]

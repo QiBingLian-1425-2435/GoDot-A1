@@ -1,38 +1,36 @@
-# 雾灯旅店 · 合作搜集撤离
+# A1 · 地下基地合作原型
 
-更新：2026-10-18。队长初稿已迁入当前按功能分工的骨架；工程根仍为 Godot 资源根，入口 `app/main.tscn`。固定斜俯视、单层 3D 旅店、2D 纸片角色。
+更新：2026-10-19。以队长新 Demo `.references_code/123(1)/123` 为功能与体验基准，迁入当前功能目录。工程根是唯一 Godot 资源根，主场景 `app/main.tscn`，Godot **4.5.2 标准版 / Windows x64**。
 
-## 快速开始
+## 开始开发与运行
 
-1. 源码开发：先恢复外置素材并执行 `python tools/setup_steam.py`，再用 Godot **4.5.2 标准版**打开根目录 `project.godot`，等待导入，按 F5。收到完整 Windows 测试包的成员直接解压运行 `start_steam.cmd`，无需安装 Godot。
-2. 点击“点亮提灯 · 单人出发”，AI 队友薇拉会跟随、搜集、救援和撤离。
-3. WASD / 方向键按屏幕方向移动；E 拾取、搜尸，长按 E 救援；行囊中的 ↓ 丢弃；Tab 切换行囊/队伍；F1 / Esc 打开关闭手册；M 静音。
-4. 背包 12 kg，一局 6 分钟；进入右前方绿灯圈停留 4 秒撤离。个人撤离后等待队友，结算后“再探一局”。
+直接打开根目录 project.godot，等待导入后 **F5**。本轮基地、鸭角色、动画、物品图标与音效均由程序或文本资源生成，单机无需旧旅店/Game1 的外置素材。原有 addons/godot_ai 保留。
 
-包含怪物巡逻/追逐、倒地救援、死亡遗留行囊、受限观战、自愿附身共享视角、地图、音效和重开。参数继承初稿，仍可调整。
+首次测试 Steam 时先打开并登录 Steam，再执行一次 `python tools/setup_steam.py` 恢复固定 GodotSteam 4.23.1，或向队友取得完整 addons/godotsteam 文件夹并放在相同位置；之后重新打开 Godot，即可一直 F5。脚本只用 Python 标准库，不需要 uv、虚拟环境或 pip。没有扩展也可体验单人/IP 基地。
 
-Steam 开发联机（App ID 480）：各自登录 Steam 并互加好友，使用同一测试包。房主创建好友房间，成员接受邀请或填房间号加入，2–5 人由房主开始；开局后锁加入。房主撤离后必须保持程序运行，退出会关闭房间，无房主迁移或重连。ENet 局域网仅作开发选项，切换后填 IP（同机 127.0.0.1，UDP 24567）。
+开始画面点击后“继续游戏”进入单人基地；Steam 联机创建好友房间后直接进入基地，Esc 菜单中邀请或复制房间号；队友从菜单 Steam 联机加入。含房主 **最多 5 人**，各自不同 Steam 账号、同版本包。ENet/IP 直连保留作开发验证，不作为异地 Steam 已通过。
 
-## 正式目标与当前验证
+## 已迁入功能
 
-先读[项目共识与目标](docs/design/2026-10-18-项目共识与目标.md)。**Steam SDK、好友大厅和原生 SteamMultiplayerPeer 已接入，并生成独立 Windows 测试包；双账号双机异地尚未验收。**
+- 基地卧室/医疗、工作台、仓库、商人、地图桌、出口提示与靶场。
+- 24 格背包、48 格仓库、装备、堆叠/拆分/拖拽/Ctrl 快存取、消耗、丢弃拾取、负重减速。
+- WASD 移动、Shift 冲刺、C 蹲行、鼠标瞄准、左键射击、右键瞄准、R 装填、1/2 换枪、4/5 医疗饮水。
+- E 设施互动/拾取，Tab/I 背包，Esc 菜单，滚轮缩放，F5 手动保存，F11 全屏。弹匣按武器分别保存；靶场有遮挡和命中反馈，基地没有玩家互伤。
+- 可编辑骨骼鸭角色与 14 种动画、NPC 待机、程序音效；独立动作预览场景 `features/player/animation/animation_preview.tscn` 可 F6。
+- 单人/房主每 30 秒及回菜单/退出保存到独立 `user://a1_bunker_profile_v1.json`；客机物资仅本次会话保留。不读取原版游戏或旧 Demo 存档。
 
-Steam 打包、实际分层结果和成员异地步骤见[Steam 验证与分发](docs/verification/2026-10-18-Steam联机验证与分发.md)。构建命令为 `python tools/build_steam.py --godot <4.5.2_console.exe>`，ZIP 位于本地忽略目录 build。
+当前是基地与核心操作原型，**未实现野外地图、任务战役、旧旅店怪物/救援/附身或原版鸭科夫完整内容**。旧旅店代码已退出入口并存于 Git 历史/本机参考备份；之前未提交的人物动画修改保持原样，不被新入口加载。
 
-迁移验证及限制见[迁移验证记录](docs/verification/2026-10-18-初稿迁移验证.md)，初稿旧测试报告不作为本次通过证据。双机异地和五名真人试玩需要另行验收。
+## 模块与验证
 
-## 分工入口
+[目录和接口](docs/design/2026-10-18-项目结构说明.md) · [迁移计划与差异](docs/plans/2026-10-19-地下基地Demo迁移.md) · [本轮验证](docs/verification/2026-10-19-地下基地迁移验证.md) · [文档导航](docs/文档导航.md)
 
-- `app/`：组合主场景、输入意图、网络会话。
-- `features/`：match、inventory、player、enemies、rescue、extraction、companions、possession、navigation、audio。
-- `worlds/lantern_inn/`：旅店几何、真实碰撞、镜头和快照表现。
-- `ui/`：HUD 和控件，只发意图。
-- `tests/`：规则、AI、主场景物理、可见界面和真实多进程测试。
+```powershell
+python tools/run_base_tests.py --suite all
+python tools/run_base_tests.py --suite fast --steam-live
+python tools/build_steam.py --godot '<Godot 4.5.2 console.exe绝对路径>'
+```
 
-[结构与接口](docs/design/2026-10-18-原型范围与模块边界.md) · [项目结构](docs/design/2026-10-18-项目结构说明.md) · [迁移对照与交接](docs/plans/2026-10-18-队长初稿迁移与复刻.md) · [任务看板](docs/tasks/2026-10-18-任务跟进.md) · [文档导航](docs/文档导航.md)
+测试和打包工具可传 --godot；默认路径只是本机安装位置。单独网络回归也可执行 tools/run_network_tests.ps1。源码测试位于 tests/base，旧 tests 根目录的旅店测试已退役。
 
-## 素材与代码交接
-
-本机已还原初稿三张角色图和七个音频。美术、音频、导入缓存、导出包仍不入 Git；清单、SHA256 和还原方法见[外置素材](docs/assets/2026-10-18-外置素材与还原.md)。复制代码到其他电脑后须同时取得外置素材，并保留原有 `addons/godot_ai` 插件。
-
-参考工程与迁移前骨架备份留在 `.references_code/`，通过 `.gdignore` 排除，运行不读取该目录。2026-10-18 已初始化本地 Git（main），代码与文本场景保留，素材和导出物排除；远端为 [MnivL/GoDot-A1](https://github.com/MnivL/GoDot-A1)，main 为团队取代码的入口。首次上传通过 GitHub 连接器导入源码快照，原本地历史保留于 archive/pre-upload-main 和 chore/github-initial-upload；素材仍由共享包还原。提交前运行 `python tools/check_git_files.py`，检查暂存文件不含忽略文件或大于等于 10 MiB 的文件。本机已接入 pre-commit 检查；Git hooks 不随 clone 自动安装，成员可参照[Git 检查记录](docs/verification/2026-10-18-Git初始化与忽略检查.md)配置。
+打包工具依据 docs/dependencies/2026-10-19-bunker_sources.json 只收集当前入口依赖，不复制旧素材、参考工程或未提交的旧人物脚本。输出 build/bunker_a1_steam_<build_id>.zip；所有成员须使用同一构建，旧旅店包/参考 Demo 包不兼容。DLL、素材、缓存和 ZIP 不入 Git，不用 LFS。Steam App ID 480 仅开发测试，双账号异地与五人 Steam 仍需实际验收。
