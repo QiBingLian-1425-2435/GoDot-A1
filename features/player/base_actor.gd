@@ -310,12 +310,15 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	rifle_mesh.visible = kind == "rifle"
 	pistol_mesh.visible = kind == "pistol"
 	flash.position.z = -.37 if kind == "pistol" else -.86
+	flash.scale = Vector3(.65,.65,1.4) if kind == "pistol" else Vector3(1.0,1.0,2.4)
+	flash_light.light_energy = 1.5 if kind == "pistol" else 3.5
+	flash_light.omni_range = 2.2 if kind == "pistol" else 4.0
 	flash_light.position = flash.position
 	var shots := int(data.get("shots", 0))
 	var fired := has_previous_pos and shots > previous_shots and weapon.visible
 	if fired:
-		flash_time = .075
-		_recoil = 1.0
+		flash_time = .065 if kind == "pistol" else .095
+		_recoil = .65 if kind == "pistol" else 1.0
 		_event_suppressed = int(data.get("anim_seq", 0))
 	else:
 		flash_time = maxf(0, flash_time-delta)

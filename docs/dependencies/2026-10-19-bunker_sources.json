@@ -71,6 +71,8 @@
     "worlds/bunker/base_view.gd",
     "worlds/bunker/base_view.gd.uid",
     "worlds/bunker/bunker.gd",
-    "worlds/bunker/bunker.gd.uid"
+    "worlds/bunker/bunker.gd.uid",
+    "features/combat/shot_feedback.gd",
+    "features/combat/shot_feedback.gd.uid"
   ]
 }

@@ -17,20 +17,22 @@ static func _fire(ctx, p: Dictionary) -> bool:
 	var origin: Vector2 = p.pos
 	var direction: Vector2 = p.aim
 	var distance = 22.0
+	var impact := "none"
 	for rect in ctx.obstacles:
 		var hit = ctx._ray_rect(origin,direction,rect)
-		if hit >= 0: distance = minf(distance,hit)
+		if hit >= 0 and hit < distance:
+			distance = hit; impact = "wall"
 	var chosen: Dictionary = {}
 	for target in ctx.state.targets:
 		if int(target.get("hp",0)) <= 0: continue
 		var offset: Vector2 = target.pos - origin
 		var along = offset.dot(direction)
 		if along > 0 and along < distance and absf(offset.cross(direction)) <= 0.55:
-			distance = along; chosen = target
+			distance = along; chosen = target; impact = "target"
 	if not chosen.is_empty():
 		chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
 		chosen.hits = int(chosen.get("hits",0)) + 1
-	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"player_id":p.id,"ttl":0.16})
+	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1),"ttl":0.16})
 	return true
 
 static func _ray_rect(ctx, origin: Vector2, direction: Vector2, rect: Rect2) -> float:
