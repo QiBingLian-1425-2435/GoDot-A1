@@ -21,8 +21,7 @@ AI 先读项目共识、相关设计和任务，再按实际工作选择 skill�
 | 功能实现、Bug 修复与已有模块调整 | `godot-module-dev` |
 | 对指定提交或差异做只读审核 | `godot-code-review` |
 | 提交、同步主线、合并及远端交付 | `github-pr-handoff` |
-| 分析现有结构、生成结构文档 | `project-structure-analyzer` |
-| 重大改动后同步已有结构文档 | `project-structure-updater` |
+
 
 - 成员可在请求中显式写 `$godot-module-dev`、`$godot-code-review` 等，并附当前任务、文件范围、设计链接和验收要求。审核默认只读，不因调用审核技能就修复、提交或合并。
 - Skill 安装在成员各自的 AI 工具环境中，不是 Godot 插件，也不随游戏运行。按当前环境提供的技能清单定位 `SKILL.md`，不要把某位成员的 `C:/Users/...` 绝对路径写作团队必需路径；拉取本仓库不代表技能已安装。
