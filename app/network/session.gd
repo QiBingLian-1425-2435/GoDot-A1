@@ -4,9 +4,10 @@ signal state_changed()
 signal notice(text: String)
 const Model = preload("res://features/base/base_model.gd")
 const MotionBuffer = preload("res://features/player/motion_buffer.gd")
+const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration"]
+const MOTION_FIELDS := ["pos","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_stamina","input_weight","input_max_weight"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","train","reset_targets"]
 var model = Model.new()
@@ -24,6 +25,8 @@ var _received_serial := -1
 var _received_motion_serial := -1
 var _snapshot_received_usec := 0
 var motion_buffer = MotionBuffer.new()
+var local_movement = LocalMovement.new()
+var _last_sent_move: Dictionary = {}
 var _session_token := 0
 var _movement_seq := 0
 var _intent_seq := 0
@@ -38,6 +41,7 @@ var _local_profile: Dictionary = {}
 func _init() -> void:
 	name = "Session"
 	model.add_player(1,"旅鸭")
+	local_movement.solver = model.solve_motion.bind(0)
 
 func _ready() -> void:
 	name = "Session"
@@ -128,6 +132,7 @@ func offline() -> void:
 	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
 	_motion_clock = 0.0; _move_clock = 0.0; _received_motion_serial = -1
 	motion_buffer.clear()
+	local_movement.clear(); _last_sent_move.clear()
 	_snapshot_received_usec = 0
 	_movement_seq = 0; _intent_seq = 0; _connect_elapsed = 0.0
 	state_changed.emit()
@@ -144,7 +149,10 @@ func send(action: String, payload: Dictionary = {}) -> void:
 	if mode == "client":
 		if local_id == 0 or _session_token == 0 or _peer == null or _peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED: return
 		if action == "move":
+			local_movement.set_input(clean)
 			_move_pending = clean
+			var edge := _is_movement_edge(clean)
+			if edge: _flush_movement(true)
 		else:
 			_intent_seq += 1
 			_intent.rpc_id(1,action,clean,_session_token,_intent_seq)
@@ -162,11 +170,8 @@ func _physics_process(delta: float) -> void:
 			if _connect_elapsed > (25.0 if transport == "steam" else 10.0): _on_connection_failed()
 		_move_clock += delta
 		if _move_clock >= 0.05:
-			_move_clock = 0
-			if not _move_pending.is_empty() and local_id > 0 and _peer != null and _peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
-				_movement_seq += 1
-				_movement.rpc_id(1,_move_pending,_session_token,_movement_seq)
-				_move_pending = {}
+			_flush_movement(false)
+		if model.state.players.has(local_id): local_movement.advance(delta,model.state.players[local_id])
 		return
 	var reloading: Array[int] = []
 	for id in model.state.players:
@@ -186,6 +191,23 @@ func _physics_process(delta: float) -> void:
 		_snapshot_clock = fmod(_snapshot_clock,STATE_INTERVAL)
 		state_changed.emit()
 		if mode == "host": _broadcast_snapshot(false)
+
+func _is_movement_edge(input: Dictionary) -> bool:
+	if _last_sent_move.is_empty(): return true
+	# The camera basis can introduce tiny float noise during an otherwise held key.
+	if Vector2(input.direction).distance_squared_to(_last_sent_move.direction) > .00000001: return true
+	for key in ["sprint","crouch","ads"]:
+		if input.get(key) != _last_sent_move.get(key): return true
+	return false
+
+func _flush_movement(edge: bool) -> void:
+	if _move_pending.is_empty() or local_id <= 0 or _peer == null or _peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED: return
+	_move_clock = 0.0
+	_movement_seq += 1
+	local_movement.note_sent(_movement_seq,edge)
+	_movement.rpc_id(1,_move_pending,_session_token,_movement_seq)
+	_last_sent_move = _move_pending
+	_move_pending = {}
 
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
@@ -233,6 +255,10 @@ func _movement(payload: Dictionary, token: int, seq: int) -> void:
 	var clean := _clean_payload("move",payload)
 	if clean.is_empty(): return
 	_last_movement[sender] = seq
+	# This is an accepted input's authoritative starting point, not a client position.
+	var p: Dictionary = model.state.players[sender]
+	p.input_seq = seq; p.input_origin = p.pos; p.input_stamina = p.stamina
+	p.input_weight = p.weight; p.input_max_weight = p.max_weight
 	model.command(sender,"move",clean)
 
 @rpc("any_peer","call_remote","reliable",0)
@@ -274,6 +300,7 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 	if seq > _received_motion_serial:
 		_received_motion_serial = seq
 		motion_buffer.push(model.state.players,stamp)
+	_confirm_local_motion()
 	state_changed.emit()
 
 @rpc("authority","call_remote","unreliable",1)
@@ -294,14 +321,20 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float) -> void:
 		p.reloading = (int(row[4]) & 8) != 0
 		p.anim_seq = row[5]; p.anim_action = row[6]; p.anim_time = row[7]; p.anim_duration = row[8]
 		p.shots = row[9]; p.reload_progress = row[10]
+		p.input_seq = row[11]; p.input_origin = row[12]; p.input_stamina = row[13]
+		p.input_weight = row[14]; p.input_max_weight = row[15]
 	motion_buffer.push(model.state.players,stamp)
+	_confirm_local_motion()
+
+func _confirm_local_motion() -> void:
+	if model.state.players.has(local_id): local_movement.confirm(model.state.players[local_id])
 
 func _motion_rows() -> Array:
 	var rows: Array = []
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress])
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight])
 	return rows
 
 func snapshot_age() -> float:

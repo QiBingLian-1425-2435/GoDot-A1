@@ -56,7 +56,8 @@ static func _update_actors(ctx, delta:float)->void:
 			ctx.actors[id]=actor
 		ctx.actors[id].visible=true
 		var display:Dictionary=players[id]
-		if ctx.session.mode=="client":display=ctx.session.motion_buffer.sample_player(id,players[id])
+		if ctx.session.mode=="client":
+			display=ctx.session.local_movement.sample_player(players[id]) if id==ctx.session.local_id else ctx.session.motion_buffer.sample_player(id,players[id])
 		ctx.actors[id].update_actor(display,delta,id==ctx.session.local_id)
 		var shots:int=players[id].get("shots",0)
 		if shots>int(ctx.last_shots.get(id,shots)):ctx.sound.play("fire")

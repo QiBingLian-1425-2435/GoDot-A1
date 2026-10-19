@@ -95,7 +95,9 @@ func _process(delta: float) -> bool:
 	elif phase == 2:
 		game.session.send("move",{"direction":Vector2.ZERO,"aim":Vector2.DOWN})
 		if phase_time > .4:
-			check(shown.distance_to(p.pos) < .015 and p.velocity == Vector2.ZERO,"stop converges to host-confirmed physical position")
+			var prediction = game.session.local_movement
+			check(Vector2(prediction._state.pos).distance_to(p.pos) < .015 and p.velocity == Vector2.ZERO and prediction._state.velocity == Vector2.ZERO,"stopped logical prediction converges to host-confirmed physical position")
+			check(shown.distance_to(p.pos) <= prediction.REST_ERROR_LIMIT+.001,"stationary display holds only the bounded small correction")
 			var original: Dictionary = game.session.model.state.duplicate(true)
 			var focus: Vector3 = game.camera_focus
 			var target: Vector3 = actor.position*.76

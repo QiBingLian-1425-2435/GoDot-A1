@@ -129,6 +129,19 @@ def engine_run(engine, stage, arguments, log):
                             capture_output=True, encoding='utf-8', errors='replace', timeout=120)
     text = result.stdout + result.stderr
     log.write_text(text, encoding='utf-8')
+    # This pinned Windows engine can crash during first-import shutdown, after
+    # completing the scan. Preserve that failure and retry the same saved import
+    # once; script/import errors are never retried or filtered out.
+    if (result.returncode and 'CrashHandlerException' in text
+            and 'loading_editor_layout' in text
+            and not any(s in text for s in ['SCRIPT ERROR:', 'ERROR:'])):
+        print('First import crashed during shutdown; preserving ' + str(log), flush=True)
+        retry = subprocess.run([str(engine), '--headless', '--path', str(stage), *arguments],
+                               capture_output=True, encoding='utf-8', errors='replace', timeout=120)
+        retry_text = retry.stdout + retry.stderr
+        log.with_name(log.stem + '_retry.log').write_text(retry_text, encoding='utf-8')
+        if retry.returncode == 0 and not any(s in retry_text for s in ['SCRIPT ERROR:', 'ERROR:', 'CrashHandlerException']):
+            return
     if result.returncode or any(s in text for s in ['SCRIPT ERROR:', 'ERROR:']):
         raise RuntimeError(f'Engine failed; inspect {log}')
 

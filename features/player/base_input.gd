@@ -3,36 +3,33 @@ extends RefCounted
 
 static func _physics_process(ctx, delta:float)->void:
 	if ctx.session==null:return
-	ctx.input_clock+=delta
 	ctx.fire_clock-=delta
 	if not ctx.in_game:return
 	var blocked:bool=ctx.ui.is_blocking() or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
 	if blocked or not focused:ctx.trigger_held=false
-	if ctx.input_clock>=0.05:
-		ctx.input_clock=0
-		var axis =Vector2.ZERO
-		if not blocked and focused:
-			axis=Vector2(float(Input.is_physical_key_pressed(KEY_D))-float(Input.is_physical_key_pressed(KEY_A)),float(Input.is_physical_key_pressed(KEY_S))-float(Input.is_physical_key_pressed(KEY_W)))
-		var right =Vector2(ctx.camera.global_basis.x.x,ctx.camera.global_basis.x.z).normalized()
-		var down =Vector2(ctx.camera.global_basis.z.x,ctx.camera.global_basis.z.z).normalized()
-		var direction:Vector2=(right*axis.x+down*axis.y).limit_length(1)
-		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
-		var aim:Vector2=p.get("aim",Vector2.UP)
-		if not blocked and focused:
-			var plane =Plane(Vector3.UP,0.75)
-			var mouse =ctx.get_viewport().get_mouse_position()
-			var point:Variant=plane.intersects_ray(ctx.camera.project_ray_origin(mouse),ctx.camera.project_ray_normal(mouse))
-			if point is Vector3:
-				aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
-		ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Input.is_physical_key_pressed(KEY_SHIFT) and not blocked,"crouch":ctx.crouched,"ads":Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not blocked})
-		if not blocked and focused and ctx.trigger_held and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ctx.fire_clock<=0:
-			ctx.session.send("fire")
-			ctx.fire_clock=0.13
-		ctx.crosshair.active=not blocked
-		ctx.crosshair.aiming=Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-		Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked else Input.MOUSE_MODE_VISIBLE
-		ctx.sound.step(0.05,direction.length()>0.1,Input.is_physical_key_pressed(KEY_SHIFT))
+	var axis =Vector2.ZERO
+	if not blocked and focused:
+		axis=Vector2(float(Input.is_physical_key_pressed(KEY_D))-float(Input.is_physical_key_pressed(KEY_A)),float(Input.is_physical_key_pressed(KEY_S))-float(Input.is_physical_key_pressed(KEY_W)))
+	var right =Vector2(ctx.camera.global_basis.x.x,ctx.camera.global_basis.x.z).normalized()
+	var down =Vector2(ctx.camera.global_basis.z.x,ctx.camera.global_basis.z.z).normalized()
+	var direction:Vector2=(right*axis.x+down*axis.y).limit_length(1)
+	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+	var aim:Vector2=p.get("aim",Vector2.UP)
+	if not blocked and focused:
+		var plane =Plane(Vector3.UP,0.75)
+		var mouse =ctx.get_viewport().get_mouse_position()
+		var point:Variant=plane.intersects_ray(ctx.camera.project_ray_origin(mouse),ctx.camera.project_ray_normal(mouse))
+		if point is Vector3:
+			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
+	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Input.is_physical_key_pressed(KEY_SHIFT) and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not blocked and focused})
+	if not blocked and focused and ctx.trigger_held and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ctx.fire_clock<=0:
+		ctx.session.send("fire")
+		ctx.fire_clock=0.13
+	ctx.crosshair.active=not blocked
+	ctx.crosshair.aiming=Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked else Input.MOUSE_MODE_VISIBLE
+	ctx.sound.step(delta,direction.length()>0.1,Input.is_physical_key_pressed(KEY_SHIFT))
 
 static func _input(ctx, event:InputEvent)->void:
 	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed:

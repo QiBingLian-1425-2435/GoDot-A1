@@ -54,6 +54,7 @@ func _ready()->void:
 	player_physics = preload("res://features/player/player_physics.gd").new()
 	add_child(player_physics)
 	player_physics.configure(session.model)
+	session.local_movement.solver = player_physics.predict
 	session.notice.connect(_on_notice)
 	ui=load("res://ui/base_hud.gd").new()
 	add_child(ui)

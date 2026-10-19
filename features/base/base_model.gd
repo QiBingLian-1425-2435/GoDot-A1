@@ -5,6 +5,7 @@ const Inventory = preload("res://features/inventory/base_inventory_system.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
 const Facilities = preload("res://features/base/facility_system.gd")
+const Movement = preload("res://features/player/movement_rules.gd")
 ## Host-authoritative base rules. No files are accessed until an explicit profile call.
 const Items = preload("res://features/inventory/item_catalog.gd")
 const EQUIPMENT := ["weapon", "helmet", "armor", "backpack"]
@@ -50,6 +51,8 @@ func reset_transients(id: int) -> void:
 	p.sprint = false; p.crouch = false; p.ads = false
 	p.anim_seq = 0; p.anim_action = ""; p.anim_time = 0.0; p.anim_duration = 0.0
 	p.reloading = false; p.reload_progress = 0.0; p.reload_timer = 0.0; p.fire_timer = 0.0
+	p.input_seq = 0; p.input_origin = p.pos; p.input_stamina = p.stamina
+	p.input_weight = p.weight; p.input_max_weight = p.max_weight
 	_inputs.erase(id)
 
 func _animate(p: Dictionary, action: String, duration: float) -> void:
@@ -115,32 +118,9 @@ func tick(delta: float) -> void:
 	for id in state.players:
 		var p: Dictionary = state.players[id]
 		var input: Dictionary = _inputs.get(id, {})
-		var direction := Vector2.ZERO
-		if _clock - float(input.get("stamp", -100)) <= INPUT_TIMEOUT:
-			direction = input.get("direction", Vector2.ZERO)
-		else: input = {}
-		p.crouch = bool(input.get("crouch",false))
-		p.ads = bool(input.get("ads",false))
-		p.sprint = bool(input.get("sprint",false)) and not p.crouch and not p.ads and p.stamina > 1.0 and not direction.is_zero_approx()
-		var speed := 3.7
-		if p.sprint: speed *= 1.65; p.stamina = maxf(0, p.stamina - delta * 19)
-		else: p.stamina = minf(100, p.stamina + delta * 12)
-		if p.crouch: speed *= 0.48
-		if p.ads: speed *= 0.62
+		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
 		_update_weight(p)
-		if p.weight > p.max_weight: speed *= clampf(p.max_weight / p.weight, 0.3, 1.0)
-		var travel: Vector2 = direction * speed * delta
-		var previous_pos: Vector2 = p.pos
-		if motion_solver.is_valid():
-			p.pos = motion_solver.call(int(id), Vector2(p.pos), travel)
-		var steps := maxi(1, int(ceil(travel.length() / 0.12)))
-		for step in range(0 if motion_solver.is_valid() else steps):
-			var part := travel / steps
-			var next: Vector2 = p.pos + Vector2(part.x, 0)
-			if _free(next): p.pos = next
-			next = p.pos + Vector2(0, part.y)
-			if _free(next): p.pos = next
-		p.velocity = (Vector2(p.pos) - previous_pos) / delta
+		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
 		p.hunger = maxf(0, p.hunger - delta * 0.012)
 		p.thirst = maxf(0, p.thirst - delta * 0.018)
@@ -158,6 +138,18 @@ func tick(delta: float) -> void:
 	for i in range(state.shots.size() - 1, -1, -1):
 		state.shots[i].ttl -= delta
 		if state.shots[i].ttl <= 0: state.shots.remove_at(i)
+
+func solve_motion(from: Vector2, travel: Vector2, id: int) -> Vector2:
+	if motion_solver.is_valid(): return motion_solver.call(id,from,travel)
+	var pos := from
+	var steps := maxi(1,int(ceil(travel.length()/.12)))
+	for step in range(steps):
+		var part := travel/steps
+		var next := pos+Vector2(part.x,0)
+		if _free(next): pos = next
+		next = pos+Vector2(0,part.y)
+		if _free(next): pos = next
+	return pos
 
 func _empty_slots(size: int) -> Array:
 	return InventoryRules._empty_slots(size)
