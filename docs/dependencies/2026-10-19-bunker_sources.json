@@ -41,6 +41,8 @@
     "features/player/base_actor.gd.uid",
     "features/player/base_input.gd",
     "features/player/base_input.gd.uid",
+    "features/player/motion_buffer.gd",
+    "features/player/motion_buffer.gd.uid",
     "features/player/player.gd",
     "features/player/player.gd.uid",
     "features/player/player.tscn",

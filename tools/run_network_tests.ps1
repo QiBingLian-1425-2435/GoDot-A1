@@ -7,6 +7,7 @@ $logRoot = Join-Path $projectRoot 'artifacts/base_tests'
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 if (-not (Test-Path -LiteralPath $Godot -PathType Leaf)) { throw "Godot 4.5.2 not found: $Godot" }
 $cases = @(
+    @{ Name='movement_scene_network_test'; Extra=@() },
     @{ Name='duckov_network_test'; Extra=@() },
     @{ Name='duckov_network_test'; Extra=@('--host-loss') },
     @{ Name='base_five_peer_test'; Extra=@() },

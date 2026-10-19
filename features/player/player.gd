@@ -1,5 +1,5 @@
 extends CharacterBody3D
-## Authoritative planar collision body; sprite interpolation lives in actor_view.gd.
+## Authoritative planar collision body; display interpolation lives in motion_buffer.gd.
 var direction := Vector2.ZERO
 var active := true
 

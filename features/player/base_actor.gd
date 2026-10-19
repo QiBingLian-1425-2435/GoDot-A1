@@ -291,7 +291,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	delta = clampf(delta, 0, .1)
 	_clock += delta
 	var at: Vector2 = data.get("pos", Vector2.ZERO)
-	# The root remains authoritative. Animation/root motion cannot move through a wall.
+	# Main may supply an interpolated display copy. Collision remains in PlayerPhysics.
 	position = Vector3(at.x, 0, at.y)
 	var velocity: Vector2 = data.get("velocity", Vector2.ZERO)
 	var aim: Vector2 = data.get("aim", Vector2.UP)

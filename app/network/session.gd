@@ -3,6 +3,10 @@ extends Node
 signal state_changed()
 signal notice(text: String)
 const Model = preload("res://features/base/base_model.gd")
+const MotionBuffer = preload("res://features/player/motion_buffer.gd")
+const MOTION_INTERVAL := 1.0 / 20.0
+const STATE_INTERVAL := 0.5
+const MOTION_FIELDS := ["pos","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","train","reset_targets"]
 var model = Model.new()
@@ -14,8 +18,12 @@ var transport := "offline"
 var peer_validator: Callable
 var peer_name_provider: Callable
 var _snapshot_clock := 0.0
+var _motion_clock := 0.0
 var _snapshot_serial := 0
 var _received_serial := -1
+var _received_motion_serial := -1
+var _snapshot_received_usec := 0
+var motion_buffer = MotionBuffer.new()
 var _session_token := 0
 var _movement_seq := 0
 var _intent_seq := 0
@@ -118,6 +126,9 @@ func offline() -> void:
 	model.reset_transients(1)
 	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
 	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
+	_motion_clock = 0.0; _move_clock = 0.0; _received_motion_serial = -1
+	motion_buffer.clear()
+	_snapshot_received_usec = 0
 	_movement_seq = 0; _intent_seq = 0; _connect_elapsed = 0.0
 	state_changed.emit()
 
@@ -157,10 +168,22 @@ func _physics_process(delta: float) -> void:
 				_movement.rpc_id(1,_move_pending,_session_token,_movement_seq)
 				_move_pending = {}
 		return
+	var reloading: Array[int] = []
+	for id in model.state.players:
+		if model.state.players[id].reloading: reloading.append(id)
 	model.tick(delta)
+	# Reload completion mutates ammunition/inventory in tick, outside the intent path.
+	for id in reloading:
+		if not model.state.players[id].reloading:
+			if mode == "host": _broadcast_snapshot(true)
+			break
+	_motion_clock += delta
+	if _motion_clock >= MOTION_INTERVAL:
+		_motion_clock = fmod(_motion_clock,MOTION_INTERVAL)
+		if mode == "host": _broadcast_motion()
 	_snapshot_clock += delta
-	if _snapshot_clock >= 1.0 / 15.0:
-		_snapshot_clock = 0.0
+	if _snapshot_clock >= STATE_INTERVAL:
+		_snapshot_clock = fmod(_snapshot_clock,STATE_INTERVAL)
 		state_changed.emit()
 		if mode == "host": _broadcast_snapshot(false)
 
@@ -201,7 +224,9 @@ func _allowed(sender: int, token: int, action: String) -> bool:
 	counter.count += 1; _rate_limits[sender] = counter
 	return counter.count <= 100
 
-@rpc("any_peer","call_remote","unreliable_ordered",1)
+# GodotSteam 4.23.1 maps unreliable_ordered to reliable. Sequence checks below
+# provide ordering while plain unreliable keeps movement out of retransmit queues.
+@rpc("any_peer","call_remote","unreliable",1)
 func _movement(payload: Dictionary, token: int, seq: int) -> void:
 	var sender := multiplayer.get_remote_sender_id()
 	if not _allowed(sender,token,"move") or seq <= int(_last_movement.get(sender,-1)): return
@@ -221,29 +246,89 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	_broadcast_snapshot(true)
 
 @rpc("authority","call_remote","reliable",2)
-func _snapshot(snapshot: Dictionary, token: int, seq: int) -> void:
-	_receive_snapshot(snapshot,token,seq)
+func _snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -> void:
+	_receive_snapshot(snapshot,token,seq,stamp)
 
 @rpc("authority","call_remote","reliable",0)
-func _snapshot_control(snapshot: Dictionary, token: int, seq: int) -> void:
-	_receive_snapshot(snapshot,token,seq)
+func _snapshot_control(snapshot: Dictionary, token: int, seq: int, stamp: float) -> void:
+	_receive_snapshot(snapshot,token,seq,stamp)
 
-func _receive_snapshot(snapshot: Dictionary, token: int, seq: int) -> void:
-	if mode != "client" or multiplayer.get_remote_sender_id() != 1 or seq <= _received_serial: return
+func _receive_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -> void:
+	if multiplayer.get_remote_sender_id() != 1: return
+	_apply_snapshot(snapshot,token,seq,stamp)
+
+func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -> void:
+	if mode != "client" or token == 0 or seq <= _received_serial: return
 	if _session_token != 0 and token != _session_token: return
 	_session_token = token; _received_serial = seq
+	# Reliable inventory can arrive behind a newer movement packet on another channel.
+	# Apply its inventory/membership, but never rewind the already confirmed position.
+	if seq < _received_motion_serial:
+		for id in snapshot.players:
+			if not model.state.players.has(id): continue
+			for key in MOTION_FIELDS:
+				snapshot.players[id][key] = model.state.players[id][key]
 	model.state = snapshot
+	_snapshot_received_usec = Time.get_ticks_usec()
+	motion_buffer.retain(model.state.players.keys())
+	if seq > _received_motion_serial:
+		_received_motion_serial = seq
+		motion_buffer.push(model.state.players,stamp)
 	state_changed.emit()
+
+@rpc("authority","call_remote","unreliable",1)
+func _motion_snapshot(rows: Array, token: int, seq: int, stamp: float) -> void:
+	if multiplayer.get_remote_sender_id() != 1: return
+	_apply_motion(rows,token,seq,stamp)
+
+func _apply_motion(rows: Array, token: int, seq: int, stamp: float) -> void:
+	if mode != "client" or _session_token == 0 or token != _session_token or seq <= _received_motion_serial: return
+	_received_motion_serial = seq
+	for row in rows:
+		if not model.state.players.has(row[0]): continue
+		var p: Dictionary = model.state.players[row[0]]
+		p.pos = row[1]; p.velocity = row[2]; p.aim = row[3]
+		p.sprint = (int(row[4]) & 1) != 0
+		p.crouch = (int(row[4]) & 2) != 0
+		p.ads = (int(row[4]) & 4) != 0
+		p.reloading = (int(row[4]) & 8) != 0
+		p.anim_seq = row[5]; p.anim_action = row[6]; p.anim_time = row[7]; p.anim_duration = row[8]
+		p.shots = row[9]; p.reload_progress = row[10]
+	motion_buffer.push(model.state.players,stamp)
+
+func _motion_rows() -> Array:
+	var rows: Array = []
+	for id in model.state.players:
+		var p: Dictionary = model.state.players[id]
+		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress])
+	return rows
+
+func snapshot_age() -> float:
+	return (Time.get_ticks_usec() - _snapshot_received_usec) / 1000000.0 if mode == "client" else 0.0
+
+func _broadcast_motion() -> void:
+	if mode != "host" or _peer == null: return
+	_snapshot_serial += 1
+	var rows := _motion_rows()
+	for peer_id in _connected_peers():
+		_motion_snapshot.rpc_id(peer_id,rows,_session_token,_snapshot_serial,model._clock)
 
 func _broadcast_snapshot(control: bool) -> void:
 	if mode != "host" or _peer == null: return
 	_snapshot_serial += 1
+	for peer_id in _connected_peers():
+		if control: _snapshot_control.rpc_id(peer_id,model.state,_session_token,_snapshot_serial,model._clock)
+		else: _snapshot.rpc_id(peer_id,model.state,_session_token,_snapshot_serial,model._clock)
+
+func _connected_peers() -> Array[int]:
+	var peers: Array[int] = []
 	for peer_id in multiplayer.get_peers():
 		if _peer is ENetMultiplayerPeer:
 			var enet_transport := (_peer as ENetMultiplayerPeer).get_peer(peer_id)
 			if enet_transport == null or enet_transport.get_state() != ENetPacketPeer.STATE_CONNECTED: continue
-		if control: _snapshot_control.rpc_id(peer_id,model.state,_session_token,_snapshot_serial)
-		else: _snapshot.rpc_id(peer_id,model.state,_session_token,_snapshot_serial)
+		peers.append(peer_id)
+	return peers
 
 @rpc("authority","call_remote","reliable",0)
 func _notice(message: String) -> void:
@@ -265,7 +350,7 @@ func _on_peer_disconnected(peer_id: int) -> void:
 	if mode != "host": return
 	model.remove_player(peer_id)
 	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
-	_snapshot_clock = 1.0
+	_broadcast_snapshot(true)
 	notice.emit("一位旅鸭离开了基地")
 	state_changed.emit()
 

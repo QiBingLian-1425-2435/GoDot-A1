@@ -32,6 +32,9 @@ static func _update_camera(ctx, delta:float)->void:
 	if ctx.session!=null:
 		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
 		var pos:Vector2=p.get("pos",Vector2(0,3))
+		if ctx.actors.has(ctx.session.local_id):
+			var visible_pos:Vector3=ctx.actors[ctx.session.local_id].position
+			pos=Vector2(visible_pos.x,visible_pos.z)
 		target=Vector3(pos.x*0.76,0,pos.y*0.76)
 	ctx.camera_focus=ctx.camera_focus.lerp(target,minf(1,delta*6))
 	ctx.camera.position=ctx.camera_focus+Vector3(15,23,21)
@@ -40,6 +43,7 @@ static func _update_camera(ctx, delta:float)->void:
 
 static func _update_actors(ctx, delta:float)->void:
 	var players:Dictionary=ctx.session.model.state.players
+	if ctx.session.mode=="client":ctx.session.motion_buffer.advance(delta)
 	for id in ctx.actors.keys():
 		if not players.has(id):
 			ctx.actors[id].queue_free()
@@ -51,7 +55,9 @@ static func _update_actors(ctx, delta:float)->void:
 			actor.setup(Color("87c9db") if id!=ctx.session.local_id else Color("d7c583"),str(players[id].name))
 			ctx.actors[id]=actor
 		ctx.actors[id].visible=true
-		ctx.actors[id].update_actor(players[id],delta,id==ctx.session.local_id)
+		var display:Dictionary=players[id]
+		if ctx.session.mode=="client":display=ctx.session.motion_buffer.sample_player(id,players[id])
+		ctx.actors[id].update_actor(display,delta,id==ctx.session.local_id)
 		var shots:int=players[id].get("shots",0)
 		if shots>int(ctx.last_shots.get(id,shots)):ctx.sound.play("fire")
 		ctx.last_shots[id]=shots
@@ -108,13 +114,17 @@ static func _update_tracers(ctx)->void:
 	ctx.tracer_mesh.clear_surfaces()
 	var shots:Array=ctx.session.model.state.get("shots",[])
 	if shots.is_empty():return
-	ctx.tracer_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	var started:=false
 	for shot in shots:
+		if float(shot.ttl)<=ctx.session.snapshot_age():continue
+		if not started:
+			ctx.tracer_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+			started=true
 		var start:Vector2=shot.from
 		var end:Vector2=shot.to
 		ctx.tracer_mesh.surface_add_vertex(Vector3(start.x,0.9,start.y))
 		ctx.tracer_mesh.surface_add_vertex(Vector3(end.x,0.9,end.y))
-	ctx.tracer_mesh.surface_end()
+	if started:ctx.tracer_mesh.surface_end()
 
 static func _capture(ctx)->void:
 	await RenderingServer.frame_post_draw
