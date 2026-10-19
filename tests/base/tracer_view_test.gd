@@ -33,8 +33,25 @@ func run() -> void:
 	if "--capture" in OS.get_cmdline_user_args() and DisplayServer.get_name() != "headless":
 		game._update_actors(0.016)
 		for i in range(20): game._update_camera(0.1)
+		game.set_process(false)
 		await RenderingServer.frame_post_draw
-		game.get_viewport().get_texture().get_image().save_png("res://artifacts/tracer_short_streak.png")
+		var shown: Image = game.get_viewport().get_texture().get_image()
+		shown.save_png("res://artifacts/tracer_short_streak.png")
+		game.tracer_node.visible = false
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var hidden: Image = game.get_viewport().get_texture().get_image()
+		var changed := 0
+		var center: Vector2 = game.camera.unproject_position((first[0]+first[2])*.5)
+		for y in range(maxi(0,int(center.y)-80),mini(shown.get_height(),int(center.y)+80)):
+			for x in range(maxi(0,int(center.x)-80),mini(shown.get_width(),int(center.x)+80)):
+				var a: Color = shown.get_pixel(x,y)
+				var b: Color = hidden.get_pixel(x,y)
+				if a.r-b.r > .15 and a.g-b.g > .1: changed += 1
+		print("TRACER_VISIBLE_PIXELS ",changed)
+		check(changed > 8,"tracer actually contributes bright pixels to the rendered frame")
+		game.tracer_node.visible = true
+		game.set_process(true)
 	var shot: Dictionary = game.session.model.state.shots[0]
 	shot.ttl = 0.15
 	p.pos.x += 2.0

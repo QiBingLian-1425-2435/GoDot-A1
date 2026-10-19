@@ -12,7 +12,7 @@ SUITES = {
              ('steam_service_test', True, []), ('steam_main_integration_test', True, [])],
     'network': [('ammo_supply_network_test', True, []), ('movement_scene_network_test', True, []), ('duckov_network_test', True, []), ('duckov_network_test', True, ['--host-loss']),
                 ('base_five_peer_test', True, []), ('duckov_animation_network_test', True, [])],
-    'ui': [('duckov_integration_test', False, []), ('duckov_animation_integration_test', False, []),
+    'ui': [('tracer_view_test', False, ['--capture']), ('duckov_integration_test', False, []), ('duckov_animation_integration_test', False, []),
            ('steam_ui_test', False, [])],
 }
 
