@@ -77,6 +77,11 @@ func shown(id: int = -1) -> Vector2:
 	var at: Vector3 = game.actors[id].position
 	return Vector2(at.x, at.z)
 
+func local_velocity() -> Vector2:
+	var p: Dictionary = game.session.model.state.players[game.session.local_id]
+	var prediction = game.session.get("local_movement")
+	return prediction.sample_player(p).velocity if prediction != null else p.velocity
+
 func protected_state() -> Dictionary:
 	var p: Dictionary = game.session.model.state.players[game.session.local_id]
 	var result: Dictionary = {}
@@ -156,6 +161,8 @@ func measure_start_stop() -> void:
 	var release_pos := shown()
 	key(KEY_W, false)
 	var last_motion := released
+	var stopped_at := -1.0
+	var resumed := false
 	var idle_at := -1.0
 	var previous := shown()
 	var max_drift := 0.0
@@ -163,13 +170,18 @@ func measure_start_stop() -> void:
 		await process_frame
 		var current := shown()
 		if current.distance_to(previous) > .002: last_motion = now()
+		if local_velocity().length() <= .01:
+			if stopped_at < 0: stopped_at = now()
+		elif stopped_at >= 0: resumed = true
 		max_drift = maxf(max_drift, current.distance_to(release_pos))
 		if idle_at < 0 and game.actors[game.session.local_id].animation_state == "idle": idle_at = now()
 		previous = current
-	metrics.stop_ms = (last_motion - released) * 1000.0
+	metrics.stop_ms = (stopped_at - released) * 1000.0 if stopped_at >= 0 else 1400.0
+	metrics.last_display_motion_ms = (last_motion - released) * 1000.0
 	metrics.idle_ms = (idle_at - released) * 1000.0 if idle_at >= 0 else 1400.0
 	metrics.stop_drift_m = max_drift
 	check(metrics.stop_ms <= 50.0, "physical key release stops local actor within 50 ms (%.1f)" % metrics.stop_ms, true)
+	check(not resumed, "late ACK never resumes input-driven movement after release", true)
 	check(metrics.idle_ms <= 100.0, "release stops locomotion animation within 100 ms (%.1f)" % metrics.idle_ms, true)
 	check(max_drift < .2, "old packets do not replay held movement after release (drift %.3f m)" % max_drift, true)
 	var p: Dictionary = game.session.model.state.players[game.session.local_id]
@@ -203,6 +215,10 @@ func measure_block(kind: String) -> void:
 	var blocked_at := now()
 	var last_motion := blocked_at
 	var previous := shown()
+	var blocked_pos := previous
+	var stopped_at := -1.0
+	var resumed := false
+	var max_drift := 0.0
 	if kind == "inventory":
 		key(KEY_TAB, true)
 		key(KEY_TAB, false)
@@ -211,12 +227,32 @@ func measure_block(kind: String) -> void:
 		key(KEY_ESCAPE, false)
 	else:
 		game.steam_service.overlay_active = true
+	var previous_confirmed := Vector2.INF
+	var previous_error := INF
+	var diverged := false
 	for _frame in range(75):
 		await process_frame
 		if shown().distance_to(previous) > .002: last_motion = now()
+		max_drift = maxf(max_drift,shown().distance_to(blocked_pos))
+		if local_velocity().length() <= .01:
+			if stopped_at < 0: stopped_at = now()
+		elif stopped_at >= 0: resumed = true
+		var authority: Dictionary = game.session.model.state.players[game.session.local_id]
+		var error := shown().distance_to(authority.pos)
+		if Vector2(authority.velocity).is_zero_approx() and local_velocity().is_zero_approx() and Vector2(authority.pos).is_equal_approx(previous_confirmed):
+			if error > previous_error+.003: diverged = true
+		previous_confirmed = authority.pos
+		previous_error = error
 		previous = shown()
-	metrics[kind + "_stop_ms"] = (last_motion - blocked_at) * 1000.0
+	metrics[kind + "_stop_ms"] = (stopped_at - blocked_at) * 1000.0 if stopped_at >= 0 else 1250.0
+	metrics[kind + "_last_display_motion_ms"] = (last_motion - blocked_at) * 1000.0
+	metrics[kind + "_drift_m"] = max_drift
 	check(metrics[kind + "_stop_ms"] <= 50.0, kind + " blocks held movement within 50 ms (%.1f)" % metrics[kind + "_stop_ms"], true)
+	check(not resumed, kind + " never resumes input movement during late authority correction", true)
+	var p: Dictionary = game.session.model.state.players[game.session.local_id]
+	var prediction = game.session.get("local_movement")
+	var predicted_pos: Vector2 = prediction._state.pos if prediction != null else p.pos
+	check(not diverged and predicted_pos.distance_to(p.pos) < .015 and shown().distance_to(p.pos) <= .121 and Vector2(p.velocity).is_zero_approx(), kind + " correction converges to the stopped host without reversing away")
 	check(game.ui.is_blocking() if kind != "overlay" else game.steam_service.overlay_active, kind + " is actually active")
 	key(KEY_W, false)
 	if kind == "inventory":
@@ -315,8 +351,10 @@ func _process(delta: float) -> bool:
 	if game.in_game and game.actors.has(game.session.local_id):
 		var p: Dictionary = game.session.model.state.players[game.session.local_id]
 		var at := shown()
+		var predicted_velocity := local_velocity()
 		samples.append({"time": now(), "case": active_case, "shown": [at.x, at.y],
 			"confirmed": [p.pos.x, p.pos.y], "velocity": [p.velocity.x, p.velocity.y],
+			"local_velocity": [predicted_velocity.x,predicted_velocity.y],
 			"animation": game.actors[game.session.local_id].animation_state,
 			"physics_frame": Engine.get_physics_frames()})
 	return false
