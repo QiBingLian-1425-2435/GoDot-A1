@@ -255,7 +255,7 @@ func _build_collisions() -> void:
 			if _cancelled:return
 
 func _shape(spec: Dictionary) -> Shape3D:
-	var key := str(spec.type)+str(spec.get("size",{}))+str(spec.get("radius",0))+str(spec.get("height",0))+str(spec.get("mesh",""))
+	var key := str([spec.type,spec.get("size",{}),spec.get("radius",0),spec.get("height",0),spec.get("mesh",""),spec.get("convex",false)])
 	if _shapes.has(key): return _shapes[key]
 	var result: Shape3D
 	match str(spec.type):

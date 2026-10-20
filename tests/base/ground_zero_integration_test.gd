@@ -33,6 +33,18 @@ func run() -> void:
 	await map_ready()
 	check(game.world_id=="surface" and model.state.world=="surface","the real main scene replaces the bunker with Ground Zero")
 	check(game.world.data.renderers.size()>48000 and game.world._collider_count>14000,"complete source layout, vegetation and collisions are mounted")
+	var source_mesh_colliders: Dictionary={}
+	for spec in game.world.data.colliders:
+		if spec.type=="MeshCollider" and spec.has("id"):source_mesh_colliders[int(spec.id)]=bool(spec.get("convex",false))
+	var collider_types_match := true
+	var inspected_mesh_colliders := 0
+	for node in game.world.get_children():
+		if not node is StaticBody3D or not source_mesh_colliders.has(int(node.get_meta("source_id",0))):continue
+		var expected_convex: bool=source_mesh_colliders[int(node.get_meta("source_id"))]
+		var shape: Shape3D=node.get_child(0).shape
+		collider_types_match=collider_types_match and (shape is ConvexPolygonShape3D if expected_convex else shape is ConcavePolygonShape3D)
+		inspected_mesh_colliders+=1
+	check(collider_types_match and inspected_mesh_colliders>100,"live mesh colliders preserve each source object's convex or triangle shape")
 	var spawn: Vector2 = player.pos
 	for i in range(3): model.tick(1.0/60)
 	print("GROUND_ZERO_SPAWN pos=",player.pos," height=",player.height," source_terrain=",game.world.terrain_height(spawn))
