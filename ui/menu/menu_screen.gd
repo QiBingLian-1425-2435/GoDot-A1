@@ -69,7 +69,7 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
-	ctx._dialog_panel("设置",Vector2(640,430))
+	ctx._dialog_panel("设置",Vector2(640,510))
 	ctx._label(ctx._dialog,"主音量",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
 	volume.position = Vector2(250,111)
@@ -91,8 +91,19 @@ static func _open_settings(ctx) -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
 		ctx.action_requested.emit("settings",{"fullscreen":value}))
 	ctx._dialog.add_child(fullscreen)
-	ctx._label(ctx._dialog,"提示：背包支持拖放、右键菜单和 Ctrl 快速存取。",Rect2(34,263,570,50),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ctx._button(ctx._dialog,"完成",Rect2(170,339,300,54),ctx._close_dialog,ctx.GREEN,23)
+	ctx._label(ctx._dialog,"弹药规则",Rect2(34,263,200,32),21,ctx.INK)
+	var infinite = CheckButton.new()
+	infinite.name = "InfiniteReserve"
+	infinite.text = "无限备弹"
+	infinite.position = Vector2(250,260)
+	infinite.size = Vector2(340,42)
+	infinite.button_pressed = ctx._state.get("infinite_reserve",false)
+	infinite.disabled = ctx._mode in ["client","join"]
+	infinite.toggled.connect(func(value: bool) -> void:
+		ctx.action_requested.emit("set_infinite_reserve",{"enabled":value}))
+	ctx._dialog.add_child(infinite)
+	ctx._label(ctx._dialog,"房主设置，全队生效；仍需按 R 换弹。仅当前运行期间保留。",Rect2(34,320,570,50),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"完成",Rect2(170,419,300,54),ctx._close_dialog,ctx.GREEN,23)
 
 static func _open_help(ctx) -> void:
 	ctx._dialog_panel("操作指南",Vector2(720,664))

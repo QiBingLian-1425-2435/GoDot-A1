@@ -212,6 +212,11 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	_local_id = local_id
 	_mode = mode
 	_status = status
+	if is_instance_valid(_dialog):
+		var infinite = _dialog.get_node_or_null("InfiniteReserve")
+		if infinite != null:
+			infinite.set_pressed_no_signal(state.get("infinite_reserve",false))
+			infinite.disabled = mode in ["client","join"]
 	if not is_instance_valid(_root):
 		return
 	var p := _player()
@@ -238,7 +243,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	for item in p.get("bag", []):
 		if item.get("kind", "") == "ammo":
 			reserve += int(item.get("count", 1))
-	_reload_label.text = "装填中… %d%%" % int(float(p.get("reload_progress", 0.0)) * 100.0) if p.get("reloading", false) else "/  %03d     [R] 装填" % reserve
+	_reload_label.text = "装填中… %d%%" % int(float(p.get("reload_progress", 0.0)) * 100.0) if p.get("reloading", false) else ("/  ∞     [R] 装填" if state.get("infinite_reserve",false) else "/  %03d     [R] 装填" % reserve)
 	var bag: Array = p.get("bag", [])
 	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
 	for i in range(_quick_slots.size()):

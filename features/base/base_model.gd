@@ -16,7 +16,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"players":{}, "drops":{}, "doors":{}, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -105,6 +105,11 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		"drop": return _drop(p, payload)
 		"pickup": return _pickup(p, payload)
 		"sort": return _sort(p, payload)
+		"set_infinite_reserve":
+			if id != 1: return _reject("只有房主可以修改无限备弹")
+			if not payload.get("enabled") is bool: return false
+			state.infinite_reserve = payload.enabled
+			return true
 		"reload": return _reload(p)
 		"fire": return _fire(p)
 		"select_weapon":
@@ -150,7 +155,7 @@ func tick(delta: float) -> void:
 				var weapon: Dictionary = p.equipment.weapon
 				if not weapon.is_empty():
 					var needed: int = int(Items.definition(weapon.kind).get("magazine",30)) - int(p.ammo)
-					p.ammo += _consume(p.bag,"ammo",needed)
+					p.ammo += needed if state.get("infinite_reserve",false) else _consume(p.bag,"ammo",needed)
 					p.magazines[weapon.uid] = p.ammo
 				p.reloading = false; p.reload_progress = 0.0
 	for i in range(state.shots.size() - 1, -1, -1):

@@ -5,7 +5,7 @@ static func _reload(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
 	if weapon.is_empty() or p.reloading: return false
 	if p.ammo >= int(ctx.Items.definition(weapon.kind).get("magazine",30)): return ctx._reject("弹匣已满")
-	if ctx._count(p.bag,"ammo") <= 0: return ctx._reject("背包里没有弹药")
+	if not ctx.state.get("infinite_reserve",false) and ctx._count(p.bag,"ammo") <= 0: return ctx._reject("背包里没有弹药")
 	p.reloading = true; p.reload_timer = 1.6; p.reload_progress = 0.0
 	return true
 

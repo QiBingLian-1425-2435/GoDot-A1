@@ -9,7 +9,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","train","reset_targets","travel","door"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door"]
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
@@ -112,6 +112,7 @@ func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = 
 	return OK
 
 func offline() -> void:
+	if mode == "client": model.state.infinite_reserve = false
 	if mode != "client" and model.state.players.has(local_id):
 		_local_profile = model.state.players[local_id].duplicate(true)
 	if is_inside_tree(): multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
@@ -218,6 +219,8 @@ func _flush_movement(edge: bool) -> void:
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
 	match action:
+		"set_infinite_reserve":
+			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"travel":
 			if payload.get("route") is String: clean.route = str(payload.route).left(64)
 		"move":
