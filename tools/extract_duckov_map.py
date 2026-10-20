@@ -403,9 +403,11 @@ class Exporter:
         filters={}
         renderers=[]; colliders=[]; entities=[]; lights=[]; terrain=None; errors=[]
         runtime_triggers=set()
-        doors={};door_parts={};door_blockers={}
+        doors={};door_parts={};door_blockers={};vision_roots={}
         for obj in scene.objects:
             script,go_id=scene.scripts.get(obj.path_id,("",0))
+            if script in ("InteractableLootbox","LootSpawner") and scene.enabled(go_id):
+                vision_roots[scene.go_transform[go_id]]=str(obj.path_id)
             if script=="OnTriggerEnterEvent":
                 runtime_triggers.update(p.component.m_PathID for p in scene.go[go_id].m_Component if p.component.deref().type.name.endswith("Collider"))
             elif script=="CutScene":
@@ -434,6 +436,12 @@ class Exporter:
                     go_id=data.m_GameObject.m_PathID
                     if not scene.enabled(go_id) or not getattr(data,"m_Enabled",True):continue
                 record={"id":obj.path_id,"name":scene.go[go_id].m_Name,"transform":transform_record(scene.matrix(go_id))}
+                if kind in ("MeshRenderer","SkinnedMeshRenderer","BoxCollider","SphereCollider","CapsuleCollider","MeshCollider"):
+                    ancestor=scene.go_transform[go_id]
+                    while ancestor:
+                        if ancestor in vision_roots:
+                            record["visibility_id"]=vision_roots[ancestor];break
+                        ancestor=scene.transforms[ancestor].m_Father.m_PathID
                 if kind in ("MeshRenderer","BoxCollider","SphereCollider","CapsuleCollider","MeshCollider"):
                     transform_id=scene.go_transform[go_id]
                     door_key=""

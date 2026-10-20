@@ -3,6 +3,7 @@ extends RefCounted
 const ROOT := "res://assets/worlds/ground_zero/"
 const SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface.gdshader")
 const DOUBLE_SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface_double.gdshader")
+const ALPHA_SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface_alpha.gdshader")
 var definition: Dictionary = {}
 var _geometry: Dictionary = {}
 var _render_meshes: Dictionary = {}
@@ -28,9 +29,9 @@ func texture(path: String) -> Texture2D:
 func material(key: String) -> Material:
 	if _materials.has(key): return _materials[key]
 	var spec: Dictionary = definition.materials.get(key,{})
-	if str(spec.get("shader","")).begins_with("SodaCraft/") and not spec.get("transparent",false):
+	if not str(spec.get("shader","")).contains("Decal"):
 		var source_material := ShaderMaterial.new()
-		source_material.shader = DOUBLE_SURFACE_SHADER if int(spec.get("cull",2))==0 else SURFACE_SHADER
+		source_material.shader = ALPHA_SURFACE_SHADER if spec.get("transparent",false) else (DOUBLE_SURFACE_SHADER if int(spec.get("cull",2))==0 else SURFACE_SHADER)
 		source_material.resource_name = str(spec.get("name",key))
 		source_material.set_shader_parameter("has_albedo",not str(spec.get("texture","")).is_empty())
 		source_material.set_shader_parameter("albedo_map",texture(str(spec.get("texture",""))))
@@ -80,6 +81,12 @@ func set_view(player: Vector3, camera: Vector3, enabled: bool) -> void:
 		value.set_shader_parameter("view_player",player+Vector3(0,.65,0))
 		value.set_shader_parameter("view_camera",camera)
 		value.set_shader_parameter("view_enabled",enabled)
+
+func set_vision(active: bool, parameters: Dictionary) -> void:
+	for value in _materials.values():
+		if not value is ShaderMaterial:continue
+		value.set_shader_parameter("vision_enabled",active)
+		for key in parameters:value.set_shader_parameter(key,parameters[key])
 
 func geometry(key: String) -> ArrayMesh:
 	if _geometry.has(key): return _geometry[key]

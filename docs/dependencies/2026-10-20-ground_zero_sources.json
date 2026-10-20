@@ -194,9 +194,9 @@
   "unsupported_dynamic_components": {
     "ParticleSystem": 58
   },
-  "asset_revision": "4b589d3d5da9aef92a37a875ede59ad88271722a0f0b3db5d6938477ef7d70ec",
+  "asset_revision": "ddbcbada29727117227a9f1a949e0fbcd34ff0e613fd5fd5609e9f9fe4c7c143",
   "runtime_asset_files": 841,
-  "runtime_asset_bytes": 118097688,
+  "runtime_asset_bytes": 118116034,
   "mesh_count": 683,
   "material_count": 201,
   "texture_count": 149

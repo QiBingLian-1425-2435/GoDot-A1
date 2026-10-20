@@ -3,6 +3,7 @@ extends Node3D
 const BaseView = preload("res://worlds/bunker/base_view.gd")
 const InputController = preload("res://features/player/base_input.gd")
 const WorldFlow = preload("res://features/exploration/world_flow.gd")
+const Vision = preload("res://features/visibility/exploration_vision.gd")
 
 const Actor = preload("res://features/player/base_actor.gd")
 const PROFILE := "user://a1_bunker_profile_v1.json"
@@ -42,6 +43,7 @@ var tracer_mesh:ImmediateMesh
 var tracer_node:MeshInstance3D
 var steam_service:Node
 var player_physics: Node3D
+var vision = Vision.new()
 
 func _ready()->void:
 	_setup_environment()
@@ -86,16 +88,8 @@ func _ready()->void:
 	tracer_mesh=ImmediateMesh.new()
 	tracer_node=MeshInstance3D.new()
 	tracer_node.mesh=tracer_mesh
-	var tracer_mat:=StandardMaterial3D.new()
-	tracer_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
-	tracer_mat.albedo_color=Color("ffd997")
-	tracer_mat.emission_enabled=true
-	tracer_mat.emission=Color("ffd997")
-	tracer_mat.emission_energy_multiplier=1.2
-	tracer_mat.vertex_color_use_as_albedo=true
-	tracer_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
-	# Camera-facing ribbons must remain visible from either triangle winding.
-	tracer_mat.cull_mode=BaseMaterial3D.CULL_DISABLED
+	var tracer_mat:=ShaderMaterial.new()
+	tracer_mat.shader=preload("res://features/visibility/vision_tracer.gdshader")
 	tracer_node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	tracer_node.material_override=tracer_mat
 	add_child(tracer_node)
@@ -147,7 +141,7 @@ func _enter_base()->void:
 	joining=false
 	if is_instance_valid(steam_service) and session.transport=="steam":steam_service.mark_connected()
 	crouched=false
-	world.visible=true
+	world.visible=not world_loading
 	menu_stage.visible=false
 	camera.current=true
 	ui.show_game()
@@ -268,6 +262,7 @@ func _process(delta:float)->void:
 		_update_actors(delta)
 		_update_camera(delta)
 		_update_drops()
+		vision.update(self,delta)
 		_update_tracers()
 		_update_interaction()
 		save_clock+=delta
@@ -307,11 +302,13 @@ func _update_interaction()->void:
 	var distance:=2.4
 	for uid in session.model.state.drops:
 		var drop:Dictionary=session.model.state.drops[uid]
+		if not vision.can_see(Vector3(drop.pos.x,float(drop.get("height",0))+.2,drop.pos.y)):continue
 		var d:=pos.distance_to(drop.pos)
 		if d<minf(distance,2.0):
 			distance=d
 			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
 	for station in session.model.stations:
+		if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
 		var d:=pos.distance_to(station.pos)
 		if d<distance:
 			distance=d

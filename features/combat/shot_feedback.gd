@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 		impact.age += delta
 		var time: float = impact.age-impact.delay
 		if time < 0: continue
-		impact.node.visible = true
+		impact.node.visible = context.vision.can_see(impact.node.global_position)
 		if not impact.sounded:
 			context.sound.play("impact"); impact.sounded = true
 			if context.world.target_nodes.has(impact.target_id):

@@ -27,6 +27,7 @@ static func sync(ctx) -> void:
 		ctx.ui.toast("本机地图素材与房主不一致，请使用同一地图构建")
 		return
 	ctx.player_physics.reset_world()
+	ctx.vision.enabled=false
 	ctx.session.reset_world_motion()
 	ctx.last_shots.clear()
 	for node in ctx.drops.values(): node.free()
@@ -51,7 +52,7 @@ static func sync(ctx) -> void:
 		ctx.world.map_loaded.connect(_finish_loading.bind(ctx,ctx.world))
 	ctx.world.name = "Bunker" if desired=="bunker" else "GroundZero"
 	ctx.add_child(ctx.world)
-	ctx.world.visible = ctx.in_game
+	ctx.world.visible = ctx.in_game and not ctx.world_loading
 	_apply_rules(ctx)
 	var player: Dictionary = ctx.session.model.state.players.get(ctx.session.local_id,{})
 	var pos: Vector2 = player.get("pos",Vector2.ZERO)
@@ -75,6 +76,8 @@ static func _finish_loading(ctx, map) -> void:
 	ctx.world_loading = false
 	ctx.player_physics.world_ready = true
 	ctx.session.model.world_ready = true
+	ctx.vision.update(ctx,0)
+	ctx.world.visible=ctx.in_game
 	ctx.ui.set_world_loading(false,"")
 	if ctx.session.mode=="host": ctx.session._broadcast_snapshot(true)
 

@@ -18,8 +18,13 @@ var door_verified := false
 var saw_rejection := false
 var finished := false
 var diagnostic_second := -1
+var vision_test:=false
+var vision_checked:=false
+var vision_turned:=false
+var vision_start: Dictionary={}
 func _initialize() -> void:
 	client="--client" in OS.get_cmdline_user_args()
+	vision_test="--vision" in OS.get_cmdline_user_args()
 	Engine.max_fps=60
 	call_deferred("start")
 func check(ok: bool, message: String) -> void:
@@ -40,6 +45,7 @@ func start() -> void:
 		check(game.session.host(PORT)==OK,"host starts the real main scene")
 		game._enter_base()
 		var args: PackedStringArray=["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/ground_zero_network_client.log"),"--script","res://tests/base/ground_zero_network_test.gd","--","--client"]
+		if vision_test:args.append("--vision")
 		child_pid=OS.create_process(OS.get_executable_path(),args)
 		check(child_pid>0,"a separate client process is running")
 func _process(delta: float) -> bool:
@@ -72,6 +78,24 @@ func host_step() -> void:
 		phase=1
 	elif phase==1 and model.state.world=="surface" and not game.world_loading:
 		check(game.world_id=="surface","client E intent mounted the same source map on the host")
+		if vision_test:
+			vision_start={"pos":p.pos,"height":p.height}
+			var host: Dictionary=model.state.players[1]
+			var forward:=Vector2.UP
+			for i in range(24):
+				var direction:=Vector2.from_angle(TAU*float(i)/24)
+				game.vision.aim=direction
+				if game.vision.can_see(Vector3(host.pos.x+direction.x*4.8,float(host.height)+1,host.pos.y+direction.y*4.8)):
+					forward=direction;break
+			host.aim=forward;p.aim=forward;p.pos=host.pos+forward*4.8;p.height=host.height
+			model.reset_transients(remote_id);model.state.qa_front=forward;model.state.qa_stage=8;phase=8
+		else:
+			start_pos=p.pos;model.state.qa_stage=2;phase=2
+		game.session._broadcast_snapshot(true);phase_time=0
+	elif phase==8 and p.shots>0 and phase_time>.5:
+		check(game.actors[remote_id].visible,"host vision still sees the client in its own forward cone")
+		check(Vector2(p.aim).dot(-Vector2(model.state.qa_front))>.9,"the remote player's independent turn reaches authority")
+		p.pos=vision_start.pos;p.height=vision_start.height;p.shots=0;model.state.shots.clear();model.reset_transients(remote_id)
 		start_pos=p.pos;model.state.qa_stage=2;game.session._broadcast_snapshot(true);phase=2;phase_time=0
 	elif phase==2 and p.shots>0 and phase_time>1.6:
 		check(start_pos.distance_to(p.pos)>.5 and start_pos.distance_to(p.pos)<5,"client movement is confirmed through source collision on the host")
@@ -107,6 +131,15 @@ func client_step() -> void:
 	if stage==1 and phase<2 and game.world_id=="bunker" and Vector2(p.pos).distance_to(Vector2(0,-8.2))<.2:
 		check(saw_rejection,"a remote client cannot travel from outside the entrance")
 		game._update_interaction();game._interact();phase=2
+	elif stage==8 and not vision_checked:
+		game._update_actors(.016);game.vision.update(game,.06)
+		if not vision_turned:
+			check(game.vision.enabled and game.actors[game.session.local_id].visible and not game.actors[1].visible,"the remote client hides the host behind its own observer")
+			game.session.send("move",{"direction":Vector2.ZERO,"aim":-Vector2(model.state.qa_front)})
+			vision_turned=true
+		elif game.actors[1].visible:
+			check(true,"turning the client's local aim reveals the host without sharing the host's cone")
+			game.session.send("fire");vision_checked=true
 	elif stage==2 and game.world_id=="surface":
 		if phase==2:
 			check(game.player_physics.spatial_enabled and game.world.data.renderers.size()>48000,"the client loads source geometry and the same spatial solver")

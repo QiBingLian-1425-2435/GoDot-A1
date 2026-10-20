@@ -1,4 +1,5 @@
 uniform sampler2D albedo_map : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+#include "res://features/visibility/vision_fog.gdshaderinc"
 uniform bool has_albedo = false;
 uniform vec4 tint : source_color = vec4(1.0);
 uniform vec2 uv_scale = vec2(1.0);
@@ -32,7 +33,10 @@ void fragment() {
 		float noise = fract(sin(dot(floor(world_position*24.0),vec3(12.9898,78.233,37.719)))*43758.5453);
 		if (along>0.0 && along<distance-0.3 && noise>coverage) { discard; }
 	}
-	ALBEDO = texel.rgb*tint.rgb*instance_tint.rgb;
+	ALBEDO = apply_vision_fog(texel.rgb*tint.rgb*instance_tint.rgb,world_position);
 	ROUGHNESS = surface_roughness;
-	EMISSION = emission_color;
+	EMISSION = apply_vision_fog(emission_color,world_position);
+#ifdef SOURCE_TRANSPARENT
+	ALPHA=texel.a*tint.a*instance_tint.a;
+#endif
 }

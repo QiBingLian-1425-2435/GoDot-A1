@@ -23,6 +23,9 @@ var loaded := false
 var _cancelled := false
 var _door_nodes: Dictionary = {}
 var _door_open: Dictionary = {}
+var _vision_groups: Dictionary = {}
+var _terrain_material: ShaderMaterial
+var _vision_materials: Array[ShaderMaterial]=[]
 
 func _ready() -> void:
 	if library == null: library = Library.new()
@@ -61,7 +64,7 @@ func _build_geometry() -> void:
 		var values: Array = item.transform
 		var x := int(floor(float(values[9])/64.0))
 		var z := int(floor(float(values[11])/64.0))
-		var key := str(item.mesh)+"/"+str(item.materials)+"/"+str(x)+"/"+str(z)+"/"+str(item.get("lod",-1))+"/"+str(item.get("source","scene"))+"/"+str(item.get("shadow_mode",1))
+		var key := str(item.mesh)+"/"+str(item.materials)+"/"+str(x)+"/"+str(z)+"/"+str(item.get("lod",-1))+"/"+str(item.get("source","scene"))+"/"+str(item.get("shadow_mode",1))+"/"+str(item.get("visibility_id",""))
 		if not groups.has(key): groups[key] = []
 		groups[key].append(item)
 	for items in groups.values():
@@ -99,6 +102,7 @@ func _build_geometry() -> void:
 		if source_shadow==3: node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 		elif source_shadow==0: node.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		add_child(node)
+		if first.has("visibility_id"):_track_vision(first,node)
 		_render_groups += 1
 		if _render_groups%24==0:
 			await get_tree().process_frame
@@ -172,6 +176,7 @@ func _project_decals() -> void:
 		var source: Dictionary = library.definition.materials[str(entity.material)]
 		if str(source.get("shader","")).contains("DecalWater"):
 			var material := ShaderMaterial.new();material.shader=WATER_DECAL_SHADER
+			_vision_materials.append(material)
 			material.set_shader_parameter("mask_map",library.texture(str(source.get("water_mask",""))))
 			var color: Array = source.albedo
 			material.set_shader_parameter("water_tint",Color(color[0],color[1],color[2],color[3]))
@@ -197,6 +202,7 @@ func _build_terrain() -> void:
 	_heights = file.get_buffer(file.get_length()).to_float32_array()
 	var material := ShaderMaterial.new()
 	material.shader = TERRAIN_SHADER
+	_terrain_material=material
 	material.set_shader_parameter("blend_map",library.texture(str(spec.alpha)))
 	material.set_shader_parameter("terrain_size",Vector2((_resolution-1)*_terrain_scale.x,(_resolution-1)*_terrain_scale.z))
 	var names := ["grass","mud","road"]
@@ -214,7 +220,7 @@ func _build_terrain() -> void:
 		add_child(node)
 		if build_collisions:
 			var body := StaticBody3D.new()
-			body.collision_layer = 1|4|8
+			body.collision_layer = 1|4|8|16
 			body.collision_mask = 0
 			var shape := CollisionShape3D.new()
 			shape.shape = mesh.create_trimesh_shape()
@@ -234,7 +240,7 @@ func _build_collisions() -> void:
 		if shape == null: continue
 		var body := StaticBody3D.new()
 		body.name = "Solid_"+str(_collider_count)
-		body.collision_layer = (1 if character else 0)|(8 if projectile else 0)
+		body.collision_layer = (1 if character else 0)|(8 if projectile else 0)|16
 		body.collision_mask = 0
 		body.transform = Library.transform(spec.transform)
 		body.set_meta("source_name",str(spec.get("name","")))
@@ -249,6 +255,7 @@ func _build_collisions() -> void:
 		body.add_child(collision)
 		add_child(body)
 		if spec.has("door_id"): _track_door(spec,body)
+		if spec.has("visibility_id"):_track_vision(spec,body)
 		_collider_count += 1
 		if _collider_count%256==0:
 			await get_tree().process_frame
@@ -348,3 +355,40 @@ func can_close_door(id: String) -> bool:
 		query.collision_mask=2;query.margin=.02
 		if not get_world_3d().direct_space_state.intersect_shape(query,1).is_empty():return false
 	return true
+
+func _track_vision(spec: Dictionary, node: Node3D) -> void:
+	var id:=str(spec.visibility_id)
+	if not _vision_groups.has(id):
+		var excluded: Array[RID]=[]
+		_vision_groups[id]={"nodes":[],"exclude":excluded,"bounds":AABB(),"has_bounds":false,"points":[]}
+	var group: Dictionary=_vision_groups[id]
+	if node is StaticBody3D:
+		group.exclude.append(node.get_rid())
+	else:
+		group.nodes.append(node)
+		var bounds: AABB=node.global_transform*node.multimesh.get_aabb()
+		group.bounds=group.bounds.merge(bounds) if group.has_bounds else bounds
+		group.has_bounds=true
+		group.points.clear()
+
+func vision_targets() -> Array:
+	var result: Array=[]
+	for group in _vision_groups.values():
+		if not group.has_bounds:continue
+		if group.points.is_empty():
+			var bounds: AABB=group.bounds
+			group.points.append(bounds.get_center())
+			for x in [.1,.9]:
+				for z in [.1,.9]:
+					group.points.append(bounds.position+bounds.size*Vector3(x,.6,z))
+		result.append(group)
+	return result
+
+func set_vision(active: bool, parameters: Dictionary) -> void:
+	library.set_vision(active,parameters)
+	if _terrain_material!=null:
+		_terrain_material.set_shader_parameter("vision_enabled",active)
+		for key in parameters:_terrain_material.set_shader_parameter(key,parameters[key])
+	for material in _vision_materials:
+		material.set_shader_parameter("vision_enabled",active)
+		for key in parameters:material.set_shader_parameter(key,parameters[key])
