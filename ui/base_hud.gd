@@ -48,6 +48,10 @@ var _interaction: Label
 var _toast_label: Label
 var _toast_timer := 0.0
 var _network_label: Label
+var _world_label: Label
+var _world_note: Label
+var _loading_panel: Control
+var _loading_title: Label
 var _ammo_label: Label
 var _reload_label: Label
 var _inventory_weight: Label
@@ -188,10 +192,20 @@ func toggle_pause() -> void:
 func set_stash_access(value: bool) -> void:
 	_stash_access = value
 	if _inventory:
-		_stash_note.text = "安全区仓库 · 拖动存取物品" if value else "靠近基地仓库后可存取物品"
+		_stash_note.text = "安全区仓库 · 拖动存取物品" if value else "返回基地后可存取仓库物品"
 		for slot in _stash_slots:
 			slot.locked = not value
 			slot.modulate.a = 1.0 if value else 0.4
+
+func set_world_loading(value: bool, title: String) -> void:
+	if not is_instance_valid(_loading_panel):
+		_loading_panel=_full_control(_root)
+		var shade:=ColorRect.new();shade.color=Color(.025,.045,.055,.94)
+		shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);_loading_panel.add_child(shade)
+		_loading_title=_label(_loading_panel,"",Rect2(400,350,800,100),28,INK,HORIZONTAL_ALIGNMENT_CENTER)
+		_button(_loading_panel,"返回菜单",Rect2(650,500,300,64),func():action_requested.emit("menu",{}),TEAL,22)
+	_loading_title.text="正在进入"+title+"，请稍候…"
+	_loading_panel.visible=value
 
 func update_state(state: Dictionary, local_id: int, mode: String, status: String) -> void:
 	_state = state
@@ -201,8 +215,11 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	if not is_instance_valid(_root):
 		return
 	var p := _player()
+	var world_name: String = str(state.get("world","bunker"))
+	_world_label.text = {"bunker":"避 难 所","surface":"零 号 区","cave":"神 秘 山 洞"}.get(world_name,"探索区域")
+	_world_note.text = "安全区域  ·  基地仓库 / 工作台 / 射击区" if world_name=="bunker" else "探索区域  ·  E 地图入口 / TAB 行囊"
 	var player_count := _players().size()
-	var session_name := "单人基地"
+	var session_name := "单人基地" if world_name=="bunker" else "单人探索"
 	if mode == "host":
 		session_name = "房主 · %d 人在线" % player_count
 	elif mode == "client" or mode == "join":
@@ -269,8 +286,8 @@ func _build_hud() -> void:
 	_hud = _full_control(_root)
 	var top := _panel(_hud, Rect2(28,24,465,68), Color(0.05,0.11,0.14,0.76), Color(0.50,0.69,0.70,0.35), 10)
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label(top, "避 难 所", Rect2(18,7,210,29), 24, Color("f0e8c6"))
-	_label(top, "安全区域  ·  基地仓库 / 工作台 / 射击区", Rect2(18,39,440,21), 14, Color("b2c7c2"))
+	_world_label = _label(top, "避 难 所", Rect2(18,7,210,29), 24, Color("f0e8c6"))
+	_world_note = _label(top, "安全区域  ·  基地仓库 / 工作台 / 射击区", Rect2(18,39,440,21), 14, Color("b2c7c2"))
 	_network_label = _label(_hud, "单人基地", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
 	var hp_panel := _panel(_hud, Rect2(26,710,350,154), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE

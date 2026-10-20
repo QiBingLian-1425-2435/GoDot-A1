@@ -2,10 +2,13 @@ extends Node3D
 
 const BaseView = preload("res://worlds/bunker/base_view.gd")
 const InputController = preload("res://features/player/base_input.gd")
+const WorldFlow = preload("res://features/exploration/world_flow.gd")
 
 const Actor = preload("res://features/player/base_actor.gd")
 const PROFILE := "user://a1_bunker_profile_v1.json"
 var world:Node3D
+var world_id := "bunker"
+var world_loading := false
 var session:Node
 var ui:CanvasLayer
 var camera:Camera3D
@@ -55,10 +58,13 @@ func _ready()->void:
 	add_child(player_physics)
 	player_physics.configure(session.model)
 	session.local_movement.solver = player_physics.predict
+	session.local_movement.spatial_solver = player_physics.predict_spatial
 	session.notice.connect(_on_notice)
 	ui=load("res://ui/base_hud.gd").new()
 	add_child(ui)
 	ui.action_requested.connect(_on_action)
+	WorldFlow.configure(self)
+	session.state_changed.connect(_sync_world)
 	sound=load("res://features/audio/base_sound.gd").new()
 	add_child(sound)
 	var overlay:=CanvasLayer.new()
@@ -121,6 +127,9 @@ func _ready()->void:
 		ui._reveal_menu()
 		ui._open_steam()
 	_refresh_ui()
+
+func _sync_world() -> void:
+	WorldFlow.sync(self)
 
 func _setup_environment()->void:
 	return BaseView._setup_environment(self)
@@ -290,6 +299,9 @@ func _update_tracers()->void:
 
 func _update_interaction()->void:
 	nearest={}
+	if world_loading:
+		ui.set_interaction("")
+		return
 	var p:Dictionary=session.model.state.players.get(session.local_id,{})
 	var pos:Vector2=p.get("pos",Vector2.ZERO)
 	var distance:=2.4
@@ -299,7 +311,7 @@ func _update_interaction()->void:
 		if d<minf(distance,2.0):
 			distance=d
 			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
-	for station in world.interactions():
+	for station in session.model.stations:
 		var d:=pos.distance_to(station.pos)
 		if d<distance:
 			distance=d
@@ -307,8 +319,11 @@ func _update_interaction()->void:
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))
 
 func _interact()->void:
+	if world_loading:return
 	if nearest.is_empty():return
 	match str(nearest.kind):
+		"door":session.send("door",{"uid":nearest.uid})
+		"travel":session.send("travel",{"route":nearest.uid})
 		"pickup":session.send("pickup",{"uid":nearest.uid})
 		"stash":ui.toggle_inventory(true)
 		"medical":session.send("rest")
@@ -316,9 +331,6 @@ func _interact()->void:
 		"trader","merchant":session.send("buy_ammo")
 		"range":session.send("reset_targets")
 		"ammo_supply":session.send("resupply_ammo")
-		"exit":
-			station_dialog.dialog_text="基地出口\n\n本版本开放地下基地、物资整理和联机训练。\n野外地图与任务战役尚未开放。\n\n可前往东南侧靶场试射，或邀请队友进入基地。"
-			station_dialog.popup_centered()
 	_refresh_ui()
 
 func _on_notice(message:String)->void:

@@ -18,6 +18,13 @@ static func _fire(ctx, p: Dictionary) -> bool:
 	var direction: Vector2 = p.aim
 	var distance = 22.0
 	var impact := "none"
+	var height := float(p.get("height",0))+.9
+	if ctx.shot_query.is_valid():
+		var start := Vector3(origin.x,height,origin.y)
+		var result: Dictionary = ctx.shot_query.call(start,start+Vector3(direction.x,0,direction.y)*distance)
+		if not result.is_empty():
+			distance = start.distance_to(result.position)
+			impact = "wall"
 	for rect in ctx.obstacles:
 		var hit = ctx._ray_rect(origin,direction,rect)
 		if hit >= 0 and hit < distance:
@@ -32,7 +39,7 @@ static func _fire(ctx, p: Dictionary) -> bool:
 	if not chosen.is_empty():
 		chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
 		chosen.hits = int(chosen.get("hits",0)) + 1
-	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1),"ttl":0.16})
+	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1),"ttl":0.16})
 	return true
 
 static func _ray_rect(ctx, origin: Vector2, direction: Vector2, rect: Rect2) -> float:

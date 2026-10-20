@@ -36,7 +36,21 @@ def build(engine):
     if not version.startswith('4.5.2.'):
         raise RuntimeError('This build is pinned to Godot 4.5.2, got ' + version)
     manifest = json.loads((ROOT / 'docs/dependencies/2026-10-19-bunker_sources.json').read_text(encoding='utf-8'))
-    runtime = [ROOT / 'project.godot'] + [ROOT / name for name in manifest['runtime_files']]
+    tracked_runtime = [ROOT / 'project.godot'] + [ROOT / name for name in manifest['runtime_files']]
+    runtime = tracked_runtime.copy()
+    for name in manifest.get('external_asset_manifests', []):
+        index_path = ROOT / name
+        if not index_path.resolve().is_relative_to(ROOT) or not index_path.is_file():
+            raise RuntimeError('Restore the Ground Zero map assets first: ' + str(index_path))
+        index = json.loads(index_path.read_text(encoding='utf-8'))
+        runtime.append(index_path)
+        for relative, record in index['files'].items():
+            path = index_path.parent / relative
+            if not path.resolve().is_relative_to(index_path.parent.resolve()) or not path.is_file():
+                raise RuntimeError('Missing/unsafe external map asset: ' + str(path))
+            if path.stat().st_size != record['bytes'] or hashlib.sha256(path.read_bytes()).hexdigest() != record['sha256']:
+                raise RuntimeError('External map asset differs from its extraction manifest: ' + str(path))
+            runtime.append(path)
     for path in runtime:
         if not path.resolve().is_relative_to(ROOT) or not path.is_file():
             raise RuntimeError('Missing/unsafe runtime dependency: ' + str(path))
@@ -95,7 +109,8 @@ def build(engine):
 3. 双击 start_steam.cmd（或 bunker_a1.exe）。房主选 Steam 联机并创建好友房间，成功后进入基地。
 4. 房主按 Esc 打开基地菜单，邀请 Steam 好友或复制房间号；队友在 Steam 页面粘贴加入。
 5. WASD 移动，鼠标瞄准/左键射击，R 装填，Shift 冲刺，C 蹲行，Tab/I 背包，E 设施/拾取。
-6. 房主退出会结束房间，不支持房主迁移、掉线续局；基地安全区无玩家互伤，野外任务未开放。
+6. 基地北侧出口按 E 全队进入零号区，地图内可进入神秘山洞；基地入口或撤离点按 E 全队返回。
+   房主退出会结束房间，不支持房主迁移、掉线续局；基地安全区无玩家互伤。
 7. 所有人必须使用同一测试包。基地最多五人，允许房间中途加入；房主/单人存档，客机物品不持久保存。
 
 这是使用 Spacewar App ID 480 的开发测试包，不是正式 Steam 发行包。
@@ -112,10 +127,10 @@ Steam Overlay 可用时支持邀请；覆盖层不可用时可用房间号加入
                 cached.write_bytes(response.read())
         shutil.copy2(cached, output / ('GODOT_' + filename))
     metadata = {'build_id': build_id, 'source_commit': git('rev-parse', 'HEAD'),
-                'source_dirty': bool(git('status', '--porcelain', '--', *[p.relative_to(ROOT).as_posix() for p in runtime])),
+                'source_dirty': bool(git('status', '--porcelain', '--', *[p.relative_to(ROOT).as_posix() for p in tracked_runtime])),
                 'workspace_has_other_changes': bool(git('status', '--porcelain')), 'engine': version,
                 'godotsteam': native['version'], 'steam_app_id': 480,
-                'remote_two_account_test': 'not_run', 'max_players': 5, 'external_art_required': False, 'files': {}}
+                'remote_two_account_test': 'not_run', 'max_players': 5, 'external_art_required': bool(manifest.get('external_art_required')), 'files': {}}
     for path in sorted(output.rglob('*')):
         if path.is_file():
             metadata['files'][path.relative_to(output).as_posix()] = {

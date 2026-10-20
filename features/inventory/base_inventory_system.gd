@@ -103,6 +103,7 @@ static func _drop(ctx, p: Dictionary, payload: Dictionary) -> bool:
 		item.magazine = int(p.magazines.get(item.uid,0))
 		p.magazines.erase(item.uid)
 	item.pos = p.pos + p.aim * 0.55
+	item.height = p.get("height",0.0)
 	if not ctx._free(item.pos): item.pos = p.pos
 	ctx.state.drops[item.uid] = item
 	p.bag[index] = {}
@@ -115,6 +116,7 @@ static func _pickup(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if not uid is String or not ctx.state.drops.has(uid): return false
 	var drop: Dictionary = ctx.state.drops[uid]
 	if p.pos.distance_to(drop.pos) > 2.0: return ctx._reject("物品太远")
+	if absf(float(p.get("height",0))-float(drop.get("height",0)))>1.8: return ctx._reject("物品位于其他高度")
 	var item = {"uid":drop.uid,"kind":drop.kind,"count":drop.count}
 	if not ctx._insert(p.bag,item): return ctx._reject("背包已满")
 	if ctx.Items.definition(item.kind).category == "weapon": p.magazines[item.uid] = int(drop.get("magazine",0))

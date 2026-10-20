@@ -7,11 +7,11 @@ signal failed(message: String)
 signal overlay_changed(active: bool)
 
 const GAME_KEY := "a1_bunker_base"
-const PROTOCOL := "a1_bunker_v3"
+const PROTOCOL := "a1_bunker_v4"
 const VIRTUAL_PORT := 24567
 const MAX_MEMBERS := 5
 var app_id := 480
-var build_id := "a1_bunker_dev_20261019"
+var build_id := "a1_ground_zero_dev_20261020"
 var steam: Object
 var peer_factory: Callable
 var available := false

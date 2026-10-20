@@ -36,10 +36,17 @@ static func _update_camera(ctx, delta:float)->void:
 		if ctx.actors.has(ctx.session.local_id):
 			var visible_pos:Vector3=ctx.actors[ctx.session.local_id].position
 			pos=Vector2(visible_pos.x,visible_pos.z)
-		target=Vector3(pos.x*0.76,0,pos.y*0.76)
-	ctx.camera_focus=ctx.camera_focus.lerp(target,minf(1,delta*6))
+		if ctx.world_id=="bunker": target=Vector3(pos.x*0.76,0,pos.y*0.76)
+		else:
+			var height: float = float(p.get("height",0))
+			if ctx.actors.has(ctx.session.local_id): height=ctx.actors[ctx.session.local_id].position.y
+			target=Vector3(pos.x,height,pos.y)
+	if ctx.world_id!="bunker" and ctx.camera_focus.distance_to(target)>6:ctx.camera_focus=target
+	else:ctx.camera_focus=ctx.camera_focus.lerp(target,minf(1,delta*6))
 	ctx.camera.position=ctx.camera_focus+Vector3(15,23,21)
 	ctx.camera.look_at(ctx.camera_focus)
+	if is_instance_valid(ctx.world) and ctx.world.has_method("set_view_points"):
+		ctx.world.set_view_points(ctx.camera_focus,ctx.camera.position)
 	var feedback = ctx.get_node_or_null("ShotFeedback")
 	if feedback != null:
 		var time := float(Time.get_ticks_msec())*.001
@@ -114,7 +121,7 @@ static func _update_drops(ctx)->void:
 			ctx.add_child(node)
 			ctx.drops[uid]=node
 		var pos:Vector2=data[uid].pos
-		ctx.drops[uid].position=Vector3(pos.x,0,pos.y)
+		ctx.drops[uid].position=Vector3(pos.x,float(data[uid].get("height",0)),pos.y)
 		ctx.drops[uid].visible=true
 
 static func _update_tracers(ctx)->void:
@@ -152,8 +159,9 @@ static func _update_tracers(ctx)->void:
 		var alpha:float=clampf((lifetime-age)/0.055,0.0,1.0)
 		var start:Vector2=origin+direction*tail
 		var finish:Vector2=origin+direction*head
-		var a:=Vector3(start.x,0.9,start.y)
-		var b:=Vector3(finish.x,0.9,finish.y)
+		var height := float(shot.get("height",.9))
+		var a:=Vector3(start.x,height,start.y)
+		var b:=Vector3(finish.x,height,finish.y)
 		var side:Vector3=(b-a).normalized().cross(ctx.camera.global_basis.z).normalized()*(0.045 if rifle else 0.028)
 		var color:=Color(1.0,.95,.70,alpha) if rifle else Color(1.0,.70,.35,alpha*.8)
 		for vertex in [a-side,a+side,b+side,a-side,b+side,b-side]:

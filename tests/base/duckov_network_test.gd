@@ -93,8 +93,8 @@ func run_client() -> void:
 		session.send("pickup",{"uid":tracked_uid})
 		session.send("pickup",{"uid":tracked_uid})
 		# Test stale movement and stale token without injecting final positions.
-		session._movement.rpc_id(1,{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT},session._session_token,1)
-		session._movement.rpc_id(1,{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT},session._session_token + 1,99999)
+		session._movement.rpc_id(1,{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT},session._session_token,1,int(session.model.state.get("world_revision",0)))
+		session._movement.rpc_id(1,{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT},session._session_token + 1,99999,int(session.model.state.get("world_revision",0)))
 		phase = 4; phase_time = 0
 	elif phase == 4 and phase_time > 0.6:
 		check(not session.model.state.drops.has(tracked_uid),"claimed drop stays absent after duplicate pickup")

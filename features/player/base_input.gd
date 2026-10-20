@@ -5,7 +5,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if ctx.session==null:return
 	ctx.fire_clock-=delta
 	if not ctx.in_game:return
-	var blocked:bool=ctx.ui.is_blocking() or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
+	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
@@ -17,7 +17,7 @@ static func _physics_process(ctx, delta:float)->void:
 	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
 	var aim:Vector2=p.get("aim",Vector2.UP)
 	if not blocked and focused:
-		var plane =Plane(Vector3.UP,0.75)
+		var plane =Plane(Vector3.UP,float(p.get("height",0))+.75)
 		var mouse =ctx.get_viewport().get_mouse_position()
 		var point:Variant=plane.intersects_ray(ctx.camera.project_ray_origin(mouse),ctx.camera.project_ray_normal(mouse))
 		if point is Vector3:

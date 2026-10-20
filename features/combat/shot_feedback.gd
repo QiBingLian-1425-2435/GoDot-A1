@@ -19,7 +19,7 @@ func observe(shot: Dictionary, age: float) -> void:
 		impacts.pop_front().node.queue_free()
 	var node := Node3D.new()
 	var point: Vector2 = shot.to
-	node.position = Vector3(point.x,0.9,point.y)
+	node.position = Vector3(point.x,float(shot.get("height",.9)),point.y)
 	add_child(node)
 	var bits: Array = []
 	for i in range(6):

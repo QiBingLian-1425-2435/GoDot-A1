@@ -12,7 +12,11 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	if p.ads: speed *= .62
 	if p.weight > p.max_weight: speed *= clampf(p.max_weight/p.weight,.3,1.0)
 	var previous: Vector2 = p.pos
-	p.pos = solver.call(previous,direction*speed*delta)
+	var solved: Variant = solver.call(previous,direction*speed*delta)
+	if solved is Vector3:
+		p.pos = Vector2(solved.x,solved.z)
+		p.height = solved.y
+	else: p.pos = solved
 	p.velocity = (Vector2(p.pos)-previous)/delta
 	var aim: Vector2 = input.get("aim",p.get("aim",Vector2.UP))
 	if aim.length_squared() > .001: p.aim = aim.normalized()

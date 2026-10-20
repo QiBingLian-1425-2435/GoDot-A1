@@ -72,7 +72,10 @@ func getFriendCount(flags:int) -> int: return friends.size()
 func getFriendByIndex(index:int,flags:int) -> int: return friends[index]
 func getFriendGamePlayed(id:int) -> Dictionary: return friend_games.get(id,{})
 func populate(id:int,game:String,protocol:String,owner:int=FRIEND_ID) -> void:
-    rooms[id]={"owner":owner,"members":[owner],"limit":5,"data":{"game":game,"protocol":protocol,"build":"a1_bunker_dev_20261019","host_id":str(owner),"name":"好友基地"}}
+    var config:=ConfigFile.new()
+    config.load("res://app/network/steam_config.cfg")
+    var build: String=str(config.get_value("steam","build_id","a1_ground_zero_dev_20261020"))
+    rooms[id]={"owner":owner,"members":[owner],"limit":5,"data":{"game":game,"protocol":protocol,"build":build,"host_id":str(owner),"name":"好友基地"}}
 func emit_created(id:int,result:int=1) -> void:
     if result==1:in_rooms[id]=true
     lobby_created.emit(result,id)

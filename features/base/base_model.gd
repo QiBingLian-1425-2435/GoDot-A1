@@ -6,6 +6,7 @@ const Combat = preload("res://features/combat/combat_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
 const Facilities = preload("res://features/base/facility_system.gd")
 const Movement = preload("res://features/player/movement_rules.gd")
+const WorldTravel = preload("res://features/exploration/world_travel.gd")
 ## Host-authoritative base rules. No files are accessed until an explicit profile call.
 const Items = preload("res://features/inventory/item_catalog.gd")
 const EQUIPMENT := ["weapon", "helmet", "armor", "backpack"]
@@ -15,7 +16,13 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"players":{}, "drops":{}, "phase":"base", "targets":[], "shots":[]}
+var state: Dictionary = {"players":{}, "drops":{}, "doors":{}, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var world_cache: Dictionary = {}
+var travel_validator: Callable
+var shot_query: Callable
+var map_revision := ""
+var world_ready := true
+var door_clearance: Callable
 var _next_uid := 1
 var _clock := 0.0
 var _inputs: Dictionary = {}
@@ -37,6 +44,11 @@ func add_player(id: int, player_name: String) -> void:
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:
 		_insert(p.stash, _item(spec[0], spec[1]))
 	state.players[id] = p
+	p.height = 0.0
+	if state.get("world","bunker")!="bunker" and not state.players.is_empty():
+		var leader: Dictionary = state.players.values()[0]
+		p.pos = Vector2(leader.pos)+Vector2(.9,0)
+		p.height = float(leader.get("height",0))
 	reset_transients(id)
 	_update_weight(p)
 
@@ -53,6 +65,7 @@ func reset_transients(id: int) -> void:
 	p.reloading = false; p.reload_progress = 0.0; p.reload_timer = 0.0; p.fire_timer = 0.0
 	p.input_seq = 0; p.input_origin = p.pos; p.input_stamina = p.stamina
 	p.input_weight = p.weight; p.input_max_weight = p.max_weight
+	p.input_height = p.get("height",0.0)
 	_inputs.erase(id)
 
 func _animate(p: Dictionary, action: String, duration: float) -> void:
@@ -61,10 +74,15 @@ func _animate(p: Dictionary, action: String, duration: float) -> void:
 
 func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	last_notice = ""
+	if not world_ready and action in ["move","fire","drop","pickup","travel","door"]: return false
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
+	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
+		return _reject("探索时无法访问基地仓库")
 	match action:
+		"door": return WorldTravel.toggle_door(self,id,payload)
+		"travel": return WorldTravel.travel(self,id,payload)
 		"move":
 			var direction: Variant = payload.get("direction", Vector2.ZERO)
 			var aim: Variant = payload.get("aim", p.aim)
@@ -139,7 +157,7 @@ func tick(delta: float) -> void:
 		state.shots[i].ttl -= delta
 		if state.shots[i].ttl <= 0: state.shots.remove_at(i)
 
-func solve_motion(from: Vector2, travel: Vector2, id: int) -> Vector2:
+func solve_motion(from: Vector2, travel: Vector2, id: int) -> Variant:
 	if motion_solver.is_valid(): return motion_solver.call(id,from,travel)
 	var pos := from
 	var steps := maxi(1,int(ceil(travel.length()/.12)))

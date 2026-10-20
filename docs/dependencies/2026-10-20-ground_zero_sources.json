@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "source": "locally installed Escape from Duckov",
+  "unity": "2022.3.62f2",
+  "coordinate_conversion": "Unity (x,y,z) -> Godot (x,y,-z), metres; original world positions retained",
+  "tools": {
+    "UnityPy": "1.25.4",
+    "TypeTreeGeneratorAPI": "0.0.10",
+    "numpy": "2.3.5"
+  },
+  "source_files": {
+    "globalgamemanagers": {
+      "bytes": 5818180,
+      "sha256": "73e4d8727c17856cc4ae823431a1682b6141da489994bcfec2df2b282f8a3221"
+    },
+    "globalgamemanagers.assets": {
+      "bytes": 1853628,
+      "sha256": "0133f6b828ca2a638e1105742986998bcab32963bdd6429bfc2f5213016d2f82"
+    },
+    "globalgamemanagers.assets.resS": {
+      "bytes": 6158560,
+      "sha256": "de648fe0c01bea4e6738a56b43fab2b13a02d089b26e2e65a95e27d2973a6e44"
+    },
+    "level13": {
+      "bytes": 69604,
+      "sha256": "6f1bf14ff696c0d4cd64468a26e8e4d03d2de4cb0b15b36189608c420479f6f8"
+    },
+    "level14": {
+      "bytes": 6933828,
+      "sha256": "3713a31e20b838ab306275e447254e400a0cb788f56911ae2d3f432edebd329d"
+    },
+    "level15": {
+      "bytes": 717696,
+      "sha256": "b79630672cc2251dfaeab4907faebd59faf94670ae6bc2a77cb06efbfb651f43"
+    },
+    "resources.assets": {
+      "bytes": 81926752,
+      "sha256": "93c4ab6ad71fdb3bf4a331bbb2ac6bc2f7db7b0f12efe60dd43ea019ab2e543d"
+    },
+    "resources.assets.resS": {
+      "bytes": 1154919728,
+      "sha256": "70f5cb509cfcd1efb7ed0e6e3ef4e987777541e6385f3ff579c0dd3f30513e27"
+    },
+    "sharedassets0.assets": {
+      "bytes": 53952992,
+      "sha256": "049b4b3898fb3bc09a67ff709e95887f7c1529cfc3e8456d6a460542b580172a"
+    },
+    "sharedassets0.assets.resS": {
+      "bytes": 9749248,
+      "sha256": "d9c6e5e419973e5c46423d1ece0705e7d7cc7faaa3778692609fe6b125f68e65"
+    },
+    "sharedassets1.assets": {
+      "bytes": 13585356,
+      "sha256": "36b106206e221b176ab3bc3134baaeed2df12fa4b00c2a7524f2e8f1b6828c26"
+    },
+    "sharedassets1.assets.resS": {
+      "bytes": 42478448,
+      "sha256": "9232af0693e5c6a9f1d9fde04dc5dbdc4a5809ca5e3e8f1f2ac9937d080f61c9"
+    },
+    "sharedassets10.assets": {
+      "bytes": 28097304,
+      "sha256": "91165ecb2d2ed8ae71dd6150c2d6ff0c0825b88c4f5dc69fd9424495ba76c074"
+    },
+    "sharedassets10.assets.resS": {
+      "bytes": 465149568,
+      "sha256": "9f522e9afb6db3985a177f96cdd408eaa1b1b16f889e058d41996cd6fadb7393"
+    },
+    "sharedassets12.assets": {
+      "bytes": 4676164,
+      "sha256": "0763f54dc795aa8d91bdc627ad859f397917a8b684b1a776f51c2eb84edbf126"
+    },
+    "sharedassets12.assets.resS": {
+      "bytes": 32149424,
+      "sha256": "7e8530c253136e965fea38a51c49c7736288989cfafb91c0155b130deaad3637"
+    },
+    "sharedassets14.assets": {
+      "bytes": 2964716,
+      "sha256": "2a004ac643da3f382b399692072ac9e9cb02e60cf998d87fcd3576314a11b1f9"
+    },
+    "sharedassets14.assets.resS": {
+      "bytes": 17688144,
+      "sha256": "174a59fa032af67996af4cd211c11a9aa5a4c08b9117149167810510dd500d2b"
+    },
+    "sharedassets15.assets": {
+      "bytes": 724116,
+      "sha256": "c6d28f4469cac5053e89105cbca248849720ff4ec6e0bcd334d0954e75f3309a"
+    },
+    "sharedassets15.assets.resS": {
+      "bytes": 131232,
+      "sha256": "0e53bf6d60a465b709a69625bb2292d7815b9b23e56bae6da10462b89ce7ae46"
+    },
+    "sharedassets3.assets": {
+      "bytes": 417152,
+      "sha256": "e1f423a47e49c1a75ed2814376e6d1620f41bc694adfe812b124999abda0a077"
+    },
+    "sharedassets3.assets.resS": {
+      "bytes": 2974352,
+      "sha256": "532ff16dc6f4ea108efebbb5c80898a6a0fc3195b1e09376e9355f6f7793b162"
+    },
+    "sharedassets4.assets": {
+      "bytes": 131120,
+      "sha256": "7499bc7f5a6d0de1c0fe387d64302065d36c00f9ec46ee07fc985ee380c76202"
+    },
+    "sharedassets4.assets.resS": {
+      "bytes": 15793984,
+      "sha256": "df5f513baf84bfaef9721c7b6612c9a3011a9435eb2d1307e8d744a103179c3e"
+    },
+    "sharedassets5.assets": {
+      "bytes": 1825836,
+      "sha256": "2413e1675d7d73d080e95cafacbef482a6b1a8d284e5c62d05bdc0c92a952fe7"
+    },
+    "sharedassets5.assets.resS": {
+      "bytes": 130810976,
+      "sha256": "20ace43b943c27ca3e766fd9ec8ddea868a150aca8cb1f87cb88432b9b873f86"
+    },
+    "sharedassets6.assets": {
+      "bytes": 453212,
+      "sha256": "101ad8d71669b5fb62cae3011784692b152aa7798d3a2cd225a4563a7d1cff2a"
+    },
+    "sharedassets6.assets.resS": {
+      "bytes": 10081856,
+      "sha256": "fcebf25cef05e8a3b56583f3b6ae192e28db0db28d58cb00c181ea0a5d532340"
+    }
+  },
+  "scenes": {
+    "surface": {
+      "renderers": 48945,
+      "colliders": 15506,
+      "entities": 449,
+      "errors": 0,
+      "source_types": {
+        "Texture2D": 1,
+        "Mesh": 5,
+        "GameObject": 13141,
+        "Transform": 13113,
+        "MeshRenderer": 5212,
+        "OcclusionCullingSettings": 1,
+        "MeshFilter": 5212,
+        "Rigidbody": 4,
+        "MeshCollider": 750,
+        "BoxCollider": 5286,
+        "Animator": 17,
+        "TrailRenderer": 2,
+        "RenderSettings": 1,
+        "Light": 26,
+        "LineRenderer": 10,
+        "SphereCollider": 98,
+        "CapsuleCollider": 227,
+        "SkinnedMeshRenderer": 9,
+        "TerrainCollider": 1,
+        "LightmapSettings": 1,
+        "NavMeshSettings": 1,
+        "ParticleSystem": 210,
+        "ParticleSystemRenderer": 210,
+        "Terrain": 1,
+        "CanvasRenderer": 22,
+        "Canvas": 2,
+        "RectTransform": 28,
+        "PlayableDirector": 1,
+        "LightingSettings": 1,
+        "MonoBehaviour": 2498
+      }
+    },
+    "cave": {
+      "renderers": 134,
+      "colliders": 133,
+      "entities": 23,
+      "errors": 0,
+      "source_types": {
+        "Texture2D": 1,
+        "GameObject": 1344,
+        "Transform": 1344,
+        "MeshRenderer": 468,
+        "OcclusionCullingSettings": 1,
+        "MeshFilter": 468,
+        "MeshCollider": 152,
+        "BoxCollider": 570,
+        "RenderSettings": 1,
+        "Light": 5,
+        "SphereCollider": 1,
+        "CapsuleCollider": 2,
+        "TerrainCollider": 1,
+        "LightmapSettings": 1,
+        "NavMeshSettings": 1,
+        "ParticleSystem": 6,
+        "ParticleSystemRenderer": 6,
+        "ReflectionProbe": 1,
+        "Terrain": 1,
+        "LightingSettings": 1,
+        "MonoBehaviour": 531
+      }
+    }
+  },
+  "unsupported_dynamic_components": {
+    "ParticleSystem": 58
+  },
+  "asset_revision": "4b589d3d5da9aef92a37a875ede59ad88271722a0f0b3db5d6938477ef7d70ec",
+  "runtime_asset_files": 841,
+  "runtime_asset_bytes": 118097688,
+  "mesh_count": 683,
+  "material_count": 201,
+  "texture_count": 149
+}

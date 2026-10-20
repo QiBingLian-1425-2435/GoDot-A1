@@ -292,7 +292,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	_clock += delta
 	var at: Vector2 = data.get("pos", Vector2.ZERO)
 	# Main may supply an interpolated display copy. Collision remains in PlayerPhysics.
-	position = Vector3(at.x, 0, at.y)
+	position = Vector3(at.x, float(data.get("height",0)), at.y)
 	var velocity: Vector2 = data.get("velocity", Vector2.ZERO)
 	var aim: Vector2 = data.get("aim", Vector2.UP)
 	if aim.length_squared() > .01:

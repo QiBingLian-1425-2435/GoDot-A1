@@ -7,9 +7,9 @@ const MotionBuffer = preload("res://features/player/motion_buffer.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_stamina","input_weight","input_max_weight"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","train","reset_targets"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","train","reset_targets","travel","door"]
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
@@ -119,12 +119,18 @@ func offline() -> void:
 	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
 	peer_validator = Callable(); peer_name_provider = Callable()
 	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
+	model.state.world = "bunker"; model.state.phase = "base"
+	model.state.world_revision = int(model.state.get("world_revision",0))+1
+	if model.world_cache.has("bunker"): model.state.targets = model.world_cache.bunker.targets
+	model.world_cache.clear()
+	model.state.doors={}
 	model._inputs.clear()
 	model.add_player(1,"旅鸭")
 	if not _local_profile.is_empty():
 		model.state.players[1] = _local_profile.duplicate(true)
 		model.state.players[1].id = 1
 		model.state.players[1].pos = Vector2(-1,4)
+		model.state.players[1].height = 0.0
 		model.state.players[1].reloading = false
 		model.state.players[1].fire_timer = 0.0
 	model.reset_transients(1)
@@ -205,13 +211,15 @@ func _flush_movement(edge: bool) -> void:
 	_move_clock = 0.0
 	_movement_seq += 1
 	local_movement.note_sent(_movement_seq,edge)
-	_movement.rpc_id(1,_move_pending,_session_token,_movement_seq)
+	_movement.rpc_id(1,_move_pending,_session_token,_movement_seq,int(model.state.get("world_revision",0)))
 	_last_sent_move = _move_pending
 	_move_pending = {}
 
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
 	match action:
+		"travel":
+			if payload.get("route") is String: clean.route = str(payload.route).left(64)
 		"move":
 			var direction: Variant = payload.get("direction",Vector2.ZERO)
 			var aim: Variant = payload.get("aim",Vector2.UP)
@@ -229,7 +237,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)
 			if payload.get("index") is int: clean.index = payload.index
 			if payload.has("count"): clean.count = payload.count if payload.count is int else 0
-		"pickup":
+		"pickup","door":
 			if payload.get("uid") is String: clean.uid = str(payload.uid).left(64)
 		"sort":
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)
@@ -249,8 +257,9 @@ func _allowed(sender: int, token: int, action: String) -> bool:
 # GodotSteam 4.23.1 maps unreliable_ordered to reliable. Sequence checks below
 # provide ordering while plain unreliable keeps movement out of retransmit queues.
 @rpc("any_peer","call_remote","unreliable",1)
-func _movement(payload: Dictionary, token: int, seq: int) -> void:
+func _movement(payload: Dictionary, token: int, seq: int, world_revision: int) -> void:
 	var sender := multiplayer.get_remote_sender_id()
+	if world_revision!=int(model.state.get("world_revision",0)): return
 	if not _allowed(sender,token,"move") or seq <= int(_last_movement.get(sender,-1)): return
 	var clean := _clean_payload("move",payload)
 	if clean.is_empty(): return
@@ -259,6 +268,7 @@ func _movement(payload: Dictionary, token: int, seq: int) -> void:
 	var p: Dictionary = model.state.players[sender]
 	p.input_seq = seq; p.input_origin = p.pos; p.input_stamina = p.stamina
 	p.input_weight = p.weight; p.input_max_weight = p.max_weight
+	p.input_height = p.get("height",0.0)
 	model.command(sender,"move",clean)
 
 @rpc("any_peer","call_remote","reliable",0)
@@ -287,9 +297,12 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 	if mode != "client" or token == 0 or seq <= _received_serial: return
 	if _session_token != 0 and token != _session_token: return
 	_session_token = token; _received_serial = seq
+	var changed_world: bool = int(snapshot.get("world_revision",0))!=int(model.state.get("world_revision",0)) or snapshot.get("world","bunker")!=model.state.get("world","bunker")
+	if changed_world:
+		reset_world_motion()
 	# Reliable inventory can arrive behind a newer movement packet on another channel.
 	# Apply its inventory/membership, but never rewind the already confirmed position.
-	if seq < _received_motion_serial:
+	if seq < _received_motion_serial and not changed_world:
 		for id in snapshot.players:
 			if not model.state.players.has(id): continue
 			for key in MOTION_FIELDS:
@@ -304,12 +317,13 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 	state_changed.emit()
 
 @rpc("authority","call_remote","unreliable",1)
-func _motion_snapshot(rows: Array, token: int, seq: int, stamp: float) -> void:
+func _motion_snapshot(rows: Array, token: int, seq: int, stamp: float, world_revision: int) -> void:
 	if multiplayer.get_remote_sender_id() != 1: return
-	_apply_motion(rows,token,seq,stamp)
+	_apply_motion(rows,token,seq,stamp,world_revision)
 
-func _apply_motion(rows: Array, token: int, seq: int, stamp: float) -> void:
+func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revision: int = -1) -> void:
 	if mode != "client" or _session_token == 0 or token != _session_token or seq <= _received_motion_serial: return
+	if world_revision>=0 and world_revision!=int(model.state.get("world_revision",0)): return
 	_received_motion_serial = seq
 	for row in rows:
 		if not model.state.players.has(row[0]): continue
@@ -323,18 +337,23 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float) -> void:
 		p.shots = row[9]; p.reload_progress = row[10]
 		p.input_seq = row[11]; p.input_origin = row[12]; p.input_stamina = row[13]
 		p.input_weight = row[14]; p.input_max_weight = row[15]
+		p.height = row[16]; p.input_height = row[17]
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
 func _confirm_local_motion() -> void:
 	if model.state.players.has(local_id): local_movement.confirm(model.state.players[local_id])
 
+func reset_world_motion() -> void:
+	motion_buffer.clear(); local_movement.clear()
+	_last_sent_move.clear(); _move_pending.clear()
+
 func _motion_rows() -> Array:
 	var rows: Array = []
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight])
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0)])
 	return rows
 
 func snapshot_age() -> float:
@@ -345,7 +364,7 @@ func _broadcast_motion() -> void:
 	_snapshot_serial += 1
 	var rows := _motion_rows()
 	for peer_id in _connected_peers():
-		_motion_snapshot.rpc_id(peer_id,rows,_session_token,_snapshot_serial,model._clock)
+		_motion_snapshot.rpc_id(peer_id,rows,_session_token,_snapshot_serial,model._clock,int(model.state.get("world_revision",0)))
 
 func _broadcast_snapshot(control: bool) -> void:
 	if mode != "host" or _peer == null: return

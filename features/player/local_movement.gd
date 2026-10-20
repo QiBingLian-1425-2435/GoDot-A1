@@ -10,6 +10,7 @@ const SNAP_DISTANCE := 3.0
 const REST_ERROR_LIMIT := .12
 const FIELDS := ["pos","velocity","aim","stamina","weight","max_weight","sprint","crouch","ads"]
 var solver: Callable
+var spatial_solver: Callable
 var _state: Dictionary = {}
 var _input: Dictionary = {}
 var _history: Array[Dictionary] = []
@@ -25,6 +26,7 @@ var _last_authority := Vector2.ZERO
 var _has_authority := false
 var _offset := Vector2.ZERO
 var _display_pos := Vector2.ZERO
+var _display_height := 0.0
 var _settling := false
 
 func clear() -> void:
@@ -52,6 +54,7 @@ func confirm(p: Dictionary) -> void:
 	if _state.is_empty() or (_has_authority and _last_authority.distance_to(p.pos) > SNAP_DISTANCE):
 		_state = pose
 		_display_pos = p.pos
+		_display_height = float(p.get("height",0))
 		_offset = Vector2.ZERO
 		_settling = false
 		_history.clear(); _sent.clear(); _pending.clear()
@@ -69,6 +72,7 @@ func confirm(p: Dictionary) -> void:
 	pose.stamina = p.input_stamina
 	pose.weight = p.input_weight
 	pose.max_weight = p.input_max_weight
+	pose.height = p.get("input_height",p.get("height",0.0))
 	_pending = {"seq":seq,"start":float(_sent[seq]),"pose":pose}
 
 func advance(delta: float, authoritative: Dictionary) -> void:
@@ -79,7 +83,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		var corrected: Dictionary = _pending.pose
 		for frame in _history:
 			var duration := float(frame.end)-maxf(float(frame.start),float(_pending.start))
-			if duration > .000001: Movement.step(corrected,frame.input,duration,solver)
+			if duration > .000001: Movement.step(corrected,frame.input,duration,_solve.bind(corrected))
 		var error: Vector2 = _state.pos-corrected.pos
 		_offset += error
 		if _offset.length() > REST_ERROR_LIMIT: _settling = true
@@ -94,7 +98,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		_state = _copy_motion(authoritative)
 		_offset = Vector2.ZERO
 		_settling = false
-	Movement.step(_state,input,delta,solver)
+	Movement.step(_state,input,delta,_solve.bind(_state))
 	_history.append({"start":_clock,"end":_clock+delta,"input":input.duplicate()})
 	_clock += delta
 	while not _history.is_empty() and float(_history.front().end) < _clock-HISTORY_SECONDS: _history.pop_front()
@@ -108,7 +112,11 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		_offset = _offset.move_toward(Vector2.ZERO,correction)
 	if _offset.length() < .001: _offset = Vector2.ZERO; _settling = false
 	# Apply the display correction through the same static-world collision shape.
-	_display_pos = solver.call(_state.pos,_offset)
+	var corrected_position: Variant = _solve(_state.pos,_offset,_state)
+	if corrected_position is Vector3:
+		_display_pos = Vector2(corrected_position.x,corrected_position.z)
+		_display_height = corrected_position.y
+	else: _display_pos = corrected_position
 	_offset = _display_pos-Vector2(_state.pos)
 
 func sample_player(authoritative: Dictionary) -> Dictionary:
@@ -116,9 +124,16 @@ func sample_player(authoritative: Dictionary) -> Dictionary:
 	if _state.is_empty(): return display
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
 	display.pos = _display_pos
+	if spatial_solver.is_valid(): display.height = _display_height
 	return display
+
+func _solve(from: Vector2, offset: Vector2, pose: Dictionary) -> Variant:
+	if spatial_solver.is_valid():
+		return spatial_solver.call(Vector3(from.x,float(pose.get("height",0)),from.y),offset)
+	return solver.call(from,offset)
 
 func _copy_motion(p: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for key in FIELDS: result[key] = p[key]
+	result.height = p.get("height",0.0)
 	return result
