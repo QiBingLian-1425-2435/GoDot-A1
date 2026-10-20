@@ -15,8 +15,11 @@ func capture(name: String) -> void:
 	for i in range(8):
 		await process_frame;settle()
 	await RenderingServer.frame_post_draw
-	DirAccess.make_dir_recursive_absolute("res://artifacts")
-	game.get_viewport().get_texture().get_image().save_png("res://artifacts/vision_"+name+".png")
+	var folder:=OS.get_environment("A1_TEST_ARTIFACTS")
+	if folder.is_empty():folder="res://artifacts"
+	DirAccess.make_dir_recursive_absolute(folder)
+	var error: int=game.get_viewport().get_texture().get_image().save_png(folder.path_join("vision_"+name+".png"))
+	if error!=OK:failures+=1;push_error("Cannot save vision evidence: "+error_string(error))
 func tracer_pixels(point: Vector3) -> int:
 	game.tracer_node.visible=true;game._update_tracers()
 	await process_frame;await RenderingServer.frame_post_draw
