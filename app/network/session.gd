@@ -313,6 +313,7 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 	if seq < _received_motion_serial and not changed_world:
 		for id in snapshot.players:
 			if not model.state.players.has(id): continue
+			snapshot.players[id].relocation_seq=model.state.players[id].get("relocation_seq",0)
 			for key in MOTION_FIELDS:
 				snapshot.players[id][key] = model.state.players[id][key]
 	model.state = snapshot

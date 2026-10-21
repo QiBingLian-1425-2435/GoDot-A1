@@ -83,6 +83,15 @@ func run():
 	api.rooms[ROOM].data.join_state="base";svc.join_room(str(ROOM));api.lobby_data_update.emit(1,ROOM,ROOM)
 	api.rooms[ROOM].data.join_state="exploration";api.emit_joined(ROOM)
 	check(svc.lobby_id==0 and svc.status.contains("已出发"),"a join racing with departure is rechecked before P2P transport")
+	var receiver=load("res://app/network/session.gd").new()
+	receiver.mode="client";receiver._session_token=42;receiver._received_motion_serial=10
+	receiver.model.state=model.state.duplicate(true)
+	receiver.model.state.players[1].relocation_seq=3
+	var delayed: Dictionary=receiver.model.state.duplicate(true)
+	delayed.players[1].relocation_seq=2
+	receiver._apply_snapshot(delayed,42,9,1.0)
+	check(receiver.model.state.players[1].relocation_seq==3,"delayed reliable state cannot rewind recovery epoch after newer motion")
+	receiver.free()
 	svc.free();game.queue_free();await process_frame
 	print("EXPLORATION_RECOVERY ",checks," checks; ",failures," failures")
 	quit(1 if failures else 0)
