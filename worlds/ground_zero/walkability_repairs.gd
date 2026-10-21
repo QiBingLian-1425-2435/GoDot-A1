@@ -25,3 +25,27 @@ static func build(parent: Node3D, zone: String) -> void:
 		var shape:=CapsuleShape3D.new();shape.radius=.45;shape.height=1.9
 		var collision:=CollisionShape3D.new();collision.shape=shape
 		body.add_child(collision);parent.add_child(body)
+
+# Source lintels are slightly lower than the current 1.5 m character capsule.
+# Preserve the original shot/vision collider and raise only its walking underside.
+const DOOR_HEADROOM := {41152:1.94,41288:1.925,39014:1.925,39175:1.645,39336:1.645,40205:1.925,42698:1.925}
+static func fit_door_headroom(body: StaticBody3D, source_id: int) -> void:
+	if not DOOR_HEADROOM.has(source_id):return
+	var source: CollisionShape3D=body.get_child(0)
+	if not source.shape is BoxShape3D:return
+	var axes: Array[Vector3]=[body.basis.x,body.basis.y,body.basis.z]
+	var vertical:=0
+	for i in range(1,3):
+		if absf(axes[i].normalized().y)>absf(axes[vertical].normalized().y):vertical=i
+	var size: Vector3=source.shape.size
+	var center:=body.transform*source.position
+	var bottom:=center.y-size[vertical]*axes[vertical].length()*.5
+	var lift:=maxf(0,float(DOOR_HEADROOM[source_id])-bottom)
+	if lift<=0 or lift>=size[vertical]*axes[vertical].length():return
+	var walking:=StaticBody3D.new();walking.name="DoorHeadroom";walking.transform=body.transform
+	walking.collision_layer=1;walking.collision_mask=0
+	var collision:=CollisionShape3D.new();var box:=BoxShape3D.new()
+	size[vertical]-=lift/axes[vertical].length();box.size=size;collision.shape=box
+	collision.position=source.position+body.basis.inverse()*Vector3(0,lift*.5,0)
+	walking.add_child(collision);body.get_parent().add_child(walking)
+	body.collision_layer=body.collision_layer & ~1

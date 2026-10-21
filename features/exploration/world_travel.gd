@@ -48,6 +48,7 @@ static func toggle_door(ctx, id: int, payload: Dictionary) -> bool:
 	for station in ctx.stations:
 		if station.get("kind","")!="door" or station.uid!=uid or station.world!=ctx.state.get("world",""):continue
 		if Vector2(p.pos).distance_to(station.pos)>2.4 or absf(float(p.get("height",0))-float(station.height))>2:return ctx._reject("靠近门后才能操作")
+		if ctx.door_reachable.is_valid() and not ctx.door_reachable.call(uid,Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)):return ctx._reject("门被墙体遮挡，请走到门口")
 		var opened:=bool(ctx.state.doors.get(uid,station.get("initial_open",false)))
 		if opened and ctx.door_clearance.is_valid() and not ctx.door_clearance.call(uid):return ctx._reject("有人经过门口，请稍候")
 		ctx.state.doors[uid]=not opened

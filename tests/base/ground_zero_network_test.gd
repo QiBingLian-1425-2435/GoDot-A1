@@ -101,8 +101,8 @@ func host_step() -> void:
 		check(start_pos.distance_to(p.pos)>.5 and start_pos.distance_to(p.pos)<5,"client movement is confirmed through source collision on the host")
 		check(float(p.height)<-.5,"the host confirms the negative source terrain elevation")
 		for station in model.stations:
-			if station.get("kind")=="door":
-				p.pos=station.pos;p.height=station.height;model.reset_transients(remote_id)
+			if station.get("kind")=="door" and station.uid=="43925":
+				p.pos=station.pos+Vector2(.549345,.835595)*1.1;p.height=station.height+.06;model.reset_transients(remote_id)
 				model.state.qa_door=station.uid;break
 		model.state.qa_stage=6;game.session._broadcast_snapshot(true);phase=6
 	elif phase==6 and bool(model.state.doors.get(model.state.qa_door,false)):
@@ -151,7 +151,9 @@ func client_step() -> void:
 			check(absf(shown.y-float(p.height))<.2,"client prediction and the visible duck preserve the confirmed floor elevation")
 	elif stage==6 and not door_requested:
 		game.session.send("move",{"direction":Vector2.ZERO})
-		game.session.send("door",{"uid":model.state.qa_door});door_requested=true
+		game._update_interaction()
+		check(game.nearest.get("uid")==model.state.qa_door and game.ui._interaction.text=="E   开门","client sees E open at the actual house doorway")
+		game._interact();door_requested=true
 	elif stage==3 and game.world_id=="surface" and phase<4:
 		if not door_verified:
 			var part: Dictionary=game.world._door_nodes[model.state.qa_door][0]

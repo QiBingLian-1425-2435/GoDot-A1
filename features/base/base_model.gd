@@ -23,6 +23,7 @@ var shot_query: Callable
 var map_revision := ""
 var world_ready := true
 var door_clearance: Callable
+var door_reachable: Callable
 var _next_uid := 1
 var _clock := 0.0
 var _inputs: Dictionary = {}

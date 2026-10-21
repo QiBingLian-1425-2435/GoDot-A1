@@ -257,6 +257,7 @@ func _build_collisions() -> void:
 			elif int(spec.get("direction",1))==2: collision.rotation.x = PI/2
 		body.add_child(collision)
 		add_child(body)
+		if zone=="surface":WalkabilityRepairs.fit_door_headroom(body,int(spec.get("id",-1)))
 		if spec.has("door_id"): _track_door(spec,body)
 		if spec.has("visibility_id"):_track_vision(spec,body)
 		_collider_count += 1
@@ -304,7 +305,7 @@ func _build_landmarks() -> void:
 		_interactions.append({"kind":"travel","uid":"surface_extraction","world":zone,"title":"撤离至基地（全队）","pos":Vector2(exit.x,exit.z),"height":exit.y,"destination":"bunker","spawn":Vector3(-1,0,4)})
 	for entity in data.entities:
 		if entity.type=="Door":
-			var at := Library.transform(entity.transform).origin
+			var at := _door_anchor(entity)
 			_interactions.append({"kind":"door","uid":str(int(entity.id)),"world":zone,"title":"开关门","pos":Vector2(at.x,at.z),"height":at.y,"initial_open":not bool(entity.data.closed)})
 		if entity.type=="SimpleTeleporter" and entity.has("target_position"):
 			var at := Library.transform(entity.transform).origin
@@ -333,10 +334,35 @@ func camera_focus_for(pos: Vector2) -> Vector3:
 func set_view_points(player: Vector3, camera: Vector3) -> void:
 	library.set_view(player,camera,not overview_mode)
 
+# Source Door components can sit on a building root, metres away from the leaf.
+func _door_anchor(entity: Dictionary) -> Vector3:
+	var collider_id:=int(entity.data.doorCollider.m_PathID)
+	for spec in data.colliders:
+		if int(spec.get("id",-1))!=collider_id:continue
+		var center: Dictionary=spec.get("center",{})
+		var point:=Vector3(float(center.get("x",0)),float(center.get("y",0)),-float(center.get("z",0)))
+		if spec.type=="BoxCollider":point.y-=float(spec.size.y)*.5
+		return Library.transform(spec.transform)*point
+	return Library.transform(entity.transform).origin
+
+func can_reach_door(id: String, from: Vector3) -> bool:
+	var target: Dictionary={}
+	for station in _interactions:
+		if station.get("kind")=="door" and station.uid==id:target=station;break
+	if target.is_empty():return false
+	var excluded: Array[RID]=[]
+	for part in _door_nodes.get(id,[]):
+		if part.node is StaticBody3D:excluded.append(part.node.get_rid())
+	# A door must not occlude its own handle, but intervening walls still block use.
+	var point:=Vector3(target.pos.x,float(target.height)+.8,target.pos.y)
+	var ray:=PhysicsRayQueryParameters3D.create(from+Vector3(0,.8,0),point,17,excluded)
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
 func _track_door(spec: Dictionary, node: Node3D) -> void:
 	var id := str(spec.door_id)
 	if not _door_nodes.has(id):_door_nodes[id]=[]
-	_door_nodes[id].append({"node":node,"closed":Library.transform(spec.transform),"open":Library.transform(spec.open_transform),"closed_only":bool(spec.get("closed_only",false)),"layer":node.collision_layer if node is StaticBody3D else 0})
+	var opened:=Library.transform(spec.open_transform)
+	_door_nodes[id].append({"node":node,"closed":Library.transform(spec.transform),"open":opened,"closed_only":bool(spec.get("closed_only",false)),"layer":node.collision_layer if node is StaticBody3D else 0})
 
 func update_doors(states: Dictionary) -> void:
 	for id in _door_nodes:

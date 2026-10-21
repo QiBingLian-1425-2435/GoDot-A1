@@ -85,6 +85,7 @@ static func _apply_rules(ctx) -> void:
 	var model = ctx.session.model
 	model.obstacles.assign(ctx.world.obstacles())
 	model.stations = ctx.world.interactions().duplicate(true)
+	model.door_reachable=ctx.world.can_reach_door if ctx.world.has_method("can_reach_door") else Callable()
 	model.door_clearance=ctx.world.can_close_door if ctx.world.has_method("can_close_door") else Callable()
 	for station in model.stations:
 		if station.get("kind","")=="door" and not model.state.doors.has(station.uid):model.state.doors[station.uid]=station.initial_open

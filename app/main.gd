@@ -309,11 +309,17 @@ func _update_interaction()->void:
 			distance=d
 			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
 	for station in session.model.stations:
-		if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
 		var d:=pos.distance_to(station.pos)
-		if d<distance:
-			distance=d
-			nearest=station
+		if d>=distance:continue
+		if station.get("kind")=="door":
+			if absf(float(p.get("height",0))-float(station.height))>2:continue
+			if not world.can_reach_door(station.uid,Vector3(pos.x,float(p.get("height",0)),pos.y)):continue
+		else:
+			if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
+		distance=d
+		nearest=station.duplicate()
+		if station.get("kind")=="door":
+			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))
 
 func _interact()->void:

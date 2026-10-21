@@ -11,7 +11,7 @@ const PROTOCOL := "a1_bunker_v5"
 const VIRTUAL_PORT := 24567
 const MAX_MEMBERS := 5
 var app_id := 480
-var build_id := "a1_recovery_dev_20261021"
+var build_id := "a1_doors_dev_20261021"
 var steam: Object
 var peer_factory: Callable
 var available := false
