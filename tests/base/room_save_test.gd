@@ -79,7 +79,7 @@ func run():
 	quit(1 if failures else 0)
 func main_flow():
 	var main=Main.new();main.room_save_root=folder+"/main";main.legacy_profile_path="";main.profile_path=folder+"/solo.json"
-	root.add_child(main);main.set_process(false);main.set_physics_process(false)
+	root.add_child(main);main.sound.muted=true;main.set_process(false);main.set_physics_process(false)
 	main.steam_service.free()
 	var api=FakeSteam.new();var svc=Service.new();svc.steam=api;svc.peer_factory=func():return FakePeer.new()
 	main.steam_service=svc;main.add_child(svc);svc.set_process(false)
