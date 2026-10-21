@@ -179,7 +179,7 @@ func test_cancel_and_timeout() -> void:
     f.svc.host_room()
     f.svc._process(26)
     check(f.signals.failures.size()==1 and not f.svc.info().pending,"create timeout emits error and clears UI pending")
-    check(f.svc.status.contains("重启") and f.svc.status.contains("IP"),"create timeout clearly explains restart recovery and IP fallback")
+    check(f.svc.status.contains("重启") and not f.svc.status.contains("IP"),"create timeout explains restart recovery without removed IP fallback")
     check(f.svc.host_room()==ERR_BUSY and f.svc.status.contains("重启"),"native outstanding create remains single flight with explicit recovery")
     var fallback=Session.new()
     root.add_child(fallback)

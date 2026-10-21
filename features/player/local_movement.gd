@@ -28,6 +28,7 @@ var _offset := Vector2.ZERO
 var _display_pos := Vector2.ZERO
 var _display_height := 0.0
 var _settling := false
+var _relocation_seq:=0
 
 func clear() -> void:
 	_state.clear(); _input.clear(); _history.clear(); _sent.clear(); _pending.clear()
@@ -50,6 +51,9 @@ func note_sent(seq: int, edge: bool) -> void:
 		_pending.clear()
 
 func confirm(p: Dictionary) -> void:
+	if int(p.get("relocation_seq",0))!=_relocation_seq:
+		clear()
+		_relocation_seq=int(p.get("relocation_seq",0))
 	var pose := _copy_motion(p)
 	if _state.is_empty() or (_has_authority and _last_authority.distance_to(p.pos) > SNAP_DISTANCE):
 		_state = pose

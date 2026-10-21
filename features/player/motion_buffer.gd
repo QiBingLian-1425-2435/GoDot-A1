@@ -17,7 +17,7 @@ func push(players: Dictionary, stamp: float) -> void:
 	var poses: Dictionary = {}
 	for id in players:
 		var p: Dictionary = players[id]
-		poses[id] = {"pos":p.pos,"height":p.get("height",0.0),"velocity":p.get("velocity",Vector2.ZERO),"aim":p.aim}
+		poses[id] = {"pos":p.pos,"height":p.get("height",0.0),"velocity":p.get("velocity",Vector2.ZERO),"aim":p.aim,"relocation_seq":p.get("relocation_seq",0)}
 	if _samples.is_empty(): _render_time = stamp - DELAY
 	elif stamp == float(_samples.back().time):
 		_samples.back().players = poses
@@ -61,7 +61,7 @@ func sample_player(id: int, authoritative: Dictionary) -> Dictionary:
 	var a: Dictionary = before.players[id]
 	var b: Dictionary = after.players[id]
 	# Spawns/teleports must not sweep a character through the intervening geometry.
-	if Vector2(a.pos).distance_to(newest.pos) > TELEPORT_DISTANCE:
+	if a.get("relocation_seq",0)!=newest.get("relocation_seq",0) or Vector2(a.pos).distance_to(newest.pos) > TELEPORT_DISTANCE:
 		result.pos = newest.pos
 		result.height = newest.height
 		return result

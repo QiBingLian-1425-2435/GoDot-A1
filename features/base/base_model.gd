@@ -27,6 +27,8 @@ var _next_uid := 1
 var _clock := 0.0
 var _inputs: Dictionary = {}
 var motion_solver: Callable # Main installs the real CharacterBody3D adapter; rule fixtures remain pure.
+var recovery_solver: Callable
+var _recovery_after: Dictionary = {}
 
 func _init() -> void:
 	for i in range(3):
@@ -53,6 +55,7 @@ func add_player(id: int, player_name: String) -> void:
 	_update_weight(p)
 
 func remove_player(id: int) -> void:
+	_recovery_after.erase(id)
 	state.players.erase(id)
 	_inputs.erase(id)
 
@@ -81,6 +84,19 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("探索时无法访问基地仓库")
 	match action:
+		"unstuck":
+			if not world_ready:return _reject("地图加载中，请稍候再脱离卡死")
+			if _clock<float(_recovery_after.get(id,0)):return _reject("脱离卡死冷却中，请稍后重试")
+			if not recovery_solver.is_valid():return _reject("安全位置检查暂不可用")
+			var safe: Dictionary=recovery_solver.call(id)
+			if safe.is_empty():return _reject("附近没有可站立的安全位置，请尝试其他方向或等待队友")
+			var target: Vector3=safe.position
+			p.pos=Vector2(target.x,target.z);p.height=target.y
+			p.relocation_seq=int(p.get("relocation_seq",0))+1
+			reset_transients(id)
+			_recovery_after[id]=_clock+10.0
+			last_notice="已移动到附近安全位置，背包已保留"
+			return true
 		"door": return WorldTravel.toggle_door(self,id,payload)
 		"travel": return WorldTravel.travel(self,id,payload)
 		"move":

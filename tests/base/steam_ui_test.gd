@@ -40,7 +40,7 @@ func _run() -> void:
 	ui.update_steam({"available":false,"initialized":false,"pending":false,"status":"not available"})
 	ui._open_steam()
 	check(ui._steam_connect_button.disabled and ui._steam_host_button.disabled and ui._steam_join_button.disabled,"Native unavailable disables connection and room actions")
-	check(ui._steam_status.text.contains("组件不可用") and not ui._steam_ip_button.disabled,"Missing native has readable reason and IP fallback")
+	check(ui._steam_status.text.contains("组件不可用") and ui._steam_ip_button==null,"Missing native has readable reason with no IP fallback")
 	await capture("steam-unavailable.png")
 	ui.update_steam({"available":true,"initialized":false,"pending":false,"status":"点击连接 Steam"})
 	check(not ui._steam_connect_button.disabled and ui._steam_host_button.disabled,"Uninitialized native allows retry but blocks lobby actions")

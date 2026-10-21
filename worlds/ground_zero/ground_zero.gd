@@ -1,6 +1,7 @@
 extends Node3D
 signal map_loaded()
 ## Original scene layout, static world physics, and source landmarks.
+const WalkabilityRepairs = preload("res://worlds/ground_zero/walkability_repairs.gd")
 const Library = preload("res://worlds/ground_zero/map_library.gd")
 const TERRAIN_SHADER = preload("res://worlds/ground_zero/terrain.gdshader")
 const WATER_DECAL_SHADER = preload("res://worlds/ground_zero/water_decal.gdshader")
@@ -36,7 +37,9 @@ func _ready() -> void:
 	await _build_geometry()
 	if _cancelled: queue_free();return
 	_build_lights()
-	if build_collisions: await _build_collisions()
+	if build_collisions:
+		await _build_collisions()
+		WalkabilityRepairs.build(self,zone)
 	if _cancelled: queue_free();return
 	_build_landmarks()
 	_project_decals.call_deferred()

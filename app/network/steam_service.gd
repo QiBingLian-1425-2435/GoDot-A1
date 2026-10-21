@@ -7,11 +7,11 @@ signal failed(message: String)
 signal overlay_changed(active: bool)
 
 const GAME_KEY := "a1_bunker_base"
-const PROTOCOL := "a1_bunker_v4"
+const PROTOCOL := "a1_bunker_v5"
 const VIRTUAL_PORT := 24567
 const MAX_MEMBERS := 5
 var app_id := 480
-var build_id := "a1_vision_dev_20261020"
+var build_id := "a1_recovery_dev_20261021"
 var steam: Object
 var peer_factory: Callable
 var available := false
@@ -24,6 +24,7 @@ var steam_id: int = 0
 var peer: MultiplayerPeer
 var lobbies: Array = []
 var overlay_active := false
+var join_allowed := true
 var _api_initialized := false
 var _operation := ""
 var _requested_lobby: int = 0
@@ -45,7 +46,7 @@ func _ready() -> void:
 	if config.load("res://app/network/steam_config.cfg") == OK:
 		app_id = int(config.get_value("steam","app_id",480))
 		build_id = str(config.get_value("steam","build_id",build_id))
-	if not available: status = "Steam 组件未加载；仍可使用 IP 直连"
+	if not available: status = "Steam 组件未加载；请使用完整试玩包并登录 Steam"
 	if steam != null:
 		for binding in [["lobby_created",_on_created],["lobby_joined",_on_joined],["lobby_data_update",_on_data],["lobby_chat_update",_on_members],["join_requested",_on_invite],["overlay_toggled",_on_overlay]]:
 			if steam.has_signal(binding[0]) and not steam.is_connected(binding[0],binding[1]):
@@ -76,7 +77,7 @@ func initialize() -> bool:
 	return initialized
 
 func info(transport: String = "offline") -> Dictionary:
-	return {"available":available,"initialized":initialized,"status":status,"persona":persona,"app_id":app_id,"lobby_id":str(lobby_id) if lobby_id>0 else "","transport":transport,"pending":not _operation.is_empty(),"scanning":_scan_deadline>0,"lobbies":lobbies.duplicate(true)}
+	return {"available":available,"initialized":initialized,"status":status,"persona":persona,"app_id":app_id,"lobby_id":str(lobby_id) if lobby_id>0 else "","transport":transport,"join_allowed":join_allowed,"pending":not _operation.is_empty(),"scanning":_scan_deadline>0,"lobbies":lobbies.duplicate(true)}
 
 func host_room(lobby_type: int = 1) -> Error:
 	if not initialize():return ERR_UNAVAILABLE
@@ -158,7 +159,19 @@ func refresh_friends() -> void:
 	status="正在查询好友房间…" if _scan_deadline>0 else "未发现本项目好友房间；也可粘贴房间号加入"
 	_publish()
 
+func set_join_allowed(value: bool) -> void:
+	if join_allowed==value:return
+	join_allowed=value
+	if initialized and lobby_id>0 and host_steam_id==steam_id:
+		steam.setLobbyJoinable(lobby_id,value)
+		steam.setLobbyData(lobby_id,"join_state","base" if value else "exploration")
+	_publish()
+
 func invite_friends() -> void:
+	if not join_allowed:
+		status="队伍正在探索，回到基地后才能邀请好友加入"
+		_publish()
+		return
 	if not initialized or lobby_id==0:
 		status="请先创建或加入 Steam 房间"
 	elif not steam.isOverlayEnabled():
@@ -207,11 +220,12 @@ func _on_created(result: int,id: int) -> void:
 		return
 	lobby_id=id
 	host_steam_id=steam_id
-	var values:Dictionary={"game":GAME_KEY,"protocol":PROTOCOL,"build":build_id,"host_id":str(steam_id),"name":persona+" 的鸭科夫基地"}
+	var values:Dictionary={"game":GAME_KEY,"protocol":PROTOCOL,"build":build_id,"host_id":str(steam_id),"join_state":"base","name":persona+" 的鸭科夫基地"}
 	for key in values:
 		if not steam.setLobbyData(id,key,values[key]):
 			_fail("无法写入 Steam 房间版本信息")
 			return
+	join_allowed=true
 	steam.setLobbyJoinable(id,true)
 	_start_transport(true)
 
@@ -219,7 +233,7 @@ func _on_data(success: int,id: int,_member: int) -> void:
 	if _scan_pending.has(id):
 		_scan_pending.erase(id)
 		if success==1 and _compatible(id):
-			lobbies.append({"id":str(id),"name":str(steam.getLobbyData(id,"name")).left(64),"members":int(steam.getNumLobbyMembers(id)),"limit":int(steam.getLobbyMemberLimit(id))})
+			lobbies.append({"id":str(id),"name":str(steam.getLobbyData(id,"name")).left(64),"members":int(steam.getNumLobbyMembers(id)),"limit":int(steam.getLobbyMemberLimit(id)),"join_allowed":str(steam.getLobbyData(id,"join_state"))!="exploration"})
 		if _scan_pending.is_empty():
 			_scan_deadline=0
 			status="找到 %d 个本项目好友房间"%lobbies.size()
@@ -227,6 +241,9 @@ func _on_data(success: int,id: int,_member: int) -> void:
 	if _operation!="validate" or id!=_requested_lobby:return
 	if success!=1 or not _compatible(id):
 		_fail("这不是相同版本的鸭科夫基地房间，或原房主已离开")
+		return
+	if str(steam.getLobbyData(id,"join_state"))=="exploration":
+		_fail("队伍正在探索，请等房主回到基地后再加入")
 		return
 	if str(steam.getLobbyData(id,"host_id"))==str(steam_id):
 		_fail("不能加入自己另一个进程的房间；Steam 联机需不同账号")
@@ -258,6 +275,10 @@ func _on_joined(id: int,_permissions: int,_locked: bool,response: int) -> void:
 		return
 	if response!=1:
 		_fail("加入 Steam 房间失败（%d），房间可能已满或不可访问"%response)
+		return
+	if str(steam.getLobbyData(id,"join_state"))=="exploration":
+		steam.leaveLobby(id)
+		_fail("队伍已出发，请等回到基地后再加入")
 		return
 	if not _compatible(id,true):
 		steam.leaveLobby(id)
@@ -306,7 +327,7 @@ func _process(delta: float) -> void:
 	steam.run_callbacks()
 	if _deadline>0 and _clock>=_deadline:
 		_create_timed_out=_create_outstanding
-		_fail("Steam 建房请求未返回，请重启试玩包后再试；仍可使用 IP 直连" if _create_timed_out else "Steam 请求超时，请检查双方网络并重试")
+		_fail("Steam 建房请求未返回，请重启试玩包后再试；请使用完整试玩包并登录 Steam" if _create_timed_out else "Steam 请求超时，请检查双方网络并重试")
 	if _scan_deadline>0 and _clock>=_scan_deadline:
 		_scan_deadline=0
 		_scan_pending.clear()
@@ -331,7 +352,7 @@ func _fail(message: String) -> void:
 	failed.emit(message)
 
 func _busy() -> Error:
-	status="Steam 建房请求未返回，请重启试玩包后再试；仍可使用 IP 直连" if _create_timed_out else "Steam 尚在处理上一个请求，请稍后重试"
+	status="Steam 建房请求未返回，请重启试玩包后再试；请使用完整试玩包并登录 Steam" if _create_timed_out else "Steam 尚在处理上一个请求，请稍后重试"
 	_publish()
 	return ERR_BUSY
 

@@ -124,6 +124,7 @@ func _ready()->void:
 
 func _sync_world() -> void:
 	WorldFlow.sync(self)
+	if is_instance_valid(steam_service):steam_service.set_join_allowed(session.model.state.get("world","bunker")=="bunker" and session.model.world_ready)
 
 func _setup_environment()->void:
 	return BaseView._setup_environment(self)

@@ -104,7 +104,9 @@
     "worlds/ground_zero/terrain.gdshader",
     "worlds/ground_zero/terrain.gdshader.uid",
     "worlds/ground_zero/water_decal.gdshader",
-    "worlds/ground_zero/water_decal.gdshader.uid"
+    "worlds/ground_zero/water_decal.gdshader.uid",
+    "worlds/ground_zero/walkability_repairs.gd",
+    "worlds/ground_zero/walkability_repairs.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

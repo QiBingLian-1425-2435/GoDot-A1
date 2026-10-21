@@ -356,8 +356,8 @@ func _update_inventory() -> void:
 func _build_pause() -> void:
 	_pause_shade = _shade(_root,Color(0.02,0.04,0.06,0.66))
 	_pause_shade.mouse_filter = Control.MOUSE_FILTER_STOP
-	_pause_panel = _panel(_root,Rect2(540,112,520,676),PANEL,Color("748f86"),16)
-	_label(_pause_panel,"基地菜单",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_pause_panel = _panel(_root,Rect2(540,76,520,748),PANEL,Color("748f86"),16)
+	_label(_pause_panel,"游戏菜单",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
 	_label(_pause_panel,"联机游戏不会暂停",Rect2(30,82,460,27),16,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	_button(_pause_panel,"继续游戏",Rect2(65,124,390,54),toggle_pause,GREEN,23)
 	_button(_pause_panel,"保存存档",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
@@ -367,7 +367,9 @@ func _build_pause() -> void:
 	_steam_room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_steam_invite_button = _button(_pause_panel,"邀请 Steam 好友",Rect2(65,444,390,48),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
 	_steam_copy_button = _button(_pause_panel,"复制房间号",Rect2(65,504,390,48),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
-	_button(_pause_panel,"返回开始画面",Rect2(65,588,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
+	_button(_pause_panel,"脱离卡死",Rect2(65,572,390,48),func() -> void: action_requested.emit("unstuck",{}),TEAL,21)
+	_label(_pause_panel,"返回附近安全位置，保留背包；冷却 10 秒",Rect2(30,627,460,24),15,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_button(_pause_panel,"返回开始画面",Rect2(65,660,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
 	_refresh_steam_room()
 
 func _open_steam() -> void:

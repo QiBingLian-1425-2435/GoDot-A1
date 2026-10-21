@@ -9,7 +9,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck"]
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
@@ -126,6 +126,7 @@ func offline() -> void:
 	model.world_cache.clear()
 	model.state.doors={}
 	model._inputs.clear()
+	model._recovery_after.clear()
 	model.add_player(1,"旅鸭")
 	if not _local_profile.is_empty():
 		model.state.players[1] = _local_profile.duplicate(true)
@@ -151,6 +152,7 @@ func start_solo() -> void:
 
 func send(action: String, payload: Dictionary = {}) -> void:
 	var clean := _clean_payload(action,payload)
+	if action=="unstuck":clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
 	if action == "move" and clean.is_empty(): return
 	if mode == "client":
@@ -219,6 +221,8 @@ func _flush_movement(edge: bool) -> void:
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
 	match action:
+		"unstuck":
+			if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 		"set_infinite_reserve":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"travel":
@@ -278,6 +282,7 @@ func _movement(payload: Dictionary, token: int, seq: int, world_revision: int) -
 func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	var sender := multiplayer.get_remote_sender_id()
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
+	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
 	model.command(sender,action,_clean_payload(action,payload))
 	if not model.last_notice.is_empty(): _notice.rpc_id(sender,model.last_notice)
@@ -341,6 +346,7 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		p.input_seq = row[11]; p.input_origin = row[12]; p.input_stamina = row[13]
 		p.input_weight = row[14]; p.input_max_weight = row[15]
 		p.height = row[16]; p.input_height = row[17]
+		p.relocation_seq=int(row[18]) if row.size()>18 else 0
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -356,7 +362,7 @@ func _motion_rows() -> Array:
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0)])
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0)])
 	return rows
 
 func snapshot_age() -> float:
@@ -389,9 +395,12 @@ func _connected_peers() -> Array[int]:
 func _notice(message: String) -> void:
 	if mode == "client" and multiplayer.get_remote_sender_id() == 1: notice.emit(message)
 
+func can_accept_join() -> bool:
+	return model.world_ready and model.state.get("world","bunker")=="bunker" and model.state.players.size()<5
+
 func _on_peer_connected(peer_id: int) -> void:
 	if mode != "host": return
-	if model.state.players.size() >= 5 or (peer_validator.is_valid() and not peer_validator.call(peer_id)):
+	if not can_accept_join() or (peer_validator.is_valid() and not peer_validator.call(peer_id)):
 		_peer.disconnect_peer(peer_id)
 		return
 	var player_name := "旅鸭 %d" % model.state.players.size()
@@ -402,7 +411,7 @@ func _on_peer_connected(peer_id: int) -> void:
 	state_changed.emit()
 
 func _on_peer_disconnected(peer_id: int) -> void:
-	if mode != "host": return
+	if mode != "host" or not model.state.players.has(peer_id): return
 	model.remove_player(peer_id)
 	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
 	_broadcast_snapshot(true)
@@ -425,7 +434,8 @@ func _on_connection_failed() -> void:
 
 func _on_server_disconnected() -> void:
 	if mode != "client": return
+	var was_joining:=_session_token==0
 	offline()
-	connection_status = "房主已离开，已返回本机离线基地"
+	connection_status = "房间暂不接受加入，请等房主回到基地后重试" if was_joining else "房主已离开，已返回本机离线基地"
 	notice.emit(connection_status)
 	state_changed.emit()

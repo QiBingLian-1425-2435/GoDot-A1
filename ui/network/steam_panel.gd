@@ -10,7 +10,7 @@ static func _open_steam(ctx) -> void:
 	ctx._steam_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ctx._steam_connect_button = ctx._button(ctx._dialog,"连接 / 重试 Steam",Rect2(34,195,258,48),func() -> void: ctx._steam_action("steam_connect"),ctx.TEAL,20)
 	ctx._steam_host_button = ctx._button(ctx._dialog,"创建好友房间",Rect2(310,195,300,48),func() -> void: ctx._steam_action("steam_host"),ctx.GREEN,21)
-	ctx._steam_ip_button = ctx._button(ctx._dialog,"IP 直连",Rect2(628,195,298,48),ctx._open_network,Color("506d70"),20)
+	ctx._label(ctx._dialog,"探索期间房间锁定，回基地可加入",Rect2(628,195,298,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ctx._label(ctx._dialog,"通过房间号加入",Rect2(34,265,690,28),19,ctx.INK)
 	ctx._steam_lobby_input = ctx._line_edit(ctx._dialog,"",Rect2(34,305,656,48))
 	ctx._steam_lobby_input.placeholder_text = "粘贴好友发来的 Steam 房间号"
@@ -52,7 +52,7 @@ static func _refresh_steam_controls(ctx) -> void:
 	ctx._steam_persona.text = ("Steam 已连接" + ("  ·  " + persona if not persona.is_empty() else "")) if initialized else "Steam 尚未连接"
 	var status = str(ctx._steam_info.get("status",""))
 	if not available:
-		status = "Steam 组件不可用。请使用完整发布包启动；当前仍可选择 IP 直连。"
+		status = "Steam 组件不可用。请使用完整发布包启动并登录 Steam。"
 	elif not initialized and not pending:
 		status = "请启动并登录 Steam，再点击连接 / 重试。" + ("\n" + status if not status.is_empty() else "")
 	elif status.is_empty():
@@ -65,7 +65,6 @@ static func _refresh_steam_controls(ctx) -> void:
 	ctx._steam_lobby_input.editable = not pending
 	ctx._steam_refresh_button.disabled = not can_use or scanning
 	ctx._steam_refresh_button.text = "刷新中…" if scanning else "刷新列表"
-	ctx._steam_ip_button.disabled = pending
 	ctx._steam_back_button.text = "取消连接" if pending else "返回"
 	var lobbies: Array = ctx._steam_info.get("lobbies",[])
 	if lobbies != ctx._steam_lobbies_shown:
@@ -95,8 +94,9 @@ static func _rebuild_steam_lobbies(ctx, lobbies: Array) -> void:
 		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		name_label.tooltip_text = room_name
 		ctx._label(row,"房间号 %s  ·  %d / %d 人" % [lobby_id,members,limit],Rect2(12,31,636,25),14,ctx.MUTED)
-		var join = ctx._button(row,"已满" if members >= limit else "加入",Rect2(694,8,144,46),ctx._join_steam_lobby.bind(lobby_id),ctx.TEAL,19)
-		join.set_meta("full",members >= limit)
+		var locked: bool=not entry.get("join_allowed",true)
+		var join = ctx._button(row,"探索中" if locked else ("已满" if members >= limit else "加入"),Rect2(694,8,144,46),ctx._join_steam_lobby.bind(lobby_id),ctx.TEAL,19)
+		join.set_meta("full",members >= limit or locked)
 		ctx._steam_lobby_buttons.append(join)
 
 static func _join_steam_input(ctx) -> void:
@@ -145,8 +145,8 @@ static func _refresh_steam_room(ctx) -> void:
 		return
 	var lobby_id = str(ctx._steam_info.get("lobby_id",""))
 	var in_room = str(ctx._steam_info.get("transport","offline")) == "steam" and not lobby_id.is_empty() and lobby_id != "0"
-	ctx._steam_room_label.text = "Steam 房间号\n" + lobby_id if in_room else "当前未使用 Steam 房间"
-	ctx._steam_invite_button.disabled = not in_room
+	ctx._steam_room_label.text = (("Steam 房间号\n" if ctx._steam_info.get("join_allowed",true) else "探索中 · 暂停加入\n") + lobby_id) if in_room else "当前未使用 Steam 房间"
+	ctx._steam_invite_button.disabled = not in_room or not ctx._steam_info.get("join_allowed",true)
 	ctx._steam_copy_button.disabled = not in_room
 	ctx._steam_invite_button.tooltip_text = "打开 Steam 好友邀请面板，由你选择好友" if in_room else "进入 Steam 房间后可邀请好友"
 	ctx._steam_copy_button.tooltip_text = "复制房间号，发送给希望加入的好友" if in_room else "进入 Steam 房间后可复制房间号"
