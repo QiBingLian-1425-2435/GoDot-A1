@@ -14,6 +14,7 @@ func check(ok:bool,message:String) -> void:
         print("FAIL: ",message)
 func run() -> void:
     var main=load("res://app/main.tscn").instantiate()
+    main.smoke=true
     root.add_child(main)
     main.sound.muted=true
     main.set_process(false)

@@ -3,8 +3,7 @@ extends RefCounted
 
 static func save_profile(ctx, path: String, id: int = 1) -> Error:
 	if path.is_empty() or not ctx.state.players.has(id): return ERR_INVALID_PARAMETER
-	var p: Dictionary = ctx.state.players[id]
-	var data = {"version":1,"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"hunger":p.hunger,"thirst":p.thirst}
+	var data:=capture(ctx,id)
 	var file = FileAccess.open(path,FileAccess.WRITE)
 	if file == null: return FileAccess.get_open_error()
 	file.store_string(JSON.stringify(data))
@@ -15,17 +14,37 @@ static func load_profile(ctx, path: String, id: int = 1) -> Error:
 	if not FileAccess.file_exists(path): return ERR_FILE_NOT_FOUND
 	var file = FileAccess.open(path,FileAccess.READ)
 	if file == null: return FileAccess.get_open_error()
-	var data: Variant = JSON.parse_string(file.get_as_text())
-	if not data is Dictionary or int(data.get("version",0)) != 1: return ERR_FILE_CORRUPT
-	if not data.get("bag") is Array or data.bag.size() != 24 or not data.get("stash") is Array or data.stash.size() != 48 or not data.get("equipment") is Dictionary: return ERR_FILE_CORRUPT
+	var parser:=JSON.new()
+	if parser.parse(file.get_as_text())!=OK:return ERR_FILE_CORRUPT
+	return apply(ctx,parser.data,id)
+
+static func capture(ctx, id: int) -> Dictionary:
+	var p: Dictionary=ctx.state.players[id]
+	return {"version":1,"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
+
+static func valid(ctx, data: Variant) -> bool:
+	if not data is Dictionary or int(data.get("version",0)) != 1: return false
+	if not data.get("bag") is Array or data.bag.size() != 24 or not data.get("stash") is Array or data.stash.size() != 48 or not data.get("equipment") is Dictionary: return false
 	var seen: Dictionary = {}
 	for container in [data.bag,data.stash,data.equipment.values()]:
 		for item in container:
-			if not ctx._valid_saved_item(item,seen): return ERR_FILE_CORRUPT
+			if not ctx._valid_saved_item(item,seen): return false
 	for slot in ctx.EQUIPMENT:
-		if not data.equipment.has(slot): return ERR_FILE_CORRUPT
-		if not data.equipment[slot].is_empty() and ctx.Items.definition(data.equipment[slot].kind).category != slot: return ERR_FILE_CORRUPT
-	if data.equipment.size() != 4: return ERR_FILE_CORRUPT
+		if not data.equipment.has(slot): return false
+		if not data.equipment[slot].is_empty() and ctx.Items.definition(data.equipment[slot].kind).category != slot: return false
+	if data.equipment.size() != 4: return false
+	for key in ["hp","hunger","thirst","stamina","credits"]:
+		var value: Variant=data.get(key,100)
+		if (not value is int and not value is float) or not is_finite(float(value)):return false
+	if data.has("magazines"):
+		if not data.magazines is Dictionary:return false
+		for value in data.magazines.values():
+			if (not value is int and not value is float) or not is_finite(float(value)) or float(value)!=floor(float(value)):return false
+	return true
+
+static func apply(ctx, value: Variant, id: int) -> Error:
+	if not ctx.state.players.has(id) or not valid(ctx,value):return ERR_FILE_CORRUPT
+	var data: Dictionary=value.duplicate(true)
 	var p: Dictionary = ctx.state.players[id]
 	# Reissue local UIDs so a profile can never collide with another current player.
 	var old_magazines: Dictionary = data.get("magazines",{}) if data.get("magazines",{}) is Dictionary else {}
@@ -39,7 +58,7 @@ static func load_profile(ctx, path: String, id: int = 1) -> Error:
 			if ctx.Items.definition(item.kind).category == "weapon": magazines[item.uid] = clampi(int(old_magazines.get(old_uid,0)),0,int(ctx.Items.definition(item.kind).magazine))
 	p.bag = data.bag; p.stash = data.stash; p.equipment = data.equipment; p.magazines = magazines
 	p.credits = clampi(int(data.get("credits",500)),0,999999)
-	for stat in ["hp","hunger","thirst"]: p[stat] = clampf(float(data.get(stat,100)),0,100)
+	for stat in ["hp","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,100)
 	p.ammo = int(magazines.get(p.equipment.weapon.get("uid",""),0)); p.reloading = false
 	ctx.reset_transients(id)
 	ctx._update_weight(p)

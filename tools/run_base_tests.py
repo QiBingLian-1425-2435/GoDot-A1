@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    'persistence': [('room_save_test', True, []), ('room_save_network_test', True, []), ('room_save_test', False, [])],
     'doors': [('door_interaction_test', True, []), ('door_interaction_test', False, [])],
     'recovery': [('exploration_recovery_test', True, []), ('recovery_network_test', True, []), ('exploration_recovery_test', False, [])],
     'vision': [('vision_rules_test', True, []), ('vision_integration_test', True, []), ('ground_zero_network_test', True, ['--vision']), ('vision_integration_test', False, [])],
@@ -40,7 +41,7 @@ def run(engine, suite, steam_live):
         suffix = '_host_loss' if arguments == ['--host-loss'] else ''
         if name == 'ground_zero_integration_test' and not headless:
             suffix = '_visible'
-        if name in ('vision_integration_test', 'exploration_recovery_test', 'door_interaction_test') and not headless:
+        if name in ('vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
             suffix = '_visible'
         if arguments == ['--vision']:
             suffix = '_vision'
@@ -62,7 +63,7 @@ def run(engine, suite, steam_live):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', type=Path, default=DEFAULT_ENGINE)
-    parser.add_argument('--suite', choices=['doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
+    parser.add_argument('--suite', choices=['persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
     parser.add_argument('--steam-live', action='store_true', help='Requires Steam login; creates a private test room, sends no invitations')
     args = parser.parse_args()
     sys.exit(run(args.godot.resolve(), args.suite, args.steam_live))

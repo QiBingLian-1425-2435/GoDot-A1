@@ -7,6 +7,10 @@ const Vision = preload("res://features/visibility/exploration_vision.gd")
 
 const Actor = preload("res://features/player/base_actor.gd")
 const PROFILE := "user://a1_bunker_profile_v1.json"
+var profile_path:=PROFILE
+var client_visit:=false
+var room_save_root:="user://rooms"
+var legacy_profile_path:=PROFILE
 var world:Node3D
 var world_id := "bunker"
 var world_loading := false
@@ -133,10 +137,11 @@ func _start_solo()->void:
 	if is_instance_valid(steam_service):steam_service.leave_room()
 	session.start_solo()
 	if not smoke and capture_path.is_empty():
-		session.model.load_profile(PROFILE,1)
+		session.model.load_profile(profile_path,1)
 	_enter_base()
 
 func _enter_base()->void:
+	client_visit=session.mode=="client"
 	session.set_physics_process(true)
 	in_game=true
 	joining=false
@@ -163,7 +168,7 @@ func _on_action(action:String,payload:Dictionary)->void:
 					if address.begins_with("192.168."):
 						session.connection_status="IP %s  ·  UDP %d  ·  最多5人"%[address,int(payload.get("port",24567))]
 						break
-				if not smoke: session.model.load_profile(PROFILE,1)
+				if not smoke: session.model.load_profile(profile_path,1)
 				_enter_base()
 		"join":
 			if is_instance_valid(steam_service):steam_service.leave_room()
@@ -224,10 +229,10 @@ func _return_menu()->void:
 	Input.mouse_mode=Input.MOUSE_MODE_VISIBLE
 
 func _save(show_notice:bool)->void:
-	if not in_game or session.mode=="client" or smoke or not capture_path.is_empty():
-		if show_notice: ui.toast("客机物品仅在当前房间保留，由房主同步")
+	if not in_game or session.mode=="client" or client_visit or smoke or not capture_path.is_empty():
+		if show_notice: ui.toast("物品由房主自动保存，重进同一房主的房间可恢复")
 		return
-	var result:int=session.model.save_profile(PROFILE,session.local_id)
+	var result:int=session.save_room() if not session.room_store.path.is_empty() else session.model.save_profile(profile_path,session.local_id)
 	if show_notice: ui.toast("背包、装备与仓库已保存" if result==OK else "保存失败："+error_string(result))
 
 func _notification(what:int)->void:
@@ -345,13 +350,14 @@ func _refresh_ui()->void:
 	if is_instance_valid(ui) and is_instance_valid(steam_service):ui.update_steam(steam_service.info(session.transport))
 
 func _on_steam_transport(peer:MultiplayerPeer,as_host:bool)->void:
-	var result:int=session.use_steam_peer(peer,as_host,steam_service.accept_peer,steam_service.peer_name)
+	var owner_key:="steam_"+str(steam_service.steam_id)
+	var room_path:=room_save_root.path_join(owner_key+".json") if as_host and not smoke and capture_path.is_empty() else ""
+	var result:int=session.use_steam_peer(peer,as_host,steam_service.accept_peer,steam_service.peer_name,steam_service.peer_identity,room_path,owner_key,legacy_profile_path)
 	if result!=OK:
-		steam_service._fail("Steam 游戏会话建立失败："+error_string(result))
+		steam_service._fail("Steam 会话或房间存档建立失败，原存档未覆盖："+error_string(result))
 		return
 	session.set_physics_process(true)
 	if as_host:
-		if not smoke and capture_path.is_empty():session.model.load_profile(PROFILE,1)
 		session.model.state.players[1].name=steam_service.persona.left(24)
 		_enter_base()
 	else:

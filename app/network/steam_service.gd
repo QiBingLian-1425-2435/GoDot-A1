@@ -7,11 +7,11 @@ signal failed(message: String)
 signal overlay_changed(active: bool)
 
 const GAME_KEY := "a1_bunker_base"
-const PROTOCOL := "a1_bunker_v5"
+const PROTOCOL := "a1_bunker_v6"
 const VIRTUAL_PORT := 24567
 const MAX_MEMBERS := 5
 var app_id := 480
-var build_id := "a1_doors_dev_20261021"
+var build_id := "a1_room_saves_dev_20261021"
 var steam: Object
 var peer_factory: Callable
 var available := false
@@ -195,6 +195,10 @@ func accept_peer(peer_id: int) -> bool:
 	for i in range(int(steam.getNumLobbyMembers(lobby_id))):
 		if int(steam.getLobbyMemberByIndex(lobby_id,i))==id:return true
 	return false
+
+func peer_identity(peer_id: int) -> String:
+	if not accept_peer(peer_id):return ""
+	return "steam_"+str(int(peer.call("get_steam_id_for_peer_id",peer_id)))
 
 func peer_name(peer_id: int) -> String:
 	if peer==null:return "旅鸭"

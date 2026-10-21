@@ -4,6 +4,7 @@ signal state_changed()
 signal notice(text: String)
 const Model = preload("res://features/base/base_model.gd")
 const MotionBuffer = preload("res://features/player/motion_buffer.gd")
+const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
@@ -37,6 +38,9 @@ var _move_clock := 0.0
 var _move_pending: Dictionary = {}
 var _connect_elapsed := 0.0
 var _local_profile: Dictionary = {}
+var room_store=RoomStore.new()
+var peer_identity_provider: Callable
+var _room_save_clock:=0.0
 
 func _init() -> void:
 	name = "Session"
@@ -91,10 +95,13 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	state_changed.emit()
 	return OK
 
-func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = Callable(), names: Callable = Callable()) -> Error:
+func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = Callable(), names: Callable = Callable(), identities: Callable = Callable(), room_path: String="", owner_key: String="", legacy_path: String="") -> Error:
 	if peer == null or peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
 		return ERR_CANT_CONNECT
 	offline()
+	if as_host and not room_path.is_empty():
+		var error:=configure_room(room_path,owner_key,identities,legacy_path)
+		if error!=OK:peer.close();return error
 	_peer = peer
 	peer_validator = validator
 	peer_name_provider = names
@@ -111,7 +118,24 @@ func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = 
 	state_changed.emit()
 	return OK
 
+func configure_room(path: String, owner_key: String, identities: Callable, legacy_path: String="") -> Error:
+	if mode=="client" or not identities.is_valid():return ERR_UNAUTHORIZED
+	var result: Error=room_store.begin(model,path,owner_key,legacy_path)
+	if result!=OK:
+		room_store.clear()
+		return result
+	peer_identity_provider=identities
+	_room_save_clock=0
+	return OK
+
+func save_room() -> Error:
+	var result: Error=room_store.checkpoint(model)
+	if result!=OK:notice.emit("房主房间存档失败："+error_string(result)+"，请检查存档目录")
+	return result
+
 func offline() -> void:
+	if not room_store.path.is_empty():save_room()
+	room_store.clear();peer_identity_provider=Callable()
 	if mode == "client": model.state.infinite_reserve = false
 	if mode != "client" and model.state.players.has(local_id):
 		_local_profile = model.state.players[local_id].duplicate(true)
@@ -166,7 +190,8 @@ func send(action: String, payload: Dictionary = {}) -> void:
 			_intent_seq += 1
 			_intent.rpc_id(1,action,clean,_session_token,_intent_seq)
 	else:
-		model.command(local_id,action,clean)
+		var accepted: bool=model.command(local_id,action,clean)
+		if accepted and action not in ["move","fire"] and not room_store.path.is_empty():save_room()
 		if not model.last_notice.is_empty(): notice.emit(model.last_notice)
 		if action != "move":
 			state_changed.emit()
@@ -182,6 +207,10 @@ func _physics_process(delta: float) -> void:
 			_flush_movement(false)
 		if model.state.players.has(local_id): local_movement.advance(delta,model.state.players[local_id])
 		return
+	_room_save_clock+=delta
+	if _room_save_clock>=5.0:
+		_room_save_clock=0
+		if not room_store.path.is_empty():save_room()
 	var reloading: Array[int] = []
 	for id in model.state.players:
 		if model.state.players[id].reloading: reloading.append(id)
@@ -284,7 +313,8 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
 	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
-	model.command(sender,action,_clean_payload(action,payload))
+	var accepted: bool=model.command(sender,action,_clean_payload(action,payload))
+	if accepted and action!="fire" and not room_store.path.is_empty():save_room()
 	if not model.last_notice.is_empty(): _notice.rpc_id(sender,model.last_notice)
 	state_changed.emit()
 	_broadcast_snapshot(true)
@@ -400,19 +430,27 @@ func can_accept_join() -> bool:
 	return model.world_ready and model.state.get("world","bunker")=="bunker" and model.state.players.size()<5
 
 func _on_peer_connected(peer_id: int) -> void:
-	if mode != "host": return
+	if mode != "host" or model.state.players.has(peer_id): return
 	if not can_accept_join() or (peer_validator.is_valid() and not peer_validator.call(peer_id)):
 		_peer.disconnect_peer(peer_id)
 		return
 	var player_name := "旅鸭 %d" % model.state.players.size()
 	if peer_name_provider.is_valid(): player_name = str(peer_name_provider.call(peer_id)).left(24)
 	model.add_player(peer_id,player_name)
+	if not room_store.path.is_empty():
+		var identity:=str(peer_identity_provider.call(peer_id)) if peer_identity_provider.is_valid() else ""
+		if room_store.admit(model,peer_id,identity)!=OK:
+			model.remove_player(peer_id);_peer.disconnect_peer(peer_id);return
+		save_room()
 	_broadcast_snapshot(true)
 	notice.emit("一位旅鸭加入了基地")
 	state_changed.emit()
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if mode != "host" or not model.state.players.has(peer_id): return
+	if not room_store.path.is_empty():
+		var saved: Error=room_store.detach(model,peer_id)
+		if saved!=OK:notice.emit("离开玩家的房间存档失败："+error_string(saved))
 	model.remove_player(peer_id)
 	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
 	_broadcast_snapshot(true)
