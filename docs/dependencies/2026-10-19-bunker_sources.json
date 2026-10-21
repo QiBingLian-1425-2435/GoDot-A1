@@ -68,6 +68,10 @@
     "features/visibility/vision_rules.gd.uid",
     "features/visibility/vision_tracer.gdshader",
     "features/visibility/vision_tracer.gdshader.uid",
+    "features/voice/proximity_voice.gd",
+    "features/voice/proximity_voice.gd.uid",
+    "features/voice/voice_rules.gd",
+    "features/voice/voice_rules.gd.uid",
     "ui/base_hud.gd",
     "ui/base_hud.gd.uid",
     "ui/inventory/inventory_panel.gd",
@@ -105,10 +109,10 @@
     "worlds/ground_zero/source_surface_double.gdshader.uid",
     "worlds/ground_zero/terrain.gdshader",
     "worlds/ground_zero/terrain.gdshader.uid",
-    "worlds/ground_zero/water_decal.gdshader",
-    "worlds/ground_zero/water_decal.gdshader.uid",
     "worlds/ground_zero/walkability_repairs.gd",
-    "worlds/ground_zero/walkability_repairs.gd.uid"
+    "worlds/ground_zero/walkability_repairs.gd.uid",
+    "worlds/ground_zero/water_decal.gdshader",
+    "worlds/ground_zero/water_decal.gdshader.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

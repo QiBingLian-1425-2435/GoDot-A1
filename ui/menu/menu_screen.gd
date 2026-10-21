@@ -68,7 +68,7 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
-	ctx._dialog_panel("设置",Vector2(640,510))
+	ctx._dialog_panel("设置",Vector2(640,570))
 	ctx._label(ctx._dialog,"主音量",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
 	volume.position = Vector2(250,111)
@@ -102,13 +102,21 @@ static func _open_settings(ctx) -> void:
 		ctx.action_requested.emit("set_infinite_reserve",{"enabled":value}))
 	ctx._dialog.add_child(infinite)
 	ctx._label(ctx._dialog,"房主设置，全队生效；仍需按 R 换弹。仅当前运行期间保留。",Rect2(34,320,570,50),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ctx._button(ctx._dialog,"完成",Rect2(170,419,300,54),ctx._close_dialog,ctx.GREEN,23)
+	var voice_mute=CheckButton.new()
+	voice_mute.name="VoiceMute"
+	voice_mute.text="静音队伍语音（麦克风和收听）"
+	voice_mute.position=Vector2(34,375);voice_mute.size=Vector2(570,42)
+	voice_mute.button_pressed=ctx.voice_muted
+	voice_mute.toggled.connect(func(value: bool) -> void:
+		ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}))
+	ctx._dialog.add_child(voice_mute)
+	ctx._button(ctx._dialog,"完成",Rect2(170,479,300,54),ctx._close_dialog,ctx.GREEN,23)
 
 static func _open_help(ctx) -> void:
-	ctx._dialog_panel("操作指南",Vector2(720,664))
-	var rows = [["W / A / S / D","移动"],["鼠标","朝向 / 瞄准方向"],["Shift / C","冲刺 / 蹲下"],["鼠标左键 / 右键","射击 / 瞄准"],["R / E","装填 / 互动"],["Tab / Esc","背包 / 菜单"],["1 / 2 · 4 / 5","换枪 · 医疗 / 饮水"],["拖动物品","移动、交换或装备"],["Ctrl 点击 / 右键","快速存取 / 物品操作"]]
+	ctx._dialog_panel("操作指南",Vector2(720,712))
+	var rows = [["Q（按住）","附近20米队伍语音"],["W / A / S / D","移动"],["鼠标","朝向 / 瞄准方向"],["Shift / C","冲刺 / 蹲下"],["鼠标左键 / 右键","射击 / 瞄准"],["R / E","装填 / 互动"],["Tab / Esc","背包 / 菜单"],["1 / 2 · 4 / 5","换枪 · 医疗 / 饮水"],["拖动物品","移动、交换或装备"],["Ctrl 点击 / 右键","快速存取 / 物品操作"]]
 	for i in range(rows.size()):
 		ctx._label(ctx._dialog,rows[i][0],Rect2(34,95+i*48,290,37),19,ctx.GOLD)
 		ctx._label(ctx._dialog,rows[i][1],Rect2(327,95+i*48,360,37),19,ctx.INK)
 		ctx._line(ctx._dialog,Vector2(34,134+i*48),Vector2(652,1),Color(0.4,0.54,0.51,0.2))
-	ctx._button(ctx._dialog,"知道了",Rect2(210,570,300,54),ctx._close_dialog,ctx.GREEN,23)
+	ctx._button(ctx._dialog,"知道了",Rect2(210,618,300,54),ctx._close_dialog,ctx.GREEN,23)

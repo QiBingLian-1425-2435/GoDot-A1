@@ -2,6 +2,10 @@ extends Node
 ## Identical Session node path on all peers. Every item mutation runs only on host.
 signal state_changed()
 signal notice(text: String)
+signal voice_received(speaker: int, bytes: PackedByteArray)
+const VoiceRules=preload("res://features/voice/voice_rules.gd")
+var _voice_limits: Dictionary={}
+var _voice_sequences: Dictionary={}
 const Model = preload("res://features/base/base_model.gd")
 const MotionBuffer = preload("res://features/player/motion_buffer.gd")
 const RoomStore=preload("res://features/persistence/room_store.gd")
@@ -160,6 +164,7 @@ func offline() -> void:
 		model.state.players[1].reloading = false
 		model.state.players[1].fire_timer = 0.0
 	model.reset_transients(1)
+	_voice_limits.clear(); _voice_sequences.clear()
 	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
 	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
 	_motion_clock = 0.0; _move_clock = 0.0; _received_motion_serial = -1
@@ -452,6 +457,7 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		var saved: Error=room_store.detach(model,peer_id)
 		if saved!=OK:notice.emit("离开玩家的房间存档失败："+error_string(saved))
 	model.remove_player(peer_id)
+	_voice_limits.erase(peer_id);_voice_sequences.erase(peer_id);voice_received.emit(peer_id,PackedByteArray())
 	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
 	_broadcast_snapshot(true)
 	notice.emit("一位旅鸭离开了基地")
@@ -478,3 +484,40 @@ func _on_server_disconnected() -> void:
 	connection_status = "房间暂不接受加入，请等房主回到基地后重试" if was_joining else "房主已离开，已返回本机离线基地"
 	notice.emit(connection_status)
 	state_changed.emit()
+
+# Independent unreliable channel: voice loss must not delay movement/actions/snapshots.
+func send_voice(bytes: PackedByteArray, sequence: int) -> void:
+	if mode=="offline" or _session_token<=0:return
+	if not is_inside_tree() or multiplayer.multiplayer_peer==null or multiplayer.multiplayer_peer.get_connection_status()!=MultiplayerPeer.CONNECTION_CONNECTED:return
+	var revision:=int(model.state.get("world_revision",0))
+	if mode=="host":_route_voice(local_id,bytes,sequence,_session_token,revision)
+	elif local_id>0:_voice_up.rpc_id(1,bytes,sequence,_session_token,revision)
+
+@rpc("any_peer","call_remote","unreliable",3)
+func _voice_up(bytes: PackedByteArray, sequence: int, token: int, revision: int) -> void:
+	if mode=="host":_route_voice(multiplayer.get_remote_sender_id(),bytes,sequence,token,revision)
+
+func _route_voice(speaker: int, bytes: PackedByteArray, sequence: int, token: int, revision: int) -> void:
+	if not _accept_voice(speaker,bytes,sequence,token,revision):return
+	for id in model.state.players:
+		if int(id)==speaker:continue
+		if not bytes.is_empty() and VoiceRules.gain(model.state.players,speaker,int(id))<=0:continue
+		if int(id)==local_id:voice_received.emit(speaker,bytes)
+		elif int(id) in _connected_peers():_voice_down.rpc_id(int(id),speaker,bytes,sequence,token,revision)
+
+func _accept_voice(speaker: int, bytes: PackedByteArray, sequence: int, token: int, revision: int) -> bool:
+	if token!=_session_token or token<=0 or revision!=int(model.state.get("world_revision",0)) or not model.world_ready:return false
+	if not model.state.players.has(speaker) or bytes.size()>VoiceRules.MAX_PACKET:return false
+	if sequence<=int(_voice_sequences.get(speaker,-1)):return false
+	var now:=Time.get_ticks_msec()
+	var budget: Dictionary=_voice_limits.get(speaker,{"since":now,"bytes":0,"packets":0})
+	if now-int(budget.since)>=1000:budget={"since":now,"bytes":0,"packets":0}
+	budget.bytes+=bytes.size();budget.packets+=1;_voice_limits[speaker]=budget
+	if budget.bytes>65536 or budget.packets>80:return false
+	_voice_sequences[speaker]=sequence
+	return true
+
+@rpc("authority","call_remote","unreliable",3)
+func _voice_down(speaker: int, bytes: PackedByteArray, sequence: int, token: int, revision: int) -> void:
+	if mode!="client" or multiplayer.get_remote_sender_id()!=1 or speaker==local_id:return
+	if _accept_voice(speaker,bytes,sequence,token,revision):voice_received.emit(speaker,bytes)

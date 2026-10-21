@@ -45,6 +45,7 @@ var last_mode:="offline"
 var trigger_held:=false
 var tracer_mesh:ImmediateMesh
 var tracer_node:MeshInstance3D
+var voice:Node
 var steam_service:Node
 var player_physics: Node3D
 var vision = Vision.new()
@@ -113,6 +114,9 @@ func _ready()->void:
 	steam_service=load("res://app/network/steam_service.gd").new()
 	steam_service.name="SteamService"
 	add_child(steam_service)
+	voice=preload("res://features/voice/proximity_voice.gd").new()
+	add_child(voice)
+	voice.configure(session,steam_service)
 	steam_service.transport_ready.connect(_on_steam_transport)
 	steam_service.join_requested.connect(_on_steam_join_requested)
 	steam_service.failed.connect(_on_steam_failure)
@@ -202,6 +206,8 @@ func _on_action(action:String,payload:Dictionary)->void:
 			_save(false)
 			get_tree().quit()
 		"settings":
+			if payload.has("voice_muted"):
+				voice.set_muted(bool(payload.voice_muted));ui.voice_muted=voice.muted
 			if payload.has("volume"):
 				AudioServer.set_bus_volume_db(0,linear_to_db(maxf(0.001,float(payload.volume))))
 			if payload.has("fullscreen"):
@@ -211,6 +217,7 @@ func _on_action(action:String,payload:Dictionary)->void:
 	_refresh_ui()
 
 func _return_menu()->void:
+	if is_instance_valid(voice):voice.stop();voice.clear_playback()
 	_save(false)
 	joining=false
 	in_game=false
@@ -236,12 +243,14 @@ func _save(show_notice:bool)->void:
 	if show_notice: ui.toast("背包、装备与仓库已保存" if result==OK else "保存失败："+error_string(result))
 
 func _notification(what:int)->void:
+	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT,NOTIFICATION_WM_CLOSE_REQUEST] and is_instance_valid(voice):voice.stop()
 	if what==NOTIFICATION_WM_CLOSE_REQUEST and is_instance_valid(session): _save(false)
 
 func _physics_process(delta:float)->void:
 	return InputController._physics_process(self, delta)
 
 func _input(event:InputEvent)->void:
+	if event is InputEventKey and event.physical_keycode==KEY_Q and not event.pressed and is_instance_valid(voice):voice.stop()
 	return InputController._input(self, event)
 
 func _unhandled_input(event:InputEvent)->void:
@@ -256,6 +265,10 @@ func _select_weapon(kind:String)->void:
 func _process(delta:float)->void:
 	elapsed+=delta
 	if session==null:return
+	if is_instance_valid(voice):
+		var allowed: bool=in_game and not world_loading and not ui.is_blocking() and not station_dialog.visible and not steam_service.overlay_active and DisplayServer.window_is_focused()
+		voice.update(Input.is_physical_key_pressed(KEY_Q),allowed,delta)
+		ui.set_voice_status(voice.status+voice.speaking_names())
 	if joining and session.local_id>0 and session.model.state.players.has(session.local_id) and session.mode=="client":_enter_base()
 	if session.mode=="client":had_remote=true
 	if had_remote and last_mode=="client" and session.mode=="offline":

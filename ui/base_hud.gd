@@ -16,6 +16,8 @@ const TEAL := Color("5d9ba4")
 const GREEN := Color("679b6e")
 const PANEL := Color(0.10, 0.15, 0.17, 0.97)
 
+var voice_muted:=false
+var _voice_label:Label
 var _root: Control
 var _menu: Control
 var _menu_buttons: Control
@@ -578,3 +580,9 @@ func _line_edit(parent: Node, text: String, rect: Rect2) -> LineEdit:
 	edit.add_theme_stylebox_override("focus",_style(Color("132d32"),GOLD,8,2))
 	parent.add_child(edit)
 	return edit
+
+func set_voice_status(text: String) -> void:
+	if not is_instance_valid(_voice_label):
+		_voice_label=_label(_hud,"",Rect2(560,105,1000,22),14,GOLD)
+		_voice_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	_voice_label.text=text
