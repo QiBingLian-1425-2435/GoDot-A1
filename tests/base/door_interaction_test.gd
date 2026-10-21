@@ -108,5 +108,7 @@ func navigate_door(origin: Vector3, foot: Vector3, normal: Vector3, side: int) -
 func capture(label: String) -> void:
 	if DisplayServer.get_name()=="headless":return
 	game._update_camera(1);game._refresh_ui();await process_frame;await RenderingServer.frame_post_draw
-	DirAccess.make_dir_recursive_absolute("res://artifacts")
-	check(root.get_texture().get_image().save_png("res://artifacts/door_"+label+".png")==OK,"visible "+label+" door evidence saved")
+	var folder:=OS.get_environment("A1_TEST_ARTIFACTS")
+	if folder.is_empty():folder=ProjectSettings.globalize_path("res://artifacts")
+	DirAccess.make_dir_recursive_absolute(folder)
+	check(root.get_texture().get_image().save_png(folder.path_join("door_"+label+".png"))==OK,"visible "+label+" door evidence saved")
