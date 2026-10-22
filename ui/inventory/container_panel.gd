@@ -23,7 +23,8 @@ static func icon(ctx, parent: Control, position: Vector2, size: Vector2):
 	return slot
 
 static func open(ctx, uid: String) -> void:
-	ctx._dialog_panel("搜索容器", Vector2(1160, 730))
+	var box: Dictionary = ctx._state.get("containers", {}).get(uid, {})
+	ctx._dialog_panel("搜索厕所" if box.get("title", "") == "厕所" else "搜索容器", Vector2(1160, 730))
 	ctx._loot_uid = uid
 	ctx._loot_selected = -1
 	ctx._loot_slots = []; ctx._loot_bag = []; ctx._loot_buttons = []
@@ -31,7 +32,7 @@ static func open(ctx, uid: String) -> void:
 	ctx._loot_weight = ctx._label(ctx._dialog, "", Rect2(32, 128, 470, 30), 18, ctx.MUTED)
 	for i in range(24):
 		ctx._loot_bag.append(icon(ctx, ctx._dialog, Vector2(32 + i % 6 * 75, 180 + i / 6 * 75), Vector2(68, 68)))
-	ctx._label(ctx._dialog, "箱内物品", Rect2(530, 86, 580, 36), 24, ctx.INK)
+	ctx._label(ctx._dialog, "厕所物品" if box.get("title", "") == "厕所" else "箱内物品", Rect2(530, 86, 580, 36), 24, ctx.INK)
 	ctx._loot_status = ctx._label(ctx._dialog, "准备搜索…", Rect2(530, 128, 590, 32), 18, ctx.GOLD)
 	ctx._loot_progress = ProgressBar.new()
 	ctx._loot_progress.position = Vector2(530, 166)

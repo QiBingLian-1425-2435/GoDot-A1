@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "toilet": [("toilet_search_test", True, []), ("toilet_search_test", False, []), ("item_network_test", True, [])],
     "loot": [("container_search_test", True, []), ("item_network_test", True, []), ("item_world_test", True, []), ("item_world_test", False, [])],
     "items": [("item_features_test", True, []), ("item_network_test", True, []), ("item_world_test", True, []), ("item_features_test", False, []), ("item_world_test", False, [])],
     'voice': [('voice_test', True, []), ('voice_network_test', True, []), ('voice_test', False, [])],
@@ -44,7 +45,7 @@ def run(engine, suite, steam_live):
         suffix = '_host_loss' if arguments == ['--host-loss'] else ''
         if name == 'ground_zero_integration_test' and not headless:
             suffix = '_visible'
-        if name in ('item_features_test', 'item_world_test', 'vision_presentation_test', 'voice_test', 'vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
+        if name in ('toilet_search_test', 'item_features_test', 'item_world_test', 'vision_presentation_test', 'voice_test', 'vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
             suffix = '_visible'
         if arguments == ['--vision']:
             suffix = '_vision'
@@ -66,7 +67,7 @@ def run(engine, suite, steam_live):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', type=Path, default=DEFAULT_ENGINE)
-    parser.add_argument('--suite', choices=['loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
+    parser.add_argument('--suite', choices=['toilet', 'loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
     parser.add_argument('--steam-live', action='store_true', help='Requires Steam login; creates a private test room, sends no invitations')
     args = parser.parse_args()
     sys.exit(run(args.godot.resolve(), args.suite, args.steam_live))

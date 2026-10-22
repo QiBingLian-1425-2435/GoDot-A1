@@ -356,6 +356,8 @@ func _update_interaction()->void:
 				for item in box.items:
 					if not item.is_empty():remaining=true
 				nearest.title="继续搜索箱子" if int(box.revealed)<box.items.size() else "查看箱内物品" if remaining else "查看空箱子"
+			if station.get("container_name", "") == "厕所":
+				nearest.title="搜索厕所" if box.is_empty() else "继续搜索厕所" if int(box.revealed)<box.items.size() else "查看厕所物品"
 		if station.get("kind")=="door":
 			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))

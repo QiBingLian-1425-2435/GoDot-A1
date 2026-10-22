@@ -43,6 +43,7 @@ func _ready() -> void:
 		WalkabilityRepairs.build(self,zone)
 	if _cancelled: queue_free();return
 	_build_landmarks()
+	_build_toilet_targets()
 	_project_decals.call_deferred()
 	loaded = true
 	map_loaded.emit()
@@ -329,11 +330,34 @@ func terrain_height(pos: Vector2) -> float:
 	return _terrain_origin.y+lerpf(a,b,z-iz)
 
 func obstacles() -> Array[Rect2]: return []
+
+func _build_toilet_targets() -> void:
+	# Toilets have an interaction trigger but no child renderer to form a vision group.
+	var colliders: Dictionary = {}
+	for spec in data.colliders:
+		if spec.has("id"): colliders[int(spec.id)] = spec
+	for entity in data.entities:
+		if entity.get("type") != "InteractableLootbox" or entity.get("data", {}).get("displayNameKey") != "UI_LootBox_Toilet": continue
+		var spec: Dictionary = colliders.get(int(entity.data.get("interactCollider", {}).get("m_PathID", 0)), {})
+		if spec.is_empty() or spec.get("type") != "BoxCollider": continue
+		var center: Dictionary = spec.center
+		var dimensions: Dictionary = spec.size
+		var size := Vector3(dimensions.x, dimensions.y, dimensions.z).abs()
+		var at := Vector3(center.x, center.y, -float(center.z))
+		var bounds: AABB = Library.transform(spec.transform) * AABB(at - size * .5, size)
+		var id := str(entity.id)
+		if not _vision_groups.has(id):
+			var excluded: Array[RID] = []
+			_vision_groups[id] = {"id":id,"nodes":[],"exclude":excluded,"bounds":bounds,"has_bounds":true,"points":[]}
+		_vision_groups[id].loot_pool = "food"
+		_vision_groups[id].container_name = "厕所"
+
 func interactions() -> Array:
 	var result:Array=_interactions.duplicate(true)
 	for target in vision_targets():
 		var point:Vector3=target.bounds.get_center()
-		result.append({"kind":"loot","uid":"loot_"+str(target.id),"title":"搜索物资","world":zone,"pos":Vector2(point.x,point.z),"height":target.bounds.position.y,"locked":int(target.id)%5==0})
+		var food_only: bool = target.get("loot_pool", "") == "food"
+		result.append({"kind":"loot","uid":"loot_"+str(target.id),"title":"搜索厕所" if food_only else "搜索物资","world":zone,"pos":Vector2(point.x,point.z),"height":target.bounds.position.y,"locked":false if food_only else int(target.id)%5==0,"loot_pool":target.get("loot_pool",""),"container_name":target.get("container_name","箱子")})
 	return result
 
 func can_reach_loot(uid: String, from: Vector3) -> bool:

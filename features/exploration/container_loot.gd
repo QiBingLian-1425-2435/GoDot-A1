@@ -4,6 +4,7 @@ const Items = preload("res://features/inventory/item_catalog.gd")
 const COMMON = ["water", "canned_food", "biscuits", "bandage", "scrap", "tape"]
 const GREEN = ["juice", "medkit", "battery", "glowstick"]
 const BLUE = ["energy_bar", "medical_box", "lockpick", "smoke_grenade", "circuit_board"]
+const FOOD = ["canned_food", "biscuits", "energy_bar"]
 const SEARCH_SECONDS := 1.4
 
 static func station(ctx, uid: String) -> Dictionary:
@@ -30,9 +31,9 @@ static func open(ctx, p: Dictionary, target: Dictionary) -> bool:
 			ctx._consume(p.bag, "lockpick", 1)
 		var items: Array = []
 		for i in range(randi_range(2, 5)):
-			var kind := roll(bool(target.get("locked", false)))
+			var kind := str(FOOD.pick_random()) if target.get("loot_pool", "") == "food" else roll(bool(target.get("locked", false)))
 			items.append(ctx._item(kind, randi_range(1, mini(3, int(Items.definition(kind).stack)))))
-		ctx.state.containers[uid] = {"items": items, "revealed": 0, "progress": 0.0, "searcher": 0}
+		ctx.state.containers[uid] = {"items": items, "revealed": 0, "progress": 0.0, "searcher": 0, "title":str(target.get("container_name", "箱子"))}
 	# Old in-room boolean entries are already exhausted, never reroll them.
 	if not ctx.state.containers[uid] is Dictionary:
 		ctx.state.containers[uid] = {"items": [], "revealed": 0, "progress": 0.0, "searcher": 0}
@@ -43,7 +44,7 @@ static func open(ctx, p: Dictionary, target: Dictionary) -> bool:
 		box.searcher = p.id
 	ctx._update_weight(p)
 	ctx._animate(p, "interact", .8)
-	ctx.last_notice = "正在搜索箱子，可关闭后继续"
+	ctx.last_notice = "正在搜索%s，可关闭后继续" % str(target.get("container_name", "箱子"))
 	return true
 
 static func close(ctx, p: Dictionary, uid: String = "") -> bool:

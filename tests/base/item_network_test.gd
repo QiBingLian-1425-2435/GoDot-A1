@@ -62,6 +62,7 @@ func run():
 		check(await wait_for(func():return int(session.model.state.containers["loot_one"].revealed)>=1),"host timer reveals first item")
 		var box:Dictionary=session.model.state.containers["loot_one"]
 		check(box.items[0].has("kind") and (int(box.revealed)>=box.items.size() or box.items[int(box.revealed)].is_empty()),"unsearched content is hidden from client snapshots")
+		check(box.items[0].kind in session.model.Loot.FOOD,"remote toilet contents use the host food pool")
 		var item_uid:String=box.items[0].uid
 		session.send("loot_take",{"uid":"loot_one","index":0,"item_uid":item_uid,"kind":"encrypted_core","count":999})
 		check(await wait_for(func():return session.model.state.containers["loot_one"].items[0].is_empty()),"competing clients observe a single item removal")
@@ -90,7 +91,7 @@ func run():
 	check(session.model.state.field_effects.size()==1 and session.model._count(session.model.state.players[a].bag,"smoke_grenade")==0,"one remote tool consumed exactly once")
 	for i in range(81):session.model.tick(.1)
 	session.model.state.world="surface";session.model.state.world_revision+=1
-	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true}]
+	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true,"loot_pool":"food","container_name":"厕所"}]
 	session.model.loot_reachable=func(_uid,_from):return true
 	var initial_counts:Dictionary={}
 	for kind in session.model.Items.DEFS:
