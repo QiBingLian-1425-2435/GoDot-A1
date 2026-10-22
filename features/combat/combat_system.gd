@@ -12,7 +12,7 @@ static func _reload(ctx, p: Dictionary) -> bool:
 static func _fire(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
 	if weapon.is_empty() or p.reloading or p.fire_timer > 0: return false
-	if p.ammo <= 0: return ctx._reject("弹匣已空，按R装填")
+	if p.ammo <= 0: return _reload(ctx, p)
 	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1; p.fire_timer = 0.16
 	var origin: Vector2 = p.pos
 	var direction: Vector2 = p.aim

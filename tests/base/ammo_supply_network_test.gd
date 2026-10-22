@@ -7,6 +7,7 @@ var joined_at := -1.0
 var child_pid := -1
 var phase := 0
 var remote_id := 0
+var saw_reload := false
 var failures := 0
 var port := 29794
 func check(ok: bool, message: String) -> void:
@@ -36,7 +37,7 @@ func _process(delta: float) -> bool:
 		elif phase == 1 and p.pos.distance_to(Vector2(7.2,2.7)) < 0.1:
 			session.send("resupply_ammo"); phase = 2
 		elif phase == 2 and session.model._count(p.bag,"ammo") == 120:
-			session.send("resupply_ammo"); session.send("reload"); phase = 3
+			session.send("resupply_ammo"); session.send("fire"); phase = 3
 	else:
 		for id in session.model.state.players:
 			if id != 1 and remote_id == 0: remote_id = id; joined_at = elapsed
@@ -44,9 +45,12 @@ func _process(delta: float) -> bool:
 		var p: Dictionary = session.model.state.players[remote_id]
 		if phase == 0 and elapsed - joined_at > 1.0:
 			check(session.model._count(p.bag,"ammo") == 60,"distant RPC cannot grant ammo")
-			p.pos = Vector2(7.2,2.7); phase = 1
+			p.pos = Vector2(7.2,2.7); p.ammo = 0; p.magazines[p.equipment.weapon.uid] = 0; phase = 1
+		elif phase == 1 and p.reloading:
+			saw_reload = true
 		elif phase == 1 and p.ammo == 30:
-			check(session.model._count(p.bag,"ammo") == 110,"remote refill and reload confirmed by host without repeat overflow")
+			check(saw_reload and p.shots == 0,"remote empty trigger starts timed reload without a phantom bullet")
+			check(session.model._count(p.bag,"ammo") == 90,"remote refill and auto reload confirmed by host without repeat overflow")
 			check(p.credits == 500,"remote refill is free")
 			check(session.model._count(session.model.state.players[1].bag,"ammo") == 60,"host inventory untouched")
 			finish()
