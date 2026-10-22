@@ -3,6 +3,7 @@ extends RefCounted
 const Rules=preload("res://features/visibility/vision_rules.gd")
 const RAY_COUNT := 256
 const OCCLUDER_MASK := 16
+var roof_cutaway:=false
 var enabled:=false
 var observer:=Vector3.ZERO
 var aim:=Vector2.UP
@@ -20,6 +21,7 @@ func update(ctx, delta: float) -> void:
 	enabled=active
 	if is_instance_valid(ctx.tracer_node):ctx.tracer_node.material_override.set_shader_parameter("vision_enabled",enabled)
 	if not enabled:
+		roof_cutaway=false
 		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{})
 		if ctx.world_loading:
 			for actor in ctx.actors.values():actor.visible=false
@@ -39,7 +41,12 @@ func update(ctx, delta: float) -> void:
 	if _clock>=.05 or ray_texture==null:
 		_clock=0
 		_update_rays()
-	var parameters: Dictionary={"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
+		roof_cutaway=ctx.world.has_method("has_overhead_cover") and ctx.world.has_overhead_cover(observer)
+		if not roof_cutaway:
+			var query:=PhysicsRayQueryParameters3D.create(observer+Vector3(0,1.4,0),observer+Vector3(0,12,0),OCCLUDER_MASK)
+			var overhead:=space.intersect_ray(query)
+			roof_cutaway=not overhead.is_empty() and absf(Vector3(overhead.normal).y)>.4
+	var parameters: Dictionary={"vision_roof_cutaway":roof_cutaway,"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
 	if ctx.world.has_method("set_vision"):ctx.world.set_vision(true,parameters)
 	if is_instance_valid(ctx.tracer_node):
 		for key in parameters:ctx.tracer_node.material_override.set_shader_parameter(key,parameters[key])

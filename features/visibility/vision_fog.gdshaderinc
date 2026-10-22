@@ -1,5 +1,6 @@
 uniform bool vision_enabled = false;
 uniform vec3 vision_origin;
+uniform bool vision_roof_cutaway = false;
 uniform vec2 vision_aim = vec2(0.0,-1.0);
 uniform sampler2D vision_rays : filter_linear, repeat_enable;
 uniform float vision_range=37.0;
@@ -22,6 +23,6 @@ float vision_visibility(vec3 world) {
 }
 vec3 apply_vision_fog(vec3 color, vec3 world) {
 	float amount=vision_visibility(world);
-	float gray = dot(color,vec3(0.2126,0.7152,0.0722));
-	return mix(vec3(gray)*0.32,color,amount);
+	// Retain texture hue and detail: darkness must not replace materials with gray.
+	return color*mix(vec3(0.10,0.12,0.16),vec3(1.0),amount);
 }

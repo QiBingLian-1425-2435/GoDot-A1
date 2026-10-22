@@ -24,6 +24,7 @@ var loaded := false
 var _cancelled := false
 var _door_nodes: Dictionary = {}
 var _door_open: Dictionary = {}
+var _roof_bounds: Array[AABB]=[]
 var _vision_groups: Dictionary = {}
 var _terrain_material: ShaderMaterial
 var _vision_materials: Array[ShaderMaterial]=[]
@@ -64,17 +65,19 @@ func _build_geometry() -> void:
 			add_child(leaf)
 			_track_door(item,leaf)
 			continue
+		if _is_roof_renderer(item):
+			_roof_bounds.append(Library.transform(item.transform)*library.geometry(str(item.mesh)).get_aabb())
 		var values: Array = item.transform
 		var x := int(floor(float(values[9])/64.0))
 		var z := int(floor(float(values[11])/64.0))
-		var key := str(item.mesh)+"/"+str(item.materials)+"/"+str(x)+"/"+str(z)+"/"+str(item.get("lod",-1))+"/"+str(item.get("source","scene"))+"/"+str(item.get("shadow_mode",1))+"/"+str(item.get("visibility_id",""))
+		var key := str(item.mesh)+"/"+str(item.materials)+"/"+str(x)+"/"+str(z)+"/"+str(item.get("lod",-1))+"/"+str(item.get("source","scene"))+"/"+str(item.get("shadow_mode",1))+"/"+str(item.get("visibility_id",""))+"/"+str(_is_roof_renderer(item))
 		if not groups.has(key): groups[key] = []
 		groups[key].append(item)
 	for items in groups.values():
 		var first: Dictionary = items[0]
 		var first_transform := Library.transform(first.transform)
 		var center := Vector3(floorf(first_transform.origin.x/64.0)*64+32,0,floorf(first_transform.origin.z/64.0)*64+32)
-		var mesh: ArrayMesh = library.render_mesh(str(first.mesh),first.materials)
+		var mesh: ArrayMesh = library.render_mesh(str(first.mesh),first.materials,_is_roof_renderer(first))
 		var batch := MultiMesh.new()
 		batch.transform_format = MultiMesh.TRANSFORM_3D
 		batch.use_colors = first.has("color")
@@ -421,3 +424,14 @@ func set_vision(active: bool, parameters: Dictionary) -> void:
 	for material in _vision_materials:
 		material.set_shader_parameter("vision_enabled",active)
 		for key in parameters:material.set_shader_parameter(key,parameters[key])
+
+func has_overhead_cover(point: Vector3) -> bool:
+	# Original roof renderers sometimes have no solid collider. Their bounds still
+	# identify being under the roof; this is local rendering data, never collision.
+	for bounds in _roof_bounds:
+		if point.x>=bounds.position.x and point.x<=bounds.end.x and point.z>=bounds.position.z and point.z<=bounds.end.z and point.y+1.35<bounds.end.y and point.y>bounds.position.y-12.0:return true
+	return false
+
+static func _is_roof_renderer(item: Dictionary) -> bool:
+	var label:=str(item.get("name","")).to_lower()
+	return "roof" in label or "ceiling" in label

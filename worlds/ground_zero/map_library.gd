@@ -26,13 +26,15 @@ func texture(path: String) -> Texture2D:
 	if not _textures.has(path): _textures[path] = load(ROOT+path)
 	return _textures[path]
 
-func material(key: String) -> Material:
-	if _materials.has(key): return _materials[key]
+func material(key: String, roof: bool=false) -> Material:
+	var cache_key:=key+"@roof" if roof else key
+	if _materials.has(cache_key): return _materials[cache_key]
 	var spec: Dictionary = definition.materials.get(key,{})
 	if not str(spec.get("shader","")).contains("Decal"):
 		var source_material := ShaderMaterial.new()
 		source_material.shader = ALPHA_SURFACE_SHADER if spec.get("transparent",false) else (DOUBLE_SURFACE_SHADER if int(spec.get("cull",2))==0 else SURFACE_SHADER)
 		source_material.resource_name = str(spec.get("name",key))
+		source_material.set_shader_parameter("roof_surface",roof)
 		source_material.set_shader_parameter("has_albedo",not str(spec.get("texture","")).is_empty())
 		source_material.set_shader_parameter("albedo_map",texture(str(spec.get("texture",""))))
 		var color: Array = spec.get("albedo",[1,1,1,1])
@@ -45,7 +47,7 @@ func material(key: String) -> Material:
 		source_material.set_shader_parameter("surface_roughness",float(spec.get("roughness",.9)))
 		var emission: Array = spec.get("emission",[0,0,0])
 		source_material.set_shader_parameter("emission_color",Vector3(emission[0],emission[1],emission[2]))
-		_materials[key] = source_material
+		_materials[cache_key] = source_material
 		return source_material
 	var result := StandardMaterial3D.new()
 	result.resource_name = str(spec.get("name",key))
@@ -72,7 +74,7 @@ func material(key: String) -> Material:
 		result.emission_enabled = true
 		result.emission = Color(float(emission[0]),float(emission[1]),float(emission[2]))/maxf(1,energy)
 		result.emission_energy_multiplier = minf(energy,3)
-	_materials[key] = result
+	_materials[cache_key] = result
 	return result
 
 func set_view(player: Vector3, camera: Vector3, enabled: bool) -> void:
@@ -129,12 +131,12 @@ func geometry(key: String) -> ArrayMesh:
 	_geometry[key] = mesh
 	return mesh
 
-func render_mesh(key: String, materials: Array) -> ArrayMesh:
-	var cache_key := key+"/"+str(materials)
+func render_mesh(key: String, materials: Array, roof: bool=false) -> ArrayMesh:
+	var cache_key := key+"/"+str(materials)+"/"+str(roof)
 	if not _render_meshes.has(cache_key):
 		var mesh: ArrayMesh = geometry(key).duplicate()
 		for i in range(mesh.get_surface_count()):
-			mesh.surface_set_material(i,material(str(materials[mini(i,materials.size()-1)])) if not materials.is_empty() else material(""))
+			mesh.surface_set_material(i,material(str(materials[mini(i,materials.size()-1)]),roof) if not materials.is_empty() else material("",roof))
 		_render_meshes[cache_key] = mesh
 	return _render_meshes[cache_key]
 
