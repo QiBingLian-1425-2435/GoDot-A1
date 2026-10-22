@@ -2,9 +2,6 @@ extends RefCounted
 ## Host-only tool/loot rules. Geometry arrives through explicit world callbacks.
 const Items=preload("res://features/inventory/item_catalog.gd")
 const DURATIONS={"glowstick":60.0,"smoke_grenade":8.0,"beacon":60.0}
-const COMMON=["water","canned_food","biscuits","bandage","scrap","tape"]
-const GREEN=["juice","medkit","battery","glowstick"]
-const BLUE=["energy_bar","medical_box","lockpick","smoke_grenade","circuit_board"]
 static func use(ctx, p: Dictionary, kind: String) -> bool:
 	if not ctx.world_ready:return ctx._reject("地图加载中，暂时不能使用道具")
 	if kind=="lockpick":
@@ -35,29 +32,9 @@ static func use(ctx, p: Dictionary, kind: String) -> bool:
 	ctx.state.field_effects.append({"uid":uid,"kind":kind,"owner":p.id,"owner_name":str(p.name),"pos":target,"ttl":DURATIONS[kind],"world":ctx.state.world})
 	ctx._update_weight(p);ctx._animate(p,"interact",.6);ctx.last_notice="已放置"+str(Items.definition(kind).name);return true
 static func search(ctx,p:Dictionary,uid:String) -> bool:
-	for station in ctx.stations:
-		if station.get("kind")=="loot" and station.get("uid")==uid:return open_container(ctx,p,station)
-	return false
+	return ctx.Loot.open(ctx,p,ctx.Loot.station(ctx,uid))
 static func open_container(ctx,p:Dictionary,station:Dictionary) -> bool:
-	if station.is_empty() or station.get("world")!=ctx.state.world or not ctx.world_ready:return false
-	if ctx.state.containers.has(station.uid):return ctx._reject("这个容器已经搜索过")
-	if Vector2(p.pos).distance_to(station.pos)>2.4 or absf(float(p.get("height",0))-float(station.height))>2:return ctx._reject("靠近同一楼层的容器才能搜索")
-	if not ctx.loot_reachable.is_valid() or not ctx.loot_reachable.call(station.uid,Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)):return ctx._reject("容器被墙体或烟雾遮挡")
-	if station.get("locked",false):
-		if ctx._count(p.bag,"lockpick")<1:return ctx._reject("需要简易开锁器，商人或工作台可获得")
-		ctx._consume(p.bag,"lockpick",1)
-	ctx.state.containers[station.uid]=true
-	for i in range(2):
-		var roll:=randf();var pool:Array=COMMON
-		if station.get("locked",false) and roll<.01:pool=["encrypted_core"]
-		elif station.get("locked",false) and roll<.05:pool=["gold_statue"]
-		elif roll<.12:pool=["pocket_watch","optical_parts","beacon"]
-		elif roll<.32:pool=BLUE
-		elif roll<.62:pool=GREEN
-		var kind:String=pool.pick_random();var item:Dictionary=ctx._item(kind,mini(2,int(Items.definition(kind).stack)))
-		item.pos=Vector2(p.pos)+Vector2(p.aim)*.35;item.height=float(p.get("height",0))
-		ctx.state.drops[item.uid]=item
-	ctx._update_weight(p);ctx._animate(p,"interact",.8);ctx.last_notice="搜索完成，物品已放在脚边，按E拾取";return true
+	return ctx.Loot.open(ctx,p,station)
 static func blocks_sight(effects: Array, from: Vector3, to: Vector3) -> bool:
 	var segment:=to-from;var length2:=segment.length_squared()
 	for effect in effects:

@@ -40,11 +40,19 @@ func run():
 	if chosen.is_empty():game.queue_free();await process_frame;quit(1);return
 	model._insert(p.bag,model._item("lockpick",2));settle()
 	game._interact();settle()
-	check(model.state.containers.has(chosen.uid) and model.state.drops.size()==2,"actual E search produces one confirmed loot roll")
-	check(not model.command(1,"search",{"uid":chosen.uid}) and model.state.drops.size()==2,"original source container cannot duplicate loot")
-	game._update_interaction()
-	check(game.nearest.get("kind")=="pickup","searched container no longer masks nearby pickup prompt")
-	game._interact();check(model.state.drops.size()==1,"E picks up generated real item")
+	check(model.state.containers.has(chosen.uid) and model.state.drops.is_empty() and game.ui._loot_uid==chosen.uid,"actual E opens container panel without spawning floor loot")
+	var box:Dictionary=model.state.containers[chosen.uid]
+	var original:Array=box.items.duplicate(true)
+	check(model.command(1,"search",{"uid":chosen.uid}) and box.items==original,"reopening original source container never rerolls contents")
+	for i in range(150):model.tick(.01)
+	settle()
+	await capture("container_search")
+	check(box.revealed==1 and game.ui._loot_status.text.contains("1 /"),"real map search reveals sequentially and updates panel")
+	var before_weight:float=model.Items.weight(p.bag)
+	game.ui._loot_selected=0;game.ui.ContainerPanel.take(game.ui,false);settle()
+	check(box.items[0].is_empty() and model.Items.weight(p.bag)>before_weight,"panel takes revealed real item directly into bag")
+	game.ui._close_dialog();settle()
+	check(p.loot_uid.is_empty(),"closing real container stops active search")
 	model.add_player(2,"烟雾后的队友")
 	var origin:=Vector3(p.pos.x,float(p.height),p.pos.y);var direction:=Vector2.ZERO
 	for angle in range(16):

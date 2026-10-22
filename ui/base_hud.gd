@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+const ContainerPanel = preload("res://ui/inventory/container_panel.gd")
 const InventoryPanel = preload("res://ui/inventory/inventory_panel.gd")
 const MenuScreen = preload("res://ui/menu/menu_screen.gd")
 const SteamPanel = preload("res://ui/network/steam_panel.gd")
@@ -16,6 +17,16 @@ const TEAL := Color("5d9ba4")
 const GREEN := Color("679b6e")
 const PANEL := Color(0.10, 0.15, 0.17, 0.97)
 
+var _loot_uid := ""
+var _loot_dismissed_uid := ""
+var _loot_selected := -1
+var _loot_slots: Array = []
+var _loot_buttons: Array = []
+var _loot_bag: Array = []
+var _loot_status: Label
+var _loot_weight: Label
+var _loot_detail: Label
+var _loot_progress: ProgressBar
 var _inventory_filter:="all"
 var _sort_mode:="type"
 var _shop_kind:=""
@@ -227,6 +238,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	if not is_instance_valid(_root):
 		return
 	var p := _player()
+	ContainerPanel.sync(self)
 	var world_name: String = str(state.get("world","bunker"))
 	_world_label.text = {"bunker":"避 难 所","surface":"零 号 区","cave":"神 秘 山 洞"}.get(world_name,"探索区域")
 	_world_note.text = "安全区域  ·  基地仓库 / 工作台 / 射击区" if world_name=="bunker" else "探索区域  ·  E 地图入口 / TAB 行囊"
@@ -472,6 +484,11 @@ func _dialog_close_pressed() -> void:
 		_close_dialog()
 
 func _close_dialog() -> void:
+	if not _loot_uid.is_empty():
+		var closing := _loot_uid
+		_loot_uid = ""
+		_loot_dismissed_uid = closing
+		action_requested.emit("loot_close", {"uid": closing})
 	if is_instance_valid(_dialog):
 		var overlay: Node = _dialog.get_meta("overlay",null)
 		if is_instance_valid(overlay):

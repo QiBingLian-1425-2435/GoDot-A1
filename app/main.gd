@@ -332,7 +332,6 @@ func _update_interaction()->void:
 			distance=d
 			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
 	for station in session.model.stations:
-		if station.get("kind")=="loot" and session.model.state.containers.has(station.uid):continue
 		var d:=pos.distance_to(station.pos)
 		if d>=distance:continue
 		if station.get("kind")=="door":
@@ -349,7 +348,14 @@ func _update_interaction()->void:
 			if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
 		distance=d
 		nearest=station.duplicate()
-		if station.get("kind")=="loot":nearest.title="开启上锁容器（消耗开锁器）" if station.get("locked",false) else "搜索物资"
+		if station.get("kind")=="loot":
+			var box:Variant=session.model.state.containers.get(station.uid,{})
+			nearest.title="搜索箱子" if not station.get("locked",false) else "开锁搜索（消耗开锁器）"
+			if box is Dictionary and not box.is_empty():
+				var remaining:=false
+				for item in box.items:
+					if not item.is_empty():remaining=true
+				nearest.title="继续搜索箱子" if int(box.revealed)<box.items.size() else "查看箱内物品" if remaining else "查看空箱子"
 		if station.get("kind")=="door":
 			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))

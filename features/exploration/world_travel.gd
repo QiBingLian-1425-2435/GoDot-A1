@@ -20,6 +20,7 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 		ctx.reset_transients(id)
 		ctx.last_notice = "已到达传送点"
 		return true
+	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
 	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{})}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})

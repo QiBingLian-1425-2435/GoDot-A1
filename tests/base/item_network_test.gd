@@ -59,7 +59,12 @@ func run():
 		session._intent.rpc_id(1,"use",{"index":0,"world_revision":int(session.model.state.world_revision)-1},session._session_token,session._intent_seq)
 		session.send("search",{"uid":"loot_one"})
 		check(await wait_for(func():return session.model.state.containers.has("loot_one")),"shared locked container opens")
-		check(session.model.state.drops.size()==2,"one loot result replicated to each client")
+		check(await wait_for(func():return int(session.model.state.containers["loot_one"].revealed)>=1),"host timer reveals first item")
+		var box:Dictionary=session.model.state.containers["loot_one"]
+		check(box.items[0].has("kind") and (int(box.revealed)>=box.items.size() or box.items[int(box.revealed)].is_empty()),"unsearched content is hidden from client snapshots")
+		var item_uid:String=box.items[0].uid
+		session.send("loot_take",{"uid":"loot_one","index":0,"item_uid":item_uid,"kind":"encrypted_core","count":999})
+		check(await wait_for(func():return session.model.state.containers["loot_one"].items[0].is_empty()),"competing clients observe a single item removal")
 		report(role+"_three")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==4),"phase4")
 		var cash:int=player().credits
@@ -87,10 +92,18 @@ func run():
 	session.model.state.world="surface";session.model.state.world_revision+=1
 	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true}]
 	session.model.loot_reachable=func(_uid,_from):return true
+	var initial_counts:Dictionary={}
+	for kind in session.model.Items.DEFS:
+		initial_counts[kind]=session.model._count(session.model.state.players[a].bag,kind)+session.model._count(session.model.state.players[b].bag,kind)
 	phase(3)
+	check(await wait_for(func():return session.model.state.containers.has("loot_one")),"first remote search creates container")
+	var first_item:Dictionary=session.model.state.containers["loot_one"].items[0].duplicate(true)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_three")) and FileAccess.file_exists(path("b_three"))),"competing search reports")
 	var picks:int=session.model._count(session.model.state.players[a].bag,"lockpick")+session.model._count(session.model.state.players[b].bag,"lockpick")
-	check(picks==3 and session.model.state.drops.size()==2,"racing requests yield one opening and one lockpick consumption")
+	check(picks==3 and session.model.state.drops.is_empty(),"racing searches spend one lockpick and create no duplicate drops")
+	var box:Dictionary=session.model.state.containers["loot_one"]
+	var after_count:int=session.model._count(session.model.state.players[a].bag,first_item.kind)+session.model._count(session.model.state.players[b].bag,first_item.kind)
+	check(box.items[0].is_empty() and after_count-int(initial_counts[first_item.kind])==int(first_item.count),"racing remote take grants original stack exactly once")
 	check(session.model.state.field_effects.is_empty(),"stale world use packet cannot recreate smoke")
 	session.model.state.world="bunker";session.model.state.world_revision+=1;session.model.stations=[{"kind":"trader","pos":Vector2.ZERO}]
 	for id in [a,b]:session.model.state.players[id].pos=Vector2(10,0)

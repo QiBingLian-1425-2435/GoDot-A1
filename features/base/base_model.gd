@@ -8,6 +8,7 @@ const Facilities = preload("res://features/base/facility_system.gd")
 const Movement = preload("res://features/player/movement_rules.gd")
 const WorldTravel = preload("res://features/exploration/world_travel.gd")
 ## Host-authoritative base rules. No files are accessed until an explicit profile call.
+const Loot=preload("res://features/exploration/container_loot.gd")
 const FieldItems=preload("res://features/exploration/field_items.gd")
 const Trade=preload("res://features/inventory/item_trade.gd")
 var field_placement:Callable
@@ -60,6 +61,7 @@ func add_player(id: int, player_name: String) -> void:
 	_update_weight(p)
 
 func remove_player(id: int) -> void:
+	if state.players.has(id): Loot.close(self,state.players[id])
 	_recovery_after.erase(id)
 	state.players.erase(id)
 	_inputs.erase(id)
@@ -67,6 +69,7 @@ func remove_player(id: int) -> void:
 func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
 	var p: Dictionary = state.players[id]
+	Loot.close(self,p)
 	p.pending_use={}
 	p.velocity = Vector2.ZERO
 	p.sprint = false; p.crouch = false; p.ads = false
@@ -83,7 +86,7 @@ func _animate(p: Dictionary, action: String, duration: float) -> void:
 
 func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	last_notice = ""
-	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","craft_item"]: return false
+	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","craft_item","loot_take"]: return false
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
@@ -106,6 +109,8 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		"buy","sell":return Trade.trade(self,p,action,payload)
 		"craft_item":return Trade.craft(self,p,str(payload.get("kind","")))
 		"search":return FieldItems.search(self,p,str(payload.get("uid","")))
+		"loot_take":return Loot.take(self,p,payload)
+		"loot_close":return Loot.close(self,p,str(payload.get("uid","")))
 		"door": return WorldTravel.toggle_door(self,id,payload)
 		"travel": return WorldTravel.travel(self,id,payload)
 		"move":
@@ -166,6 +171,7 @@ func tick(delta: float) -> void:
 	if not is_finite(delta) or delta <= 0.0: return
 	delta = minf(delta, 0.1)
 	_clock += delta
+	Loot.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
 		var pending:Dictionary=p.get("pending_use",{})

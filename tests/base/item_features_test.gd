@@ -93,9 +93,9 @@ func run():
 	p.height=4
 	check(not m.command(1,"search",{"uid":"loot_test"}),"different floor cannot unlock container")
 	p.height=0
-	check(m.command(1,"use",{"index":0}) and p.bag[0].count==1 and m.state.drops.size()==2,"using lockpick opens reachable locked container and yields loot")
+	check(m.command(1,"use",{"index":0}) and p.bag[0].count==1 and m.state.containers.has("loot_test") and p.loot_uid=="loot_test","using lockpick opens reachable locked container for timed search")
 	var guest:Dictionary=m.state.players[2];guest.pos=Vector2.ZERO;guest.bag[0]=m._item("lockpick",1)
-	check(not m.command(2,"search",{"uid":"loot_test"}) and guest.bag[0].count==1 and m.state.drops.size()==2,"second player cannot reopen or spend another lockpick")
+	check(m.command(2,"search",{"uid":"loot_test"}) and guest.bag[0].count==1 and m.state.drops.is_empty(),"second player shares existing contents without spending another lockpick")
 	m.state.world="bunker";m.state.field_effects=[];fill(m,p,"gold_statue");p.bag[1]=m._item("encrypted_core",1);p.bag[2]=m._item("energy_bar",2)
 	var inventory_value:=0
 	for item in p.bag:
