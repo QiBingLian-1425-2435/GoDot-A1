@@ -114,7 +114,7 @@ static func _open_settings(ctx) -> void:
 
 static func _open_help(ctx) -> void:
 	ctx._dialog_panel("操作指南",Vector2(720,712))
-	var rows = [["Q（按住）","附近20米队伍语音"],["W / A / S / D","移动"],["鼠标","朝向 / 瞄准方向"],["Shift / C","冲刺 / 蹲下"],["鼠标左键 / 右键","射击 / 瞄准"],["R / E","装填 / 互动"],["Tab / Esc","背包 / 菜单"],["1 / 2 · 4 / 5","换枪 · 医疗 / 饮水"],["拖动物品","移动、交换或装备"],["Ctrl 点击 / 右键","快速存取 / 物品操作"]]
+	var rows = [["Q（按住）","附近20米队伍语音"],["W / A / S / D","移动"],["鼠标","朝向 / 瞄准方向"],["Shift / C / 空格","冲刺 / 蹲下 / 翻滚"],["鼠标左键 / 右键","射击 / 瞄准"],["R / E","装填 / 互动"],["Tab / Esc","背包 / 菜单"],["1 / 2 · 4 / 5","换枪 · 医疗 / 饮水"],["拖动物品","移动、交换或装备"],["Ctrl 点击 / 右键","快速存取 / 物品操作"]]
 	for i in range(rows.size()):
 		ctx._label(ctx._dialog,rows[i][0],Rect2(34,95+i*48,290,37),19,ctx.GOLD)
 		ctx._label(ctx._dialog,rows[i][1],Rect2(327,95+i*48,360,37),19,ctx.INK)

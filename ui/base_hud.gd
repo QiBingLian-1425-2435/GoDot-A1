@@ -345,7 +345,7 @@ func _build_hud() -> void:
 	_reload_label = _label(ammo,"/  000     [R] 装填",Rect2(92,54,164,28),15,Color("c5cbbb"))
 	var guide := _panel(_hud,Rect2(635,68,930,34),Color(0.03,0.07,0.10,0.72),Color(0.35,0.5,0.55,0.2),6)
 	guide.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	_label(guide,"WASD 移动   Shift 冲刺   C 蹲行   右键 瞄准   Tab 背包   Esc 菜单",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
+	_label(guide,"WASD 移动   Shift 冲刺   空格 翻滚   C 蹲行   右键 瞄准   Tab 背包   Esc 菜单",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
 	_interaction = _label(_hud,"",Rect2(400,645,800,44),23,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
 	_interaction.add_theme_constant_override("outline_size",5)
 	_interaction.add_theme_color_override("font_outline_color",Color(0.06,0.1,0.12,0.9))

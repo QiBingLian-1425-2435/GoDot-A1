@@ -70,6 +70,9 @@ func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
 	var p: Dictionary = state.players[id]
 	Loot.close(self,p)
+	var roll_seen:int=int(p.get("roll",{}).get("seen",0))
+	p.roll=Movement.empty_roll();p.roll.seen=roll_seen
+	p.input_roll=p.roll.duplicate(true)
 	p.pending_use={}
 	p.velocity = Vector2.ZERO
 	p.sprint = false; p.crouch = false; p.ads = false
@@ -92,6 +95,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	var p: Dictionary = state.players[id]
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("探索时无法访问基地仓库")
+	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("翻滚中，请稍候")
 	match action:
 		"unstuck":
 			if not world_ready:return _reject("地图加载中，请稍候再脱离卡死")
@@ -118,7 +122,9 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			var aim: Variant = payload.get("aim", p.aim)
 			if not direction is Vector2 or not aim is Vector2 or not direction.is_finite() or not aim.is_finite():
 				return false
-			_inputs[id] = {"direction":direction.limit_length(1.0), "stamp":_clock, "sprint":payload.get("sprint",false) == true, "crouch":payload.get("crouch",false) == true, "ads":payload.get("ads",false) == true}
+			var roll_direction:Variant=payload.get("roll_direction",direction)
+			if not roll_direction is Vector2 or not roll_direction.is_finite():return false
+			_inputs[id] = {"roll_direction":roll_direction.limit_length(1.0),"direction":direction.limit_length(1.0), "stamp":_clock, "sprint":payload.get("sprint",false) == true, "crouch":payload.get("crouch",false) == true, "ads":payload.get("ads",false) == true,"roll_seq":clampi(int(payload.get("roll_seq",0)),0,2147483647) if payload.get("roll_seq",0) is int else 0}
 			if aim.length_squared() > 0.001:
 				p.aim = aim.normalized()
 			return true

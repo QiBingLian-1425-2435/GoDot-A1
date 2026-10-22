@@ -77,6 +77,7 @@ func confirm(p: Dictionary) -> void:
 	pose.weight = p.input_weight
 	pose.max_weight = p.input_max_weight
 	pose.height = p.get("input_height",p.get("height",0.0))
+	pose.roll=p.get("input_roll",Movement.empty_roll()).duplicate(true)
 	_pending = {"seq":seq,"start":float(_sent[seq]),"pose":pose}
 
 func advance(delta: float, authoritative: Dictionary) -> void:
@@ -127,6 +128,7 @@ func sample_player(authoritative: Dictionary) -> Dictionary:
 	var display := authoritative.duplicate()
 	if _state.is_empty(): return display
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
+	display.roll = _state.get("roll",Movement.empty_roll()).duplicate(true)
 	display.pos = _display_pos
 	if spatial_solver.is_valid(): display.height = _display_height
 	return display
@@ -140,4 +142,7 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for key in FIELDS: result[key] = p[key]
 	result.height = p.get("height",0.0)
+	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
+	for key in ["reloading","pending_use","loot_uid","hp"]:
+		if p.has(key):result[key]=p[key]
 	return result

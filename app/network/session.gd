@@ -12,9 +12,12 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close"]
+var _roll_seq := 0
+var _roll_capture := false
+var _roll_direction := Vector2.UP
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
@@ -138,6 +141,7 @@ func save_room() -> Error:
 	return result
 
 func offline() -> void:
+	_roll_seq=0;_roll_capture=false
 	if not room_store.path.is_empty():save_room()
 	room_store.clear();peer_identity_provider=Callable()
 	if mode == "client": model.state.infinite_reserve = false
@@ -180,7 +184,18 @@ func start_solo() -> void:
 	connection_status = "离线基地 · 自动保存在本机"
 	state_changed.emit()
 
+func request_roll() -> void:
+	_roll_capture=true
+	_roll_seq = maxi(_roll_seq,int(model.state.players.get(local_id,{}).get("roll",{}).get("seen",0)))+1
+
 func send(action: String, payload: Dictionary = {}) -> void:
+	if action == "move":
+		payload=payload.duplicate(); payload.roll_seq=_roll_seq
+		if _roll_capture:
+			var direction:Vector2=payload.get("direction",Vector2.ZERO)
+			_roll_direction=direction.normalized() if not direction.is_zero_approx() else Vector2(payload.get("aim",Vector2.UP)).normalized()
+			_roll_capture=false
+		payload.roll_direction=_roll_direction
 	var clean := _clean_payload(action,payload)
 	if action in ["unstuck","use","search","buy","sell","craft_item","loot_take","loot_close"]:clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
@@ -240,7 +255,7 @@ func _is_movement_edge(input: Dictionary) -> bool:
 	if _last_sent_move.is_empty(): return true
 	# The camera basis can introduce tiny float noise during an otherwise held key.
 	if Vector2(input.direction).distance_squared_to(_last_sent_move.direction) > .00000001: return true
-	for key in ["sprint","crouch","ads"]:
+	for key in ["sprint","crouch","ads","roll_seq"]:
 		if input.get(key) != _last_sent_move.get(key): return true
 	return false
 
@@ -266,8 +281,10 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 		"move":
 			var direction: Variant = payload.get("direction",Vector2.ZERO)
 			var aim: Variant = payload.get("aim",Vector2.UP)
+			var roll_direction:Variant=payload.get("roll_direction",direction)
+			if not roll_direction is Vector2 or not roll_direction.is_finite():return {}
 			if not direction is Vector2 or not aim is Vector2 or not direction.is_finite() or not aim.is_finite(): return {}
-			return {"direction":direction.limit_length(1.0),"aim":aim.limit_length(1.0),"sprint":payload.get("sprint",false) == true,"crouch":payload.get("crouch",false) == true,"ads":payload.get("ads",false) == true}
+			return {"roll_direction":roll_direction.limit_length(1.0),"direction":direction.limit_length(1.0),"aim":aim.limit_length(1.0),"sprint":payload.get("sprint",false) == true,"crouch":payload.get("crouch",false) == true,"ads":payload.get("ads",false) == true,"roll_seq":clampi(int(payload.get("roll_seq",0)),0,2147483647) if payload.get("roll_seq",0) is int else 0}
 		"transfer":
 			for key in ["from","to","slot"]:
 				if payload.get(key) is String: clean[key] = str(payload[key]).left(16)
@@ -321,6 +338,7 @@ func _movement(payload: Dictionary, token: int, seq: int, world_revision: int) -
 	p.input_seq = seq; p.input_origin = p.pos; p.input_stamina = p.stamina
 	p.input_weight = p.weight; p.input_max_weight = p.max_weight
 	p.input_height = p.get("height",0.0)
+	p.input_roll=p.get("roll",Model.Movement.empty_roll()).duplicate(true)
 	model.command(sender,"move",clean)
 
 @rpc("any_peer","call_remote","reliable",0)
@@ -395,6 +413,8 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		p.input_weight = row[14]; p.input_max_weight = row[15]
 		p.height = row[16]; p.input_height = row[17]
 		p.relocation_seq=int(row[18]) if row.size()>18 else 0
+		p.roll=_unpack_roll(row[19],0) if row.size()>19 else Model.Movement.empty_roll()
+		p.input_roll=_unpack_roll(row[19],10) if row.size()>19 else p.roll.duplicate(true)
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -402,15 +422,34 @@ func _confirm_local_motion() -> void:
 	if model.state.players.has(local_id): local_movement.confirm(model.state.players[local_id])
 
 func reset_world_motion() -> void:
+	_roll_capture=false
+	_roll_seq=int(model.state.players.get(local_id,{}).get("roll",{}).get("seen",0))
 	motion_buffer.clear(); local_movement.clear()
 	_last_sent_move.clear(); _move_pending.clear()
+
+func _pack_roll(p: Dictionary) -> PackedByteArray:
+	# Millisecond timers and quantized angle keep the five-player motion packet below MTU.
+	var bytes := PackedByteArray(); bytes.resize(20)
+	for index in range(2):
+		var roll: Dictionary = p.get("roll" if index==0 else "input_roll",Model.Movement.empty_roll())
+		var offset := index*10
+		bytes.encode_u32(offset,int(roll.seen))
+		bytes.encode_u16(offset+4,roundi(float(roll.time)*1000) | (32768 if roll.active else 0))
+		bytes.encode_u16(offset+6,roundi(float(roll.cooldown)*1000))
+		bytes.encode_u16(offset+8,roundi(fposmod(Vector2(roll.direction).angle(),TAU)/TAU*65535))
+	return bytes
+
+func _unpack_roll(bytes: PackedByteArray, offset: int) -> Dictionary:
+	if bytes.size()!=20:return Model.Movement.empty_roll()
+	var time_and_flag := bytes.decode_u16(offset+4)
+	return {"seen":bytes.decode_u32(offset),"active":bool(time_and_flag & 32768),"time":float(time_and_flag & 32767)/1000.0,"cooldown":float(bytes.decode_u16(offset+6))/1000.0,"direction":Vector2.from_angle(float(bytes.decode_u16(offset+8))/65535.0*TAU)}
 
 func _motion_rows() -> Array:
 	var rows: Array = []
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0)])
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p)])
 	return rows
 
 func snapshot_age() -> float:

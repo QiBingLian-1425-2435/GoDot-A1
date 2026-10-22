@@ -55,6 +55,10 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 			if not ctx.ui.is_blocking():ctx.crouched=not ctx.crouched
 		KEY_R:
 			if not ctx.ui.is_blocking():ctx.session.send("reload")
+		KEY_SPACE:
+			if not ctx.world_loading and not ctx.ui.is_blocking() and not ctx.station_dialog.visible:
+				ctx.session.request_roll()
+				ctx.get_viewport().set_input_as_handled()
 		KEY_E:
 			if not ctx.ui.is_blocking():ctx._interact()
 		KEY_1:

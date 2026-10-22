@@ -17,7 +17,7 @@ func push(players: Dictionary, stamp: float) -> void:
 	var poses: Dictionary = {}
 	for id in players:
 		var p: Dictionary = players[id]
-		poses[id] = {"pos":p.pos,"height":p.get("height",0.0),"velocity":p.get("velocity",Vector2.ZERO),"aim":p.aim,"relocation_seq":p.get("relocation_seq",0)}
+		poses[id] = {"pos":p.pos,"height":p.get("height",0.0),"velocity":p.get("velocity",Vector2.ZERO),"aim":p.aim,"relocation_seq":p.get("relocation_seq",0),"roll":p.get("roll",{}).duplicate(true)}
 	if _samples.is_empty(): _render_time = stamp - DELAY
 	elif stamp == float(_samples.back().time):
 		_samples.back().players = poses
@@ -71,4 +71,8 @@ func sample_player(id: int, authoritative: Dictionary) -> Dictionary:
 	result.height = lerpf(float(a.height),float(b.height),weight)
 	result.velocity = Vector2(a.velocity).lerp(b.velocity,weight)
 	result.aim = Vector2(a.aim).slerp(b.aim,weight)
+	result.roll=a.roll.duplicate(true)
+	if not a.roll.is_empty() and not b.roll.is_empty() and a.roll.seen==b.roll.seen:
+		result.roll.time=lerpf(float(a.roll.time),float(b.roll.time),weight)
+		result.roll.active=(a.roll.active or b.roll.active) and result.roll.time<.65
 	return result

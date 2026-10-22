@@ -347,10 +347,37 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	motion.advance(delta, moving, _run_blend*moving, _crouch_blend, _aim_blend, tempo, _visual_action, _visual_action_time, _visual_action_weight)
 	_apply_direction(velocity, moving, _visual_action_weight)
 	_update_props(action_weight, kind)
+	_apply_roll(data)
 	var blink := maxf(0, 1.0-absf(fmod(_clock+float(nameplate.text.hash()%100)*.01, 4.3)-.12)/.085)
 	for i in range(_eyes.size()): _eyes[i].scale.y = (.106 if i%2 == 0 else .025) * (1-blink*.94)
 	previous_shots = shots
 	has_previous_pos = true
+
+func _apply_roll(data: Dictionary) -> void:
+	pivot.transform = Transform3D.IDENTITY
+	var roll: Dictionary = data.get("roll",{})
+	if not roll.get("active",false): return
+	animation_state = "roll"
+	var u := clampf(float(roll.time)/.65,0,1)
+	var tuck := smoothstep(0.0,.18,u)*(1.0-smoothstep(.78,1.0,u))
+	var hip := skeleton.find_bone("Hips")
+	skeleton.set_bone_pose_position(hip,skeleton.get_bone_pose_position(hip)+Vector3(0,-.28*tuck,-.05*tuck))
+	_rotate("Spine",Vector3(-.45*tuck,0,0))
+	_rotate("Head",Vector3(.3*tuck,0,0))
+	for bone in ["FootL","FootR"]:
+		var index := skeleton.find_bone(bone)
+		skeleton.set_bone_pose_position(index,skeleton.get_bone_pose_position(index)+Vector3(0,.18*tuck,-.2*tuck))
+		_rotate(bone,Vector3(-.8*tuck,0,0))
+	_rotate("WingL",Vector3(.5*tuck,0,-.45*tuck))
+	_rotate("WingR",Vector3(.5*tuck,0,.45*tuck))
+	var direction: Vector2 = roll.direction
+	var local_direction := Vector3(direction.x,0,direction.y).rotated(Vector3.UP,-rotation.y)
+	var axis := Vector3.UP.cross(local_direction).normalized()
+	var turn := smoothstep(.12,.86,u)*TAU
+	var basis := Basis(axis,turn)
+	var center := Vector3(0,.68,0)
+	pivot.transform = Transform3D(basis,center-basis*center+Vector3(0,.06*sin(PI*u),0))
+	flash.visible = false; flash_light.visible = false
 
 func _update_action(data: Dictionary, delta: float) -> void:
 	var seq := int(data.get("anim_seq", 0))
