@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "steps": [("step_up_test", True, []), ("step_map_test", True, [])],
     "roll": [("roll_test", True, []), ("roll_test", False, []), ("roll_network_test", True, [])],
     "auto_reload": [("auto_reload_test", True, []), ("auto_reload_test", False, []), ("ammo_supply_network_test", True, [])],
     "toilet": [("toilet_search_test", True, []), ("toilet_search_test", False, []), ("item_network_test", True, [])],
@@ -69,7 +70,7 @@ def run(engine, suite, steam_live):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', type=Path, default=DEFAULT_ENGINE)
-    parser.add_argument('--suite', choices=['roll', 'auto_reload', 'toilet', 'loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
+    parser.add_argument('--suite', choices=['steps', 'roll', 'auto_reload', 'toilet', 'loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
     parser.add_argument('--steam-live', action='store_true', help='Requires Steam login; creates a private test room, sends no invitations')
     args = parser.parse_args()
     sys.exit(run(args.godot.resolve(), args.suite, args.steam_live))
