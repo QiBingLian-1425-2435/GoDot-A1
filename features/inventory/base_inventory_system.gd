@@ -79,20 +79,22 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	var index = ctx._index(payload.get("index"),p.bag.size())
 	if index < 0 or p.bag[index].is_empty(): return false
 	var item: Dictionary = p.bag[index]
-	var stat = ""
-	var amount = 0.0
-	match item.kind:
-		"medkit": stat = "hp"; amount = 45
-		"bandage": stat = "hp"; amount = 18
-		"water": stat = "thirst"; amount = 40
-		"canned_food": stat = "hunger"; amount = 35
-		_: return ctx._reject("此物品不能直接使用")
-	if p[stat] >= 100: return ctx._reject("当前状态已满，无需消耗")
-	p[stat] = minf(100,p[stat] + amount)
-	item.count -= 1
-	if item.count <= 0: p.bag[index] = {}
+	var info:Dictionary=ctx.Items.definition(item.kind)
+	if not p.get("pending_use",{}).is_empty():return ctx._reject("正在治疗，请稍候")
+	if info.item_type=="tool":return ctx.FieldItems.use(ctx,p,str(item.kind))
+	var effects:Dictionary=info.effects
+	if effects.is_empty():return ctx._reject("此物品不能直接使用")
+	var needed:=false
+	for stat in effects:
+		if float(effects[stat])>0 and float(p[stat])<100:needed=true
+	if not needed:return ctx._reject("当前状态已满，无需消耗")
+	if item.kind=="medical_box":p.pending_use={"remaining":4.0,"hp":80}
+	else:
+		for stat in effects:p[stat]=clampf(float(p[stat])+float(effects[stat]),0,100)
+	item.count-=1
+	if item.count<=0:p.bag[index]={}
 	ctx._update_weight(p)
-	ctx._animate(p,"drink" if item.kind == "water" else "eat" if item.kind == "canned_food" else "heal",1.5 if stat == "hp" else 1.3)
+	ctx._animate(p,"drink" if item.kind in ["water","juice"] else "eat" if info.item_type=="food" else "heal",4.0 if item.kind=="medical_box" else 1.3 if info.item_type=="food" else 1.5)
 	return true
 
 static func _drop(ctx, p: Dictionary, payload: Dictionary) -> bool:
@@ -132,7 +134,15 @@ static func _sort(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	var items: Array = []
 	for item in p[container]:
 		if not item.is_empty(): items.append(item.duplicate(true))
-	items.sort_custom(func(a: Dictionary,b: Dictionary): return str(a.kind) < str(b.kind))
+	var mode:=str(payload.get("mode","kind"))
+	if not mode in ["kind","type","rarity","value","density"]:return false
+	items.sort_custom(func(a:Dictionary,b:Dictionary):
+		var x:Dictionary=ctx.Items.definition(a.kind);var y:Dictionary=ctx.Items.definition(b.kind)
+		if mode=="type" and x.item_type!=y.item_type:return str(x.item_type)<str(y.item_type)
+		var av:float=float(x.rarity) if mode=="rarity" else float(x.value)*int(a.count) if mode=="value" else float(x.value)/maxf(.001,float(x.weight)) if mode=="density" else 0.0
+		var bv:float=float(y.rarity) if mode=="rarity" else float(y.value)*int(b.count) if mode=="value" else float(y.value)/maxf(.001,float(y.weight)) if mode=="density" else 0.0
+		if av!=bv:return av>bv
+		return str(a.kind)<str(b.kind) if a.kind!=b.kind else str(a.uid)<str(b.uid))
 	for item in items:
 		if not ctx._insert(merged,item): return false
 	p[container] = merged

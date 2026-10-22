@@ -11,12 +11,12 @@ const PURPLE := Color("71617e")
 var _blocks: Array = []
 var _points: Array = [
 	{"id":"stash","title":"仓库 · 整理物资","pos":Vector2(9,-5.3),"kind":"stash"},
-	{"id":"workbench","title":"工作台 · 4零件制作1急救包","pos":Vector2(-9,2.2),"kind":"workbench"},
+	{"id":"workbench","title":"工作台 · 选择配方制作道具","pos":Vector2(-9,2.2),"kind":"workbench"},
 	{"id":"medical","title":"医疗站 · 治疗","pos":Vector2(-10,-5.2),"kind":"medical"},
 	{"id":"exit","title":"地下出口 · 准备出发","pos":Vector2(0,-8.2),"kind":"exit"},
 	{"id":"range","title":"训练场 · 重置全部训练靶","pos":Vector2(9,4.2),"kind":"range"},
 	{"id":"ammo_supply","title":"弹药补给箱 · 免费补至120发备用弹，R装填","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
-	{"id":"trader","title":"商人 · 60币购买30发训练弹","pos":Vector2(-5,-2.6),"kind":"trader"}
+	{"id":"trader","title":"商人 · 购买补给 / 回收物资","pos":Vector2(-5,-2.6),"kind":"trader"}
 ]
 var target_nodes: Dictionary = {}
 var lamps: Array[OmniLight3D] = []

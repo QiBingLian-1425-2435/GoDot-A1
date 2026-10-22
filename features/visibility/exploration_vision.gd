@@ -3,6 +3,8 @@ extends RefCounted
 const Rules=preload("res://features/visibility/vision_rules.gd")
 const RAY_COUNT := 256
 const OCCLUDER_MASK := 16
+const FieldItems=preload("res://features/exploration/field_items.gd")
+var field_effects:Array=[]
 var roof_cutaway:=false
 var enabled:=false
 var observer:=Vector3.ZERO
@@ -18,10 +20,18 @@ func update(ctx, delta: float) -> void:
 	var current_world: int=ctx.world.get_instance_id()
 	if current_world!=_world_id:
 		_world_id=current_world;_clock=1.0
+	field_effects=ctx.session.model.state.get("field_effects",[])
 	enabled=active
 	if is_instance_valid(ctx.tracer_node):ctx.tracer_node.material_override.set_shader_parameter("vision_enabled",enabled)
 	if not enabled:
 		roof_cutaway=false
+		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+		observer=Vector3(Vector2(p.get("pos",Vector2.ZERO)).x,float(p.get("height",0)),Vector2(p.get("pos",Vector2.ZERO)).y)
+		if ctx.actors.has(ctx.session.local_id):observer=ctx.actors[ctx.session.local_id].position
+		if ctx.in_game and not ctx.world_loading:
+			for id in ctx.actors:ctx.actors[id].visible=id==ctx.session.local_id or can_see(ctx.actors[id].position+Vector3.UP)
+			for uid in ctx.drops:ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
+			for label in ctx.target_labels:label.visible=can_see(label.position)
 		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{})
 		if ctx.world_loading:
 			for actor in ctx.actors.values():actor.visible=false
@@ -46,7 +56,13 @@ func update(ctx, delta: float) -> void:
 			var query:=PhysicsRayQueryParameters3D.create(observer+Vector3(0,1.4,0),observer+Vector3(0,12,0),OCCLUDER_MASK)
 			var overhead:=space.intersect_ray(query)
 			roof_cutaway=not overhead.is_empty() and absf(Vector3(overhead.normal).y)>.4
-	var parameters: Dictionary={"vision_roof_cutaway":roof_cutaway,"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
+	var spheres:=PackedVector4Array()
+	for effect in field_effects:
+		if effect.kind=="smoke_grenade" and float(effect.ttl)>0:
+			var center:Vector3=effect.pos+Vector3.UP
+			spheres.append(Vector4(center.x,center.y,center.z,3.0))
+	var smoke_count:=spheres.size();spheres.resize(8)
+	var parameters: Dictionary={"vision_smoke_count":smoke_count,"vision_smoke_spheres":spheres,"vision_roof_cutaway":roof_cutaway,"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
 	if ctx.world.has_method("set_vision"):ctx.world.set_vision(true,parameters)
 	if is_instance_valid(ctx.tracer_node):
 		for key in parameters:ctx.tracer_node.material_override.set_shader_parameter(key,parameters[key])
@@ -64,11 +80,12 @@ func update(ctx, delta: float) -> void:
 	for i in ctx.target_labels.size():
 		ctx.target_labels[i].visible=can_see(ctx.target_labels[i].position-Vector3(0,1.4,0))
 
-func can_see(point: Vector3, exclude: Array[RID]=[]) -> bool:
-	if not enabled:return true
+func can_see(point: Vector3, exclude: Array[RID]=[], ignore_smoke:bool=false) -> bool:
+	if not enabled:return ignore_smoke or not FieldItems.blocks_sight(field_effects,observer+Vector3.UP,point)
 	if not Rules.contains(observer,aim,point):return false
 	if space==null:return false
 	var eye:=observer+Vector3(0,Rules.EYE_HEIGHT,0)
+	if not ignore_smoke and FieldItems.blocks_sight(field_effects,eye,point):return false
 	if eye.distance_squared_to(point)<.0001:return true
 	var query:=PhysicsRayQueryParameters3D.create(eye,point,OCCLUDER_MASK,exclude)
 	var hit:=space.intersect_ray(query)

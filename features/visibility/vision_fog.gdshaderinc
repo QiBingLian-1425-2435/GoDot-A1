@@ -1,3 +1,5 @@
+uniform int vision_smoke_count=0;
+uniform vec4 vision_smoke_spheres[8];
 uniform bool vision_enabled = false;
 uniform vec3 vision_origin;
 uniform bool vision_roof_cutaway = false;
@@ -19,6 +21,15 @@ float vision_visibility(vec3 world) {
 	float angle = atan(offset.y,offset.x)/6.28318530718;
 	float wall = texture(vision_rays,vec2(angle+0.5/float(textureSize(vision_rays,0).x),0.5)).r*vision_range;
 	float sight = 1.0-smoothstep(wall+0.08,wall+0.65,distance);
+	vec3 eye=vision_origin+vec3(0.0,1.0,0.0);
+	vec3 segment=world-eye;
+	for(int i=0;i<8;i++) {
+		if(i>=vision_smoke_count) { break; }
+		vec4 smoke=vision_smoke_spheres[i];
+		float t=clamp(dot(smoke.xyz-eye,segment)/max(dot(segment,segment),0.0001),0.0,1.0);
+		float separation=length(eye+segment*t-smoke.xyz);
+		sight*=smoothstep(smoke.w-0.2,smoke.w,separation);
+	}
 	return max(near,cone*radius)*sight;
 }
 vec3 apply_vision_fog(vec3 color, vec3 world) {

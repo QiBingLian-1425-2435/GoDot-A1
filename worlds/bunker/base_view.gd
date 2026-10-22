@@ -107,12 +107,12 @@ static func _update_drops(ctx)->void:
 			box.size=Vector3(0.48,0.3,0.38)
 			mesh.mesh=box
 			var mat =StandardMaterial3D.new()
-			mat.albedo_color=Color("b5ac78")
+			mat.albedo_color=ctx.session.model.Items.definition(str(data[uid].kind)).rarity_color
 			mesh.material_override=mat
 			mesh.position.y=0.2
 			node.add_child(mesh)
 			var label =Label3D.new()
-			label.text="E  拾取"
+			label.text="E  %s ×%d"%[ctx.session.model.Items.definition(str(data[uid].kind)).name,int(data[uid].count)]
 			label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 			label.position.y=0.8
 			label.font_size=20

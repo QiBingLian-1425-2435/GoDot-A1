@@ -43,21 +43,31 @@ static func _build_inventory(ctx) -> void:
 	for index in range(24):
 		var slot = ctx._make_slot(bag,"bag",index,Vector2(22+(index%6)*83,78+(index/6)*83),Vector2(76,76))
 		ctx._bag_slots.append(slot)
-	ctx._label(bag,"随身物品会带入行动。1 / 2 换枪，4 医疗，5 饮水。",Rect2(22,421,496,26),15,ctx.MUTED)
-	ctx._button(bag,"整理背包",Rect2(22,468,152,44),func() -> void: ctx.action_requested.emit("sort",{"container":"bag"}),Color("496c6e"),17)
+	var filter:=OptionButton.new();filter.name="ItemTypeFilter";filter.position=Vector2(22,420);filter.size=Vector2(240,34)
+	filter.add_item("所有类型");filter.set_item_metadata(0,"all")
+	for key in ctx.Items.TYPES:
+		filter.add_item(ctx.Items.TYPES[key]);filter.set_item_metadata(filter.item_count-1,key)
+	filter.item_selected.connect(func(index:int):ctx._inventory_filter=str(filter.get_item_metadata(index));ctx._update_inventory())
+	bag.add_child(filter)
+	var order:=OptionButton.new();order.name="ItemSortMode";order.position=Vector2(278,420);order.size=Vector2(240,34)
+	for pair in [["按类型整理","type"],["按等级整理","rarity"],["按整组价值整理","value"],["按价值/重量整理","density"]]:
+		order.add_item(pair[0]);order.set_item_metadata(order.item_count-1,pair[1])
+	order.item_selected.connect(func(index:int):ctx._sort_mode=str(order.get_item_metadata(index)))
+	bag.add_child(order)
+	ctx._button(bag,"整理背包",Rect2(22,468,152,44),func() -> void: ctx.action_requested.emit("sort",{"container":"bag","mode":ctx._sort_mode}),Color("496c6e"),17)
 	ctx._credits_label = ctx._label(bag,"资金  500",Rect2(200,472,317,35),22,ctx.GOLD,HORIZONTAL_ALIGNMENT_RIGHT)
 	ctx._label(bag,"拖动换位    Ctrl 点击快速存取    双击使用 / 装备",Rect2(22,529,500,25),14,Color("819891"))
 	var stash = ctx._panel(ctx._inventory,Rect2(1014,142,526,572),ctx.PANEL,Color("657672"),12)
 	ctx._label(stash,"基地仓库",Rect2(20,17,280,35),25,ctx.INK)
-	ctx._button(stash,"整理",Rect2(400,17,105,39),func() -> void: ctx.action_requested.emit("sort",{"container":"stash"}),Color("496c6e"),16)
+	ctx._button(stash,"整理",Rect2(400,17,105,39),func() -> void: ctx.action_requested.emit("sort",{"container":"stash","mode":ctx._sort_mode}),Color("496c6e"),16)
 	for index in range(48):
 		var slot = ctx._make_slot(stash,"stash",index,Vector2(22+(index%8)*61,78+(index/8)*61),Vector2(55,55))
 		ctx._stash_slots.append(slot)
 	ctx._stash_note = ctx._label(stash,"安全区仓库 · 拖动存取物品",Rect2(22,468,484,30),15,ctx.MUTED)
 	ctx._label(stash,"仓库容量 48 格",Rect2(22,529,484,25),14,Color("819891"))
-	var details = ctx._panel(ctx._inventory,Rect2(60,737,932,100),Color(0.1,0.15,0.17,0.94),Color("4c615d"),10)
+	var details = ctx._panel(ctx._inventory,Rect2(60,737,1480,100),Color(0.1,0.15,0.17,0.94),Color("4c615d"),10)
 	ctx._details_name = ctx._label(details,"准备好再出发",Rect2(20,12,860,31),21,ctx.GOLD)
-	ctx._details_text = ctx._label(details,"将鼠标移至物品查看详情。右键可使用、装备或丢弃。",Rect2(20,50,888,35),15,ctx.MUTED)
+	ctx._details_text = ctx._label(details,"将鼠标移至物品查看详情。右键可使用、装备或丢弃。",Rect2(20,50,1435,40),15,ctx.MUTED)
 	ctx._details_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ctx._label(ctx._inventory,"基地是安全的。仓库与装备自动保存到当前存档。",Rect2(60,850,1200,28),15,Color("8da59d"))
 
@@ -89,12 +99,14 @@ static func _slot_action(ctx, action: String, payload: Dictionary) -> void:
 		if container == "bag":
 			if kind in ["rifle","pistol","helmet","armor","backpack"]:
 				ctx._popup.add_item("装备",1)
-			elif kind in ["medkit","bandage","water","canned_food"]:
+			elif ctx.Items.definition(kind).usable:
 				ctx._popup.add_item("使用",0)
 			ctx._popup.add_item("移入仓库",2)
 			ctx._popup.set_item_disabled(ctx._popup.get_item_index(2),not ctx._stash_access)
 			ctx._popup.add_separator()
 			ctx._popup.add_item("丢弃",3)
+			if ctx.Items.definition(kind).sellable:
+				ctx._popup.add_item("出售整组（+%d）"%(int(ctx.Items.definition(kind).value)*int(payload.item.count)),6)
 		elif container == "stash":
 			ctx._popup.add_item("放入背包",2)
 		else:
@@ -132,14 +144,16 @@ static func _context_selected(ctx, id: int) -> void:
 		2: ctx._quick_transfer(ctx._context_data)
 		3: ctx.action_requested.emit("drop",{"index":index})
 		4: ctx.action_requested.emit("unequip",{"slot":index})
+		6: ctx.action_requested.emit("sell",{"index":index,"uid":ctx._context_data.get("item",{}).get("uid","")})
 		5: ctx.action_requested.emit("split",{"container":str(ctx._context_data.get("from","bag")),"index":index})
 
 static func _inspect(ctx, item: Dictionary) -> void:
 	if item.is_empty():
 		return
 	var info = ctx._definition(item)
-	ctx._details_name.text = str(info.get("name",item.get("kind","")))
-	ctx._details_text.text = "%s     %.2f kg × %d" % [info.get("description",""),float(info.get("weight",0.0)),int(item.get("count",1))]
+	ctx._details_name.text = "%s · %s · %s"%[info.get("name",item.get("kind","")),info.rarity_name,info.type_name]
+	ctx._details_name.modulate=info.rarity_color
+	ctx._details_text.text = "%s  |  %.2f kg × %d  |  回收 %d/件 · 整组 %d  |  价值/重量 %.0f"%[info.description,float(info.weight),int(item.get("count",1)),int(info.value),int(info.value)*int(item.get("count",1)),float(info.value)/maxf(.001,float(info.weight))]
 
 static func _update_inventory(ctx) -> void:
 	var p = ctx._player()
@@ -149,12 +163,8 @@ static func _update_inventory(ctx) -> void:
 	var bag: Array = p.get("bag",[])
 	var stash: Array = p.get("stash",[])
 	var equipment: Dictionary = p.get("equipment",{})
-	for i in range(ctx._bag_slots.size()):
-		var item: Dictionary = bag[i] if i < bag.size() else {}
-		ctx._bag_slots[i].set_item(item,ctx._definition(item))
-	for i in range(ctx._stash_slots.size()):
-		var item: Dictionary = stash[i] if i < stash.size() else {}
-		ctx._stash_slots[i].set_item(item,ctx._definition(item))
+	_update_slots(ctx,ctx._bag_slots,bag)
+	_update_slots(ctx,ctx._stash_slots,stash)
 	for key in ctx._equip_slots:
 		var item: Dictionary = equipment.get(key,{})
 		ctx._equip_slots[key].set_item(item,ctx._definition(item))
@@ -165,3 +175,19 @@ static func _update_inventory(ctx) -> void:
 	ctx._inventory_weight.text = "%.1f / %.1f kg" % [float(p.get("weight",ctx.Items.weight(bag))),float(p.get("max_weight",28.0))]
 	ctx._inventory_weight.modulate = Color("ef9c7c") if float(p.get("weight",0.0)) > float(p.get("max_weight",28.0)) else Color.WHITE
 	ctx._credits_label.text = "资金  %s" % str(p.get("credits",500))
+
+static func _update_slots(ctx,slots:Array,items:Array) -> void:
+	var indices:Array=[]
+	if ctx._inventory_filter=="all":
+		for i in range(items.size()):indices.append(i)
+	else:
+		for i in range(items.size()):
+			if not items[i].is_empty() and ctx.Items.definition(items[i].kind).item_type==ctx._inventory_filter:indices.append(i)
+		for i in range(items.size()):
+			if items[i].is_empty():indices.append(i)
+	for i in range(slots.size()):
+		var valid:bool=i<indices.size()
+		var index:int=int(indices[i]) if valid else -1
+		var item:Dictionary=items[index] if valid else {}
+		slots[i].slot_index=index;slots[i].locked=not valid
+		slots[i].set_item(item,ctx._definition(item))

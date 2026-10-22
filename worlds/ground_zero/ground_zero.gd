@@ -329,7 +329,22 @@ func terrain_height(pos: Vector2) -> float:
 	return _terrain_origin.y+lerpf(a,b,z-iz)
 
 func obstacles() -> Array[Rect2]: return []
-func interactions() -> Array: return _interactions
+func interactions() -> Array:
+	var result:Array=_interactions.duplicate(true)
+	for target in vision_targets():
+		var point:Vector3=target.bounds.get_center()
+		result.append({"kind":"loot","uid":"loot_"+str(target.id),"title":"搜索物资","world":zone,"pos":Vector2(point.x,point.z),"height":target.bounds.position.y,"locked":int(target.id)%5==0})
+	return result
+
+func can_reach_loot(uid: String, from: Vector3) -> bool:
+	var id:=uid.trim_prefix("loot_")
+	if not _vision_groups.has(id):return false
+	var target:Dictionary=_vision_groups[id]
+	for point in target.points:
+		var query:=PhysicsRayQueryParameters3D.create(from+Vector3.UP,point,16,target.exclude)
+		var hit:=get_world_3d().direct_space_state.intersect_ray(query)
+		if hit.is_empty() or Vector3(hit.position).distance_to(point)<.08:return true
+	return false
 
 func camera_focus_for(pos: Vector2) -> Vector3:
 	return Vector3(pos.x,terrain_height(pos),pos.y)
@@ -392,7 +407,7 @@ func _track_vision(spec: Dictionary, node: Node3D) -> void:
 	var id:=str(spec.visibility_id)
 	if not _vision_groups.has(id):
 		var excluded: Array[RID]=[]
-		_vision_groups[id]={"nodes":[],"exclude":excluded,"bounds":AABB(),"has_bounds":false,"points":[]}
+		_vision_groups[id]={"id":id,"nodes":[],"exclude":excluded,"bounds":AABB(),"has_bounds":false,"points":[]}
 	var group: Dictionary=_vision_groups[id]
 	if node is StaticBody3D:
 		group.exclude.append(node.get_rid())
@@ -435,3 +450,6 @@ func has_overhead_cover(point: Vector3) -> bool:
 static func _is_roof_renderer(item: Dictionary) -> bool:
 	var label:=str(item.get("name","")).to_lower()
 	return "roof" in label or "ceiling" in label
+
+func loot_target(uid:String) -> Dictionary:
+	return _vision_groups.get(uid.trim_prefix("loot_"),{})

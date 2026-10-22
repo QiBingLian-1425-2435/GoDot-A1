@@ -34,7 +34,7 @@ func set_item(value: Dictionary, info: Dictionary = {}) -> void:
 	if item.is_empty():
 		tooltip_text = slot_label
 	else:
-		tooltip_text = "%s\n%s\n重量 %.2f kg  ·  数量 %d\n拖动移动 · Ctrl 点击快速转移 · 右键操作" % [info.get("name", item.get("kind", "")), info.get("description", ""), float(info.get("weight", 0.0)), int(item.get("count", 1))]
+		tooltip_text = str(info.get("name",item.get("kind","")))+"\n"+preload("res://features/inventory/item_catalog.gd").details(item)+"\n拖动移动 · Ctrl 快速存取 · 右键操作"
 	queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
@@ -83,10 +83,11 @@ func _draw() -> void:
 		bg = Color("43575c")
 	if locked:
 		bg = Color("242b30")
-	draw_style_box(_box(bg, Color("778589") if _hovered else Color("596064"), 2 if _hovered else 1), Rect2(Vector2.ZERO, size))
+	draw_style_box(_box(bg, definition.get("rarity_color",Color("778589")) if not item.is_empty() else Color("596064"), 2 if not item.is_empty() else 1), Rect2(Vector2.ZERO, size))
 	if not item.is_empty():
 		var col: Color = definition.get("color", Color("b8c1bb"))
-		draw_rect(Rect2(4, size.y - 5, size.x - 8, 2), col)
+		draw_rect(Rect2(4, size.y - 5, size.x - 8, 2), definition.get("rarity_color",col))
+		draw_string(_font,Vector2(5,17),["白","绿","蓝","紫","金","红"][int(definition.get("rarity",0))],HORIZONTAL_ALIGNMENT_LEFT,-1,13,definition.get("rarity_color",col))
 		_draw_icon(str(item.get("kind", "")), Rect2(Vector2(10, 8), size - Vector2(20, 21)), col)
 		var count := int(item.get("count", 1))
 		if count > 1:
@@ -174,6 +175,25 @@ func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:
 			draw_rect(Rect2(-24,-6,6,24),Color("726e51"))
 			draw_rect(Rect2(18,-6,6,24),Color("726e51"))
 			draw_arc(Vector2(0,-23),9,PI,TAU,10,Color("897649"),4)
+		"juice","energy_bar","biscuits":
+			draw_style_box(_box(tint,tint.lightened(.3),2),Rect2(-16,-23,32,46))
+			draw_rect(Rect2(-16,-5,32,12),Color("eee1b8"))
+		"medical_box":
+			draw_style_box(_box(tint,tint.lightened(.3),2),Rect2(-25,-18,50,36))
+			draw_rect(Rect2(-4,-12,8,24),Color.WHITE);draw_rect(Rect2(-12,-4,24,8),Color.WHITE)
+		"glowstick":
+			draw_line(Vector2(-14,22),Vector2(14,-22),tint,10);draw_circle(Vector2(14,-22),6,tint.lightened(.3))
+		"lockpick":
+			draw_line(Vector2(-21,18),Vector2(12,-17),metal,5);draw_line(Vector2(12,-17),Vector2(21,-17),metal,5)
+		"smoke_grenade","battery":
+			draw_style_box(_box(tint,metal,2),Rect2(-15,-19,30,40));draw_rect(Rect2(-8,-25,16,7),metal)
+		"beacon","circuit_board","encrypted_core":
+			draw_style_box(_box(tint,metal,2),Rect2(-21,-19,42,38));draw_rect(Rect2(-9,-9,18,18),dark)
+			for i in range(4):draw_line(Vector2(-18,-14+i*9),Vector2(-9,-14+i*9),metal,2)
+		"pocket_watch","tape","optical_parts":
+			draw_circle(Vector2.ZERO,23,tint);draw_circle(Vector2.ZERO,13,dark);draw_line(Vector2.ZERO,Vector2(8,-9),metal,3)
+		"gold_statue":
+			draw_circle(Vector2(0,-15),10,tint);draw_colored_polygon(PackedVector2Array([Vector2(0,-8),Vector2(-15,15),Vector2(15,15)]),tint);draw_rect(Rect2(-22,16,44,8),tint)
 		_:
 			draw_style_box(_box(tint,tint.lightened(0.2),2),Rect2(-20,-18,40,36))
 	draw_set_transform(Vector2.ZERO)

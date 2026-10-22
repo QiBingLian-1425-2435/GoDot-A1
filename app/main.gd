@@ -49,8 +49,11 @@ var voice:Node
 var steam_service:Node
 var player_physics: Node3D
 var vision = Vision.new()
+var field_item_view:Node3D
 
 func _ready()->void:
+	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
+	add_child(field_item_view)
 	_setup_environment()
 	world=load("res://worlds/bunker/bunker.gd").new()
 	world.name="Bunker"
@@ -222,6 +225,7 @@ func _return_menu()->void:
 	joining=false
 	in_game=false
 	session.offline()
+	field_item_view.update(self)
 	if is_instance_valid(steam_service):steam_service.leave_room()
 	session.set_physics_process(false)
 	world.visible=false
@@ -282,6 +286,7 @@ func _process(delta:float)->void:
 		_update_camera(delta)
 		_update_drops()
 		vision.update(self,delta)
+		field_item_view.update(self)
 		_update_tracers()
 		_update_interaction()
 		save_clock+=delta
@@ -327,15 +332,24 @@ func _update_interaction()->void:
 			distance=d
 			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
 	for station in session.model.stations:
+		if station.get("kind")=="loot" and session.model.state.containers.has(station.uid):continue
 		var d:=pos.distance_to(station.pos)
 		if d>=distance:continue
 		if station.get("kind")=="door":
 			if absf(float(p.get("height",0))-float(station.height))>2:continue
 			if not world.can_reach_door(station.uid,Vector3(pos.x,float(p.get("height",0)),pos.y)):continue
+		elif station.get("kind")=="loot":
+			if absf(float(p.get("height",0))-float(station.height))>2:continue
+			var target:Dictionary=world.loot_target(station.uid)
+			var seen:=false
+			for point in target.get("points",[]):
+				if vision.can_see(point,target.exclude):seen=true;break
+			if not seen:continue
 		else:
 			if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
 		distance=d
 		nearest=station.duplicate()
+		if station.get("kind")=="loot":nearest.title="开启上锁容器（消耗开锁器）" if station.get("locked",false) else "搜索物资"
 		if station.get("kind")=="door":
 			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))
@@ -344,13 +358,14 @@ func _interact()->void:
 	if world_loading:return
 	if nearest.is_empty():return
 	match str(nearest.kind):
+		"loot":session.send("search",{"uid":nearest.uid})
 		"door":session.send("door",{"uid":nearest.uid})
 		"travel":session.send("travel",{"route":nearest.uid})
 		"pickup":session.send("pickup",{"uid":nearest.uid})
 		"stash":ui.toggle_inventory(true)
 		"medical":session.send("rest")
-		"workbench":session.send("craft")
-		"trader","merchant":session.send("buy_ammo")
+		"workbench":ui.open_item_shop("craft")
+		"trader","merchant":ui.open_item_shop("buy")
 		"range":session.send("reset_targets")
 		"ammo_supply":session.send("resupply_ammo")
 	_refresh_ui()

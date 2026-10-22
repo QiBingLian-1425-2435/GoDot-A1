@@ -26,6 +26,7 @@ static func sync(ctx) -> void:
 		ctx._return_menu.call_deferred()
 		ctx.ui.toast("本机地图素材与房主不一致，请使用同一地图构建")
 		return
+	if is_instance_valid(ctx.field_item_view):ctx.field_item_view.clear()
 	ctx.player_physics.reset_world()
 	ctx.vision.enabled=false
 	ctx.session.reset_world_motion()
@@ -85,6 +86,16 @@ static func _apply_rules(ctx) -> void:
 	var model = ctx.session.model
 	model.obstacles.assign(ctx.world.obstacles())
 	model.stations = ctx.world.interactions().duplicate(true)
+	model.field_placement=func(from:Vector3,to:Vector3)->Dictionary:
+		if ctx.world_id=="bunker":return {"position":to} if ctx.session.model._free(Vector2(to.x,to.z)) else {}
+		var query:=PhysicsRayQueryParameters3D.create(from+Vector3(0,.7,0),to+Vector3(0,.7,0),1)
+		if not ctx.get_world_3d().direct_space_state.intersect_ray(query).is_empty():return {}
+		return ctx.player_physics.safe_standing_position(to)
+	model.loot_reachable=func(uid:String,from:Vector3)->bool:
+		if not ctx.world.has_method("can_reach_loot") or not ctx.world.can_reach_loot(uid,from):return false
+		for station in ctx.session.model.stations:
+			if station.get("uid")==uid:return not ctx.session.model.FieldItems.blocks_sight(ctx.session.model.state.field_effects,from+Vector3.UP,Vector3(station.pos.x,station.height+.5,station.pos.y))
+		return false
 	model.door_reachable=ctx.world.can_reach_door if ctx.world.has_method("can_reach_door") else Callable()
 	model.door_clearance=ctx.world.can_close_door if ctx.world.has_method("can_close_door") else Callable()
 	for station in model.stations:

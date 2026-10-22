@@ -14,7 +14,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item"]
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
@@ -147,6 +147,7 @@ func offline() -> void:
 	if _peer != null: _peer.close(); _peer = null
 	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
 	peer_validator = Callable(); peer_name_provider = Callable()
+	model.state.field_effects=[];model.state.containers={}
 	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
 	model.state.world = "bunker"; model.state.phase = "base"
 	model.state.world_revision = int(model.state.get("world_revision",0))+1
@@ -181,7 +182,7 @@ func start_solo() -> void:
 
 func send(action: String, payload: Dictionary = {}) -> void:
 	var clean := _clean_payload(action,payload)
-	if action=="unstuck":clean.world_revision=int(model.state.get("world_revision",0))
+	if action in ["unstuck","use","search","buy","sell","craft_item"]:clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
 	if action == "move" and clean.is_empty(): return
 	if mode == "client":
@@ -254,6 +255,7 @@ func _flush_movement(edge: bool) -> void:
 
 func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
+	if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 	match action:
 		"unstuck":
 			if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
@@ -272,15 +274,20 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			for key in ["index","target"]:
 				if payload.get(key) is int: clean[key] = payload[key]
 				elif payload.get(key) is String: clean[key] = str(payload[key]).left(16)
-		"use","drop","equip":
+		"use","drop","equip","sell":
 			if payload.get("index") is int: clean.index = payload.index
+			if payload.get("uid") is String:clean.uid=str(payload.uid).left(64)
 		"split":
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)
 			if payload.get("index") is int: clean.index = payload.index
 			if payload.has("count"): clean.count = payload.count if payload.count is int else 0
-		"pickup","door":
+		"pickup","door","search":
 			if payload.get("uid") is String: clean.uid = str(payload.uid).left(64)
+		"buy","craft_item":
+			if payload.get("kind") is String:clean.kind=str(payload.kind).left(32)
+			if payload.get("count") is int:clean.count=payload.count
 		"sort":
+			if payload.get("mode") is String:clean.mode=str(payload.mode).left(16)
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)
 		"unequip":
 			if payload.get("slot") is String: clean.slot = str(payload.slot).left(16)
@@ -318,6 +325,7 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
 	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
+	if action in ["use","search","buy","sell","craft_item"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	var accepted: bool=model.command(sender,action,_clean_payload(action,payload))
 	if accepted and action!="fire" and not room_store.path.is_empty():save_room()
 	if not model.last_notice.is_empty(): _notice.rpc_id(sender,model.last_notice)

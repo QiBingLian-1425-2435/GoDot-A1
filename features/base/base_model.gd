@@ -8,6 +8,10 @@ const Facilities = preload("res://features/base/facility_system.gd")
 const Movement = preload("res://features/player/movement_rules.gd")
 const WorldTravel = preload("res://features/exploration/world_travel.gd")
 ## Host-authoritative base rules. No files are accessed until an explicit profile call.
+const FieldItems=preload("res://features/exploration/field_items.gd")
+const Trade=preload("res://features/inventory/item_trade.gd")
+var field_placement:Callable
+var loot_reachable:Callable
 const Items = preload("res://features/inventory/item_catalog.gd")
 const EQUIPMENT := ["weapon", "helmet", "armor", "backpack"]
 const PLAYER_RADIUS := 0.32
@@ -16,7 +20,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -63,6 +67,7 @@ func remove_player(id: int) -> void:
 func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
 	var p: Dictionary = state.players[id]
+	p.pending_use={}
 	p.velocity = Vector2.ZERO
 	p.sprint = false; p.crouch = false; p.ads = false
 	p.anim_seq = 0; p.anim_action = ""; p.anim_time = 0.0; p.anim_duration = 0.0
@@ -78,7 +83,7 @@ func _animate(p: Dictionary, action: String, duration: float) -> void:
 
 func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	last_notice = ""
-	if not world_ready and action in ["move","fire","drop","pickup","travel","door"]: return false
+	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","craft_item"]: return false
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
@@ -98,6 +103,9 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			_recovery_after[id]=_clock+10.0
 			last_notice="已移动到附近安全位置，背包已保留"
 			return true
+		"buy","sell":return Trade.trade(self,p,action,payload)
+		"craft_item":return Trade.craft(self,p,str(payload.get("kind","")))
+		"search":return FieldItems.search(self,p,str(payload.get("uid","")))
 		"door": return WorldTravel.toggle_door(self,id,payload)
 		"travel": return WorldTravel.travel(self,id,payload)
 		"move":
@@ -120,7 +128,10 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		"unequip": return _transfer(id, {"from":"equipment","slot":payload.get("slot",""),"to":"bag"})
 		"use": return _use(p, payload)
 		"drop": return _drop(p, payload)
-		"pickup": return _pickup(p, payload)
+		"pickup":
+			var drop:Dictionary=state.drops.get(str(payload.get("uid","")),{})
+			if not drop.is_empty() and FieldItems.blocks_sight(state.field_effects,Vector3(p.pos.x,float(p.get("height",0))+1,p.pos.y),Vector3(drop.pos.x,float(drop.get("height",0))+.2,drop.pos.y)):return _reject("烟雾遮挡了物品")
+			return _pickup(p,payload)
 		"sort": return _sort(p, payload)
 		"set_infinite_reserve":
 			if id != 1: return _reject("只有房主可以修改无限备弹")
@@ -157,6 +168,10 @@ func tick(delta: float) -> void:
 	_clock += delta
 	for id in state.players:
 		var p: Dictionary = state.players[id]
+		var pending:Dictionary=p.get("pending_use",{})
+		if not pending.is_empty():
+			pending.remaining-=delta
+			if pending.remaining<=0:p.hp=minf(100,float(p.hp)+float(pending.hp));p.pending_use={}
 		var input: Dictionary = _inputs.get(id, {})
 		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
 		_update_weight(p)
@@ -178,6 +193,10 @@ func tick(delta: float) -> void:
 	for i in range(state.shots.size() - 1, -1, -1):
 		state.shots[i].ttl -= delta
 		if state.shots[i].ttl <= 0: state.shots.remove_at(i)
+
+	for i in range(state.field_effects.size()-1,-1,-1):
+		state.field_effects[i].ttl-=delta
+		if state.field_effects[i].ttl<=0:state.field_effects.remove_at(i)
 
 func solve_motion(from: Vector2, travel: Vector2, id: int) -> Variant:
 	if motion_solver.is_valid(): return motion_solver.call(id,from,travel)

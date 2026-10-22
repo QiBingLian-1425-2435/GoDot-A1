@@ -21,11 +21,13 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 		ctx.last_notice = "已到达传送点"
 		return true
 	var current: String = str(ctx.state.get("world","bunker"))
-	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors}
+	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{})}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})
 	ctx.state.drops = saved.drops
 	ctx.state.targets = saved.targets
 	ctx.state.doors = saved.get("doors",{})
+	ctx.state.containers=saved.get("containers",{})
+	ctx.state.field_effects=[]
 	ctx.state.shots.clear()
 	ctx.state.world = destination
 	ctx.state.map_revision = "" if destination=="bunker" else ctx.map_revision

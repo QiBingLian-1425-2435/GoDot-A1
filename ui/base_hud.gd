@@ -16,6 +16,11 @@ const TEAL := Color("5d9ba4")
 const GREEN := Color("679b6e")
 const PANEL := Color(0.10, 0.15, 0.17, 0.97)
 
+var _inventory_filter:="all"
+var _sort_mode:="type"
+var _shop_kind:=""
+var _shop_mode:=""
+var _shop_details:Label
 var voice_muted:=false
 var _voice_label:Label
 var _root: Control
@@ -246,6 +251,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		if item.get("kind", "") == "ammo":
 			reserve += int(item.get("count", 1))
 	_reload_label.text = "装填中… %d%%" % int(float(p.get("reload_progress", 0.0)) * 100.0) if p.get("reloading", false) else ("/  ∞     [R] 装填" if state.get("infinite_reserve",false) else "/  %03d     [R] 装填" % reserve)
+	if not p.get("pending_use",{}).is_empty():_reload_label.text="治疗中 %.1f秒"%maxf(0,float(p.pending_use.remaining))
 	var bag: Array = p.get("bag", [])
 	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
 	for i in range(_quick_slots.size()):
@@ -260,6 +266,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		_quick_slots[i].set_item(quick_item, _definition(quick_item))
 	if _inventory.visible:
 		_update_inventory()
+	if is_instance_valid(_dialog) and _dialog_kind in ["基地商人","工作台制作"]:preload("res://ui/inventory/item_shop.gd").refresh(self)
 
 func set_interaction(text: String) -> void:
 	if _interaction:
@@ -586,3 +593,6 @@ func set_voice_status(text: String) -> void:
 		_voice_label=_label(_hud,"",Rect2(560,105,1000,22),14,GOLD)
 		_voice_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	_voice_label.text=text
+
+func open_item_shop(mode:String) -> void:
+	preload("res://ui/inventory/item_shop.gd").open(self,mode)
