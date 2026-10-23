@@ -11,13 +11,27 @@ func check(ok: bool, label: String):
 func run():
 	var m = Model.new(); m.add_player(1, "reload")
 	var p: Dictionary = m.state.players[1]
+	var rifle_def: Dictionary = m.Items.definition("rifle")
+	var pistol_def: Dictionary = m.Items.definition("pistol")
+	check(is_equal_approx(float(rifle_def.fire_interval),0.10) and float(rifle_def.fire_interval) < float(pistol_def.fire_interval), "rifle fires faster than pistol from shared weapon definitions")
+	check(is_equal_approx(float(rifle_def.reload_time),1.15) and is_equal_approx(float(pistol_def.reload_time),0.85), "each weapon owns its faster reload duration")
+	var cadence = Model.new(); cadence.add_player(1,"cadence")
+	var cadence_player: Dictionary = cadence.state.players[1]
+	check(cadence.command(1,"fire") and is_equal_approx(float(cadence_player.fire_timer),0.10), "rifle shot applies its faster cadence")
+	check(not cadence.command(1,"fire"), "rifle cadence still rejects shots during cooldown")
+	cadence.tick(.1)
+	check(cadence.command(1,"fire"), "rifle can fire again after 100 milliseconds")
+	cadence_player.equipment.weapon = cadence._item("pistol",1)
+	cadence_player.ammo = 12; cadence_player.fire_timer = 0.0
+	check(cadence.command(1,"fire") and is_equal_approx(float(cadence_player.fire_timer),0.16), "pistol retains its distinct slower cadence")
 	p.ammo = 0; p.magazines[p.equipment.weapon.uid] = 0
 	check(m.command(1, "fire") and p.reloading, "empty trigger starts existing reload")
+	check(is_equal_approx(float(p.reload_timer),1.15), "rifle reload starts with shortened duration")
 	check(p.shots == 0 and m.state.shots.is_empty() and p.ammo == 0, "reload request never creates a phantom shot")
 	m.tick(.1)
 	var remaining: float = p.reload_timer
 	check(not m.command(1, "fire") and p.reload_timer == remaining, "held fire cannot restart reload timer")
-	for i in range(16): m.tick(.1)
+	for i in range(12): m.tick(.1)
 	check(not p.reloading and p.ammo == 30 and m._count(p.bag,"ammo") == 30, "auto reload waits and conserves reserve ammo")
 	check(m.command(1,"fire") and p.ammo == 29 and p.shots == 1, "next held trigger fires after reload")
 	p.fire_timer = 0; p.ammo = 0; p.bag = m._empty_slots(24)

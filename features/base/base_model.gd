@@ -194,7 +194,10 @@ func tick(delta: float) -> void:
 		p.fire_timer = maxf(0, float(p.fire_timer) - delta)
 		if p.reloading:
 			p.reload_timer = maxf(0, float(p.reload_timer) - delta)
-			p.reload_progress = 1.0 - p.reload_timer / 1.6
+			var reload_time := 1.6
+			var reload_weapon: Dictionary = p.equipment.weapon
+			if not reload_weapon.is_empty(): reload_time = float(Items.definition(reload_weapon.kind).get("reload_time",1.6))
+			p.reload_progress = 1.0 - p.reload_timer / reload_time
 			if p.reload_timer <= 0:
 				var weapon: Dictionary = p.equipment.weapon
 				if not weapon.is_empty():

@@ -1,8 +1,8 @@
 extends RefCounted
 ## Read-only item definitions. Runtime stacks always live in Model state.
 const DEFS := {
-	"rifle": {"name":"巡林步枪", "weight":3.4, "stack":1, "color":Color("aab8a0"), "category":"weapon", "description":"基地训练用半自动步枪。30发弹匣，R装填。", "magazine":30, "damage":34},
-	"pistol": {"name":"轻型手枪", "weight":1.1, "stack":1, "color":Color("b4bec5"), "category":"weapon", "description":"轻便的备用武器。12发弹匣。", "magazine":12, "damage":20},
+	"rifle": {"name":"巡林步枪", "weight":3.4, "stack":1, "color":Color("aab8a0"), "category":"weapon", "description":"基地训练用自动步枪。30发弹匣，R装填。", "magazine":30, "damage":34, "fire_interval":0.10, "reload_time":1.15},
+	"pistol": {"name":"轻型手枪", "weight":1.1, "stack":1, "color":Color("b4bec5"), "category":"weapon", "description":"轻便的备用武器。12发弹匣。", "magazine":12, "damage":20, "fire_interval":0.16, "reload_time":0.85},
 	"ammo": {"name":"通用训练弹", "weight":0.025, "stack":60, "color":Color("d5b26f"), "category":"ammo", "description":"两种训练武器共用的弹药。"},
 	"medkit": {"name":"急救包", "weight":0.75, "stack":3, "color":Color("e78a75"), "category":"medical", "description":"恢复45点生命。"},
 	"bandage": {"name":"绷带", "weight":0.15, "stack":5, "color":Color("e0dbc3"), "category":"medical", "description":"恢复18点生命。"},

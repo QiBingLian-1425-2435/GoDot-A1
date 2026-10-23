@@ -6,14 +6,16 @@ static func _reload(ctx, p: Dictionary) -> bool:
 	if weapon.is_empty() or p.reloading: return false
 	if p.ammo >= int(ctx.Items.definition(weapon.kind).get("magazine",30)): return ctx._reject("弹匣已满")
 	if not ctx.state.get("infinite_reserve",false) and ctx._count(p.bag,"ammo") <= 0: return ctx._reject("背包里没有弹药")
-	p.reloading = true; p.reload_timer = 1.6; p.reload_progress = 0.0
+	var reload_time := float(ctx.Items.definition(weapon.kind).get("reload_time",1.6))
+	p.reloading = true; p.reload_timer = reload_time; p.reload_progress = 0.0
 	return true
 
 static func _fire(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
 	if weapon.is_empty() or p.reloading or p.fire_timer > 0: return false
 	if p.ammo <= 0: return _reload(ctx, p)
-	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1; p.fire_timer = 0.16
+	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1
+	p.fire_timer = float(ctx.Items.definition(weapon.kind).get("fire_interval",0.16))
 	var origin: Vector2 = p.pos
 	var direction: Vector2 = p.aim
 	var distance = 22.0

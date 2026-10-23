@@ -2,6 +2,7 @@ extends Node3D
 
 const G = preload("res://features/geometry/geometry.gd")
 const Motion = preload("res://features/player/animation/duck_motion.gd")
+const Items = preload("res://features/inventory/item_catalog.gd")
 const BONES := [
 	["Root", -1, Vector3.ZERO], ["Hips", 0, Vector3(0,.72,.06)],
 	["Spine", 1, Vector3(0,.20,-.02)], ["Head", 2, Vector3(0,.38,-.14)],
@@ -338,7 +339,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	_update_action(data, delta)
 	var action_weight := 0.0
 	if not action_state.is_empty():
-		var duration: float = 1.6 if action_state == "reload" else _event_duration
+		var duration: float = float(Items.definition(kind).get("reload_time",1.6)) if action_state == "reload" else _event_duration
 		action_weight = minf(clampf(action_time/.10, 0, 1), clampf((duration-action_time)/.12, 0, 1))
 		_visual_action = action_state
 		_visual_action_time = action_time
@@ -397,10 +398,13 @@ func _update_action(data: Dictionary, delta: float) -> void:
 		action_time = _event_time
 	var reloading: bool = data.get("reloading", false) and weapon.visible
 	if reloading:
-		var observed := clampf(float(data.get("reload_progress", 0)), 0, 1)*1.6
+		var equipment: Dictionary = data.get("equipment",{})
+		var weapon_kind := str(equipment.get("weapon",{}).get("kind","rifle"))
+		var reload_time := float(Items.definition(weapon_kind).get("reload_time",1.6))
+		var observed := clampf(float(data.get("reload_progress", 0)), 0, 1)*reload_time
 		_reload_time = maxf(_reload_time+delta, observed) if _was_reloading else observed
 		action_state = "reload"
-		action_time = minf(_reload_time, 1.599)
+		action_time = minf(_reload_time, reload_time-.001)
 	else: _reload_time = 0
 	_was_reloading = reloading
 
