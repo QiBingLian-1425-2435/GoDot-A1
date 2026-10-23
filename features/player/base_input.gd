@@ -29,7 +29,17 @@ static func _physics_process(ctx, delta:float)->void:
 	ctx.crosshair.active=not blocked
 	ctx.crosshair.aiming=Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked else Input.MOUSE_MODE_VISIBLE
-	ctx.sound.step(delta,direction.length()>0.1,Input.is_physical_key_pressed(KEY_SHIFT))
+	var audible_motion := p
+	if ctx.session.mode == "client" and ctx.session.local_movement != null:
+		audible_motion = ctx.session.local_movement.sample_player(p)
+	var footstep := _footstep_state(audible_motion)
+	ctx.sound.step(delta,footstep.moving,footstep.sprint)
+
+static func _footstep_state(motion: Dictionary) -> Dictionary:
+	# Input expresses intent; collision-resolved velocity says whether the feet
+	# actually travelled. Holding a key into a wall or corner must stay silent.
+	var velocity: Vector2 = motion.get("velocity",Vector2.ZERO)
+	return {"moving":velocity.length()>.1,"sprint":bool(motion.get("sprint",false)) and velocity.length()>.1}
 
 static func _input(ctx, event:InputEvent)->void:
 	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed:

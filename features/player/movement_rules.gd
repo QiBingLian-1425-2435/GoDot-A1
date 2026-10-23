@@ -38,10 +38,21 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 		return
 	p.crouch = bool(input.get("crouch",false))
 	p.ads = bool(input.get("ads",false))
-	p.sprint = bool(input.get("sprint",false)) and not p.crouch and not p.ads and p.stamina > 1.0 and not direction.is_zero_approx()
+	var sprint_requested := bool(input.get("sprint",false))
+	var exhausted_this_step := false
+	if not sprint_requested: p.sprint_exhausted = false
+	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not p.crouch and not p.ads and p.stamina > 1.0 and not direction.is_zero_approx():
+		var sprint_cost := delta*19.0
+		if p.stamina <= sprint_cost:
+			p.stamina = 0.0
+			p.sprint_exhausted = true
+			exhausted_this_step = true
+		p.sprint = not bool(p.get("sprint_exhausted",false))
+	else:
+		p.sprint = false
 	var speed := 3.7
-	if p.sprint: speed *= 1.65; p.stamina = maxf(0,p.stamina-delta*19)
-	else: p.stamina = minf(100,p.stamina+delta*12)
+	if p.sprint: speed *= 1.65; p.stamina -= delta*19.0
+	elif not exhausted_this_step: p.stamina = minf(100,p.stamina+delta*12)
 	if p.crouch: speed *= .48
 	if p.ads: speed *= .62
 	if p.weight > p.max_weight: speed *= clampf(p.max_weight/p.weight,.3,1.0)

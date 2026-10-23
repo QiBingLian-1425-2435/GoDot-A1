@@ -46,7 +46,7 @@ func add_player(id: int, player_name: String) -> void:
 	var bag := _empty_slots(24)
 	var stash := _empty_slots(48)
 	var rifle := _item("rifle", 1)
-	var p := {"id":id, "name":player_name.strip_edges().left(24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{},"backpack":_item("backpack",1)}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":44.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
+	var p := {"id":id, "name":player_name.strip_edges().left(24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{},"backpack":_item("backpack",1)}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "sprint_exhausted":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":44.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
 	for spec in [["ammo",60],["bandage",3],["water",2],["canned_food",2],["scrap",8],["medkit",1],["pistol",1]]:
 		_insert(p.bag, _item(spec[0], spec[1]))
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:
@@ -75,10 +75,10 @@ func reset_transients(id: int) -> void:
 	p.input_roll=p.roll.duplicate(true)
 	p.pending_use={}
 	p.velocity = Vector2.ZERO
-	p.sprint = false; p.crouch = false; p.ads = false
+	p.sprint = false; p.sprint_exhausted = false; p.crouch = false; p.ads = false
 	p.anim_seq = 0; p.anim_action = ""; p.anim_time = 0.0; p.anim_duration = 0.0
 	p.reloading = false; p.reload_progress = 0.0; p.reload_timer = 0.0; p.fire_timer = 0.0
-	p.input_seq = 0; p.input_origin = p.pos; p.input_stamina = p.stamina
+	p.input_seq = 0; p.input_origin = p.pos; p.input_stamina = p.stamina; p.input_sprint_exhausted = false
 	p.input_weight = p.weight; p.input_max_weight = p.max_weight
 	p.input_height = p.get("height",0.0)
 	_inputs.erase(id)

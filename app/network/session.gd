@@ -12,7 +12,7 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_weight","input_max_weight","roll","input_roll"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close"]
 var _roll_seq := 0
@@ -335,7 +335,7 @@ func _movement(payload: Dictionary, token: int, seq: int, world_revision: int) -
 	_last_movement[sender] = seq
 	# This is an accepted input's authoritative starting point, not a client position.
 	var p: Dictionary = model.state.players[sender]
-	p.input_seq = seq; p.input_origin = p.pos; p.input_stamina = p.stamina
+	p.input_seq = seq; p.input_origin = p.pos; p.input_stamina = p.stamina; p.input_sprint_exhausted = p.get("sprint_exhausted",false)
 	p.input_weight = p.weight; p.input_max_weight = p.max_weight
 	p.input_height = p.get("height",0.0)
 	p.input_roll=p.get("roll",Model.Movement.empty_roll()).duplicate(true)
@@ -415,6 +415,8 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		p.relocation_seq=int(row[18]) if row.size()>18 else 0
 		p.roll=_unpack_roll(row[19],0) if row.size()>19 else Model.Movement.empty_roll()
 		p.input_roll=_unpack_roll(row[19],10) if row.size()>19 else p.roll.duplicate(true)
+		p.sprint_exhausted=bool(row[20]) if row.size()>20 else false
+		p.input_sprint_exhausted=bool(row[21]) if row.size()>21 else false
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -449,7 +451,7 @@ func _motion_rows() -> Array:
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p)])
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p),p.get("sprint_exhausted",false),p.get("input_sprint_exhausted",false)])
 	return rows
 
 func snapshot_age() -> float:

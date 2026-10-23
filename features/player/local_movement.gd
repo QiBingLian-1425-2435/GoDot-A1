@@ -8,7 +8,7 @@ const SNAP_DISTANCE := 3.0
 # Less than the 0.32 m collision radius: do not slide a resting duck by one tick
 # when the host and client sampled a key edge on adjacent physics frames.
 const REST_ERROR_LIMIT := .12
-const FIELDS := ["pos","velocity","aim","stamina","weight","max_weight","sprint","crouch","ads"]
+const FIELDS := ["pos","velocity","aim","stamina","weight","max_weight","sprint","sprint_exhausted","crouch","ads"]
 var solver: Callable
 var spatial_solver: Callable
 var _state: Dictionary = {}
@@ -74,6 +74,7 @@ func confirm(p: Dictionary) -> void:
 	if seq < _barrier: return
 	pose.pos = p.input_origin
 	pose.stamina = p.input_stamina
+	pose.sprint_exhausted = p.get("input_sprint_exhausted",false)
 	pose.weight = p.input_weight
 	pose.max_weight = p.input_max_weight
 	pose.height = p.get("input_height",p.get("height",0.0))

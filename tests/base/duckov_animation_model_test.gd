@@ -1,4 +1,5 @@
 extends SceneTree
+const InputController = preload("res://features/player/base_input.gd")
 const Model = preload("res://features/base/base_model.gd")
 const Session = preload("res://app/network/session.gd")
 var failures := 0
@@ -37,10 +38,22 @@ func run() -> void:
 	model.command(1,"move",{"direction":Vector2.RIGHT})
 	model.tick(0.1)
 	check(p.velocity == Vector2.ZERO,"pressing into a wall does not generate walking velocity")
+	check(not InputController._footstep_state(p).moving,"held movement into a wall stays silent")
 	model.command(1,"move",{"direction":Vector2(1,1)})
 	model.tick(0.1)
 	check(is_zero_approx(p.velocity.x) and p.velocity.y > 0,"wall slide reports only actual tangential velocity")
+	check(InputController._footstep_state(p).moving,"actual tangential wall slide still produces footsteps")
 	model.obstacles.clear()
+	p.stamina = 1.5
+	model.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true})
+	model.tick(0.1)
+	check(p.stamina == 0 and not p.sprint and p.sprint_exhausted,"exhausting stamina immediately falls back to walking")
+	check(is_equal_approx(p.velocity.length(),3.7) and not InputController._footstep_state(p).sprint,"exhausted movement and footsteps use walking pace")
+	for i in range(10): model.tick(0.1)
+	check(not p.sprint and p.stamina > 0,"holding sprint stays walking while stamina recovers")
+	model.command(1,"move",{"direction":Vector2.RIGHT,"sprint":false}); model.tick(0.1)
+	model.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true}); model.tick(0.1)
+	check(p.sprint and not p.sprint_exhausted,"releasing sprint clears exhaustion lock")
 	model.command(1,"move",{"direction":Vector2.ZERO})
 	check(model.command(1,"use",{"index":2}),"water use succeeds")
 	check(p.anim_seq == 1 and p.anim_action == "drink" and p.anim_time == 0 and is_equal_approx(p.anim_duration,1.3),"water starts drink event exactly once")
