@@ -1,12 +1,12 @@
 extends Node
-## Steam owns capture/codec; this node owns only local PTT and bounded audio playback.
+## Steam owns capture/codec; this node owns local open-mic capture and bounded audio playback.
 const Rules=preload("res://features/voice/voice_rules.gd")
 var session: Node
 var service: Node
 var recording:=false
 var muted:=false
 var volume:=1.0
-var status:="Q 按住说话 · 附近20米"
+var status:="开放麦已开启 · 附近20米"
 var _sequence:=0
 var _context:=""
 var _speakers: Dictionary={}
@@ -21,15 +21,15 @@ func configure(network: Node, steam_service: Node) -> void:
 func available() -> bool:
 	return is_instance_valid(service) and service.initialized and service.steam!=null and service.steam.has_method("getVoice")
 
-func update(held: bool, allowed: bool, _delta: float) -> void:
+func update(enabled: bool, allowed: bool, _delta: float) -> void:
 	var context:="%s:%s:%s"%[session.mode,session._session_token,session.model.state.get("world_revision",0)]
 	if context!=_context:
 		stop();clear_playback();_context=context
 	var connected: bool=session.mode in ["host","client"] and session.local_id>0 and session._session_token>0 and session.model.state.players.has(session.local_id) and session.model.world_ready
-	var wanted:=held and allowed and connected and available() and not muted
-	if not held:_error_latched=false
+	var wanted:=enabled and allowed and connected and available() and not muted
+	if not wanted and (not enabled or not allowed or not connected or muted):_error_latched=false
 	if wanted and not recording and not _error_latched:
-		# Steam may still have trailing data after StopVoiceRecording. Drain before a new press.
+		# Steam may still have trailing data after StopVoiceRecording. Drain before reopening capture.
 		service.steam.getVoice(65536)
 		service.steam.startVoiceRecording();recording=true;_record_started=Time.get_ticks_msec()
 	elif not wanted:stop()
@@ -49,7 +49,7 @@ func update(held: bool, allowed: bool, _delta: float) -> void:
 		var tail: Dictionary=service.steam.getVoice(65536)
 		if int(tail.get("result",2))==2:_draining=false
 	if not _error_latched:
-		status="语音已静音" if muted else ("正在说话 · 附近20米" if recording else ("Q 按住说话 · 附近20米" if available() else "语音需登录 Steam · 检查麦克风设置"))
+		status="语音已关闭（可在设置开启）" if muted else ("开放麦已开启 · 附近20米" if recording else ("开放麦待连接 · 附近20米" if available() else "语音需登录 Steam · 检查麦克风设置"))
 	for id in _speakers.keys():
 		var item: Dictionary=_speakers[id]
 		var gain:=Rules.gain(session.model.state.players,int(id),session.local_id)

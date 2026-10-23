@@ -258,7 +258,6 @@ func _physics_process(delta:float)->void:
 	return InputController._physics_process(self, delta)
 
 func _input(event:InputEvent)->void:
-	if event is InputEventKey and event.physical_keycode==KEY_Q and not event.pressed and is_instance_valid(voice):voice.stop()
 	return InputController._input(self, event)
 
 func _unhandled_input(event:InputEvent)->void:
@@ -274,8 +273,10 @@ func _process(delta:float)->void:
 	elapsed+=delta
 	if session==null:return
 	if is_instance_valid(voice):
-		var allowed: bool=in_game and not world_loading and not ui.is_blocking() and not station_dialog.visible and not steam_service.overlay_active and DisplayServer.window_is_focused()
-		voice.update(Input.is_physical_key_pressed(KEY_Q),allowed,delta)
+		# Gameplay panels (inventory, container search, item/station dialogs and pause)
+		# must not cut off team conversation. Background/transition capture still stops.
+		var allowed: bool=_voice_context_allows_capture() and DisplayServer.window_is_focused()
+		voice.update(true,allowed,delta)
 		ui.set_voice_status(voice.status+voice.speaking_names())
 	if joining and session.local_id>0 and session.model.state.players.has(session.local_id) and session.mode=="client":_enter_base()
 	if session.mode=="client":had_remote=true
@@ -304,6 +305,9 @@ func _process(delta:float)->void:
 	if smoke and elapsed>5:
 		print("DUCKOV MAIN SMOKE PASS players=",session.model.state.players.size()," obstacles=",world.obstacles().size())
 		get_tree().quit()
+
+func _voice_context_allows_capture() -> bool:
+	return in_game and not world_loading and not steam_service.overlay_active
 
 func _capture()->void:
 	await BaseView._capture(self)
