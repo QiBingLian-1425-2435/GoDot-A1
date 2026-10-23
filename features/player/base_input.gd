@@ -5,7 +5,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if ctx.session==null:return
 	ctx.fire_clock-=delta
 	if not ctx.in_game:return
-	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
+	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()) or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
@@ -54,11 +54,15 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN: ctx.camera_zoom=minf(31,ctx.camera_zoom+1)
 	if not event is InputEventKey or not event.pressed or event.echo:return
 	match event.physical_keycode:
+		KEY_M:
+			ctx.toggle_global_map()
+			ctx.get_viewport().set_input_as_handled()
 		KEY_TAB,KEY_I:
 			ctx.ui.toggle_inventory()
 			ctx.get_viewport().set_input_as_handled()
 		KEY_ESCAPE:
-			if ctx.station_dialog.visible: ctx.station_dialog.hide()
+			if is_instance_valid(ctx.global_map) and ctx.global_map.is_open():ctx.global_map.set_open(false)
+			elif ctx.station_dialog.visible: ctx.station_dialog.hide()
 			elif ctx.ui.is_blocking():ctx.ui.close_inventory()
 			else:ctx.ui.toggle_pause()
 		KEY_C:

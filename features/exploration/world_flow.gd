@@ -26,6 +26,7 @@ static func sync(ctx) -> void:
 		ctx._return_menu.call_deferred()
 		ctx.ui.toast("本机地图素材与房主不一致，请使用同一地图构建")
 		return
+	if is_instance_valid(ctx.global_map):ctx.global_map.set_open(false)
 	if is_instance_valid(ctx.field_item_view):ctx.field_item_view.clear()
 	ctx.player_physics.reset_world()
 	ctx.vision.enabled=false
@@ -80,6 +81,7 @@ static func _finish_loading(ctx, map) -> void:
 	ctx.vision.update(ctx,0)
 	ctx.world.visible=ctx.in_game
 	ctx.ui.set_world_loading(false,"")
+	if ctx.world_id=="surface":ctx.ui.toast("按 M 查看零号区全局地图与队友位置")
 	if ctx.session.mode=="host": ctx.session._broadcast_snapshot(true)
 
 static func _apply_rules(ctx) -> void:

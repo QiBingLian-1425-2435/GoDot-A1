@@ -6,6 +6,7 @@ var capture_path := ""
 var elapsed := 0.0
 var target := Vector3(455.72,0,-103.62)
 var overview := false
+var topdown := false
 
 func _ready() -> void:
 	set_process(false)
@@ -14,6 +15,7 @@ func _ready() -> void:
 		if arg.begins_with("--zone="):zone=arg.trim_prefix("--zone=")
 		if arg.begins_with("--capture="):capture_path=arg.trim_prefix("--capture=")
 		if arg=="--overview":overview=true
+		if arg=="--topdown":topdown=true
 		if arg.begins_with("--point="):
 			var parts := arg.trim_prefix("--point=").split(",")
 			target=Vector3(float(parts[0]),float(parts[1]),float(parts[2]))
@@ -34,14 +36,18 @@ func _ready() -> void:
 	sun.shadow_enabled=true; sun.directional_shadow_max_distance=100
 	add_child(sun)
 	camera=Camera3D.new();camera.projection=Camera3D.PROJECTION_ORTHOGONAL
-	camera.size=34 if not overview else 520
+	camera.size=34 if not overview else (760 if topdown else 520)
 	camera.far=1800
 	add_child(camera)
 	if zone=="cave" and target.x==455.72:target=Vector3(582,0,-550)
 	if overview: target=Vector3(390,0,-205)
 	target.y=map.terrain_height(Vector2(target.x,target.z))
-	camera.position=target+Vector3(30,46,42)*(12 if overview else 1)
-	camera.look_at(target)
+	if topdown:
+		camera.position=target+Vector3(0,700,0)
+		camera.rotation_degrees=Vector3(-90,0,0)
+	else:
+		camera.position=target+Vector3(30,46,42)*(12 if overview else 1)
+		camera.look_at(target)
 	map.set_view_points(target,camera.position)
 	print("GROUND_ZERO_PREVIEW ready target=",target)
 	elapsed=0

@@ -50,6 +50,7 @@ var steam_service:Node
 var player_physics: Node3D
 var vision = Vision.new()
 var field_item_view:Node3D
+var global_map:Control
 
 func _ready()->void:
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
@@ -72,6 +73,8 @@ func _ready()->void:
 	session.notice.connect(_on_notice)
 	ui=load("res://ui/base_hud.gd").new()
 	add_child(ui)
+	global_map=load("res://ui/map/global_map.gd").new()
+	ui.add_child(global_map)
 	ui.action_requested.connect(_on_action)
 	WorldFlow.configure(self)
 	session.state_changed.connect(_sync_world)
@@ -220,6 +223,7 @@ func _on_action(action:String,payload:Dictionary)->void:
 	_refresh_ui()
 
 func _return_menu()->void:
+	if is_instance_valid(global_map):global_map.set_open(false)
 	if is_instance_valid(voice):voice.stop();voice.clear_playback()
 	_save(false)
 	joining=false
@@ -383,7 +387,20 @@ func _on_notice(message:String)->void:
 
 func _refresh_ui()->void:
 	if is_instance_valid(ui):ui.update_state(session.model.state,session.local_id,session.mode,session.connection_status)
+	if is_instance_valid(global_map):global_map.set_state(session.model.state.players,session.local_id,world_id)
 	if is_instance_valid(ui) and is_instance_valid(steam_service):ui.update_steam(steam_service.info(session.transport))
+
+func toggle_global_map() -> void:
+	if not in_game or world_loading:return
+	if global_map.is_open():
+		global_map.set_open(false)
+		return
+	if ui.is_blocking() or station_dialog.visible:return
+	if world_id!="surface":
+		ui.toast("全局地图当前仅用于零号区地表")
+		return
+	global_map.set_open(true)
+	trigger_held=false
 
 func _on_steam_transport(peer:MultiplayerPeer,as_host:bool)->void:
 	var owner_key:="steam_"+str(steam_service.steam_id)
