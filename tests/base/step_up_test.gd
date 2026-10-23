@@ -19,6 +19,11 @@ func run():
 	box(world,Vector3(2,.35,9),Vector3(4,.7,2))
 	box(world,Vector3(2,.15,-3),Vector3(4,.3,2))
 	box(world,Vector3(-.2,1.62,-3),Vector3(2,.15,2))
+	# Door sills and short treads can be much narrower than the old single
+	# forward probe distance. Jambs make this representative of a real doorway.
+	box(world,Vector3(0,.08,12),Vector3(.12,.16,1.5))
+	box(world,Vector3(0,1.0,10.9),Vector3(.25,2.0,.35))
+	box(world,Vector3(0,1.0,13.1),Vector3(.25,2.0,.35))
 	var body=Body.instantiate();world.add_child(body)
 	await physics_frame;await physics_frame
 	for lane in range(3):
@@ -36,5 +41,10 @@ func run():
 	at=Vector3(-1,.04,-3)
 	for i in range(100):at=body.move_spatial(at,Vector2(.04,0))
 	check(at.x<0 and at.y<.1,"low overhead clearance prevents stepping into ceiling")
+	for travel in [Vector2(.04,0),Vector2(.04,.012)]:
+		at=Vector3(-1,.04,12)
+		for i in range(55):at=body.move_spatial(at,travel)
+		check(at.x>.8,"narrow door sill is crossed at direction "+str(travel.normalized()))
+		check(body.is_clear(at),"door-sill crossing leaves the capsule clear")
 	world.queue_free();await process_frame
 	print("STEP_UP checks=",checks," failures=",failures);quit(1 if failures else 0)

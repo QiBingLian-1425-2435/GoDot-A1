@@ -48,7 +48,9 @@ func _move_spatial_step(from: Vector3, offset: Vector2) -> Vector3:
 		if travel.is_zero_approx(): continue
 		var next: Vector2 = Vector2(position.x,position.z)+travel
 		var floor_hit := _support(next,position.y)
-		if floor_hit.is_empty() or Vector3(floor_hit.normal).y<.55: continue
+		if floor_hit.is_empty() or Vector3(floor_hit.normal).y<.55 or _feet_height(floor_hit)-position.y < -MAX_STEP:
+			floor_hit=_descending_support(next,travel)
+		if floor_hit.is_empty(): continue
 		var target_y := _feet_height(floor_hit)
 		var step_y := _step_height(next,travel,floor_hit)
 		var stepping := step_y > target_y+.02
@@ -75,7 +77,7 @@ func _move_spatial_step(from: Vector3, offset: Vector2) -> Vector3:
 		var final_floor := _support(Vector2(position.x,position.z),position.y)
 		if not final_floor.is_empty() and Vector3(final_floor.normal).y>=.55:
 			var descent := _feet_height(final_floor)-position.y
-			if descent<0 and not stepping: _move_vertical(descent)
+			if descent<0 and descent>=-MAX_STEP and not stepping: _move_vertical(descent)
 	# Concave seams may still penetrate after recovery; keep the last clear pose.
 	if was_clear and not is_clear(position):position=from
 	if was_clear and not position.is_equal_approx(from):
@@ -97,19 +99,39 @@ func _move_spatial_step(from: Vector3, offset: Vector2) -> Vector3:
 
 func _step_height(next: Vector2, travel: Vector2, floor_hit: Dictionary) -> float:
 	var current := _feet_height(floor_hit)
-	var ahead := next+travel.normalized()*STEP_REACH
-	var hit := _support(ahead,position.y)
-	if hit.is_empty() or Vector3(hit.normal).y<.55: return current
-	var height := _feet_height(hit)
-	# Bound the lift against the floor as well as the current pose. Otherwise
-	# successive forward probes can ratchet the capsule up above an empty floor.
-	if height-position.y > MAX_STEP or height-current > MAX_STEP or height<=current+.02: return current
-	# Do not hover ahead of a continuous slope: only pre-lift when the forward
-	# surface rises above the plane under the capsule (a ledge or a slope seam).
-	var normal:Vector3=floor_hit.normal
-	var offset:=ahead-Vector2(floor_hit.position.x,floor_hit.position.z)
-	var expected:float=floor_hit.position.y-(normal.x*offset.x+normal.z*offset.y)/maxf(.55,normal.y)
-	return height if float(hit.position.y)>expected+.055 else current
+	var direction := travel.normalized()
+	var step_height := current
+	# A single probe at the far edge skips narrow door sills and short stair
+	# treads. Sample the capsule's whole forward reach so their top is seen before
+	# the capsule side reaches the vertical face.
+	for distance: float in PackedFloat32Array([.08, .16, .24, .32, STEP_REACH]):
+		var ahead: Vector2 = next+direction*distance
+		var hit := _support(ahead,position.y)
+		if hit.is_empty() or Vector3(hit.normal).y<.55: continue
+		var height := _feet_height(hit)
+		# Bound the lift against the floor as well as the current pose. Otherwise
+		# successive forward probes can ratchet the capsule up above an empty floor.
+		if height-position.y > MAX_STEP or height-current > MAX_STEP or height<=current+.02: continue
+		# Do not hover ahead of a continuous slope: only pre-lift when the forward
+		# surface rises above the plane under the capsule (a ledge or a slope seam).
+		var normal:Vector3=floor_hit.normal
+		var offset: Vector2=ahead-Vector2(floor_hit.position.x,floor_hit.position.z)
+		var expected:float=floor_hit.position.y-(normal.x*offset.x+normal.z*offset.y)/maxf(.55,normal.y)
+		if float(hit.position.y)>expected+.055: step_height=maxf(step_height,height)
+	return step_height
+
+func _descending_support(next: Vector2, travel: Vector2) -> Dictionary:
+	# At a downhill triangle seam or a narrow stair gap the ray directly below
+	# the next point can briefly miss the visible floor and hit a deeper backing
+	# surface. Look ahead for a nearby reachable landing so the horizontal sweep
+	# can cross the seam; vertical snapping still waits for direct support.
+	var direction := travel.normalized()
+	for distance: float in PackedFloat32Array([.08, .16, .24, .32, STEP_REACH]):
+		var hit := _support(next+direction*distance,position.y)
+		if hit.is_empty() or Vector3(hit.normal).y<.55: continue
+		var height := _feet_height(hit)
+		if height<=position.y+.02 and height-position.y>=-MAX_STEP: return hit
+	return {}
 
 func _move_vertical(amount: float) -> void:
 	var previous:=position

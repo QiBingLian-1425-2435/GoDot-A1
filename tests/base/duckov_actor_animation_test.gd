@@ -297,6 +297,8 @@ func test_npc_idle() -> void:
     await create_timer(0.20).timeout
     check(delta_pose(before.Hips,pose(npc,"Hips"))+delta_pose(before.Spine,pose(npc,"Spine"))<0.00001,"hidden NPC pauses decorative skeletal work")
     npc.visible=true
-    await create_timer(0.25).timeout
+    # Allow more than one low-FPS update after visibility propagation. A 250 ms
+    # window could observe only the resume frame under a loaded headless run.
+    await create_timer(0.35).timeout
     check(delta_pose(before.Hips,pose(npc,"Hips"))+delta_pose(before.Spine,pose(npc,"Spine"))>0.0001,"visible NPC resumes idle animation")
     npc.set_process(false)

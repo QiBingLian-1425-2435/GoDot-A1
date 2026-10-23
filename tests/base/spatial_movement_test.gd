@@ -41,5 +41,19 @@ func run() -> void:
 	for i in range(60):at=body.move_spatial(at,Vector2(0,.03))
 	check(at.z<3.65,"a wall stops movement instead of being mistaken for a step")
 	world.queue_free();await process_frame
+	# A tiny collision seam can make the downward ray briefly see a much lower
+	# backing floor. Uphill pre-lift already crosses it; downhill must not become
+	# permanently pinned at the exact same sample point.
+	world=Node3D.new();root.add_child(world)
+	box(world,Vector3(0,-1.1,0),Vector3(8,.2,4))
+	box(world,Vector3(-1,.15,0),Vector3(2,.3,4))
+	box(world,Vector3(1.02,-.05,0),Vector3(1.96,.1,4))
+	body=Body.instantiate();world.add_child(body)
+	await physics_frame;await physics_frame
+	at=Vector3(-.8,.34,0)
+	for i in range(70):at=body.move_spatial(at,Vector2(.03,0))
+	check(at.x>.8 and at.y<.12,"descending crosses a narrow floor seam instead of forming an air wall")
+	check(body.is_clear(at),"downhill seam crossing leaves the capsule clear")
+	world.queue_free();await process_frame
 	print("SPATIAL_MOVEMENT ",checks," checks; ",failures," failures")
 	quit(0 if failures==0 else 1)
