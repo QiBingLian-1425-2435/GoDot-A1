@@ -21,7 +21,7 @@ func wait_for(test:Callable,seconds:=10.0)->bool:
 	return test.call()
 func path(name:String)->String:return "user://items_"+run_id+"_"+name+".json"
 func report(name:String):
-	var f=FileAccess.open(path(name),FileAccess.WRITE);f.store_string(JSON.stringify({"id":session.local_id,"failures":failures}));f.close()
+	var f=FileAccess.open(path(name),FileAccess.WRITE);f.store_string(JSON.stringify({"id":session.local_id,"failures":failures,"lockpicks":session.model._count(player().bag,"lockpick")}));f.close()
 func read_report(name:String)->Dictionary:return JSON.parse_string(FileAccess.get_file_as_string(path(name)))
 func phase(value:int):session.model.state.item_phase=value;session._broadcast_snapshot(true)
 func player()->Dictionary:return session.model.state.players[session.local_id]
@@ -80,6 +80,7 @@ func run():
 		check(box.items[0].has("kind") and (int(box.revealed)>=box.items.size() or box.items[int(box.revealed)].is_empty()),"unsearched content is hidden from client snapshots")
 		check(box.items[0].kind in session.model.Loot.FOOD,"remote toilet contents use the host food pool")
 		var item_uid:String=box.items[0].uid
+		var old_revision:int=session.model.state.world_revision
 		session.send("loot_take",{"uid":"loot_one","index":0,"item_uid":item_uid,"kind":"encrypted_core","count":999})
 		check(await wait_for(func():return session.model.state.containers["loot_one"].items[0].is_empty()),"competing clients observe a single item removal")
 		report(role+"_three")
@@ -92,6 +93,16 @@ func run():
 		session.send("sell",{"index":4,"uid":player().bag[4].uid,"count":1})
 		await create_timer(.4).timeout
 		check(player().credits==cash and session.model._count(player().bag,"scrap")==materials,"distant sale/buy and stale map intent preserve assets")
+		report(role+"_four")
+		check(await wait_for(func():return session.model.state.get("item_phase",0)==5),"new visit delivered")
+		check(session.model.state.containers.is_empty() and player().loot_uid.is_empty(),"both guests see search reset on re-entry")
+		session._intent_seq+=1
+		session._intent.rpc_id(1,"loot_take",{"uid":"loot_one","index":0,"item_uid":item_uid,"world_revision":old_revision},session._session_token,session._intent_seq)
+		report(role+"_five")
+		check(await wait_for(func():return session.model.state.get("item_phase",0)==6),"new search phase")
+		session.send("search",{"uid":"loot_one"})
+		check(await wait_for(func():return session.model.state.containers.has("loot_one") and int(session.model.state.containers.loot_one.revealed)>=1),"previously emptied container can be searched again remotely")
+		check(session.model.state.containers.loot_one.items[0].uid!=item_uid,"refreshed item has a new identity")
 		await finish();return
 	check(session.host(PORT)==OK,"host starts")
 	check(session.configure_room("user://material_trade_"+run_id+"/room.json","owner",func(id):return "guest_"+str(id))==OK,"isolated room save configured")
@@ -137,6 +148,17 @@ func run():
 	session.model.state.world="bunker";session.model.state.world_revision+=1;session.model.stations=[{"kind":"trader","pos":Vector2.ZERO}]
 	for id in [a,b]:session.model.state.players[id].pos=Vector2(10,0)
 	phase(4)
+	check(await wait_for(func():return FileAccess.file_exists(path("a_four")) and FileAccess.file_exists(path("b_four"))),"fourth phase reports")
+	session.model.state.players[1].pos=Vector2.ZERO
+	session.model.stations=[{"kind":"travel","uid":"new_visit","world":"bunker","destination":"surface","pos":Vector2.ZERO,"spawn":Vector3.ZERO}]
+	check(session.model.command(1,"travel",{"route":"new_visit"}),"host confirms new visit through actual travel rules")
+	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true,"loot_pool":"food"}]
+	phase(5)
+	check(await wait_for(func():return FileAccess.file_exists(path("a_five")) and FileAccess.file_exists(path("b_five"))),"guests observe reset")
+	check(session.model.state.containers.is_empty(),"stale previous-visit intents cannot revive old loot")
+	phase(6)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_done")) and FileAccess.file_exists(path("b_done"))),"client completion reports")
+	var remaining_picks:int=int(read_report("a_done").lockpicks)+int(read_report("b_done").lockpicks)
+	check(remaining_picks==2,"new round competing searches consume exactly one additional lockpick")
 	check(int(read_report("a_done").failures)==0 and int(read_report("b_done").failures)==0,"all remote assertions pass")
 	await finish()

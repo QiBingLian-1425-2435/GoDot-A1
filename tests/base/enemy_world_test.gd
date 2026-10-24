@@ -76,13 +76,20 @@ func run():
 		for i in range(3):p.fire_timer=0;m.command(1,"fire")
 		m.tick(.1);game.enemy_director.update(game,.1)
 		check(chosen.hp==0 and chosen.mode=="dead","real world gun ray kills the attacking monster")
-		# World transition keeps defeated enemies in this room's map cache.
+		# A new visit starts a fresh hostile wave.
 		m.stations=[{"kind":"travel","uid":"qa_back","world":"surface","destination":"bunker","pos":p.pos,"spawn":Vector3.ZERO}]
 		check(m.command(1,"travel",{"route":"qa_back"}),"return travel accepted")
 		game._sync_world();await process_frame
 		check(m.state.enemies.is_empty() and game.enemy_director.views.is_empty(),"base has no enemies or stale visuals")
 		m.stations=[{"kind":"travel","uid":"qa_forward","world":"bunker","destination":"surface","pos":p.pos,"spawn":player_at}]
 		m.command(1,"travel",{"route":"qa_forward"})
-		check(m.state.enemies[chosen.id].hp==0 and m.state.enemies_seeded,"returning to map does not respawn defeated enemies")
+		check(m.state.enemies.is_empty() and not m.state.enemies_seeded,"new map visit clears old hostile wave")
+		game._sync_world()
+		while game.world_loading:await process_frame
+		for i in range(3):await physics_frame
+		game.enemy_director.update(game,.016)
+		var fresh:bool=m.state.enemies.size()==16
+		for e in m.state.enemies.values():fresh=fresh and e.hp==100
+		check(fresh,"re-entering actual Ground Zero respawns sixteen living hostiles")
 	game._return_menu();game.queue_free();await process_frame;await process_frame
 	print("ENEMY_WORLD checks=",checks," failures=",failures);quit(1 if failures else 0)
