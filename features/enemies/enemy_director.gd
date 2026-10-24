@@ -38,27 +38,38 @@ func spawn_wave(ctx):
 	var center:Vector2=first.pos
 	var probe=body_for(-1)
 	var enemies:Dictionary=model.state.enemies
-	for radius in [14.0,22.0,30.0]:
-		for i in range(12):
-			var point:Vector2=center+Vector2.from_angle(TAU*i/12)*radius
-			var floor_hit:Dictionary=probe._support(point,ctx.world.terrain_height(point)+.1)
-			if floor_hit.is_empty() or floor_hit.normal.y<.65:continue
-			var at:=Vector3(point.x,probe._feet_height(floor_hit),point.y)
-			if not probe.is_clear(at):continue
-			var exits:=0
-			for direction in [Vector2.UP,Vector2.DOWN,Vector2.LEFT,Vector2.RIGHT]:
-				if probe.move_spatial(at,direction*.6).distance_to(at)>.4:exits+=1
-			if exits<2:continue
-			var spaced:=true
-			for e in enemies.values():
-				if Vector2(e.pos).distance_to(point)<7:spaced=false
-			if not spaced:continue
-			var id:=enemies.size()+1
-			enemies[id]=model.Enemies.create(id,at,center-point)
-			if enemies.size()>=4:break
-		if enemies.size()>=4:break
+	_spawn_group(ctx,probe,center,6,true)
+	for landmark in ["StartPoints/StartPoint_1","StartPoints/StartPoint_2","StartPoints/StartPoint_4","StartPoints/StartPoint_5","QuestLocations/FishingPoint2"]:
+		var location:Vector3=ctx.world.Library.source_location("surface",landmark)
+		_spawn_group(ctx,probe,Vector2(location.x,location.z),2,false)
 	model.state.enemies_seeded=true
 	if ctx.session.mode=="host":ctx.session._broadcast_snapshot(true)
+func _spawn_group(ctx,probe,center:Vector2,count:int,prefer_visible:bool):
+	var enemies:Dictionary=ctx.session.model.state.enemies
+	var goal:=enemies.size()+count
+	var viewer:Dictionary=ctx.session.model.state.players.values()[0]
+	for require_sight in ([true,false] if prefer_visible else [false]):
+		for radius in [6.0,9.0,12.0,18.0]:
+			for i in range(16):
+				var point:Vector2=center+Vector2.from_angle(PI+TAU*i/16)*radius
+				var floor_hit:Dictionary=probe._support(point,ctx.world.terrain_height(point)+.1)
+				if floor_hit.is_empty() or floor_hit.normal.y<.65:continue
+				var at:=Vector3(point.x,probe._feet_height(floor_hit),point.y)
+				if not probe.is_clear(at):continue
+				if require_sight and not clear_sight(at+Vector3.UP,ctx.session.model.Enemies.at(viewer)+Vector3.UP):continue
+				var spaced:=true
+				for p in ctx.session.model.state.players.values():
+					if Vector2(p.pos).distance_to(point)<5:spaced=false
+				for e in enemies.values():
+					if Vector2(e.pos).distance_to(point)<4:spaced=false
+				if not spaced:continue
+				var exits:=0
+				for direction in [Vector2.UP,Vector2.DOWN,Vector2.LEFT,Vector2.RIGHT]:
+					if probe.move_spatial(at,direction*.6).distance_to(at)>.4:exits+=1
+				if exits<2:continue
+				var id:=enemies.size()+1
+				enemies[id]=ctx.session.model.Enemies.create(id,at,center-point)
+				if enemies.size()>=goal:return
 func update(ctx,delta:float):
 	bind_world(ctx)
 	if not ctx.in_game or ctx.world_loading or ctx.world_id=="bunker":

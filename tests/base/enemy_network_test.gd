@@ -19,11 +19,12 @@ func run():
 	session=Session.new();root.add_child(session)
 	if client:
 		check(session.join("127.0.0.1",PORT)==OK,"connect")
-		var ready:=await wait_for(func():return session.model.state.get("enemies",{}).size()==1)
+		var ready:=await wait_for(func():return session.model.state.get("enemies",{}).size()==16)
 		check(ready,"hostile state received")
 		if ready:
 			check(await wait_for(func():return player().get("hp",100)<100),"host chase and melee damage reach guest")
 			check(session._received_enemy_serial>0 and Vector2(session.model.state.enemies[1].pos).length()>1,"compact enemy movement arrives over real transport")
+			check(await wait_for(func():return session._enemy_serials.size()==16),"all sixteen enemies receive batched motion over real transport")
 			for i in range(3):
 				var direction:Vector2=(session.model.state.enemies[1].pos-player().pos).normalized()
 				session.send("move",{"direction":Vector2.ZERO,"aim":direction})
@@ -46,8 +47,11 @@ func run():
 			for id in m.state.players:
 				if id!=1:m.state.players[id].pos=Vector2(0,-4);m.state.players[id].height=0
 			m.state.enemies[1]=m.Enemies.create(1,Vector3.ZERO,Vector2.UP);m.state.enemies_seeded=true
+			for id in range(2,17):m.state.enemies[id]=m.Enemies.create(id,Vector3(100+id*8,0,100),Vector2.UP)
 			session._broadcast_snapshot(true)
-			check(var_to_bytes(session._enemy_rows()).size()<1200,"compact hostile packet stays below transport budget")
+			var budget_ok:=true
+			for batch in session._enemy_batches():budget_ok=budget_ok and var_to_bytes([batch,1,1,1]).size()<1200
+			check(budget_ok,"all hostile packets stay below transport budget")
 		var done:=await wait_for(func():return FileAccess.file_exists("user://enemy_network_result.json"))
 		check(done,"remote report received")
 		if done:check(int(JSON.parse_string(FileAccess.get_file_as_string("user://enemy_network_result.json")).failures)==0,"all remote assertions pass")

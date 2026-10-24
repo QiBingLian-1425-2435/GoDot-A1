@@ -15,7 +15,15 @@ func run():
 	while game.world_loading:await process_frame
 	for i in range(3):await physics_frame
 	game.enemy_director.update(game,.016)
-	check(m.state.enemies.size()==4,"real Ground Zero seeds four hostiles on safe ground")
+	check(m.state.enemies.size()==16,"real Ground Zero seeds sixteen hostiles on safe ground")
+	var near:=0;var visible_near:=0;var aware:=0
+	for e in m.state.enemies.values():
+		if Vector2(e.pos).distance_to(p.pos)<=18.1:
+			near+=1
+			if game.enemy_director.clear_sight(m.Enemies.at(e)+Vector3.UP,m.Enemies.at(p)+Vector3.UP):visible_near+=1
+		if m.Enemies.visible(m,e,p):aware+=1
+	check(near>=6 and visible_near>=1,"entrance has six nearby hostiles including unobstructed encounters")
+	check(aware>=1,"at least one entrance hostile can actually detect the arriving player")
 	if m.state.enemies.is_empty():game.queue_free();quit(1);return
 	var probe=game.enemy_director.body_for(-1)
 	var all_clear:=true

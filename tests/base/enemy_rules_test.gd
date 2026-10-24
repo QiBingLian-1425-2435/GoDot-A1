@@ -78,5 +78,16 @@ func run():
 	check(s.model.state.enemies[1].hp==66,"old map enemy packets rejected")
 	for id in range(2,5):s.model.state.enemies[id]=Rules.create(id,Vector3(id,0,0),Vector2.UP)
 	check(var_to_bytes([s._enemy_rows(),9,10,2]).size()<1200,"four-hostile motion packet fits transport budget")
+	for id in range(5,17):s.model.state.enemies[id]=Rules.create(id,Vector3(id,0,0),Vector2.UP)
+	var batches:Array=s._enemy_batches()
+	check(batches.size()==4,"sixteen hostiles split into four packets")
+	var budget_ok:=true
+	for batch in batches:budget_ok=budget_ok and var_to_bytes([batch,9,12,2]).size()<1200
+	check(budget_ok,"every hostile packet stays below transport budget")
+	batches[0][0][4]=32;batches[3][3][4]=42
+	s._apply_enemies(batches[3],9,12,2);s._apply_enemies(batches[0],9,12,2)
+	check(s.model.state.enemies[1].hp==32 and s.model.state.enemies[16].hp==42,"same sequence batches apply independently in reverse arrival order")
+	s._apply_enemies([[1,Vector2.ZERO,0,Vector2.ZERO,100,"idle",0,0,Vector2.UP]],9,11,2)
+	check(s.model.state.enemies[1].hp==32,"older per-enemy update cannot resurrect a damaged enemy")
 	s.free()
 	print("ENEMY_RULES checks=",checks," failures=",failures);quit(1 if failures else 0)
