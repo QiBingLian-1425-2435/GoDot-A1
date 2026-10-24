@@ -112,6 +112,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		_state = _copy_motion(authoritative)
 		_offset = Vector2.ZERO
 		_settling = false
+	_state.hp=authoritative.get("hp",100.0)
 	Movement.step(_state,input,delta,_solve.bind(_state))
 	_history.append({"start":_clock,"end":_clock+delta,"input":input.duplicate()})
 	_clock += delta

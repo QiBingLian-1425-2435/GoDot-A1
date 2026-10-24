@@ -55,10 +55,14 @@ var field_item_view:Node3D
 var global_map:Control
 var soul_view: Node3D
 
+var enemy_director:Node3D
+
 func _ready()->void:
 	Texts.set_window_title("⟦application.title⟧")
 	soul_view = preload("res://features/rescue/soul_view.gd").new()
 	add_child(soul_view)
+	enemy_director=preload("res://features/enemies/enemy_director.gd").new()
+	add_child(enemy_director)
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
 	add_child(field_item_view)
 	_setup_environment()
@@ -235,6 +239,7 @@ func _on_action(action:String,payload:Dictionary)->void:
 	_refresh_ui()
 
 func _return_menu()->void:
+	enemy_director.clear()
 	if is_instance_valid(global_map):global_map.set_open(false)
 	if is_instance_valid(voice):voice.stop();voice.clear_playback()
 	_save(false)
@@ -305,6 +310,7 @@ func _process(delta:float)->void:
 		_update_drops()
 		vision.update(self,delta)
 		soul_view.update(self)
+		enemy_director.update(self,delta)
 		field_item_view.update(self)
 		_update_tracers()
 		_update_interaction()

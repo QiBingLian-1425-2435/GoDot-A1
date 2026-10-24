@@ -2,6 +2,9 @@ extends RefCounted
 const Texts = preload("res://features/localization/game_text.gd")
 
 const InventoryRules = preload("res://features/inventory/base_inventory_rules.gd")
+const Enemies = preload("res://features/enemies/enemy_rules.gd")
+var enemy_sight: Callable
+var enemy_move: Callable
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
@@ -42,6 +45,7 @@ var _recovery_after: Dictionary = {}
 
 func _init() -> void:
 	state.corpses = {}
+	state.enemies = {}; state.enemies_seeded = false
 	for i in range(3):
 		state.targets.append({"id":i, "pos":Vector2(8 + i * 2, 8.8), "hp":100, "max_hp":100, "hits":0})
 
@@ -94,6 +98,8 @@ func change_san(id: int, amount: float) -> bool:
 func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
 	var p: Dictionary = state.players[id]
+	p.knockout_remaining=0.0;p.enemy_immunity=0.0
+	if float(p.hp)<=0:p.hp=50.0
 	Loot.close(self,p)
 	var roll_seen:int=int(p.get("roll",{}).get("seen",0))
 	p.roll=Movement.empty_roll();p.roll.seen=roll_seen
@@ -220,6 +226,7 @@ func tick(delta: float) -> void:
 	_clock += delta
 	Souls.tick(self,0.0)
 	Loot.tick(self,delta)
+	Enemies.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
 		if not Souls.mobile(p): continue

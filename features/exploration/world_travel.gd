@@ -33,13 +33,15 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 		if ctx.Souls.zombie(member): return ctx._reject("⟦world_travel.004⟧")
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
-	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{}),"corpses":ctx.state.get("corpses",{})}
+	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{,"enemies":ctx.state.get("enemies",{}),"enemies_seeded":ctx.state.get("enemies_seeded",false)}),"corpses":ctx.state.get("corpses",{,"enemies":ctx.state.get("enemies",{}),"enemies_seeded":ctx.state.get("enemies_seeded",false)}),"enemies":ctx.state.get("enemies",{}),"enemies_seeded":ctx.state.get("enemies_seeded",false)}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})
 	ctx.state.drops = saved.drops
 	ctx.state.targets = saved.targets
 	ctx.state.doors = saved.get("doors",{})
 	ctx.state.containers=saved.get("containers",{})
 	ctx.state.corpses=saved.get("corpses",{})
+	ctx.state.enemies=saved.get("enemies",{})
+	ctx.state.enemies_seeded=saved.get("enemies_seeded",false)
 	ctx.state.field_effects=[]
 	ctx.state.shots.clear()
 	ctx.state.world = destination

@@ -32,8 +32,11 @@ static func _fire(ctx, p: Dictionary) -> bool:
 		if hit >= 0 and hit < distance:
 			distance = hit; impact = "wall"
 	var chosen: Dictionary = {}
-	for target in ctx.state.targets:
+	var candidates:Array=ctx.state.targets.duplicate()
+	candidates.append_array(ctx.state.get("enemies",{}).values())
+	for target in candidates:
 		if int(target.get("hp",0)) <= 0: continue
+		if absf(float(target.get("height",0))+.9-height)>.7:continue
 		var offset: Vector2 = target.pos - origin
 		var along = offset.dot(direction)
 		if along > 0 and along < distance and absf(offset.cross(direction)) <= 0.55:

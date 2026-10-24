@@ -32,6 +32,7 @@ var _motion_clock := 0.0
 var _snapshot_serial := 0
 var _received_serial := -1
 var _received_motion_serial := -1
+var _received_enemy_serial := -1
 var _snapshot_received_usec := 0
 var motion_buffer = MotionBuffer.new()
 var local_movement = LocalMovement.new()
@@ -158,6 +159,8 @@ func offline() -> void:
 	model.state.field_effects=[];model.state.containers={}
 	model.state.corpses={}
 	model.state.camp=_local_camp.duplicate()
+	model.state.enemies={};model.state.enemies_seeded=false
+	_received_enemy_serial=-1
 	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
 	model.state.world = "bunker"; model.state.phase = "base"
 	model.state.world_revision = int(model.state.get("world_revision",0))+1
@@ -396,6 +399,9 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 	var changed_world: bool = int(snapshot.get("world_revision",0))!=int(model.state.get("world_revision",0)) or snapshot.get("world","bunker")!=model.state.get("world","bunker")
 	if changed_world:
 		reset_world_motion()
+	if seq < _received_enemy_serial and not changed_world:
+		snapshot.enemies=model.state.get("enemies",{}).duplicate(true)
+	else:_received_enemy_serial=seq
 	# Reliable inventory can arrive behind a newer movement packet on another channel.
 	# Apply its inventory/membership, but never rewind the already confirmed position.
 	if seq < _received_motion_serial and not changed_world:
@@ -447,6 +453,7 @@ func _confirm_local_motion() -> void:
 	if model.state.players.has(local_id): local_movement.confirm(model.state.players[local_id])
 
 func reset_world_motion() -> void:
+	_received_enemy_serial=-1
 	_roll_capture=false
 	_roll_seq=int(model.state.players.get(local_id,{}).get("roll",{}).get("seen",0))
 	motion_buffer.clear(); local_movement.clear()
@@ -486,6 +493,27 @@ func _broadcast_motion() -> void:
 	var rows := _motion_rows()
 	for peer_id in _connected_peers():
 		_motion_snapshot.rpc_id(peer_id,rows,_session_token,_snapshot_serial,model._clock,int(model.state.get("world_revision",0)))
+		if not model.state.get("enemies",{}).is_empty():
+			_enemy_snapshot.rpc_id(peer_id,_enemy_rows(),_session_token,_snapshot_serial,int(model.state.get("world_revision",0)))
+
+func _enemy_rows() -> Array:
+	var rows:Array=[]
+	for e in model.state.get("enemies",{}).values():
+		rows.append([e.id,e.pos,e.height,e.velocity,e.hp,e.mode,e.timer,e.attack_seq,e.aim])
+	return rows
+
+@rpc("authority","call_remote","unreliable",1)
+func _enemy_snapshot(rows:Array, token:int, seq:int, revision:int) -> void:
+	if multiplayer.get_remote_sender_id()!=1:return
+	_apply_enemies(rows,token,seq,revision)
+
+func _apply_enemies(rows:Array, token:int, seq:int, revision:int) -> void:
+	if mode!="client" or _session_token==0 or token!=_session_token or seq<=_received_enemy_serial or revision!=int(model.state.get("world_revision",0)):return
+	_received_enemy_serial=seq
+	for row in rows:
+		if not model.state.get("enemies",{}).has(row[0]):continue
+		var e:Dictionary=model.state.enemies[row[0]]
+		e.pos=row[1];e.height=row[2];e.velocity=row[3];e.hp=row[4];e.mode=row[5];e.timer=row[6];e.attack_seq=row[7];e.aim=row[8]
 
 func _broadcast_snapshot(control: bool) -> void:
 	if mode != "host" or _peer == null: return

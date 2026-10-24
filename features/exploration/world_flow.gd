@@ -28,6 +28,7 @@ static func sync(ctx) -> void:
 		return
 	if is_instance_valid(ctx.global_map):ctx.global_map.set_open(false)
 	if is_instance_valid(ctx.field_item_view):ctx.field_item_view.clear()
+	if is_instance_valid(ctx.enemy_director):ctx.enemy_director.clear()
 	ctx.player_physics.reset_world()
 	ctx.vision.enabled=false
 	ctx.session.reset_world_motion()
