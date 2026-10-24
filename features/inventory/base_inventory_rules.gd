@@ -2,6 +2,14 @@ extends RefCounted
 ## Migrated reference behavior; called only through the owning composition/model.
 
 const Items = preload("res://features/inventory/item_catalog.gd")
+const SATIETY_FULL_CAPACITY := 50.0
+const MIN_CAPACITY_FACTOR := 0.5
+
+static func base_capacity(p: Dictionary) -> float:
+	return (44.0 if not p.get("equipment", {}).get("backpack", {}).is_empty() else 28.0) + float(p.get("camp_weight_bonus",0))
+
+static func capacity_factor(satiety: float) -> float:
+	return lerpf(MIN_CAPACITY_FACTOR, 1.0, clampf(satiety / SATIETY_FULL_CAPACITY, 0.0, 1.0))
 
 static func _empty_slots(size: int) -> Array:
 	var result: Array = []
@@ -49,4 +57,4 @@ static func _count(container: Array, kind: String) -> int:
 
 static func _update_weight(p: Dictionary) -> void:
 	p.weight = Items.weight(p.bag) + Items.weight(p.equipment.values())
-	p.max_weight = (44.0 if not p.equipment.backpack.is_empty() else 28.0)+float(p.get("camp_weight_bonus",0))
+	p.max_weight = base_capacity(p) * capacity_factor(float(p.get("hunger", 100.0)))

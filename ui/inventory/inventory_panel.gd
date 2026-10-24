@@ -1,5 +1,6 @@
 extends RefCounted
 const Texts = preload("res://features/localization/game_text.gd")
+const InventoryRules = preload("res://features/inventory/base_inventory_rules.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _build_inventory(ctx) -> void:
@@ -174,6 +175,11 @@ static func _update_inventory(ctx) -> void:
 	for key in ctx._inventory_stats:
 		Texts.bind(ctx._inventory_stats[key], Texts.format("⟦format.inventory_panel.003⟧", int(p.get(key,100))), "text")
 	Texts.bind(ctx._inventory_weight, Texts.format("⟦format.inventory_panel.004⟧", [float(p.get("weight",ctx.Items.weight(bag))),float(p.get("max_weight",28.0))]), "text")
+	var base_capacity: float = InventoryRules.base_capacity(p)
+	var reduced: bool = float(p.get("max_weight",base_capacity)) < base_capacity - .05
+	if reduced: Texts.bind(ctx._inventory_weight, Texts.format("⟦satiety.weight⟧", [float(p.get("weight",0)),float(p.max_weight)]), "text")
+	Texts.bind(ctx._inventory_weight, Texts.format("⟦satiety.tip⟧", base_capacity), "tooltip_text")
+	Texts.bind(ctx._inventory_stats.hunger, Texts.format("⟦satiety.tip⟧", base_capacity), "tooltip_text")
 	ctx._inventory_weight.modulate = Color("ef9c7c") if float(p.get("weight",0.0)) > float(p.get("max_weight",28.0)) else Color.WHITE
 	Texts.bind(ctx._credits_label, Texts.format("⟦inventory_panel.032⟧", str(p.get("credits",500))), "text")
 
