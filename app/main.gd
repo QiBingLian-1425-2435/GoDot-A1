@@ -399,7 +399,7 @@ func _update_interaction()->void:
 		if is_equal_approx(d,distance) and not ((can_rescue and not nearest.get("rescuable",false)) or (has_items and not nearest.get("remaining",true))): continue
 		distance = d
 		nearest = {"kind":"corpse","uid":uid,"target":body.owner,"rescuable":can_rescue,"remaining":has_items,"title":str(body.container_name)+("⟦main.021⟧" if can_rescue else "")}
-	ui.set_interaction("" if nearest.is_empty() else Texts.format("⟦interaction.prompt⟧", str(nearest.title)))
+	ui.set_interaction("" if nearest.is_empty() else InputController.Keys.display("interact") + "   " + Texts.format("⟦interaction.prompt⟧", str(nearest.title)))
 
 func _interact()->void:
 	if world_loading:return

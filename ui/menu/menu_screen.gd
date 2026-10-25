@@ -138,13 +138,8 @@ static func _open_settings(ctx) -> void:
 		if Texts.set_locale(str(language.get_item_metadata(index))) != OK:
 			ctx.toast("⟦settings.language_save_failed⟧"))
 	ctx._dialog.add_child(language)
-	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,659,300,54),ctx._close_dialog,ctx.GREEN,23)
+	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,610,570,42),ctx._open_key_bindings,ctx.TEAL,21)
+	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,669,300,44),ctx._close_dialog,ctx.GREEN,23)
 
 static func _open_help(ctx) -> void:
-	ctx._dialog_panel("⟦base_hud.039⟧",Vector2(720,712))
-	var rows = [["⟦menu_screen.022⟧","⟦menu_screen.023⟧"],["⟦menu_screen.024⟧","⟦menu_screen.025⟧"],["⟦menu_screen.026⟧","⟦menu_screen.027⟧"],["⟦menu_screen.028⟧","⟦menu_screen.029⟧"],["⟦menu_screen.030⟧","⟦menu_screen.031⟧"],["⟦menu_screen.032⟧","⟦menu_screen.033⟧"],["⟦menu_screen.034⟧","⟦menu_screen.035⟧"],["⟦menu_screen.036⟧","⟦menu_screen.037⟧"],["⟦menu_screen.038⟧","⟦menu_screen.039⟧"],["⟦menu_screen.040⟧","⟦menu_screen.041⟧"]]
-	for i in range(rows.size()):
-		ctx._label(ctx._dialog,rows[i][0],Rect2(34,95+i*48,290,37),19,ctx.GOLD)
-		ctx._label(ctx._dialog,rows[i][1],Rect2(327,95+i*48,360,37),19,ctx.INK)
-		ctx._line(ctx._dialog,Vector2(34,134+i*48),Vector2(652,1),Color(0.4,0.54,0.51,0.2))
-	ctx._button(ctx._dialog,"⟦menu_screen.042⟧",Rect2(210,618,300,54),ctx._close_dialog,ctx.GREEN,23)
+	ctx._open_key_bindings()

@@ -1,4 +1,5 @@
 extends RefCounted
+const Keys = preload("res://features/player/key_bindings.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _physics_process(ctx, delta:float)->void:
@@ -11,7 +12,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
 	if not blocked and focused:
-		axis=Vector2(float(Input.is_physical_key_pressed(KEY_D))-float(Input.is_physical_key_pressed(KEY_A)),float(Input.is_physical_key_pressed(KEY_S))-float(Input.is_physical_key_pressed(KEY_W)))
+		axis=Vector2(float(Keys.held("move_right"))-float(Keys.held("move_left")),float(Keys.held("move_down"))-float(Keys.held("move_up")))
 	var right =Vector2(ctx.camera.global_basis.x.x,ctx.camera.global_basis.x.z).normalized()
 	var down =Vector2(ctx.camera.global_basis.z.x,ctx.camera.global_basis.z.z).normalized()
 	var direction:Vector2=(right*axis.x+down*axis.y).limit_length(1)
@@ -23,12 +24,12 @@ static func _physics_process(ctx, delta:float)->void:
 		var point:Variant=plane.intersects_ray(ctx.camera.project_ray_origin(mouse),ctx.camera.project_ray_normal(mouse))
 		if point is Vector3:
 			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
-	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Input.is_physical_key_pressed(KEY_SHIFT) and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not blocked and focused})
-	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ctx.fire_clock<=0:
+	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Keys.held("sprint") and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Keys.held("aim") and not blocked and focused})
+	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and Keys.held("fire") and ctx.fire_clock<=0:
 		ctx.session.send("fire")
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked
-	ctx.crosshair.aiming=Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+	ctx.crosshair.aiming=Keys.held("aim")
 	var soul_controls: bool = is_instance_valid(ctx.ui._soul_panel) and ctx.ui._soul_panel.visible
 	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked and not soul_controls else Input.MOUSE_MODE_VISIBLE
 	var audible_motion := p
@@ -44,51 +45,61 @@ static func _footstep_state(motion: Dictionary) -> Dictionary:
 	return {"moving":velocity.length()>.1,"sprint":bool(motion.get("sprint",false)) and velocity.length()>.1}
 
 static func _input(ctx, event:InputEvent)->void:
-	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed:
+	if (event is InputEventMouseButton or event is InputEventKey) and Keys.matches("fire",event) and not event.pressed:
 		ctx.trigger_held=false
 
 static func _unhandled_input(ctx, event:InputEvent)->void:
 	if not ctx.in_game:return
 	if is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active:return
 	if event is InputEventMouseButton and event.pressed and not ctx.ui.is_blocking():
-		if event.button_index==MOUSE_BUTTON_LEFT:ctx.trigger_held=true
 		if event.button_index==MOUSE_BUTTON_WHEEL_UP: ctx.camera_zoom=maxf(14,ctx.camera_zoom-1)
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN: ctx.camera_zoom=minf(31,ctx.camera_zoom+1)
-	if not event is InputEventKey or not event.pressed or event.echo:return
-	if ctx.session.model.Souls.zombie(ctx.session.model.state.players.get(ctx.session.local_id,{})) and event.physical_keycode not in [KEY_ESCAPE,KEY_F11]: return
-	match event.physical_keycode:
-		KEY_F:
+	if not (event is InputEventKey or event is InputEventMouseButton) or not event.pressed:return
+	if event is InputEventKey and event.echo:return
+	var action := ""
+	if event is InputEventKey and Keys.event_code(event) == KEY_ESCAPE:
+		action = "pause"
+	else:
+		for candidate in Keys.DEFAULTS:
+			if Keys.matches(candidate,event):
+				action = candidate
+				break
+	if ctx.session.model.Souls.zombie(ctx.session.model.state.players.get(ctx.session.local_id,{})) and action not in ["pause","fullscreen"]: return
+	match action:
+		"fire":
+			if not ctx.ui.is_blocking():ctx.trigger_held=true
+		"rescue":
 			if not ctx.ui.is_blocking() and ctx.nearest.get("kind","")=="corpse":
 				ctx.session.send("rescue",{"target":ctx.nearest.target,"uid":ctx.nearest.uid})
-		KEY_M:
+		"map":
 			ctx.toggle_global_map()
 			ctx.get_viewport().set_input_as_handled()
-		KEY_TAB,KEY_I:
+		"inventory":
 			ctx.ui.toggle_inventory()
 			ctx.get_viewport().set_input_as_handled()
-		KEY_ESCAPE:
+		"pause":
 			if is_instance_valid(ctx.global_map) and ctx.global_map.is_open():ctx.global_map.set_open(false)
 			elif ctx.station_dialog.visible: ctx.station_dialog.hide()
 			elif ctx.ui.is_blocking():ctx.ui.close_inventory()
 			else:ctx.ui.toggle_pause()
-		KEY_C:
+		"crouch":
 			if not ctx.ui.is_blocking():ctx.crouched=not ctx.crouched
-		KEY_R:
+		"reload":
 			if not ctx.ui.is_blocking():ctx.session.send("reload")
-		KEY_SPACE:
+		"roll":
 			if not ctx.world_loading and not ctx.ui.is_blocking() and not ctx.station_dialog.visible:
 				ctx.session.request_roll()
 				ctx.get_viewport().set_input_as_handled()
-		KEY_E:
+		"interact":
 			if not ctx.ui.is_blocking():ctx._interact()
-		KEY_1:
+		"rifle":
 			if not ctx.ui.is_blocking():ctx._select_weapon("rifle")
-		KEY_2:
+		"pistol":
 			if not ctx.ui.is_blocking():ctx._select_weapon("pistol")
-		KEY_4:ctx._quick_use("medkit")
-		KEY_5:ctx._quick_use("water")
-		KEY_F5:ctx._save(true)
-		KEY_F11:
+		"medkit":ctx._quick_use("medkit")
+		"water":ctx._quick_use("water")
+		"save":ctx._save(true)
+		"fullscreen":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 static func _quick_use(ctx, kind:String)->void:

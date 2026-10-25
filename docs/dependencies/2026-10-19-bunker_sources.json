@@ -144,7 +144,11 @@
     "features/localization/game_text.gd.uid",
     "features/localization/zh_cn.json",
     "features/localization/en.json",
-    "features/localization/locales.json"
+    "features/localization/locales.json",
+    "features/player/key_bindings.gd",
+    "features/player/key_bindings.gd.uid",
+    "ui/menu/key_bindings_panel.gd",
+    "ui/menu/key_bindings_panel.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

@@ -1,4 +1,7 @@
 extends CanvasLayer
+const Keys = preload("res://features/player/key_bindings.gd")
+const KeyBindingsPanel = preload("res://ui/menu/key_bindings_panel.gd")
+var _key_bindings_panel: Control
 const Texts = preload("res://features/localization/game_text.gd")
 
 const ContainerPanel = preload("res://ui/inventory/container_panel.gd")
@@ -145,6 +148,9 @@ func _process(delta: float) -> void:
 		_press_screen.modulate.a = 0.65 + sin(Time.get_ticks_msec() * 0.0025) * 0.25
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_key_bindings_panel) and _key_bindings_panel.capture(event):
+		get_viewport().set_input_as_handled()
+		return
 	if not _in_game:
 		if _press_screen.visible:
 			if (event is InputEventKey and event.pressed and not event.echo) or (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT):
@@ -276,7 +282,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	for item in p.get("bag", []):
 		if item.get("kind", "") == "ammo":
 			reserve += int(item.get("count", 1))
-	Texts.bind(_reload_label, Texts.format("⟦base_hud.018⟧", int(float(p.get("reload_progress", 0.0)) * 100.0)) if p.get("reloading", false) else ("⟦base_hud.019⟧" if state.get("infinite_reserve",false) else Texts.format("⟦base_hud.020⟧", reserve)), "text")
+	Texts.bind(_reload_label, Texts.format("⟦base_hud.018⟧", int(float(p.get("reload_progress", 0.0)) * 100.0)) if p.get("reloading", false) else (Texts.format("⟦base_hud.019⟧", Keys.display("reload")) if state.get("infinite_reserve",false) else Texts.format("⟦base_hud.020⟧", [reserve, Keys.display("reload")])), "text")
 	if not p.get("pending_use",{}).is_empty():Texts.bind(_reload_label, Texts.format("⟦base_hud.021⟧", maxf(0,float(p.pending_use.remaining))), "text")
 	var bag: Array = p.get("bag", [])
 	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
@@ -351,7 +357,7 @@ func _build_hud() -> void:
 		_hud.add_child(slot)
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_quick_slots.append(slot)
-		_label(_hud,["1", "2", "4", "5"][i],Rect2(623+i*75,765,60,24),16,Color("d8dfc5"),HORIZONTAL_ALIGNMENT_CENTER)
+		Keys.bind_hint(_label(_hud,"",Rect2(623+i*75,765,60,24),16,Color("d8dfc5"),HORIZONTAL_ALIGNMENT_CENTER), "⟦keys.single⟧", [["rifle", "pistol", "medkit", "water"][i]])
 	_label(_hud,"⟦base_hud.031⟧",Rect2(617,861,290,22),13,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	var ammo := _panel(_hud, Rect2(1300,760,268,103), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	ammo.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -360,7 +366,7 @@ func _build_hud() -> void:
 	_reload_label = _label(ammo,"⟦base_hud.033⟧",Rect2(92,54,164,28),15,Color("c5cbbb"))
 	var guide := _panel(_hud,Rect2(635,68,930,34),Color(0.03,0.07,0.10,0.72),Color(0.35,0.5,0.55,0.2),6)
 	guide.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	_label(guide,"⟦base_hud.034⟧",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
+	Keys.bind_hint(_label(guide,"",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER), "⟦keys.hud_hint⟧", ["interact","reload","inventory","map"])
 	_interaction = _label(_hud,"",Rect2(400,645,800,44),23,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
 	_interaction.add_theme_constant_override("outline_size",5)
 	_interaction.add_theme_color_override("font_outline_color",Color(0.06,0.1,0.12,0.9))
@@ -475,6 +481,11 @@ func _cancel_connection() -> void:
 func _open_settings() -> void:
 	MenuScreen._open_settings(self)
 
+func _open_key_bindings() -> void:
+	_dialog_panel("⟦keys.title⟧", Vector2(800,740))
+	_key_bindings_panel = KeyBindingsPanel.new()
+	_key_bindings_panel.build(self)
+
 func _open_help() -> void:
 	MenuScreen._open_help(self)
 
@@ -499,6 +510,7 @@ func _dialog_close_pressed() -> void:
 		_close_dialog()
 
 func _close_dialog() -> void:
+	_key_bindings_panel = null
 	if not _loot_uid.is_empty():
 		var closing := _loot_uid
 		_loot_uid = ""
