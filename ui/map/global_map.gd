@@ -1,4 +1,5 @@
 extends Control
+const Texts = preload("res://features/localization/game_text.gd")
 ## Local-only overview. It reads replicated player positions and never writes game state.
 
 const MAP_CENTER := Vector2(390.0, -205.0)
@@ -45,7 +46,7 @@ func _ready() -> void:
 	box.set_border_width_all(2);box.set_corner_radius_all(12)
 	panel.add_theme_stylebox_override("panel",box)
 	add_child(panel)
-	_title=_label(panel,"零号区全局地图",Rect2(30,18,1220,40),28,Color("e8ecdd"),HORIZONTAL_ALIGNMENT_CENTER)
+	_title=_label(panel,"⟦global_map.001⟧",Rect2(30,18,1220,40),28,Color("e8ecdd"),HORIZONTAL_ALIGNMENT_CENTER)
 	_map_view=Control.new()
 	_map_view.position=Vector2(30,68);_map_view.size=Vector2(1220,686.25)
 	_map_view.clip_contents=true;_map_view.mouse_filter=Control.MOUSE_FILTER_STOP
@@ -66,12 +67,13 @@ func _ready() -> void:
 	_markers.map=self;_markers.size=_map_rect.size
 	_markers.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	_map_content.add_child(_markers)
+	Texts.watch_draw(_markers)
 	_status=_label(panel,"",Rect2(30,350,1220,34),20,Color("c7d4cf"),HORIZONTAL_ALIGNMENT_CENTER)
 	var zoom_out:=_button(panel,"−",Rect2(30,776,42,30),_zoom_out)
-	_zoom_label=_label(panel,"100%",Rect2(78,779,58,26),14,Color("c7d4cf"),HORIZONTAL_ALIGNMENT_CENTER)
+	_zoom_label=_label(panel,"⟦format.global_map.001⟧",Rect2(78,779,58,26),14,Color("c7d4cf"),HORIZONTAL_ALIGNMENT_CENTER)
 	var zoom_in:=_button(panel,"+",Rect2(142,776,42,30),_zoom_in)
-	_button(panel,"定位自己",Rect2(194,776,92,30),center_on_local)
-	_label(panel,"滚轮缩放 · 左键拖动 · M / Esc 关闭    金色：自己    青色：队友",Rect2(300,780,920,24),15,Color("a8b7b2"),HORIZONTAL_ALIGNMENT_RIGHT)
+	_button(panel,"⟦global_map.002⟧",Rect2(194,776,92,30),center_on_local)
+	_label(panel,"⟦global_map.003⟧",Rect2(300,780,920,24),15,Color("a8b7b2"),HORIZONTAL_ALIGNMENT_RIGHT)
 	_apply_view()
 	visible=false
 
@@ -79,7 +81,7 @@ func set_state(players: Dictionary, local_id: int, zone: String) -> void:
 	_players=players
 	_local_id=local_id
 	_zone=zone
-	_title.text="零号区全局地图" if zone=="surface" else "神秘山洞地图"
+	Texts.bind(_title, "⟦global_map.001⟧" if zone=="surface" else "⟦global_map.004⟧", "text")
 	if is_instance_valid(_markers):_markers.queue_redraw()
 
 func set_open(value: bool) -> void:
@@ -141,7 +143,7 @@ func _apply_view() -> void:
 	_pan.x=clampf(_pan.x,-limit.x,limit.x);_pan.y=clampf(_pan.y,-limit.y,limit.y)
 	_map_content.scale=Vector2.ONE*_zoom
 	_map_content.position=_map_view.size*.5+_pan-_map_content.size*_zoom*.5
-	if is_instance_valid(_zoom_label):_zoom_label.text="%d%%"%roundi(_zoom*100.0)
+	if is_instance_valid(_zoom_label):Texts.bind(_zoom_label, Texts.format("⟦format.global_map.002⟧", roundi(_zoom*100.0)), "text")
 	if is_instance_valid(_markers):_markers.queue_redraw()
 
 func draw_markers(canvas: Control) -> void:
@@ -155,8 +157,8 @@ func draw_markers(canvas: Control) -> void:
 		for i in range(1,5):
 			var y:=rect.position.y+rect.size.y*float(i)/5.0
 			canvas.draw_line(Vector2(rect.position.x,y),Vector2(rect.end.x,y),Color(0.35,0.5,0.5,0.16),1)
-		_status.text="地图底图缺失，请运行地图还原或 tools/generate_global_map.py"
-	else:_status.text=""
+		Texts.bind(_status, "⟦global_map.005⟧", "text")
+	else:Texts.bind(_status, "", "text")
 	for id in _players:
 		var player:Dictionary=_players[id]
 		var point:=world_to_map(Vector2(player.get("pos",Vector2.ZERO)),rect)
@@ -165,16 +167,16 @@ func draw_markers(canvas: Control) -> void:
 		var color:=SELF_COLOR if local else TEAM_COLOR
 		canvas.draw_circle(point,9.0 if local else 7.0,color)
 		canvas.draw_circle(point,12.0 if local else 10.0,Color(color,0.28),false,2.0)
-		var name:=str(player.get("name","自己" if local else "队友"))
-		canvas.draw_string(_font,point+Vector2(14,6),name,HORIZONTAL_ALIGNMENT_LEFT,-1,16,color)
+		var name:=str(player.get("name","⟦global_map.006⟧" if local else "⟦field_item_view.002⟧"))
+		canvas.draw_string(_font, point+Vector2(14,6), Texts.resolve(name), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, color)
 
 func _label(parent: Control, text: String, rect: Rect2, size: int, color: Color, align: int) -> Label:
-	var label:=Label.new();label.text=text;label.position=rect.position;label.size=rect.size
+	var label:=Label.new();Texts.bind(label, text, "text");label.position=rect.position;label.size=rect.size
 	label.add_theme_font_override("font",_font);label.add_theme_font_size_override("font_size",size)
 	label.add_theme_color_override("font_color",color);label.horizontal_alignment=align
 	parent.add_child(label);return label
 
 func _button(parent: Control, text: String, rect: Rect2, callback: Callable) -> Button:
-	var button:=Button.new();button.text=text;button.position=rect.position;button.size=rect.size
+	var button:=Button.new();Texts.bind(button, text, "text");button.position=rect.position;button.size=rect.size
 	button.add_theme_font_override("font",_font);button.add_theme_font_size_override("font_size",14)
 	button.pressed.connect(callback);parent.add_child(button);return button

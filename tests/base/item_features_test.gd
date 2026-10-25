@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 const Model=preload("res://features/base/base_model.gd")
 const Items=preload("res://features/inventory/item_catalog.gd")
 const Trade=preload("res://features/inventory/item_trade.gd")
@@ -31,7 +32,7 @@ func capture(game,name:String):
 	DirAccess.make_dir_recursive_absolute(folder)
 	check(game.get_viewport().get_texture().get_image().save_png(folder+"/items_"+name+".png")==OK,"screenshot "+name)
 func run():
-	check(Items.DEFS.size()==26,"all twenty design items plus six original equipment/ammo definitions")
+	check(Items.DEFS.size()==29 and Items.DEFS.has("san_capsule") and Items.DEFS.has("revival_serum") and Items.DEFS.has("poison_capsule"),"all original definitions plus three rescue and sanity items")
 	for pair in [[99,0],[100,1],[299,1],[300,2],[999,2],[1000,3],[2999,3],[3000,4],[9999,4],[10000,5]]:check(Items.tier(pair[0])==pair[1],"value boundary "+str(pair[0]))
 	check(Items.definition("helmet").category=="helmet" and Items.definition("helmet").item_type=="equipment","equipment slots stay compatible with type classification")
 	check(Items.definition("gold_statue").rarity==4 and Items.definition("encrypted_core").rarity==5,"gold/red valuables")
@@ -145,7 +146,7 @@ func run():
 	check(all_materials and game.ui._bag_slots[0].slot_index>0,"type filter shows materials with original inventory indices")
 	filter.select(0);filter.item_selected.emit(0);game.ui.close_inventory()
 	player.pos=Vector2(-5,-2.6);player.credits=10000;game._update_interaction();game._interact()
-	check(game.ui._dialog_kind=="基地商人","E at actual trader opens shop")
+	check(Texts.resolve(game.ui._dialog_kind)=="基地商人","E at actual trader opens shop")
 	var shop=game.ui._dialog.find_child("ShopItems",true,false)
 	for i in range(shop.item_count):
 		if shop.get_item_metadata(i).kind=="glowstick":shop.select(i);shop.item_selected.emit(i)
@@ -202,7 +203,7 @@ func run():
 	check(not is_instance_valid(game.ui._dialog),"map revision closes shop")
 
 	game.ui._close_dialog();player.pos=Vector2(-9,2.2);game._update_interaction();game._interact()
-	check(game.ui._dialog_kind=="工作台制作","E at workbench opens recipe list")
+	check(Texts.resolve(game.ui._dialog_kind)=="工作台制作","E at workbench opens recipe list")
 	await capture(game,"recipes")
 	game.ui._close_dialog();player.pos=Vector2(-1,4);player.aim=Vector2.UP
 	var idx:=kinds.find("glowstick");game.session.send("use",{"index":idx});game.field_item_view.update(game)

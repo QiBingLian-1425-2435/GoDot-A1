@@ -1,4 +1,5 @@
 extends Node
+const Texts = preload("res://features/localization/game_text.gd")
 ## Identical Session node path on all peers. Every item mutation runs only on host.
 signal state_changed()
 signal notice(text: String)
@@ -21,7 +22,7 @@ var _roll_direction := Vector2.UP
 var model = Model.new()
 var local_id := 1
 var mode := "offline"
-var connection_status := "离线基地"
+var connection_status := "⟦session.001⟧"
 var _peer: MultiplayerPeer
 var transport := "offline"
 var peer_validator: Callable
@@ -53,7 +54,7 @@ var _room_save_clock:=0.0
 
 func _init() -> void:
 	name = "Session"
-	model.add_player(1,"旅鸭")
+	model.add_player(1,"⟦session.002⟧")
 	local_movement.solver = model.solve_motion.bind(0)
 
 func _ready() -> void:
@@ -67,20 +68,20 @@ func _ready() -> void:
 func host(port: int = DEFAULT_PORT) -> Error:
 	offline()
 	if port < 1024 or port > 65535:
-		connection_status = "端口需要在1024–65535之间"; notice.emit(connection_status)
+		connection_status = "⟦session.003⟧"; notice.emit(connection_status)
 		return ERR_INVALID_PARAMETER
 	var enet := ENetMultiplayerPeer.new()
 	_peer = enet
 	var error := enet.create_server(port,4)
 	if error != OK:
 		_peer = null
-		connection_status = "建房失败：端口可能被占用（%s）" % error_string(error)
+		connection_status = Texts.format("⟦session.004⟧", error_string(error))
 		notice.emit(connection_status)
 		return error
 	multiplayer.multiplayer_peer = _peer
 	multiplayer.server_relay = false
 	mode = "host"; transport = "enet"; local_id = 1; _session_token = randi_range(1,2147483647)
-	connection_status = "基地房间已开放 · UDP %d · 最多5人" % port
+	connection_status = Texts.format("⟦session.005⟧", port)
 	state_changed.emit()
 	return OK
 
@@ -88,19 +89,19 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 	offline()
 	address = address.strip_edges().left(253)
 	if address.is_empty() or port < 1024 or port > 65535:
-		connection_status = "请输入房主IP和有效端口"; notice.emit(connection_status)
+		connection_status = "⟦session.006⟧"; notice.emit(connection_status)
 		return ERR_INVALID_PARAMETER
 	var enet := ENetMultiplayerPeer.new()
 	_peer = enet
 	var error := enet.create_client(address,port)
 	if error != OK:
 		_peer = null
-		connection_status = "连接失败：%s" % error_string(error); notice.emit(connection_status)
+		connection_status = Texts.format("⟦session.007⟧", error_string(error)); notice.emit(connection_status)
 		return error
 	model.state.players.clear()
 	multiplayer.multiplayer_peer = _peer
 	mode = "client"; transport = "enet"; local_id = 0; _connect_elapsed = 0.0
-	connection_status = "正在连接 %s:%d…" % [address,port]
+	connection_status = Texts.format("⟦session.008⟧", [address,port])
 	state_changed.emit()
 	return OK
 
@@ -123,7 +124,7 @@ func use_steam_peer(peer: MultiplayerPeer, as_host: bool, validator: Callable = 
 		model.state.players.clear()
 	multiplayer.multiplayer_peer = _peer
 	multiplayer.server_relay = false
-	connection_status = "Steam 好友基地已开放 · 最多5人" if as_host else "Steam P2P 连接中…"
+	connection_status = "⟦session.009⟧" if as_host else "⟦session.010⟧"
 	state_changed.emit()
 	return OK
 
@@ -139,7 +140,7 @@ func configure_room(path: String, owner_key: String, identities: Callable, legac
 
 func save_room() -> Error:
 	var result: Error=room_store.checkpoint(model)
-	if result!=OK:notice.emit("房主房间存档失败："+error_string(result)+"，请检查存档目录")
+	if result!=OK:notice.emit("⟦session.011⟧"+error_string(result)+"⟦session.012⟧")
 	return result
 
 func offline() -> void:
@@ -152,7 +153,7 @@ func offline() -> void:
 		_local_profile = model.state.players[local_id].duplicate(true)
 	if is_inside_tree(): multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	if _peer != null: _peer.close(); _peer = null
-	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
+	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "⟦session.001⟧"
 	peer_validator = Callable(); peer_name_provider = Callable()
 	model.state.field_effects=[];model.state.containers={}
 	model.state.corpses={}
@@ -165,7 +166,7 @@ func offline() -> void:
 	model.state.doors={}
 	model._inputs.clear()
 	model._recovery_after.clear()
-	model.add_player(1,"旅鸭")
+	model.add_player(1,"⟦session.002⟧")
 	if not _local_profile.is_empty():
 		model.state.players[1] = _local_profile.duplicate(true)
 		model.state.players[1].id = 1
@@ -188,7 +189,7 @@ func offline() -> void:
 
 func start_solo() -> void:
 	if mode != "offline": offline()
-	connection_status = "离线基地 · 自动保存在本机"
+	connection_status = "⟦session.013⟧"
 	state_changed.emit()
 
 func request_roll() -> void:
@@ -515,8 +516,8 @@ func _on_peer_connected(peer_id: int) -> void:
 	if not can_accept_join() or (peer_validator.is_valid() and not peer_validator.call(peer_id)):
 		_peer.disconnect_peer(peer_id)
 		return
-	var player_name := "旅鸭 %d" % model.state.players.size()
-	if peer_name_provider.is_valid(): player_name = str(peer_name_provider.call(peer_id)).left(24)
+	var player_name := Texts.format("⟦session.014⟧", model.state.players.size())
+	if peer_name_provider.is_valid(): player_name = Texts.clip(str(peer_name_provider.call(peer_id)),24)
 	model.add_player(peer_id,player_name)
 	if not room_store.path.is_empty():
 		var identity:=str(peer_identity_provider.call(peer_id)) if peer_identity_provider.is_valid() else ""
@@ -524,32 +525,32 @@ func _on_peer_connected(peer_id: int) -> void:
 			model.remove_player(peer_id);_peer.disconnect_peer(peer_id);return
 		save_room()
 	_broadcast_snapshot(true)
-	notice.emit("一位旅鸭加入了基地")
+	notice.emit("⟦session.015⟧")
 	state_changed.emit()
 
 func _on_peer_disconnected(peer_id: int) -> void:
 	if mode != "host" or not model.state.players.has(peer_id): return
 	if not room_store.path.is_empty():
 		var saved: Error=room_store.detach(model,peer_id)
-		if saved!=OK:notice.emit("离开玩家的房间存档失败："+error_string(saved))
+		if saved!=OK:notice.emit("⟦session.016⟧"+error_string(saved))
 	model.remove_player(peer_id)
 	_voice_limits.erase(peer_id);_voice_sequences.erase(peer_id);voice_received.emit(peer_id,PackedByteArray())
 	_last_movement.erase(peer_id); _last_intent.erase(peer_id); _rate_limits.erase(peer_id)
 	_broadcast_snapshot(true)
-	notice.emit("一位旅鸭离开了基地")
+	notice.emit("⟦session.017⟧")
 	state_changed.emit()
 
 func _on_connected() -> void:
 	if mode != "client": return
 	local_id = multiplayer.get_unique_id()
-	connection_status = "Steam 已连接 · 共建基地" if transport == "steam" else "已连接 · 共建基地"
+	connection_status = "⟦session.018⟧" if transport == "steam" else "⟦session.019⟧"
 	state_changed.emit()
 
 func _on_connection_failed() -> void:
 	if mode != "client": return
 	var was_steam := transport == "steam"
 	offline()
-	connection_status = "Steam 连接失败：确认双方在线、使用不同账号且版本一致" if was_steam else "连接失败：检查房主IP、端口和防火墙"
+	connection_status = "⟦session.020⟧" if was_steam else "⟦session.021⟧"
 	notice.emit(connection_status)
 	state_changed.emit()
 
@@ -557,7 +558,7 @@ func _on_server_disconnected() -> void:
 	if mode != "client": return
 	var was_joining:=_session_token==0
 	offline()
-	connection_status = "房间暂不接受加入，请等房主回到基地后重试" if was_joining else "房主已离开，已返回本机离线基地"
+	connection_status = "⟦session.022⟧" if was_joining else "⟦session.023⟧"
 	notice.emit(connection_status)
 	state_changed.emit()
 
@@ -607,7 +608,7 @@ func _execute_command(id:int,action:String,payload:Dictionary) -> bool:
 	var result:Error=ERR_UNCONFIGURED
 	if not room_store.path.is_empty():result=room_store.checkpoint(trial)
 	elif upgrade_checkpoint.is_valid():result=upgrade_checkpoint.call(trial)
-	if result!=OK:return model._reject("营地升级保存失败，资源未扣除："+error_string(result))
+	if result!=OK:return model._reject("⟦session.024⟧"+error_string(result))
 	model.state.camp=trial.state.camp
 	model.state.players[id].bag=trial.state.players[id].bag
 	model.state.players[id].credits=trial.state.players[id].credits

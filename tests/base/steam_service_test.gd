@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 const Service = preload("res://app/network/steam_service.gd")
 const Session = preload("res://app/network/session.gd")
 const FakeSteam = preload("res://tests/base/fake_steam.gd")
@@ -179,8 +180,8 @@ func test_cancel_and_timeout() -> void:
     f.svc.host_room()
     f.svc._process(26)
     check(f.signals.failures.size()==1 and not f.svc.info().pending,"create timeout emits error and clears UI pending")
-    check(f.svc.status.contains("重启") and not f.svc.status.contains("IP"),"create timeout explains restart recovery without removed IP fallback")
-    check(f.svc.host_room()==ERR_BUSY and f.svc.status.contains("重启"),"native outstanding create remains single flight with explicit recovery")
+    check(Texts.resolve(f.svc.status).contains("重启") and not Texts.resolve(f.svc.status).contains("IP"),"create timeout explains restart recovery without removed IP fallback")
+    check(f.svc.host_room()==ERR_BUSY and Texts.resolve(f.svc.status).contains("重启"),"native outstanding create remains single flight with explicit recovery")
     var fallback=Session.new()
     root.add_child(fallback)
     fallback.set_physics_process(false)
@@ -232,7 +233,7 @@ func test_social() -> void:
     f.svc.host_room()
     f.api.emit_created(ROOM_A)
     f.svc.invite_friends()
-    check(f.api.invites.is_empty() and f.svc.status.contains("房间号"),"unavailable overlay provides room code fallback")
+    check(f.api.invites.is_empty() and Texts.resolve(f.svc.status).contains("房间号"),"unavailable overlay provides room code fallback")
     f.api.overlay=true
     f.svc.invite_friends()
     check(f.api.invites==[ROOM_A],"available overlay opens lobby invite")

@@ -8,24 +8,24 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 			chosen = station
 			break
 	if chosen.is_empty() or chosen.get("world","")!=ctx.state.get("world","bunker"): return false
-	if Vector2(p.pos).distance_to(chosen.pos)>2.4: return ctx._reject("靠近地图入口后才能出发")
+	if Vector2(p.pos).distance_to(chosen.pos)>2.4: return ctx._reject("⟦world_travel.001⟧")
 	if absf(float(p.get("height",0))-float(chosen.get("height",p.get("height",0))))>3: return false
 	var destination: String = str(chosen.destination)
 	if not destination in ["bunker","surface","cave"]: return false
 	if ctx.travel_validator.is_valid() and not ctx.travel_validator.call(destination):
-		return ctx._reject("零号区外置素材未还原，请先执行地图提取工具")
+		return ctx._reject("⟦world_travel.002⟧")
 	if chosen.get("scope","")=="player" and destination==ctx.state.get("world",""):
 		var target: Vector3 = chosen.spawn
 		p.pos = Vector2(target.x,target.z);p.height=target.y
 		ctx.reset_transients(id)
-		ctx.last_notice = "已到达传送点"
+		ctx.last_notice = "⟦world_travel.003⟧"
 		return true
 	return enter_world(ctx,destination,chosen.spawn)
 
 static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 	for member in ctx.state.players.values():
 		ctx.Souls.reconcile(ctx,member)
-		if ctx.Souls.zombie(member): return ctx._reject("队伍中有尸变者，无法切换地图或撤离；请先复活或自杀进入灵魂状态")
+		if ctx.Souls.zombie(member): return ctx._reject("⟦world_travel.004⟧")
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
 	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{}),"corpses":ctx.state.get("corpses",{})}
@@ -53,7 +53,7 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 			if not body.is_empty(): player.pos=body.pos; player.height=body.height
 		ctx.reset_transients(player_id)
 		index += 1
-	ctx.last_notice = "队伍已进入"+{"bunker":"地下基地","surface":"零号区","cave":"神秘山洞"}[destination]
+	ctx.last_notice = "⟦world_travel.005⟧"+{"bunker":"⟦world_travel.006⟧","surface":"⟦world_flow.002⟧","cave":"⟦world_flow.003⟧"}[destination]
 	return true
 
 static func toggle_door(ctx, id: int, payload: Dictionary) -> bool:
@@ -61,10 +61,10 @@ static func toggle_door(ctx, id: int, payload: Dictionary) -> bool:
 	var p: Dictionary=ctx.state.players[id]
 	for station in ctx.stations:
 		if station.get("kind","")!="door" or station.uid!=uid or station.world!=ctx.state.get("world",""):continue
-		if Vector2(p.pos).distance_to(station.pos)>2.4 or absf(float(p.get("height",0))-float(station.height))>2:return ctx._reject("靠近门后才能操作")
-		if ctx.door_reachable.is_valid() and not ctx.door_reachable.call(uid,Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)):return ctx._reject("门被墙体遮挡，请走到门口")
+		if Vector2(p.pos).distance_to(station.pos)>2.4 or absf(float(p.get("height",0))-float(station.height))>2:return ctx._reject("⟦world_travel.007⟧")
+		if ctx.door_reachable.is_valid() and not ctx.door_reachable.call(uid,Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)):return ctx._reject("⟦world_travel.008⟧")
 		var opened:=bool(ctx.state.doors.get(uid,station.get("initial_open",false)))
-		if opened and ctx.door_clearance.is_valid() and not ctx.door_clearance.call(uid):return ctx._reject("有人经过门口，请稍候")
+		if opened and ctx.door_clearance.is_valid() and not ctx.door_clearance.call(uid):return ctx._reject("⟦world_travel.009⟧")
 		ctx.state.doors[uid]=not opened
 		return true
 	return false

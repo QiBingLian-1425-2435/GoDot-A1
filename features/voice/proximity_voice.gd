@@ -6,7 +6,7 @@ var service: Node
 var recording:=false
 var muted:=false
 var volume:=1.0
-var status:="开放麦已开启 · 附近20米"
+var status:="⟦proximity_voice.001⟧"
 var _sequence:=0
 var _context:=""
 var _speakers: Dictionary={}
@@ -43,13 +43,13 @@ func update(enabled: bool, allowed: bool, _delta: float) -> void:
 				_sequence+=1;session.send_voice(bytes.slice(0,count),_sequence)
 		elif code not in [2,3] or (code==2 and Time.get_ticks_msec()-_record_started>500):
 			stop();_error_latched=true
-			status="语音不可用：检查 Steam 麦克风 / Windows 麦克风权限"
+			status="⟦proximity_voice.002⟧"
 	elif _draining and available():
 		# Discard the SDK's post-stop tail; never transmit audio after releasing Q.
 		var tail: Dictionary=service.steam.getVoice(65536)
 		if int(tail.get("result",2))==2:_draining=false
 	if not _error_latched:
-		status="语音已关闭（可在设置开启）" if muted else ("开放麦已开启 · 附近20米" if recording else ("开放麦待连接 · 附近20米" if available() else "语音需登录 Steam · 检查麦克风设置"))
+		status="⟦proximity_voice.003⟧" if muted else ("⟦proximity_voice.001⟧" if recording else ("⟦proximity_voice.004⟧" if available() else "⟦proximity_voice.005⟧"))
 	for id in _speakers.keys():
 		var item: Dictionary=_speakers[id]
 		var gain:=Rules.gain(session.model.state.players,int(id),session.local_id)
@@ -106,8 +106,8 @@ func play_pcm(speaker: int, pcm: PackedByteArray) -> void:
 func speaking_names() -> String:
 	var names:=PackedStringArray()
 	for id in _speakers:
-		names.append(str(session.model.state.players.get(id,{}).get("name","队友")))
-	return " · 正在说话："+", ".join(names) if not names.is_empty() else ""
+		names.append(str(session.model.state.players.get(id,{}).get("name","⟦field_item_view.002⟧")))
+	return "⟦proximity_voice.006⟧"+", ".join(names) if not names.is_empty() else ""
 
 func _remove(speaker: int) -> void:
 	if not _speakers.has(speaker):return

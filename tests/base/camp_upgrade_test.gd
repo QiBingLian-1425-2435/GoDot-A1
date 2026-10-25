@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 const Model=preload("res://features/base/base_model.gd")
 const Session=preload("res://app/network/session.gd")
 const Main=preload("res://app/main.gd")
@@ -116,7 +117,7 @@ func run():
 	var game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true;game.set_process(false);game.set_physics_process(false);game.session.set_physics_process(false);game._start_solo()
 	var player:Dictionary=game.session.model.state.players[1];player.pos=Vector2(-1,-1.9);supply(game.session.model,player,cost)
 	game._refresh_ui();game._update_interaction();game._interact()
-	check(game.ui._dialog_kind=="营地建设","E at actual camp terminal opens construction panel")
+	check(Texts.resolve(game.ui._dialog_kind)=="营地建设","E at actual camp terminal opens construction panel")
 	var button:Button=game.ui._dialog.get_node("CampUpgrade")
 	button.pressed.emit();check(button.text=="确认消耗并升级" and game.session.model.state.camp.medical==0,"first click previews cost only")
 	await capture(game,"confirm")

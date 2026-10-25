@@ -1,9 +1,10 @@
 extends Node3D
+const Texts = preload("res://features/localization/game_text.gd")
 ## A standalone inspection scene using the same actor and AnimationTree as gameplay.
 const Actor = preload("res://features/player/base_actor.gd")
 const G = preload("res://features/geometry/geometry.gd")
 const MODES := ["idle", "walk", "run", "crouch_idle", "crouch_walk", "aim", "fire", "reload", "drink", "heal", "pickup", "equip"]
-const TITLES := ["待机 / 呼吸", "行走 / 摆步", "冲刺 / 重心前倾", "静止蹲伏", "蹲行", "瞄准 / 横移", "射击 / 后坐", "换弹 / 装填", "饮水 / 进食", "包扎 / 使用物品", "俯身 / 拾取", "切枪 / 交互"]
+const TITLES := ["⟦animation_preview.001⟧", "⟦animation_preview.002⟧", "⟦animation_preview.003⟧", "⟦animation_preview.004⟧", "⟦animation_preview.005⟧", "⟦animation_preview.006⟧", "⟦animation_preview.007⟧", "⟦animation_preview.008⟧", "⟦animation_preview.009⟧", "⟦animation_preview.010⟧", "⟦animation_preview.011⟧", "⟦animation_preview.012⟧"]
 var actors: Array = []
 var data: Array = []
 var clock := 0.0
@@ -14,7 +15,8 @@ var capture_dir := ""
 var status: Label
 
 func _ready() -> void:
-	DisplayServer.window_set_title("鸭科夫基地 · 人物动作预览")
+	Texts.set_window_title("⟦animation_preview.013⟧")
+	Texts.set_window_title("⟦animation_preview.013⟧")
 	var environment := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -59,7 +61,7 @@ func _ready() -> void:
 		title.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		title.no_depth_test = true
 		title.outline_size = 4
-		var number := G.text(self,"%02d"%(i+1),Vector3(at.x-1.3,.06,at.y-1.3),20,Color("819c98"))
+		var number := G.text(self,Texts.format("⟦format.base_hud.002⟧", (i+1)),Vector3(at.x-1.3,.06,at.y-1.3),20,Color("819c98"))
 		number.rotation_degrees.x = -90
 	_build_ui()
 	for arg in OS.get_cmdline_user_args():
@@ -81,19 +83,19 @@ func _build_ui() -> void:
 	var column := VBoxContainer.new()
 	margin.add_child(column)
 	var eyebrow := Label.new()
-	eyebrow.text = "DUCKOV BASE   /   CHARACTER MOTION"
+	Texts.bind(eyebrow, "⟦animation_preview.014⟧", "text")
 	eyebrow.add_theme_color_override("font_color",Color("b4b88d"))
 	eyebrow.add_theme_font_size_override("font_size",15)
 	column.add_child(eyebrow)
 	var title := Label.new()
-	title.text = "人物动作 · 战术鸭"
+	Texts.bind(title, "⟦animation_preview.015⟧", "text")
 	title.add_theme_font_size_override("font_size",30)
 	column.add_child(title)
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(spacer)
 	status = Label.new()
-	status.text = "空格  暂停 / 继续      Enter  返回游戏      鼠标滚轮  缩放      Esc  退出预览"
+	Texts.bind(status, "⟦animation_preview.016⟧", "text")
 	status.add_theme_font_size_override("font_size",17)
 	status.add_theme_color_override("font_color",Color("bac7bf"))
 	column.add_child(status)

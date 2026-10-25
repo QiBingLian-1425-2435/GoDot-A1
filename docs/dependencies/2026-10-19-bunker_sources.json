@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v15",
+  "protocol": "a1_bunker_v16",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -139,7 +139,12 @@
     "features/rescue/soul_view.gd",
     "features/rescue/soul_view.gd.uid",
     "ui/soul_panel.gd",
-    "ui/soul_panel.gd.uid"
+    "ui/soul_panel.gd.uid",
+    "features/localization/game_text.gd",
+    "features/localization/game_text.gd.uid",
+    "features/localization/zh_cn.json",
+    "features/localization/en.json",
+    "features/localization/locales.json"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

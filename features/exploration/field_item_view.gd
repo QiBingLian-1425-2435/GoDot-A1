@@ -1,4 +1,5 @@
 extends Node3D
+const Texts = preload("res://features/localization/game_text.gd")
 ## Renders confirmed field effects; owns no item consumption or timers.
 var nodes:Dictionary={}
 func update(ctx) -> void:
@@ -18,7 +19,7 @@ func update(ctx) -> void:
 			if effect.kind=="glowstick":
 				var light:=OmniLight3D.new();light.position.y=.6;light.omni_range=6;light.light_color=Color("99e6c3");light.light_energy=1.2;light.shadow_enabled=true;node.add_child(light)
 			if effect.kind=="beacon":
-				var label:=Label3D.new();label.text="集合点 · "+str(effect.get("owner_name","队友")).left(8);label.billboard=BaseMaterial3D.BILLBOARD_ENABLED;label.no_depth_test=true;label.position.y=2;label.font_size=26;label.pixel_size=.015;label.modulate=Color("83caff");node.add_child(label)
+				var label:=Label3D.new();Texts.bind(label, "⟦field_item_view.001⟧"+Texts.clip(str(effect.get("owner_name","⟦field_item_view.002⟧")),8), "text");label.billboard=BaseMaterial3D.BILLBOARD_ENABLED;label.no_depth_test=true;label.position.y=2;label.font_size=26;label.pixel_size=.015;label.modulate=Color("83caff");node.add_child(label)
 			nodes[effect.uid]={"root":node,"mesh":mesh}
 		var part:Dictionary=nodes[effect.uid]
 		part.root.visible=ctx.in_game and not ctx.world_loading

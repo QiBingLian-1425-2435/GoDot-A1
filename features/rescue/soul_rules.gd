@@ -29,7 +29,7 @@ static func use_revival(ctx, p: Dictionary, index: int) -> bool:
 		if not reachable(ctx,p,body): continue
 		var d: float = Vector2(p.pos).distance_to(body.pos)
 		if d<=distance: chosen=target; distance=d
-	if chosen.is_empty(): return ctx._reject("附近没有同层、无遮挡的尸变队友或灵魂遗体")
+	if chosen.is_empty(): return ctx._reject("⟦soul_rules.001⟧")
 	p.bag[index].count-=1
 	if p.bag[index].count<=0: p.bag[index]={}
 	revive(ctx,chosen)
@@ -60,8 +60,8 @@ static func die(ctx, p: Dictionary) -> void:
 			copy.magazine = int(p.magazines.get(copy.uid,0))
 			p.magazines.erase(copy.uid)
 		items.append(copy)
-	ctx.state.corpses[uid] = {"uid":uid,"kind":"corpse","owner":p.id,"pos":p.pos,"height":p.get("height",0),"world":ctx.state.world,"container_name":str(p.name)+"的遗留装备"}
-	ctx.state.containers[uid] = {"items":items,"revealed":0,"progress":0.0,"searcher":0,"title":str(p.name)+"的遗留装备"}
+	ctx.state.corpses[uid] = {"uid":uid,"kind":"corpse","owner":p.id,"pos":p.pos,"height":p.get("height",0),"world":ctx.state.world,"container_name":str(p.name)+"⟦soul_rules.002⟧"}
+	ctx.state.containers[uid] = {"items":items,"revealed":0,"progress":0.0,"searcher":0,"title":str(p.name)+"⟦soul_rules.002⟧"}
 	p.bag = ctx._empty_slots(24)
 	for slot in ctx.EQUIPMENT: p.equipment[slot] = {}
 	p.ammo = 0
@@ -107,7 +107,7 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 			var ghost: Dictionary = ctx.state.players[target]
 			var body: Dictionary = ctx.state.corpses.get(ghost.get("corpse_uid",""),{})
 			if payload.has("uid") and payload.uid!=body.get("uid",""): return false
-			if ghost.get("life","alive")!="soul" or not reachable(ctx,p,body): return ctx._reject("请靠近同层、无遮挡的队友遗体")
+			if ghost.get("life","alive")!="soul" or not reachable(ctx,p,body): return ctx._reject("⟦soul_rules.003⟧")
 			if not p.get("rescue",{}).is_empty(): return false
 			ctx.Loot.close(ctx,p)
 			p.pending_use = {}
@@ -118,8 +118,8 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 			return true
 		"return_camp":
 			for member in ctx.state.players.values():
-				if zombie(member): return ctx._reject("尸变者无法撤离，请先使用复活针或自杀进入灵魂状态")
-				if alive(member): return ctx._reject("还有队友存活，请等待救援或队伍返回营地")
+				if zombie(member): return ctx._reject("⟦soul_rules.004⟧")
+				if alive(member): return ctx._reject("⟦soul_rules.005⟧")
 			return ctx.WorldTravel.enter_world(ctx,"bunker",Vector3(-1,0,4))
 	return false
 

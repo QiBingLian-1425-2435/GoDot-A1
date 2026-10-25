@@ -1,4 +1,5 @@
 extends RefCounted
+const Texts = preload("res://features/localization/game_text.gd")
 
 const InventoryRules = preload("res://features/inventory/base_inventory_rules.gd")
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
@@ -50,7 +51,7 @@ func add_player(id: int, player_name: String) -> void:
 	var bag := _empty_slots(24)
 	var stash := _empty_slots(48)
 	var rifle := _item("rifle", 1)
-	var p := {"id":id, "name":player_name.strip_edges().left(24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{},"backpack":_item("backpack",1)}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "sprint_exhausted":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":44.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
+	var p := {"id":id, "name":Texts.clip(player_name.strip_edges(),24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{},"backpack":_item("backpack",1)}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "sprint_exhausted":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":44.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
 	for spec in [["ammo",60],["bandage",3],["water",2],["canned_food",2],["scrap",8],["medkit",1],["pistol",1]]:
 		_insert(p.bag, _item(spec[0], spec[1]))
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:
@@ -121,24 +122,24 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	if action in ["suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
 		if not world_ready: return false
 		return Souls.command(self,p,action,payload)
-	if not Souls.alive(p) and not (Souls.zombie(p) and action=="move"): return _reject("当前生命状态无法进行此操作")
+	if not Souls.alive(p) and not (Souls.zombie(p) and action=="move"): return _reject("⟦base_model.001⟧")
 	if not p.get("rescue",{}).is_empty() and action != "move": p.rescue = {}
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
-		return _reject("探索时无法访问基地仓库")
-	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("翻滚中，请稍候")
+		return _reject("⟦base_model.002⟧")
+	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("⟦base_model.003⟧")
 	match action:
 		"unstuck":
-			if not world_ready:return _reject("地图加载中，请稍候再脱离卡死")
-			if _clock<float(_recovery_after.get(id,0)):return _reject("脱离卡死冷却中，请稍后重试")
-			if not recovery_solver.is_valid():return _reject("安全位置检查暂不可用")
+			if not world_ready:return _reject("⟦base_model.004⟧")
+			if _clock<float(_recovery_after.get(id,0)):return _reject("⟦base_model.005⟧")
+			if not recovery_solver.is_valid():return _reject("⟦base_model.006⟧")
 			var safe: Dictionary=recovery_solver.call(id)
-			if safe.is_empty():return _reject("附近没有可站立的安全位置，请尝试其他方向或等待队友")
+			if safe.is_empty():return _reject("⟦base_model.007⟧")
 			var target: Vector3=safe.position
 			p.pos=Vector2(target.x,target.z);p.height=target.y
 			p.relocation_seq=int(p.get("relocation_seq",0))+1
 			reset_transients(id)
 			_recovery_after[id]=_clock+10.0
-			last_notice="已移动到附近安全位置，背包已保留"
+			last_notice="⟦base_model.008⟧"
 			return true
 		"camp_upgrade":return Camp.upgrade(self,p,payload)
 		"buy","sell":return Trade.trade(self,p,action,payload)
@@ -168,23 +169,23 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			var index: int = _index(payload.get("index"), 24)
 			if index < 0 or p.bag[index].is_empty(): return false
 			var slot: String = str(Items.definition(p.bag[index].kind).category)
-			if not slot in EQUIPMENT: return _reject("这件物品无法装备")
+			if not slot in EQUIPMENT: return _reject("⟦base_model.009⟧")
 			return _transfer(id, {"from":"bag","index":index,"to":"equipment","target":slot})
 		"unequip": return _transfer(id, {"from":"equipment","slot":payload.get("slot",""),"to":"bag"})
 		"use": return _use(p, payload)
 		"drop": return _drop(p, payload)
 		"pickup":
 			var drop:Dictionary=state.drops.get(str(payload.get("uid","")),{})
-			if not drop.is_empty() and FieldItems.blocks_sight(state.field_effects,Vector3(p.pos.x,float(p.get("height",0))+1,p.pos.y),Vector3(drop.pos.x,float(drop.get("height",0))+.2,drop.pos.y)):return _reject("烟雾遮挡了物品")
+			if not drop.is_empty() and FieldItems.blocks_sight(state.field_effects,Vector3(p.pos.x,float(p.get("height",0))+1,p.pos.y),Vector3(drop.pos.x,float(drop.get("height",0))+.2,drop.pos.y)):return _reject("⟦base_model.010⟧")
 			return _pickup(p,payload)
 		"sort": return _sort(p, payload)
 		"set_infinite_reserve":
-			if id != 1: return _reject("只有房主可以修改无限备弹")
+			if id != 1: return _reject("⟦base_model.011⟧")
 			if not payload.get("enabled") is bool: return false
 			state.infinite_reserve = payload.enabled
 			return true
 		"set_infinite_stamina":
-			if id != 1: return _reject("只有房主可以修改无限体力")
+			if id != 1: return _reject("⟦base_model.012⟧")
 			if not payload.get("enabled") is bool: return false
 			state.infinite_stamina = payload.enabled
 			return true
@@ -196,18 +197,18 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 					return command(id, "equip", {"index":i})
 			return false
 		"rest":
-			if not _near(p, "medical"): return _reject("靠近医务床才能休息")
+			if not _near(p, "medical"): return _reject("⟦base_model.013⟧")
 			p.hp = p.get("max_hp",100.0); p.stamina = p.get("max_stamina",100.0); p.hunger = 100.0; p.thirst = 100.0
-			last_notice = "休息完成，状态已恢复"
+			last_notice = "⟦base_model.014⟧"
 			_animate(p,"interact",0.8)
 			return true
 		"craft": return _craft(p)
 		"buy_ammo": return _buy_ammo(p)
 		"resupply_ammo": return Facilities.resupply_ammo(self,p)
 		"train", "reset_targets":
-			if not _near(p, "range"): return _reject("靠近靶场控制台重置训练靶")
+			if not _near(p, "range"): return _reject("⟦base_model.015⟧")
 			for target in state.targets: target.hp = int(target.get("max_hp",100)); target.hits = 0
-			last_notice = "训练靶已重置"
+			last_notice = "⟦base_model.016⟧"
 			_animate(p,"interact",0.8)
 			return true
 	return false

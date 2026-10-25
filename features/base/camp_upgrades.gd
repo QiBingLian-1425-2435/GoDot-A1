@@ -1,9 +1,10 @@
 extends RefCounted
+const Texts = preload("res://features/localization/game_text.gd")
 ## Shared camp definitions and authoritative rules. Persistence is supplied by Session.
 const DEFS := {
-	"medical":{"name":"医疗站","stat":"生命上限","step":5,"costs":[{"credits":800,"items":{"scrap":4,"tape":2}},{"credits":2000,"items":{"battery":2,"tape":4}},{"credits":5000,"items":{"battery":4,"circuit_board":2}}]},
-	"training":{"name":"训练区","stat":"耐力上限","step":5,"costs":[{"credits":800,"items":{"scrap":6,"tape":2}},{"credits":2000,"items":{"scrap":12,"battery":2}},{"credits":5000,"items":{"scrap":20,"circuit_board":3}}]},
-	"logistics":{"name":"后勤站","stat":"舒适负重","step":1,"costs":[{"credits":1000,"items":{"scrap":8,"tape":3}},{"credits":2500,"items":{"scrap":15,"tape":6,"battery":2}},{"credits":6000,"items":{"circuit_board":3,"optical_parts":1}}]}
+	"medical":{"name":"⟦camp_upgrades.001⟧","stat":"⟦camp_upgrades.002⟧","step":5,"costs":[{"credits":800,"items":{"scrap":4,"tape":2}},{"credits":2000,"items":{"battery":2,"tape":4}},{"credits":5000,"items":{"battery":4,"circuit_board":2}}]},
+	"training":{"name":"⟦camp_upgrades.003⟧","stat":"⟦camp_upgrades.004⟧","step":5,"costs":[{"credits":800,"items":{"scrap":6,"tape":2}},{"credits":2000,"items":{"scrap":12,"battery":2}},{"credits":5000,"items":{"scrap":20,"circuit_board":3}}]},
+	"logistics":{"name":"⟦camp_upgrades.005⟧","stat":"⟦camp_upgrades.006⟧","step":1,"costs":[{"credits":1000,"items":{"scrap":8,"tape":3}},{"credits":2500,"items":{"scrap":15,"tape":6,"battery":2}},{"credits":6000,"items":{"circuit_board":3,"optical_parts":1}}]}
 }
 static func initial() -> Dictionary:return {"medical":0,"training":0,"logistics":0}
 static func valid(value:Variant) -> bool:
@@ -26,17 +27,17 @@ static func refresh_player(ctx,p:Dictionary) -> void:
 static func refresh_all(ctx) -> void:
 	for p in ctx.state.players.values():refresh_player(ctx,p)
 static func reason(ctx,p:Dictionary,facility:String,expected:Variant) -> String:
-	if not ctx.world_ready:return "地图加载中，请稍候"
-	if ctx.state.get("world","bunker")!="bunker" or not ctx._near(p,"camp_management"):return "请靠近营地管理终端"
-	if absf(float(p.get("height",0)))>1.8:return "请靠近营地管理终端"
-	if not DEFS.has(facility):return "未知营地设施"
+	if not ctx.world_ready:return "⟦camp_upgrades.007⟧"
+	if ctx.state.get("world","bunker")!="bunker" or not ctx._near(p,"camp_management"):return "⟦camp_upgrades.008⟧"
+	if absf(float(p.get("height",0)))>1.8:return "⟦camp_upgrades.008⟧"
+	if not DEFS.has(facility):return "⟦camp_upgrades.009⟧"
 	var level:int=ctx.state.camp[facility]
-	if not expected is int or expected!=level:return "设施等级已变化，请重新查看"
-	if level>=3:return "设施已满级"
+	if not expected is int or expected!=level:return "⟦camp_upgrades.010⟧"
+	if level>=3:return "⟦camp_upgrades.011⟧"
 	var cost:Dictionary=DEFS[facility].costs[level]
-	if p.credits<int(cost.credits):return "基地币不足，需要%d"%cost.credits
+	if p.credits<int(cost.credits):return Texts.format("⟦camp_upgrades.012⟧", cost.credits)
 	for kind in cost.items:
-		if ctx._count(p.bag,kind)<int(cost.items[kind]):return "缺少材料：%s ×%d"%[ctx.Items.definition(kind).name,int(cost.items[kind])-ctx._count(p.bag,kind)]
+		if ctx._count(p.bag,kind)<int(cost.items[kind]):return Texts.format("⟦camp_upgrades.013⟧", [ctx.Items.definition(kind).name,int(cost.items[kind])-ctx._count(p.bag,kind)])
 	return ""
 static func upgrade(ctx,p:Dictionary,payload:Dictionary) -> bool:
 	var facility:=str(payload.get("facility",""))
@@ -49,5 +50,5 @@ static func upgrade(ctx,p:Dictionary,payload:Dictionary) -> bool:
 	p.bag=bag;p.credits-=int(cost.credits)
 	ctx.state.camp[facility]=level+1
 	refresh_all(ctx)
-	ctx.last_notice="%s已强化至%d级，全队%s +%d%s"%[DEFS[facility].name,level+1,DEFS[facility].stat,(level+1)*int(DEFS[facility].step)," kg" if facility=="logistics" else ""]
+	ctx.last_notice=Texts.format("⟦camp_upgrades.014⟧", [DEFS[facility].name,level+1,DEFS[facility].stat,(level+1)*int(DEFS[facility].step),"⟦format.camp_panel.002⟧" if facility=="logistics" else ""])
 	return true

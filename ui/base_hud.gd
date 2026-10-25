@@ -1,4 +1,5 @@
 extends CanvasLayer
+const Texts = preload("res://features/localization/game_text.gd")
 
 const ContainerPanel = preload("res://ui/inventory/container_panel.gd")
 const InventoryPanel = preload("res://ui/inventory/inventory_panel.gd")
@@ -92,7 +93,7 @@ var _help_panel: Control
 var _menu_title: Control
 var _reticle: Control
 var _connection_dispatched := false
-var _steam_info: Dictionary = {"available":false,"initialized":false,"status":"正在检查 Steam…","persona":"","app_id":480,"lobby_id":"","transport":"offline","pending":false,"scanning":false,"lobbies":[]}
+var _steam_info: Dictionary = {"available":false,"initialized":false,"status":"⟦base_hud.001⟧","persona":"","app_id":480,"lobby_id":"","transport":"offline","pending":false,"scanning":false,"lobbies":[]}
 var _steam_status: Label
 var _steam_persona: Label
 var _steam_connect_button: Button
@@ -217,7 +218,7 @@ func toggle_pause() -> void:
 func set_stash_access(value: bool) -> void:
 	_stash_access = value
 	if _inventory:
-		_stash_note.text = "安全区仓库 · 拖动存取物品" if value else "返回基地后可存取仓库物品"
+		Texts.bind(_stash_note, "⟦base_hud.002⟧" if value else "⟦base_hud.003⟧", "text")
 		for slot in _stash_slots:
 			slot.locked = not value
 			slot.modulate.a = 1.0 if value else 0.4
@@ -228,8 +229,8 @@ func set_world_loading(value: bool, title: String) -> void:
 		var shade:=ColorRect.new();shade.color=Color(.025,.045,.055,.94)
 		shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);_loading_panel.add_child(shade)
 		_loading_title=_label(_loading_panel,"",Rect2(400,350,800,100),28,INK,HORIZONTAL_ALIGNMENT_CENTER)
-		_button(_loading_panel,"返回菜单",Rect2(650,500,300,64),func():action_requested.emit("menu",{}),TEAL,22)
-	_loading_title.text="正在进入"+title+"，请稍候…"
+		_button(_loading_panel,"⟦base_hud.004⟧",Rect2(650,500,300,64),func():action_requested.emit("menu",{}),TEAL,22)
+	Texts.bind(_loading_title, "⟦base_hud.005⟧"+title+"⟦base_hud.006⟧", "text")
 	_loading_panel.visible=value
 
 func update_state(state: Dictionary, local_id: int, mode: String, status: String) -> void:
@@ -252,31 +253,31 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	SoulPanel.sync(self)
 	ContainerPanel.sync(self)
 	var world_name: String = str(state.get("world","bunker"))
-	_world_label.text = {"bunker":"避 难 所","surface":"零 号 区","cave":"神 秘 山 洞"}.get(world_name,"探索区域")
-	_world_note.text = "安全区域  ·  基地仓库 / 工作台 / 射击区" if world_name=="bunker" else "探索区域  ·  E 地图入口 / TAB 行囊"
+	Texts.bind(_world_label, {"bunker":"⟦base_hud.007⟧","surface":"⟦base_hud.008⟧","cave":"⟦base_hud.009⟧"}.get(world_name,"⟦base_hud.010⟧"), "text")
+	Texts.bind(_world_note, "⟦base_hud.011⟧" if world_name=="bunker" else "⟦base_hud.012⟧", "text")
 	var player_count := _players().size()
-	var session_name := "单人基地" if world_name=="bunker" else "单人探索"
+	var session_name := "⟦base_hud.013⟧" if world_name=="bunker" else "⟦base_hud.014⟧"
 	if mode == "host":
-		session_name = "房主 · %d 人在线" % player_count
+		session_name = Texts.format("⟦base_hud.015⟧", player_count)
 	elif mode == "client" or mode == "join":
-		session_name = "队员 · %d 人在线" % player_count
-	_network_label.text = session_name + ("  |  " + status if not status.is_empty() else "")
+		session_name = Texts.format("⟦base_hud.016⟧", player_count)
+	Texts.bind(_network_label, session_name + ("  |  " + status if not status.is_empty() else ""), "text")
 	if is_instance_valid(_connection_text):
-		_connection_text.text = status if not status.is_empty() else "正在连接基地…"
+		Texts.bind(_connection_text, status if not status.is_empty() else "⟦base_hud.017⟧", "text")
 	if p.is_empty():
 		return
 	for key in ["hp", "stamina", "hunger", "thirst", "san"]:
 		var value := float(p.get(key, 100.0))
 		_bars[key].max_value = float(p.get("max_"+key,100))
 		_bars[key].value = value
-		_stat_labels[key].text = "%d" % roundi(value)
-	_ammo_label.text = "%02d" % int(p.get("ammo", 0))
+		Texts.bind(_stat_labels[key], Texts.format("⟦format.base_hud.001⟧", roundi(value)), "text")
+	Texts.bind(_ammo_label, Texts.format("⟦format.base_hud.002⟧", int(p.get("ammo", 0))), "text")
 	var reserve := 0
 	for item in p.get("bag", []):
 		if item.get("kind", "") == "ammo":
 			reserve += int(item.get("count", 1))
-	_reload_label.text = "装填中… %d%%" % int(float(p.get("reload_progress", 0.0)) * 100.0) if p.get("reloading", false) else ("/  ∞     [R] 装填" if state.get("infinite_reserve",false) else "/  %03d     [R] 装填" % reserve)
-	if not p.get("pending_use",{}).is_empty():_reload_label.text="治疗中 %.1f秒"%maxf(0,float(p.pending_use.remaining))
+	Texts.bind(_reload_label, Texts.format("⟦base_hud.018⟧", int(float(p.get("reload_progress", 0.0)) * 100.0)) if p.get("reloading", false) else ("⟦base_hud.019⟧" if state.get("infinite_reserve",false) else Texts.format("⟦base_hud.020⟧", reserve)), "text")
+	if not p.get("pending_use",{}).is_empty():Texts.bind(_reload_label, Texts.format("⟦base_hud.021⟧", maxf(0,float(p.pending_use.remaining))), "text")
 	var bag: Array = p.get("bag", [])
 	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
 	for i in range(_quick_slots.size()):
@@ -291,12 +292,12 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		_quick_slots[i].set_item(quick_item, _definition(quick_item))
 	if _inventory.visible:
 		_update_inventory()
-	if is_instance_valid(_dialog) and _dialog_kind=="营地建设":preload("res://ui/inventory/camp_panel.gd").refresh(self)
-	if is_instance_valid(_dialog) and _dialog_kind in ["基地商人","工作台制作"]:preload("res://ui/inventory/item_shop.gd").refresh(self)
+	if is_instance_valid(_dialog) and _dialog_kind=="⟦base_hud.022⟧":preload("res://ui/inventory/camp_panel.gd").refresh(self)
+	if is_instance_valid(_dialog) and _dialog_kind in ["⟦base_hud.023⟧","⟦base_hud.024⟧"]:preload("res://ui/inventory/item_shop.gd").refresh(self)
 
 func set_interaction(text: String) -> void:
 	if _interaction:
-		_interaction.text = text
+		Texts.bind(_interaction, text, "text")
 		_interaction.visible = not text.is_empty()
 
 func update_steam(info: Dictionary) -> void:
@@ -309,7 +310,7 @@ func toast(text: String) -> void:
 	if _toast_label:
 		_toast_label.position = Vector2(490,52) if _inventory.visible else Vector2(350,125)
 		_toast_label.size = Vector2(760,44) if _inventory.visible else Vector2(900,46)
-		_toast_label.text = text
+		Texts.bind(_toast_label, text, "text")
 		_toast_label.visible = true
 		_toast_timer = 3.8
 
@@ -326,19 +327,19 @@ func _build_hud() -> void:
 	_hud = _full_control(_root)
 	var top := _panel(_hud, Rect2(28,24,465,68), Color(0.05,0.11,0.14,0.76), Color(0.50,0.69,0.70,0.35), 10)
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_world_label = _label(top, "避 难 所", Rect2(18,7,210,29), 24, Color("f0e8c6"))
-	_world_note = _label(top, "安全区域  ·  基地仓库 / 工作台 / 射击区", Rect2(18,39,440,21), 14, Color("b2c7c2"))
-	_network_label = _label(_hud, "单人基地", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
+	_world_label = _label(top, "⟦base_hud.007⟧", Rect2(18,7,210,29), 24, Color("f0e8c6"))
+	_world_note = _label(top, "⟦base_hud.011⟧", Rect2(18,39,440,21), 14, Color("b2c7c2"))
+	_network_label = _label(_hud, "⟦base_hud.013⟧", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
 	var hp_panel := _panel(_hud, Rect2(26,686,350,178), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label(hp_panel, "鸭鸭", Rect2(18,10,100,25), 21, INK)
-	_label(hp_panel, "生命体征", Rect2(202,13,130,23), 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
+	_label(hp_panel, "⟦base_hud.025⟧", Rect2(18,10,100,25), 21, INK)
+	_label(hp_panel, "⟦base_hud.026⟧", Rect2(202,13,130,23), 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	var keys := ["hp", "stamina", "hunger", "thirst", "san"]
-	var names := ["生命", "耐力", "能量", "水分", "SAN"]
+	var names := ["⟦base_hud.027⟧", "⟦base_hud.028⟧", "⟦base_hud.029⟧", "⟦base_hud.030⟧", "⟦base_hud.san⟧"]
 	var colors := [Color("cf8375"),Color("c3cb86"),Color("c9ab69"),Color("73b6c7"),Color("a577bf")]
 	for i in range(keys.size()):
-		_label(hp_panel,names[i],Rect2(18,44+i*24,45,22),14,MUTED)
-		_bars[keys[i]] = _progress(hp_panel, Rect2(69,51+i*24,219,9), colors[i])
+		_label(hp_panel,names[i],Rect2(18,44+i*24,65,22),14,MUTED)
+		_bars[keys[i]] = _progress(hp_panel, Rect2(89,51+i*24,199,9), colors[i])
 		_stat_labels[keys[i]] = _label(hp_panel,"100",Rect2(295,43+i*24,38,22),14,INK,HORIZONTAL_ALIGNMENT_RIGHT)
 	for i in range(4):
 		var slot: Control = Slot.new()
@@ -351,15 +352,15 @@ func _build_hud() -> void:
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_quick_slots.append(slot)
 		_label(_hud,["1", "2", "4", "5"][i],Rect2(623+i*75,765,60,24),16,Color("d8dfc5"),HORIZONTAL_ALIGNMENT_CENTER)
-	_label(_hud,"切换武器    /    医疗 · 饮水",Rect2(617,861,290,22),13,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_hud,"⟦base_hud.031⟧",Rect2(617,861,290,22),13,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	var ammo := _panel(_hud, Rect2(1300,760,268,103), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	ammo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label(ammo,"当前武器",Rect2(17,10,240,24),15,MUTED)
+	_label(ammo,"⟦base_hud.032⟧",Rect2(17,10,240,24),15,MUTED)
 	_ammo_label = _label(ammo,"00",Rect2(16,35,75,54),42,INK)
-	_reload_label = _label(ammo,"/  000     [R] 装填",Rect2(92,54,164,28),15,Color("c5cbbb"))
+	_reload_label = _label(ammo,"⟦base_hud.033⟧",Rect2(92,54,164,28),15,Color("c5cbbb"))
 	var guide := _panel(_hud,Rect2(635,68,930,34),Color(0.03,0.07,0.10,0.72),Color(0.35,0.5,0.55,0.2),6)
 	guide.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	_label(guide,"WASD 移动   Shift 冲刺   空格 翻滚   C 蹲行   右键 瞄准   Tab 背包   Esc 菜单",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
+	_label(guide,"⟦base_hud.034⟧",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER)
 	_interaction = _label(_hud,"",Rect2(400,645,800,44),23,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
 	_interaction.add_theme_constant_override("outline_size",5)
 	_interaction.add_theme_color_override("font_outline_color",Color(0.06,0.1,0.12,0.9))
@@ -392,19 +393,19 @@ func _build_pause() -> void:
 	_pause_shade = _shade(_root,Color(0.02,0.04,0.06,0.66))
 	_pause_shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	_pause_panel = _panel(_root,Rect2(540,76,520,748),PANEL,Color("748f86"),16)
-	_label(_pause_panel,"游戏菜单",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
-	_label(_pause_panel,"联机游戏不会暂停",Rect2(30,82,460,27),16,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
-	_button(_pause_panel,"继续游戏",Rect2(65,124,390,54),toggle_pause,GREEN,23)
-	_button(_pause_panel,"保存存档",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
-	_button(_pause_panel,"操作指南",Rect2(65,250,390,48),_open_help,TEAL,21)
-	_button(_pause_panel,"设置",Rect2(65,310,390,48),_open_settings,TEAL,21)
-	_steam_room_label = _label(_pause_panel,"当前未使用 Steam 房间",Rect2(30,376,460,58),17,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_pause_panel,"⟦base_hud.035⟧",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_pause_panel,"⟦base_hud.036⟧",Rect2(30,82,460,27),16,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_button(_pause_panel,"⟦base_hud.037⟧",Rect2(65,124,390,54),toggle_pause,GREEN,23)
+	_button(_pause_panel,"⟦base_hud.038⟧",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
+	_button(_pause_panel,"⟦base_hud.039⟧",Rect2(65,250,390,48),_open_help,TEAL,21)
+	_button(_pause_panel,"⟦base_hud.040⟧",Rect2(65,310,390,48),_open_settings,TEAL,21)
+	_steam_room_label = _label(_pause_panel,"⟦base_hud.041⟧",Rect2(30,376,460,58),17,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	_steam_room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_steam_invite_button = _button(_pause_panel,"邀请 Steam 好友",Rect2(65,444,390,48),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
-	_steam_copy_button = _button(_pause_panel,"复制房间号",Rect2(65,504,390,48),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
-	_button(_pause_panel,"脱离卡死",Rect2(65,572,390,48),func() -> void: action_requested.emit("unstuck",{}),TEAL,21)
-	_label(_pause_panel,"返回附近安全位置，保留背包；冷却 10 秒",Rect2(30,627,460,24),15,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
-	_button(_pause_panel,"返回开始画面",Rect2(65,660,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
+	_steam_invite_button = _button(_pause_panel,"⟦base_hud.042⟧",Rect2(65,444,390,48),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
+	_steam_copy_button = _button(_pause_panel,"⟦base_hud.043⟧",Rect2(65,504,390,48),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
+	_button(_pause_panel,"⟦base_hud.044⟧",Rect2(65,572,390,48),func() -> void: action_requested.emit("unstuck",{}),TEAL,21)
+	_label(_pause_panel,"⟦base_hud.045⟧",Rect2(30,627,460,24),15,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_button(_pause_panel,"⟦base_hud.046⟧",Rect2(65,660,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
 	_refresh_steam_room()
 
 func _open_steam() -> void:
@@ -435,36 +436,36 @@ func _refresh_steam_room() -> void:
 	SteamPanel._refresh_steam_room(self)
 
 func _open_network() -> void:
-	_dialog_panel("IP 直连",Vector2(680,600))
-	_label(_dialog,"同一个基地，一起做好出发准备。",Rect2(34,84,610,30),19,MUTED)
-	_label(_dialog,"服务器地址",Rect2(34,145,190,28),18,INK)
+	_dialog_panel("⟦base_hud.047⟧",Vector2(680,600))
+	_label(_dialog,"⟦base_hud.048⟧",Rect2(34,84,610,30),19,MUTED)
+	_label(_dialog,"⟦base_hud.049⟧",Rect2(34,145,190,28),18,INK)
 	_join_address = _line_edit(_dialog,"127.0.0.1",Rect2(34,184,612,49))
-	_join_address.placeholder_text = "输入房主 IP，例如 192.168.1.20"
-	_label(_dialog,"端口",Rect2(34,252,180,28),18,INK)
+	Texts.bind(_join_address, "⟦base_hud.050⟧", "placeholder_text")
+	_label(_dialog,"⟦base_hud.051⟧",Rect2(34,252,180,28),18,INK)
 	_port_input = _line_edit(_dialog,"24567",Rect2(34,290,200,49))
-	_label(_dialog,"房主需允许防火墙访问；异地联机需路由映射或虚拟局域网。",Rect2(34,363,612,65),16,MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_button(_dialog,"创建基地",Rect2(34,454,292,60),func() -> void: _connect_action("host"),GREEN,24)
-	_button(_dialog,"加入基地",Rect2(346,454,300,60),func() -> void: _connect_action("join"),TEAL,24)
-	_label(_dialog,"房主保留本机进度；客机角色仅在本次房间内保留",Rect2(34,539,612,27),15,Color("90aaa2"),HORIZONTAL_ALIGNMENT_CENTER)
+	_label(_dialog,"⟦base_hud.052⟧",Rect2(34,363,612,65),16,MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_button(_dialog,"⟦base_hud.053⟧",Rect2(34,454,292,60),func() -> void: _connect_action("host"),GREEN,24)
+	_button(_dialog,"⟦base_hud.054⟧",Rect2(346,454,300,60),func() -> void: _connect_action("join"),TEAL,24)
+	_label(_dialog,"⟦base_hud.055⟧",Rect2(34,539,612,27),15,Color("90aaa2"),HORIZONTAL_ALIGNMENT_CENTER)
 
 func _connect_action(action: String) -> void:
 	var port_text := _port_input.text.strip_edges()
 	if not port_text.is_valid_int() or int(port_text) < 1024 or int(port_text) > 65535:
-		toast("端口应为 1024–65535 之间的数字")
+		toast("⟦base_hud.056⟧")
 		return
 	var address := _join_address.text.strip_edges()
 	if action == "join" and address.is_empty():
-		toast("请输入房主 IP 地址")
+		toast("⟦base_hud.057⟧")
 		return
 	var payload := {"port":int(port_text)}
 	if action == "join":
 		payload["address"] = address
-	_dialog_panel("正在连接基地",Vector2(600,340))
+	_dialog_panel("⟦base_hud.058⟧",Vector2(600,340))
 	_dialog_kind = "connection"
 	_connection_dispatched = true
-	_connection_text = _label(_dialog,"正在创建基地…" if action == "host" else "正在连接 %s:%d…" % [address,int(port_text)],Rect2(34,104,532,86),21,INK,HORIZONTAL_ALIGNMENT_CENTER)
+	_connection_text = _label(_dialog,"⟦base_hud.059⟧" if action == "host" else Texts.format("⟦session.008⟧", [address,int(port_text)]),Rect2(34,104,532,86),21,INK,HORIZONTAL_ALIGNMENT_CENTER)
 	_connection_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_button(_dialog,"取消连接",Rect2(130,235,340,55),_cancel_connection,Color("617c7b"),22)
+	_button(_dialog,"⟦base_hud.060⟧",Rect2(130,235,340,55),_cancel_connection,Color("617c7b"),22)
 	action_requested.emit(action,payload)
 
 func _cancel_connection() -> void:
@@ -532,7 +533,9 @@ func _full_control(parent: Node, filter: int = Control.MOUSE_FILTER_IGNORE) -> C
 
 func _label(parent: Node, text: String, rect: Rect2, font_size: int = 20, color: Color = INK, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT) -> Label:
 	var label := Label.new()
-	label.text = text
+	label.clip_text = true
+	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	Texts.bind(label, text, "text")
 	label.position = rect.position
 	label.size = rect.size
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -545,7 +548,7 @@ func _label(parent: Node, text: String, rect: Rect2, font_size: int = 20, color:
 
 func _button(parent: Node, text: String, rect: Rect2, callback: Callable, color: Color = TEAL, font_size: int = 20, radius: int = 10) -> Button:
 	var button := Button.new()
-	button.text = text
+	Texts.bind(button, text, "text")
 	button.position = rect.position
 	button.size = rect.size
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -623,7 +626,7 @@ func set_voice_status(text: String) -> void:
 	if not is_instance_valid(_voice_label):
 		_voice_label=_label(_hud,"",Rect2(560,105,1000,22),14,GOLD)
 		_voice_label.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	_voice_label.text=text
+	Texts.bind(_voice_label, text, "text")
 
 func open_item_shop(mode:String) -> void:
 	preload("res://ui/inventory/item_shop.gd").open(self,mode)

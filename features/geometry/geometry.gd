@@ -1,4 +1,5 @@
 extends RefCounted
+const Texts = preload("res://features/localization/game_text.gd")
 
 static var materials: Dictionary = {}
 
@@ -56,7 +57,7 @@ static func rod(parent: Node3D, start: Vector3, end: Vector3, radius: float, col
 
 static func text(parent: Node3D, label: String, at: Vector3, size: int = 32, color: Color = Color("cbd5bf")) -> Label3D:
 	var result := Label3D.new()
-	result.text = label
+	Texts.bind(result, label, "text")
 	result.font_size = size
 	result.pixel_size = 0.008
 	result.outline_size = 0

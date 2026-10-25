@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 const Main=preload("res://app/main.gd")
 const Service=preload("res://app/network/steam_service.gd")
 const FakeSteam=preload("res://tests/base/fake_steam.gd")
@@ -34,10 +35,10 @@ func run():
 	var before: Vector2=player.pos
 	recovery.pressed.emit()
 	check(before.distance_to(player.pos)>.6 and player.bag==bag,"real recovery button moves only the player and preserves inventory")
-	check(not model.command(1,"unstuck") and model.last_notice.contains("冷却"),"repeated recovery is rate limited by host rules")
+	check(not model.command(1,"unstuck") and Texts.resolve(model.last_notice).contains("冷却"),"repeated recovery is rate limited by host rules")
 	check(game.session._clean_payload("unstuck",{"position":Vector3(999,999,999),"player_id":2}).is_empty(),"client cannot nominate recovery coordinates or another player")
 	model.world_ready=false
-	check(not model.command(1,"unstuck") and model.last_notice.contains("加载"),"recovery is refused while world geometry is unavailable")
+	check(not model.command(1,"unstuck") and Texts.resolve(model.last_notice).contains("加载"),"recovery is refused while world geometry is unavailable")
 	model.world_ready=true
 	game.ui.toggle_pause();player.pos=Vector2(0,-8.2)
 	game.session.send("travel",{"route":"bunker_to_surface"})
@@ -74,15 +75,15 @@ func run():
 	check(api.joinable[ROOM]==false and api.rooms[ROOM].data.join_state=="exploration","Steam lobby becomes non-joinable with explicit exploration metadata")
 	check(svc.accept_peer(12),"locking keeps existing lobby members authorized")
 	svc.invite_friends()
-	check(api.invites.is_empty() and svc.status.contains("回到基地"),"in-game invites are disabled during exploration")
+	check(api.invites.is_empty() and Texts.resolve(svc.status).contains("回到基地"),"in-game invites are disabled during exploration")
 	svc.set_join_allowed(true)
 	check(api.joinable[ROOM] and api.rooms[ROOM].data.join_state=="base","returning opens the existing Steam lobby again")
 	svc.leave_room();api.populate(ROOM,Service.GAME_KEY,Service.PROTOCOL);api.rooms[ROOM].data.join_state="exploration"
 	svc.join_room(str(ROOM));api.lobby_data_update.emit(1,ROOM,ROOM)
-	check(api.joined.is_empty() and svc.status.contains("正在探索"),"old invite or pasted code is rejected with a readable lock reason")
+	check(api.joined.is_empty() and Texts.resolve(svc.status).contains("正在探索"),"old invite or pasted code is rejected with a readable lock reason")
 	api.rooms[ROOM].data.join_state="base";svc.join_room(str(ROOM));api.lobby_data_update.emit(1,ROOM,ROOM)
 	api.rooms[ROOM].data.join_state="exploration";api.emit_joined(ROOM)
-	check(svc.lobby_id==0 and svc.status.contains("已出发"),"a join racing with departure is rechecked before P2P transport")
+	check(svc.lobby_id==0 and Texts.resolve(svc.status).contains("已出发"),"a join racing with departure is rechecked before P2P transport")
 	var receiver=load("res://app/network/session.gd").new()
 	receiver.mode="client";receiver._session_token=42;receiver._received_motion_serial=10
 	receiver.model.state=model.state.duplicate(true)

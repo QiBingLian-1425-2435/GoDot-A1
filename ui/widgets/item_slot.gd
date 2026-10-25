@@ -1,4 +1,5 @@
 extends Control
+const Texts = preload("res://features/localization/game_text.gd")
 
 signal action_requested(action: String, payload: Dictionary)
 signal inspected(item: Dictionary)
@@ -15,6 +16,7 @@ var _hovered := false
 var _font: Font
 
 func _ready() -> void:
+	Texts.watch_draw(self)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	custom_minimum_size = Vector2(40, 40)
@@ -32,9 +34,9 @@ func set_item(value: Dictionary, info: Dictionary = {}) -> void:
 	item = value.duplicate()
 	definition = info
 	if item.is_empty():
-		tooltip_text = slot_label
+		Texts.bind(self, slot_label, "tooltip_text")
 	else:
-		tooltip_text = str(info.get("name",item.get("kind","")))+"\n"+preload("res://features/inventory/item_catalog.gd").details(item)+"\n拖动移动 · Ctrl 快速存取 · 右键操作"
+		Texts.bind(self, str(info.get("name",item.get("kind","")))+"\n"+preload("res://features/inventory/item_catalog.gd").details(item)+"⟦item_slot.001⟧", "tooltip_text")
 	queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
@@ -87,17 +89,17 @@ func _draw() -> void:
 	if not item.is_empty():
 		var col: Color = definition.get("color", Color("b8c1bb"))
 		draw_rect(Rect2(4, size.y - 5, size.x - 8, 2), definition.get("rarity_color",col))
-		draw_string(_font,Vector2(5,17),["白","绿","蓝","紫","金","红"][int(definition.get("rarity",0))],HORIZONTAL_ALIGNMENT_LEFT,-1,13,definition.get("rarity_color",col))
+		draw_string(_font, Vector2(5,17), Texts.resolve(["⟦item_slot.002⟧","⟦item_slot.003⟧","⟦item_slot.004⟧","⟦item_slot.005⟧","⟦item_slot.006⟧","⟦item_slot.007⟧"][int(definition.get("rarity",0))]), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, definition.get("rarity_color",col))
 		_draw_icon(str(item.get("kind", "")), Rect2(Vector2(10, 8), size - Vector2(20, 21)), col)
 		var count := int(item.get("count", 1))
 		if count > 1:
 			var count_text := str(count)
-			var width := _font.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
+			var width := _font.get_string_size(Texts.resolve(count_text), HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
 			draw_rect(Rect2(size.x - width - 12, size.y - 25, width + 9, 21), Color(0.08, 0.11, 0.13, 0.88))
-			draw_string(_font, Vector2(size.x - width - 8, size.y - 9), count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("f4f2db"))
+			draw_string(_font, Vector2(size.x - width - 8, size.y - 9), Texts.resolve(count_text), HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("f4f2db"))
 	elif not slot_label.is_empty():
-		var width := _font.get_string_size(slot_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-		draw_string(_font, Vector2((size.x - width) * 0.5, size.y * 0.57), slot_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("9da9a8"))
+		var width := _font.get_string_size(Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+		draw_string(_font, Vector2((size.x - width) * 0.5, size.y * 0.57), Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("9da9a8"))
 	if selected:
 		draw_style_box(_box(Color.TRANSPARENT, accent, 3), Rect2(Vector2.ZERO, size))
 

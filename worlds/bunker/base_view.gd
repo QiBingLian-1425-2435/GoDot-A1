@@ -1,4 +1,5 @@
 extends RefCounted
+const Texts = preload("res://features/localization/game_text.gd")
 const ShotFeedback = preload("res://features/combat/shot_feedback.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
@@ -74,7 +75,7 @@ static func _update_actors(ctx, delta:float)->void:
 		if ctx.session.mode=="client":
 			display=ctx.session.local_movement.sample_player(players[id]) if id==ctx.session.local_id else ctx.session.motion_buffer.sample_player(id,players[id])
 		ctx.actors[id].update_actor(display,delta,id==ctx.session.local_id)
-		ctx.actors[id].nameplate.text = str(players[id].name)+(" [尸变]" if ctx.session.model.Souls.zombie(players[id]) else "")
+		Texts.bind(ctx.actors[id].nameplate, str(players[id].name)+("⟦base_view.001⟧" if ctx.session.model.Souls.zombie(players[id]) else ""), "text")
 		var shots:int=players[id].get("shots",0)
 		if shots>int(ctx.last_shots.get(id,shots)):
 			ctx.sound.play("pistol" if players[id].equipment.weapon.get("kind","")=="pistol" else "fire")
@@ -97,7 +98,7 @@ static func _update_actors(ctx, delta:float)->void:
 		var t:Dictionary=targets[i]
 		var pos:Vector2=t.pos
 		ctx.target_labels[i].position=Vector3(pos.x,2.6,pos.y)
-		ctx.target_labels[i].text="%d / %d · 命中 %d"%[int(t.hp),int(t.get("max_hp",100)),int(t.get("hits",0))]
+		Texts.bind(ctx.target_labels[i], Texts.format("⟦base_view.002⟧", [int(t.hp),int(t.get("max_hp",100)),int(t.get("hits",0))]), "text")
 		ctx.target_labels[i].modulate=Color("aee4c8") if t.hp>0 else Color("edb075")
 		ctx.target_labels[i].visible=true
 
@@ -120,7 +121,7 @@ static func _update_drops(ctx)->void:
 			mesh.position.y=0.2
 			node.add_child(mesh)
 			var label =Label3D.new()
-			label.text="E  %s ×%d"%[ctx.session.model.Items.definition(str(data[uid].kind)).name,int(data[uid].count)]
+			Texts.bind(label, Texts.format("⟦format.base_view.001⟧", [ctx.session.model.Items.definition(str(data[uid].kind)).name,int(data[uid].count)]), "text")
 			label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 			label.position.y=0.8
 			label.font_size=20

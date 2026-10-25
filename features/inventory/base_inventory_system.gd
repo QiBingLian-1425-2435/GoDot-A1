@@ -23,7 +23,7 @@ static func _transfer(ctx, id: int, payload: Dictionary) -> bool:
 	var target: Variant = payload.get("target",null)
 	if to == "equipment":
 		if target == null: target = str(ctx.Items.definition(item.kind).category)
-		if not target is String or not target in ctx.EQUIPMENT or ctx.Items.definition(item.kind).category != target: return ctx._reject("装备槽位不匹配")
+		if not target is String or not target in ctx.EQUIPMENT or ctx.Items.definition(item.kind).category != target: return ctx._reject("⟦base_inventory_system.001⟧")
 	elif target != null:
 		target = ctx._index(target,p[to].size())
 		if target < 0: return false
@@ -31,7 +31,7 @@ static func _transfer(ctx, id: int, payload: Dictionary) -> bool:
 	var old_weapon: String = str(p.equipment.weapon.get("uid",""))
 	if target == null:
 		p[from][source] = {}
-		if not ctx._insert(p[to],item): return ctx._reject("没有足够的空位")
+		if not ctx._insert(p[to],item): return ctx._reject("⟦base_inventory_system.002⟧")
 	else:
 		var destination: Dictionary = p[to][target]
 		if not destination.is_empty() and destination.kind == item.kind and int(ctx.Items.definition(item.kind).stack) > 1:
@@ -40,7 +40,7 @@ static func _transfer(ctx, id: int, payload: Dictionary) -> bool:
 			destination.count += amount; item.count -= amount
 			if item.count == 0: p[from][source] = {}
 		else:
-			if from == "equipment" and not destination.is_empty() and ctx.Items.definition(destination.kind).category != source: return ctx._reject("无法把该物品换入装备槽")
+			if from == "equipment" and not destination.is_empty() and ctx.Items.definition(destination.kind).category != source: return ctx._reject("⟦base_inventory_system.003⟧")
 			p[from][source] = destination
 			p[to][target] = item
 	ctx._sync_weapon(p,old_weapon)
@@ -64,11 +64,11 @@ static func _split(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if index < 0 or container[index].is_empty(): return false
 	var source: Dictionary = container[index]
 	var amount: Variant = payload.get("count",int(source.count) / 2)
-	if not amount is int or amount < 1 or amount >= int(source.count): return ctx._reject("拆分数量必须小于原堆叠数量")
+	if not amount is int or amount < 1 or amount >= int(source.count): return ctx._reject("⟦base_inventory_system.004⟧")
 	var destination = -1
 	for i in range(container.size()):
 		if container[i].is_empty(): destination = i; break
-	if destination < 0: return ctx._reject("没有空位可以拆分物品")
+	if destination < 0: return ctx._reject("⟦base_inventory_system.005⟧")
 	# Validate the whole operation before allocating or mutating either stack.
 	var split_item = ctx._item(str(source.kind),int(amount))
 	source.count -= int(amount)
@@ -81,14 +81,14 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	var item: Dictionary = p.bag[index]
 	var info:Dictionary=ctx.Items.definition(item.kind)
 	if item.kind=="revival_serum": return ctx.Souls.use_revival(ctx,p,index)
-	if not p.get("pending_use",{}).is_empty():return ctx._reject("正在治疗，请稍候")
+	if not p.get("pending_use",{}).is_empty():return ctx._reject("⟦base_inventory_system.006⟧")
 	if info.item_type=="tool":return ctx.FieldItems.use(ctx,p,str(item.kind))
 	var effects:Dictionary=info.effects
-	if effects.is_empty():return ctx._reject("此物品不能直接使用")
+	if effects.is_empty():return ctx._reject("⟦base_inventory_system.007⟧")
 	var needed:=false
 	for stat in effects:
 		if float(effects[stat])<0 or (float(effects[stat])>0 and float(p[stat])<float(p.get("max_"+str(stat),100))):needed=true
-	if not needed:return ctx._reject("当前状态已满，无需消耗")
+	if not needed:return ctx._reject("⟦base_inventory_system.008⟧")
 	if item.kind=="medical_box":p.pending_use={"remaining":4.0,"hp":80}
 	else:
 		for stat in effects:p[stat]=clampf(float(p[stat])+float(effects[stat]),0,float(p.get("max_"+str(stat),100)))
@@ -119,10 +119,10 @@ static func _pickup(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	var uid: Variant = payload.get("uid","")
 	if not uid is String or not ctx.state.drops.has(uid): return false
 	var drop: Dictionary = ctx.state.drops[uid]
-	if p.pos.distance_to(drop.pos) > 2.0: return ctx._reject("物品太远")
-	if absf(float(p.get("height",0))-float(drop.get("height",0)))>1.8: return ctx._reject("物品位于其他高度")
+	if p.pos.distance_to(drop.pos) > 2.0: return ctx._reject("⟦base_inventory_system.009⟧")
+	if absf(float(p.get("height",0))-float(drop.get("height",0)))>1.8: return ctx._reject("⟦base_inventory_system.010⟧")
 	var item = {"uid":drop.uid,"kind":drop.kind,"count":drop.count}
-	if not ctx._insert(p.bag,item): return ctx._reject("背包已满")
+	if not ctx._insert(p.bag,item): return ctx._reject("⟦base_inventory_system.011⟧")
 	if ctx.Items.definition(item.kind).category == "weapon": p.magazines[item.uid] = int(drop.get("magazine",0))
 	ctx.state.drops.erase(uid)
 	ctx._update_weight(p)

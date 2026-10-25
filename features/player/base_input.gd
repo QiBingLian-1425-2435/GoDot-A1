@@ -99,7 +99,7 @@ static func _quick_use(ctx, kind:String)->void:
 		if bag[i].get("kind","")==kind:
 			ctx.session.send("use",{"index":i})
 			return
-	ctx.ui.toast("背包中没有这件补给")
+	ctx.ui.toast("⟦base_input.001⟧")
 
 static func _select_weapon(ctx, kind:String)->void:
 	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
@@ -110,4 +110,4 @@ static func _select_weapon(ctx, kind:String)->void:
 		if bag[i].get("kind","")==kind:
 			ctx.session.send("equip",{"index":i})
 			return
-	ctx.ui.toast("背包中没有这把武器")
+	ctx.ui.toast("⟦base_input.002⟧")

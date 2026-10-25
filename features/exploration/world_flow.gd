@@ -24,7 +24,7 @@ static func sync(ctx) -> void:
 		print("GROUND_ZERO_ASSET_MISMATCH world=",desired," local=",ctx.session.model.map_revision," host=",ctx.session.model.state.get("map_revision",""))
 		ctx.session.set_physics_process(false)
 		ctx._return_menu.call_deferred()
-		ctx.ui.toast("本机地图素材与房主不一致，请使用同一地图构建")
+		ctx.ui.toast("⟦world_flow.001⟧")
 		return
 	if is_instance_valid(ctx.global_map):ctx.global_map.set_open(false)
 	if is_instance_valid(ctx.field_item_view):ctx.field_item_view.clear()
@@ -47,7 +47,7 @@ static func sync(ctx) -> void:
 	ctx.world_loading = desired!="bunker"
 	ctx.session.model.world_ready = not ctx.world_loading
 	ctx.player_physics.world_ready = not ctx.world_loading
-	ctx.ui.set_world_loading(ctx.world_loading,"零号区" if desired=="surface" else "神秘山洞")
+	ctx.ui.set_world_loading(ctx.world_loading,"⟦world_flow.002⟧" if desired=="surface" else "⟦world_flow.003⟧")
 	if desired=="bunker": ctx.world = load("res://worlds/bunker/bunker.gd").new()
 	else:
 		ctx.world = Map.new()
@@ -82,7 +82,7 @@ static func _finish_loading(ctx, map) -> void:
 	ctx.vision.update(ctx,0)
 	ctx.world.visible=ctx.in_game
 	ctx.ui.set_world_loading(false,"")
-	if ctx.world_id=="surface":ctx.ui.toast("按 M 查看零号区全局地图与队友位置")
+	if ctx.world_id=="surface":ctx.ui.toast("⟦world_flow.004⟧")
 	if ctx.session.mode=="host": ctx.session._broadcast_snapshot(true)
 
 static func _apply_rules(ctx) -> void:

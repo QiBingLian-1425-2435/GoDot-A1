@@ -1,4 +1,5 @@
 extends Node3D
+const Texts = preload("res://features/localization/game_text.gd")
 
 var sprite: Sprite3D
 var marker: MeshInstance3D
@@ -81,7 +82,7 @@ func _create_sprite(texture_path: String, monster: bool) -> void:
 
 func _create_tag(title: String) -> void:
 	tag = Label3D.new()
-	tag.text = title
+	Texts.bind(tag, title, "text")
 	tag.font_size = 22
 	tag.pixel_size = 0.014
 	tag.position.y = 2.58
@@ -138,13 +139,13 @@ func update_actor(data: Dictionary, delta: float, local := false) -> void:
 	marker.visible = state != "dead"
 	marker.scale = Vector3.ONE * (1.15 if local else 0.86)
 	if state == "downed":
-		tag.text = data.get("name", "") + " · 等待救援"
+		Texts.bind(tag, data.get("name", "") + "⟦actor_view.001⟧", "text")
 		tag.modulate = Color("f3a582")
 	elif is_monster:
-		tag.text = "追逐中" if data.get("mode", "patrol") == "chase" else "巡夜者"
+		Texts.bind(tag, "⟦actor_view.002⟧" if data.get("mode", "patrol") == "chase" else "⟦actor_view.003⟧", "text")
 		tag.modulate = Color("f3a582") if data.get("mode", "patrol") == "chase" else Color("a5a2c7")
 	else:
-		tag.text = data.get("name", "旅人") + (" · 你" if local else "")
+		Texts.bind(tag, data.get("name", "⟦actor_view.004⟧") + ("⟦actor_view.005⟧" if local else ""), "text")
 		tag.modulate = base_color
 	last_pos = target
 
@@ -188,6 +189,6 @@ func _update_model(data: Dictionary, state: String, delta: float, local: bool, t
 		&"downed" if state == "downed" else &"active", delta)
 	marker.visible = state not in ["dead", "extracted"]
 	marker.scale = Vector3.ONE * (1.15 if local else 0.86)
-	tag.text = data.get("name", "旅人") + (" · 等待救援" if state == "downed" else (" · 你" if local else ""))
+	Texts.bind(tag, data.get("name", "⟦actor_view.004⟧") + ("⟦actor_view.001⟧" if state == "downed" else ("⟦actor_view.005⟧" if local else "")), "text")
 	tag.modulate = Color("f3a582") if state == "downed" else base_color
 	last_pos = target

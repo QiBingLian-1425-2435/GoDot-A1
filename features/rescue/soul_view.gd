@@ -1,4 +1,5 @@
 extends Node3D
+const Texts = preload("res://features/localization/game_text.gd")
 ## Local view of host-owned bodies. The observer shares only the teammate's view.
 const Actor = preload("res://features/player/base_actor.gd")
 var bodies: Dictionary = {}
@@ -18,7 +19,7 @@ func update(ctx) -> void:
 		actor.update_actor({"pos":body.pos,"height":body.height,"equipment":{},"aim":Vector2.UP},0)
 		actor.pivot.rotation.z = PI*.5
 		actor.pivot.position.y = .38
-		actor.nameplate.text = str(body.container_name)+"  [E] 搜索  [F] 救援"
+		Texts.bind(actor.nameplate, str(body.container_name)+"⟦soul_view.001⟧", "text")
 		actor.visible = ctx.in_game and not ctx.world_loading and ctx.vision.can_see(Vector3(body.pos.x,float(body.height)+.4,body.pos.y))
 	for id in ctx.actors:
 		if not ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})): ctx.actors[id].visible=false

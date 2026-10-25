@@ -1,4 +1,5 @@
 extends RefCounted
+const Texts = preload("res://features/localization/game_text.gd")
 ## Host-owned container contents, sequential discovery and atomic inventory transfer.
 const Items = preload("res://features/inventory/item_catalog.gd")
 const COMMON = ["water", "canned_food", "biscuits", "bandage", "scrap", "tape"]
@@ -25,18 +26,18 @@ static func reachable(ctx, p: Dictionary, target: Dictionary) -> bool:
 
 static func open(ctx, p: Dictionary, target: Dictionary) -> bool:
 	if not reachable(ctx, p, target):
-		return ctx._reject("请靠近同层、没有墙体或烟雾遮挡的箱子")
+		return ctx._reject("⟦container_loot.001⟧")
 	var uid: String = target.uid
 	if not ctx.state.containers.has(uid):
 		if target.get("locked", false):
 			if ctx._count(p.bag, "lockpick") < 1:
-				return ctx._reject("需要一个简易开锁器，商人或工作台可获得")
+				return ctx._reject("⟦container_loot.002⟧")
 			ctx._consume(p.bag, "lockpick", 1)
 		var items: Array = []
 		for i in range(randi_range(2, 5)):
 			var kind := str(FOOD.pick_random()) if target.get("loot_pool", "") == "food" else roll(bool(target.get("locked", false)))
 			items.append(ctx._item(kind, randi_range(1, mini(3, int(Items.definition(kind).stack)))))
-		ctx.state.containers[uid] = {"items": items, "revealed": 0, "progress": 0.0, "searcher": 0, "title":str(target.get("container_name", "箱子"))}
+		ctx.state.containers[uid] = {"items": items, "revealed": 0, "progress": 0.0, "searcher": 0, "title":str(target.get("container_name", "⟦container_loot.003⟧"))}
 	# Old in-room boolean entries are already exhausted, never reroll them.
 	if not ctx.state.containers[uid] is Dictionary:
 		ctx.state.containers[uid] = {"items": [], "revealed": 0, "progress": 0.0, "searcher": 0}
@@ -47,7 +48,7 @@ static func open(ctx, p: Dictionary, target: Dictionary) -> bool:
 		box.searcher = p.id
 	ctx._update_weight(p)
 	ctx._animate(p, "interact", .8)
-	ctx.last_notice = "正在搜索%s，可关闭后继续" % str(target.get("container_name", "箱子"))
+	ctx.last_notice = Texts.format("⟦container_loot.004⟧", str(target.get("container_name", "⟦container_loot.003⟧")))
 	return true
 
 static func close(ctx, p: Dictionary, uid: String = "") -> bool:
@@ -89,15 +90,15 @@ static func tick(ctx, delta: float) -> void:
 static func take(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	var uid := str(payload.get("uid", ""))
 	if uid.is_empty() or p.get("loot_uid", "") != uid or not reachable(ctx, p, station(ctx, uid)):
-		return ctx._reject("箱子已关闭或距离过远")
+		return ctx._reject("⟦container_loot.005⟧")
 	var box: Dictionary = ctx.state.containers.get(uid, {})
 	if box.is_empty():
 		return false
 	var index: Variant = payload.get("index")
 	if not index is int or index < -1 or index >= int(box.revealed):
-		return ctx._reject("这件物品还没有搜索完成")
+		return ctx._reject("⟦container_loot.006⟧")
 	if index >= 0 and (box.items[index].is_empty() or box.items[index].uid != payload.get("item_uid", "")):
-		return ctx._reject("物品已被拿走，请重新选择")
+		return ctx._reject("⟦container_loot.007⟧")
 	var taken := 0
 	for i in range(int(box.revealed)):
 		if (index >= 0 and i != index) or box.items[i].is_empty():
@@ -111,9 +112,9 @@ static func take(ctx, p: Dictionary, payload: Dictionary) -> bool:
 		box.items[i] = {}
 		taken += 1
 	if taken == 0:
-		return ctx._reject("背包空间不足或已没有可拿取物品")
+		return ctx._reject("⟦container_loot.008⟧")
 	ctx._update_weight(p)
-	ctx.last_notice = "已拿取 %d 组物品，未装下的仍在箱中" % taken
+	ctx.last_notice = Texts.format("⟦container_loot.009⟧", taken)
 	return true
 
 static func roll(locked: bool) -> String:

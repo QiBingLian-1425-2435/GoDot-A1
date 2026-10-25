@@ -10,14 +10,14 @@ const YELLOW := Color("c5a962")
 const PURPLE := Color("71617e")
 var _blocks: Array = []
 var _points: Array = [
-	{"id":"camp_management","title":"营地管理 · 建设与强化","pos":Vector2(-1,-1.9),"kind":"camp_management"},
-	{"id":"stash","title":"仓库 · 整理物资","pos":Vector2(9,-5.3),"kind":"stash"},
-	{"id":"workbench","title":"工作台 · 选择配方制作道具","pos":Vector2(-9,2.2),"kind":"workbench"},
-	{"id":"medical","title":"医疗站 · 治疗","pos":Vector2(-10,-5.2),"kind":"medical"},
-	{"id":"exit","title":"地下出口 · 准备出发","pos":Vector2(0,-8.2),"kind":"exit"},
-	{"id":"range","title":"训练场 · 重置全部训练靶","pos":Vector2(9,4.2),"kind":"range"},
-	{"id":"ammo_supply","title":"弹药补给箱 · 免费补至120发备用弹，R装填","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
-	{"id":"trader","title":"商人 · 购买补给 / 回收物资","pos":Vector2(-5,-2.6),"kind":"trader"}
+	{"id":"camp_management","title":"⟦bunker.001⟧","pos":Vector2(-1,-1.9),"kind":"camp_management"},
+	{"id":"stash","title":"⟦bunker.002⟧","pos":Vector2(9,-5.3),"kind":"stash"},
+	{"id":"workbench","title":"⟦bunker.003⟧","pos":Vector2(-9,2.2),"kind":"workbench"},
+	{"id":"medical","title":"⟦bunker.004⟧","pos":Vector2(-10,-5.2),"kind":"medical"},
+	{"id":"exit","title":"⟦bunker.005⟧","pos":Vector2(0,-8.2),"kind":"exit"},
+	{"id":"range","title":"⟦bunker.006⟧","pos":Vector2(9,4.2),"kind":"range"},
+	{"id":"ammo_supply","title":"⟦bunker.007⟧","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
+	{"id":"trader","title":"⟦bunker.008⟧","pos":Vector2(-5,-2.6),"kind":"trader"}
 ]
 var target_nodes: Dictionary = {}
 var lamps: Array[OmniLight3D] = []
@@ -83,8 +83,8 @@ func _build_floor() -> void:
 	for x in [-3.4,3.4]:
 		for z in range(-8,9,2):
 			G.box(self,Vector3(x,.018,z),Vector3(.06,.018,1.2),YELLOW.darkened(.20))
-	_floor_label("B1  /  SHELTER",Vector2(0,5.5),54,Color("a9b2a1"))
-	_floor_label("AUTHORIZED PERSONNEL",Vector2(0,6.4),18,Color("89958f"))
+	_floor_label("⟦bunker.shelter_sign⟧",Vector2(0,5.5),54,Color("a9b2a1"))
+	_floor_label("⟦bunker.009⟧",Vector2(0,6.4),18,Color("89958f"))
 	# Small inset utility plates and worn edges, rather than a perfectly pristine grid.
 	for at in [Vector2(-3,1),Vector2(4,-6),Vector2(-3,-8),Vector2(5,8)]:
 		G.box(self,Vector3(at.x,.025,at.y),Vector3(.75,.025,.62),Color("47565b"),.5)
@@ -163,9 +163,9 @@ func _build_bedroom() -> void:
 	G.rod(self,Vector3(-14.1,.75,-5.6),Vector3(-14.1,1.08,-5.6),.034,Color("aeb7b0"),.8)
 	G.rod(self,Vector3(-14.1,1.08,-5.6),Vector3(-13.9,1.08,-5.6),.034,Color("aeb7b0"),.8)
 	_solid(Vector2(-13.8,-4.9),Vector2(1.2,2.2))
-	_floor_label("01  /  QUARTERS",Vector2(-10.5,-2.6),29,Color("b4bcad"))
-	_npc(Vector2(-12.0,-4.0),Color("97a8b0"),"医生",Vector2(1,.2),false)
-	_sign("MEDICAL / 01",Vector3(-10.4,2.03,-10.70),Color("d0bacb"))
+	_floor_label("⟦bunker.quarters_sign⟧",Vector2(-10.5,-2.6),29,Color("b4bcad"))
+	_npc(Vector2(-12.0,-4.0),Color("97a8b0"),"⟦bunker.010⟧",Vector2(1,.2),false)
+	_sign("⟦bunker.medical_sign⟧",Vector3(-10.4,2.03,-10.70),Color("d0bacb"))
 
 func _bed(at: Vector2) -> void:
 	var base := Node3D.new()
@@ -218,9 +218,9 @@ func _build_workshop() -> void:
 	G.rod(gen,Vector3(-.9,1.2,0),Vector3(-.9,2.0,0),.11,Color("726c5d"),.7)
 	G.rod(gen,Vector3(-.9,2.0,0),Vector3(-1.8,2.0,0),.11,Color("726c5d"),.7)
 	_solid(Vector2(-12.3,5),Vector2(2.9,2.0))
-	G.text(gen,"DIESEL  /  24 kW",Vector3(0,.75,.72),20,Color("cad0b5"))
-	_floor_label("02  /  WORKSHOP",Vector2(-10,6.9),29,Color("c7b48c"))
-	_npc(Vector2(-11.8,2.0),Color("9c906b"),"技师",Vector2(.2,-1),true)
+	G.text(gen,"⟦bunker.011⟧",Vector3(0,.75,.72),20,Color("cad0b5"))
+	_floor_label("⟦bunker.workshop_sign⟧",Vector2(-10,6.9),29,Color("c7b48c"))
+	_npc(Vector2(-11.8,2.0),Color("9c906b"),"⟦bunker.012⟧",Vector2(.2,-1),true)
 	_wire_fence(Vector2(-5.8,5.2),3.5)
 	# Yellow coiled hose on the floor.
 	for k in range(20):
@@ -243,10 +243,10 @@ func _build_storage() -> void:
 	for x in [8.25,9.75]:
 		G.box(self,Vector3(x,.50,-6.19),Vector3(.09,.54,.028),Color("343f3c"),.6)
 		G.box(self,Vector3(x,.68,-6.16),Vector3(.16,.13,.045),Color("bdac7c"),.6)
-	G.text(self,"SHARED STORAGE",Vector3(9,.48,-6.185),21,Color("d1d3af"))
+	G.text(self,"⟦bunker.013⟧",Vector3(9,.48,-6.185),21,Color("d1d3af"))
 	_solid(Vector2(9,-6.8),Vector2(2.4,1.5))
-	_floor_label("03  /  STORAGE",Vector2(10,-2.6),29,Color("9db6b5"))
-	_sign("LOGISTICS / 03",Vector3(10,2.03,-10.70),Color("baccc6"))
+	_floor_label("⟦bunker.storage_sign⟧",Vector2(10,-2.6),29,Color("9db6b5"))
+	_sign("⟦bunker.logistics_sign⟧",Vector3(10,2.03,-10.70),Color("baccc6"))
 	_light(Vector3(9.5,2.3,-6),Color("a6c8d1"),1.1,6)
 
 func _locker(at: Vector2) -> void:
@@ -293,14 +293,14 @@ func _build_range() -> void:
 	_table(Vector2(7.2,2.7),Vector2(1.7,.9),.88,Color("626952"))
 	G.box(self,Vector3(7.2,1.06,2.7),Vector3(.81,.30,.55),Color("68744f"),.2)
 	G.box(self,Vector3(7.2,1.23,2.7),Vector3(.86,.065,.59),Color("829067"),.2)
-	G.text(self,"AMMO",Vector3(7.2,1.05,3.0),22,Color("cec8a1"))
-	G.text(self,"弹药补给 · E 免费领取",Vector3(7.2,1.65,2.7),22,YELLOW)
+	G.text(self,"⟦bunker.014⟧",Vector3(7.2,1.05,3.0),22,Color("cec8a1"))
+	G.text(self,"⟦bunker.015⟧",Vector3(7.2,1.65,2.7),22,YELLOW)
 	for i in range(22):
 		var x := 8.0+fmod(i*1.79,4.8)
 		var z := 5.5+fmod(i*.63,1.8)
 		G.rod(self,Vector3(x,.055,z),Vector3(x+.10,.055,z+.02),.018,Color("b4a16c"),.7)
-	_floor_label("04  /  FIRING RANGE",Vector2(10,1.7),29,Color("b6b8a0"))
-	_floor_label("KEEP BEHIND THE LINE",Vector2(10,3.9),19,YELLOW)
+	_floor_label("⟦bunker.range_sign⟧",Vector2(10,1.7),29,Color("b6b8a0"))
+	_floor_label("⟦bunker.016⟧",Vector2(10,3.9),19,YELLOW)
 	_solid(Vector2(10,10.1),Vector2(7.0,.7))
 	_light(Vector3(10,2.5,7.5),Color("c2c5b0"),.8,5.5)
 
@@ -346,21 +346,21 @@ func _build_operations() -> void:
 	G.rod(self,Vector3(.2,1.17,-3.1),Vector3(.2,1.63,-3.1),.014,Color("5b777c"),.6)
 	_desk_lamp(Vector3(-2.25,.98,-4.25),Color("e7c890"))
 	_light(Vector3(-1.0,2.3,-3.5),Color("e4c28e"),.9,4.0)
-	_floor_label("CAMP UPGRADES",Vector2(-.6,-1.9),26,Color("afb9a7"))
+	_floor_label("⟦bunker.017⟧",Vector2(-.6,-1.9),26,Color("afb9a7"))
 	# Trading booth between quarters and the operations table.
 	_table(Vector2(-6.6,-3.8),Vector2(1.3,2.4),.9,Color("6c7969"))
 	G.box(self,Vector3(-6.6,1.08,-4.3),Vector3(.52,.30,.46),Color("3a4f55"),.2)
 	G.box(self,Vector3(-6.6,1.37,-4.3),Vector3(.56,.34,.08),Color("344b52"),.4)
 	G.box(self,Vector3(-6.6,1.37,-4.25),Vector3(.46,.25,.015),Color("9bad8b"),0,.6)
 	G.box(self,Vector3(-6.6,1.02,-3.15),Vector3(.64,.11,.46),Color("baad87"))
-	_npc(Vector2(-7.7,-4),Color("9b8762"),"商人",Vector2(1,.2),false)
+	_npc(Vector2(-7.7,-4),Color("9b8762"),"⟦bunker.018⟧",Vector2(1,.2),false)
 	# Hanging notice board mounted on a post, with layered paper missions.
 	G.box(self,Vector3(-3.7,1.22,-7.8),Vector3(.1,2.4,.1),STEEL,.5)
 	G.box(self,Vector3(-3.7,1.76,-7.8),Vector3(2.2,1.36,.11),Color("4d6164"),.3)
 	for i in range(5):
 		G.box(self,Vector3(-4.4+(i%3)*.64,1.98-floori(i/3.0)*.59,-7.72),Vector3(.46,.50,.02),Color("c7c0a5").darkened(i*.025)).rotation.z = (i-2)*.045
 		G.box(self,Vector3(-4.4+(i%3)*.64,2.17-floori(i/3.0)*.59,-7.70),Vector3(.08,.055,.015),Color("a86668"))
-	G.text(self,"TASK BOARD",Vector3(-3.7,2.55,-7.78),27,Color("c2c9b8"))
+	G.text(self,"⟦bunker.019⟧",Vector3(-3.7,2.55,-7.78),27,Color("c2c9b8"))
 	_solid(Vector2(-3.7,-7.8),Vector2(2.3,.4))
 
 func _build_exit() -> void:
@@ -377,7 +377,7 @@ func _build_exit() -> void:
 	G.cylinder(self,Vector3(.57,1.24,-10.1),.22,.08,Color("b7b8a2"),-1,.6).rotation.x = PI/2
 	G.box(self,Vector3(.57,1.24,-10.02),Vector3(.32,.045,.05),Color("46575b"),.5)
 	G.box(self,Vector3(0,2.89,-10.42),Vector3(1.3,.32,.16),Color("345e5c"))
-	G.text(self,"EXIT ↑",Vector3(0,2.89,-10.31),32,Color("c2e3c2"))
+	G.text(self,"⟦bunker.020⟧",Vector3(0,2.89,-10.31),32,Color("c2e3c2"))
 	_light(Vector3(0,2.4,-9.0),Color("90cbb9"),1,4)
 	for x in [2.0,2.55]:
 		G.rod(self,Vector3(x,.05,-10.18),Vector3(x,3.42,-10.18),.045,Color("8c9a90"),.6)
@@ -386,7 +386,7 @@ func _build_exit() -> void:
 	G.box(self,Vector3(3.4,1.37,-10.38),Vector3(.53,.87,.3),Color("52696f"),.4)
 	G.box(self,Vector3(3.4,1.53,-10.20),Vector3(.36,.20,.018),Color("9bc5a6"),0,.4)
 	G.sphere(self,Vector3(3.4,1.20,-10.19),Vector3(.16,.16,.08),Color("c68c74"))
-	_floor_label("SURFACE ACCESS",Vector2(0,-8.4),25,Color("b2bdab"))
+	_floor_label("⟦bunker.021⟧",Vector2(0,-8.4),25,Color("b2bdab"))
 
 func _build_clutter() -> void:
 	# Emergency equipment and utility supplies fill the cutaway edges without blocking paths.

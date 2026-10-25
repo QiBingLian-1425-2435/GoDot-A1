@@ -304,21 +304,21 @@ func _build_landmarks() -> void:
 			landmarks.append({"path":str(item.path),"pos":Vector3(source.x,source.y,-float(source.z))})
 	if zone=="surface":
 		var entry := Library.source_location("surface","Special/BunkerEntry")
-		_interactions.append({"kind":"travel","uid":"surface_to_bunker","world":zone,"title":"返回地下基地（全队）","pos":Vector2(entry.x,entry.z),"height":entry.y,"destination":"bunker","spawn":Vector3(-1,0,4)})
+		_interactions.append({"kind":"travel","uid":"surface_to_bunker","world":zone,"title":"⟦ground_zero.001⟧","pos":Vector2(entry.x,entry.z),"height":entry.y,"destination":"bunker","spawn":Vector3(-1,0,4)})
 		var exit := Library.source_location("surface","Exits/Exits_1")
-		_interactions.append({"kind":"travel","uid":"surface_extraction","world":zone,"title":"撤离至基地（全队）","pos":Vector2(exit.x,exit.z),"height":exit.y,"destination":"bunker","spawn":Vector3(-1,0,4)})
+		_interactions.append({"kind":"travel","uid":"surface_extraction","world":zone,"title":"⟦ground_zero.002⟧","pos":Vector2(exit.x,exit.z),"height":exit.y,"destination":"bunker","spawn":Vector3(-1,0,4)})
 	for entity in data.entities:
 		if entity.type=="Door":
 			var at := _door_anchor(entity)
-			_interactions.append({"kind":"door","uid":str(int(entity.id)),"world":zone,"title":"开关门","pos":Vector2(at.x,at.z),"height":at.y,"initial_open":not bool(entity.data.closed)})
+			_interactions.append({"kind":"door","uid":str(int(entity.id)),"world":zone,"title":"⟦ground_zero.003⟧","pos":Vector2(at.x,at.z),"height":at.y,"initial_open":not bool(entity.data.closed)})
 		if entity.type=="SimpleTeleporter" and entity.has("target_position"):
 			var at := Library.transform(entity.transform).origin
 			var target: Array = entity.target_position
-			_interactions.append({"kind":"travel","scope":"player","uid":zone+"_shortcut_"+str(entity.id),"world":zone,"title":"使用传送点","pos":Vector2(at.x,at.z),"height":at.y,"destination":zone,"spawn":Vector3(target[0],target[1],target[2])})
+			_interactions.append({"kind":"travel","scope":"player","uid":zone+"_shortcut_"+str(entity.id),"world":zone,"title":"⟦ground_zero.004⟧","pos":Vector2(at.x,at.z),"height":at.y,"destination":zone,"spawn":Vector3(target[0],target[1],target[2])})
 		if entity.type!="MultiSceneTeleporter": continue
 		var at := Library.transform(entity.transform).origin
 		var destination := "cave" if entity.data.target.sceneID=="Level_GroundZero_Cave" else "surface"
-		_interactions.append({"kind":"travel","uid":zone+"_portal_"+str(entity.id),"world":zone,"title":"进入神秘山洞（全队）" if destination=="cave" else "返回零号区（全队）","pos":Vector2(at.x,at.z),"height":at.y,"destination":destination,"spawn":Library.source_location(destination,str(entity.data.target.locationName))})
+		_interactions.append({"kind":"travel","uid":zone+"_portal_"+str(entity.id),"world":zone,"title":"⟦ground_zero.005⟧" if destination=="cave" else "⟦ground_zero.006⟧","pos":Vector2(at.x,at.z),"height":at.y,"destination":destination,"spawn":Library.source_location(destination,str(entity.data.target.locationName))})
 
 func terrain_height(pos: Vector2) -> float:
 	if _heights.is_empty(): return 0
@@ -350,14 +350,14 @@ func _build_toilet_targets() -> void:
 			var excluded: Array[RID] = []
 			_vision_groups[id] = {"id":id,"nodes":[],"exclude":excluded,"bounds":bounds,"has_bounds":true,"points":[]}
 		_vision_groups[id].loot_pool = "food"
-		_vision_groups[id].container_name = "厕所"
+		_vision_groups[id].container_name = "⟦main.015⟧"
 
 func interactions() -> Array:
 	var result:Array=_interactions.duplicate(true)
 	for target in vision_targets():
 		var point:Vector3=target.bounds.get_center()
 		var food_only: bool = target.get("loot_pool", "") == "food"
-		result.append({"kind":"loot","uid":"loot_"+str(target.id),"title":"搜索厕所" if food_only else "搜索物资","world":zone,"pos":Vector2(point.x,point.z),"height":target.bounds.position.y,"locked":false if food_only else int(target.id)%5==0,"loot_pool":target.get("loot_pool",""),"container_name":target.get("container_name","箱子")})
+		result.append({"kind":"loot","uid":"loot_"+str(target.id),"title":"⟦main.016⟧" if food_only else "⟦ground_zero.007⟧","world":zone,"pos":Vector2(point.x,point.z),"height":target.bounds.position.y,"locked":false if food_only else int(target.id)%5==0,"loot_pool":target.get("loot_pool",""),"container_name":target.get("container_name","⟦container_loot.003⟧")})
 	return result
 
 func can_reach_loot(uid: String, from: Vector3) -> bool:

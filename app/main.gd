@@ -1,4 +1,5 @@
 extends Node3D
+const Texts = preload("res://features/localization/game_text.gd")
 
 const BaseView = preload("res://worlds/bunker/base_view.gd")
 const InputController = preload("res://features/player/base_input.gd")
@@ -55,6 +56,7 @@ var global_map:Control
 var soul_view: Node3D
 
 func _ready()->void:
+	Texts.set_window_title("⟦application.title⟧")
 	soul_view = preload("res://features/rescue/soul_view.gd").new()
 	add_child(soul_view)
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
@@ -96,9 +98,9 @@ func _ready()->void:
 	world.visible=false
 	ui.show_menu()
 	station_dialog=AcceptDialog.new()
-	station_dialog.title="基地设施"
+	Texts.bind(station_dialog, "⟦main.001⟧", "title")
 	station_dialog.min_size=Vector2i(520,230)
-	station_dialog.ok_button_text="返回基地"
+	Texts.bind(station_dialog, "⟦main.002⟧", "ok_button_text")
 	station_dialog.exclusive=true
 	add_child(station_dialog)
 	tracer_mesh=ImmediateMesh.new()
@@ -154,7 +156,7 @@ func _start_solo()->void:
 	if not smoke and capture_path.is_empty():
 		var loaded:int=session.model.load_profile(profile_path,1)
 		if loaded not in [OK,ERR_FILE_NOT_FOUND]:
-			ui.toast("本机营地存档读取失败，原存档未覆盖："+error_string(loaded))
+			ui.toast("⟦main.003⟧"+error_string(loaded))
 			return
 	_enter_base()
 
@@ -169,7 +171,7 @@ func _enter_base()->void:
 	menu_stage.visible=false
 	camera.current=true
 	ui.show_game()
-	ui.toast("欢迎回到基地  ·  TAB 背包与仓库  ·  E 互动")
+	ui.toast("⟦main.004⟧")
 	_update_actors(1.0)
 	_refresh_ui()
 
@@ -184,7 +186,7 @@ func _on_action(action:String,payload:Dictionary)->void:
 				var addresses:PackedStringArray=IP.get_local_addresses()
 				for address in addresses:
 					if address.begins_with("192.168."):
-						session.connection_status="IP %s  ·  UDP %d  ·  最多5人"%[address,int(payload.get("port",24567))]
+						session.connection_status=Texts.format("⟦main.005⟧", [address,int(payload.get("port",24567))])
 						break
 				if not smoke: session.model.load_profile(profile_path,1)
 				_enter_base()
@@ -256,10 +258,10 @@ func _return_menu()->void:
 
 func _save(show_notice:bool)->void:
 	if not in_game or session.mode=="client" or client_visit or smoke or not capture_path.is_empty():
-		if show_notice: ui.toast("物品由房主自动保存，重进同一房主的房间可恢复")
+		if show_notice: ui.toast("⟦main.006⟧")
 		return
 	var result:int=session.save_room() if not session.room_store.path.is_empty() else session.model.save_profile(profile_path,session.local_id)
-	if show_notice: ui.toast("背包、装备与仓库已保存" if result==OK else "保存失败："+error_string(result))
+	if show_notice: ui.toast("⟦main.007⟧" if result==OK else "⟦main.008⟧"+error_string(result))
 
 func _notification(what:int)->void:
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT,NOTIFICATION_WM_CLOSE_REQUEST] and is_instance_valid(voice):voice.stop()
@@ -353,7 +355,7 @@ func _update_interaction()->void:
 		var d:=pos.distance_to(drop.pos)
 		if d<minf(distance,2.0):
 			distance=d
-			nearest={"kind":"pickup","uid":uid,"title":"拾取地上物品"}
+			nearest={"kind":"pickup","uid":uid,"title":"⟦main.009⟧"}
 	for station in session.model.stations:
 		var d:=pos.distance_to(station.pos)
 		if d>=distance:continue
@@ -373,16 +375,16 @@ func _update_interaction()->void:
 		nearest=station.duplicate()
 		if station.get("kind")=="loot":
 			var box:Variant=session.model.state.containers.get(station.uid,{})
-			nearest.title="搜索箱子" if not station.get("locked",false) else "开锁搜索（消耗开锁器）"
+			nearest.title="⟦main.010⟧" if not station.get("locked",false) else "⟦main.011⟧"
 			if box is Dictionary and not box.is_empty():
 				var remaining:=false
 				for item in box.items:
 					if not item.is_empty():remaining=true
-				nearest.title="继续搜索箱子" if int(box.revealed)<box.items.size() else "查看箱内物品" if remaining else "查看空箱子"
-			if station.get("container_name", "") == "厕所":
-				nearest.title="搜索厕所" if box.is_empty() else "继续搜索厕所" if int(box.revealed)<box.items.size() else "查看厕所物品"
+				nearest.title="⟦main.012⟧" if int(box.revealed)<box.items.size() else "⟦main.013⟧" if remaining else "⟦main.014⟧"
+			if station.get("container_name", "") == "⟦main.015⟧":
+				nearest.title="⟦main.016⟧" if box.is_empty() else "⟦main.017⟧" if int(box.revealed)<box.items.size() else "⟦main.018⟧"
 		if station.get("kind")=="door":
-			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
+			nearest.title="⟦main.019⟧" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "⟦main.020⟧"
 	for uid in session.model.state.get("corpses",{}):
 		var body: Dictionary = session.model.state.corpses[uid]
 		if not session.model.Souls.reachable(session.model,p,body): continue
@@ -396,8 +398,8 @@ func _update_interaction()->void:
 		if d>distance: continue
 		if is_equal_approx(d,distance) and not ((can_rescue and not nearest.get("rescuable",false)) or (has_items and not nearest.get("remaining",true))): continue
 		distance = d
-		nearest = {"kind":"corpse","uid":uid,"target":body.owner,"rescuable":can_rescue,"remaining":has_items,"title":str(body.container_name)+("  /  F 救援（3秒）" if can_rescue else "")}
-	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))
+		nearest = {"kind":"corpse","uid":uid,"target":body.owner,"rescuable":can_rescue,"remaining":has_items,"title":str(body.container_name)+("⟦main.021⟧" if can_rescue else "")}
+	ui.set_interaction("" if nearest.is_empty() else Texts.format("⟦interaction.prompt⟧", str(nearest.title)))
 
 func _interact()->void:
 	if world_loading:return
@@ -432,7 +434,7 @@ func toggle_global_map() -> void:
 		return
 	if ui.is_blocking() or station_dialog.visible:return
 	if world_id!="surface":
-		ui.toast("全局地图当前仅用于零号区地表")
+		ui.toast("⟦main.022⟧")
 		return
 	global_map.set_open(true)
 	trigger_held=false
@@ -442,11 +444,11 @@ func _on_steam_transport(peer:MultiplayerPeer,as_host:bool)->void:
 	var room_path:=room_save_root.path_join(owner_key+".json") if as_host and not smoke and capture_path.is_empty() else ""
 	var result:int=session.use_steam_peer(peer,as_host,steam_service.accept_peer,steam_service.peer_name,steam_service.peer_identity,room_path,owner_key,legacy_profile_path)
 	if result!=OK:
-		steam_service._fail("Steam 会话或房间存档建立失败，原存档未覆盖："+error_string(result))
+		steam_service._fail("⟦main.023⟧"+error_string(result))
 		return
 	session.set_physics_process(true)
 	if as_host:
-		session.model.state.players[1].name=steam_service.persona.left(24)
+		session.model.state.players[1].name=Texts.clip(steam_service.persona,24)
 		_enter_base()
 	else:
 		joining=true

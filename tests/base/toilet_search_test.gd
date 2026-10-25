@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 const Main = preload("res://app/main.gd")
 var game
 var checks := 0
@@ -31,7 +32,7 @@ func run():
 	await physics_frame; await physics_frame
 	var toilets: Array = []
 	for station in model.stations:
-		if station.get("container_name") == "厕所": toilets.append(station)
+		if Texts.resolve(str(station.get("container_name"))) == "厕所": toilets.append(station)
 	check(toilets.size() == 9, "all nine source toilets are searchable")
 	for station in toilets:
 		game.ui._close_dialog()
@@ -48,11 +49,11 @@ func run():
 			if reached: break
 		check(reached, "real physics and E prompt reach toilet " + station.uid)
 		if not reached: continue
-		check(not station.locked and game.nearest.title == "搜索厕所", "toilet uses its own prompt without a lockpick")
+		check(not station.locked and Texts.resolve(game.nearest.title) == "搜索厕所", "toilet uses its own prompt without a lockpick")
 		if station == toilets[0]: await capture("world")
 		p.bag = model._empty_slots(24)
 		game._interact(); settle()
-		check(game.ui._dialog_kind == "搜索厕所" and p.loot_uid == station.uid, "E opens toilet search panel")
+		check(Texts.resolve(game.ui._dialog_kind) == "搜索厕所" and p.loot_uid == station.uid, "E opens toilet search panel")
 		var box: Dictionary = model.state.containers.get(station.uid, {})
 		if box.is_empty(): check(false, "toilet contains food"); continue
 		var food_only: bool = box.items.size() >= 2

@@ -1,4 +1,5 @@
 extends SceneTree
+const Texts = preload("res://features/localization/game_text.gd")
 ## Run without arguments. Starts a real second Godot process over localhost ENet.
 const Session = preload("res://app/network/session.gd")
 var session
@@ -187,7 +188,7 @@ func run_failure_scenario() -> void:
 		if session.mode == "offline" and (scenario == "failure" or phase == 1):
 			check(session.local_id == 1 and session.model.state.players.size() == 1,"failed or lost connection returns to solo")
 			check(session.model.state.players[1].credits == 321,"original local profile restored after network exit")
-			check(session.connection_status.contains("连接失败") if scenario == "failure" else session.connection_status.contains("房主已离开"),"network failure has actionable status")
+			check(Texts.resolve(session.connection_status).contains("连接失败") if scenario == "failure" else Texts.resolve(session.connection_status).contains("房主已离开"),"network failure has actionable status")
 			print("DUCKOV_NETWORK_",scenario.to_upper(),"_CLIENT ",checks," checks, ",failures," failures")
 			if scenario == "host_loss":
 				var file := FileAccess.open(result_path(),FileAccess.WRITE)
