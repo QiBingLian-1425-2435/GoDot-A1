@@ -29,12 +29,14 @@ var _display_pos := Vector2.ZERO
 var _display_height := 0.0
 var _settling := false
 var _relocation_seq:=0
+var infinite_stamina := false
 
 func clear() -> void:
 	_state.clear(); _input.clear(); _history.clear(); _sent.clear(); _pending.clear()
 	_clock = 0; _input_stamp = -100; _last_ack_clock = 0; _barrier = 0; _last_ack = 0; _observed_ack = 0
 	_has_authority = false; _offset = Vector2.ZERO; _display_pos = Vector2.ZERO
 	_settling = false
+	infinite_stamina = false
 
 func set_input(input: Dictionary) -> void:
 	# A new release takes priority over the small tail of a correction that began
@@ -85,6 +87,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 	if delta <= 0 or not solver.is_valid(): return
 	delta = minf(delta,.1)
 	if _state.is_empty(): confirm(authoritative)
+	_state.infinite_stamina = infinite_stamina
 	if not _pending.is_empty():
 		var corrected: Dictionary = _pending.pose
 		for frame in _history:
@@ -144,6 +147,7 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	for key in FIELDS: result[key] = p[key]
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
+	result.infinite_stamina = infinite_stamina
 	for key in ["reloading","pending_use","loot_uid","hp"]:
 		if p.has(key):result[key]=p[key]
 	return result

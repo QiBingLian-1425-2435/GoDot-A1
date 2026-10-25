@@ -218,6 +218,8 @@ func _on_action(action:String,payload:Dictionary)->void:
 				AudioServer.set_bus_volume_db(0,linear_to_db(maxf(0.001,float(payload.volume))))
 			if payload.has("fullscreen"):
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if payload.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+		"set_infinite_stamina":
+			session.send("set_infinite_stamina",payload)
 		_:
 			session.send(action,payload)
 	_refresh_ui()

@@ -68,7 +68,7 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
-	ctx._dialog_panel("设置",Vector2(640,570))
+	ctx._dialog_panel("设置",Vector2(640,640))
 	ctx._label(ctx._dialog,"主音量",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
 	volume.position = Vector2(250,111)
@@ -102,15 +102,27 @@ static func _open_settings(ctx) -> void:
 		ctx.action_requested.emit("set_infinite_reserve",{"enabled":value}))
 	ctx._dialog.add_child(infinite)
 	ctx._label(ctx._dialog,"房主设置，全队生效；仍需按 R 换弹。仅当前运行期间保留。",Rect2(34,320,570,50),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ctx._label(ctx._dialog,"体力规则",Rect2(34,375,200,32),21,ctx.INK)
+	var stamina = CheckButton.new()
+	stamina.name = "InfiniteStamina"
+	stamina.text = "无限体力"
+	stamina.position = Vector2(250,372)
+	stamina.size = Vector2(340,42)
+	stamina.button_pressed = ctx._state.get("infinite_stamina",false)
+	stamina.disabled = ctx._mode in ["client","join"]
+	stamina.toggled.connect(func(value: bool) -> void:
+		ctx.action_requested.emit("set_infinite_stamina",{"enabled":value}))
+	ctx._dialog.add_child(stamina)
+	ctx._label(ctx._dialog,"房主设置，全队生效；奔跑与翻滚不消耗体力。仅当前运行期间保留。",Rect2(34,430,570,50),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var voice_mute=CheckButton.new()
 	voice_mute.name="VoiceMute"
 	voice_mute.text="关闭队伍语音（开放麦和收听）"
-	voice_mute.position=Vector2(34,375);voice_mute.size=Vector2(570,42)
+	voice_mute.position=Vector2(34,485);voice_mute.size=Vector2(570,42)
 	voice_mute.button_pressed=ctx.voice_muted
 	voice_mute.toggled.connect(func(value: bool) -> void:
 		ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}))
 	ctx._dialog.add_child(voice_mute)
-	ctx._button(ctx._dialog,"完成",Rect2(170,479,300,54),ctx._close_dialog,ctx.GREEN,23)
+	ctx._button(ctx._dialog,"完成",Rect2(170,559,300,54),ctx._close_dialog,ctx.GREEN,23)
 
 static func _open_help(ctx) -> void:
 	ctx._dialog_panel("操作指南",Vector2(720,712))

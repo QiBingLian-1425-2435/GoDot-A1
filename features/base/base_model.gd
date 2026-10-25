@@ -21,7 +21,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -149,6 +149,11 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			if not payload.get("enabled") is bool: return false
 			state.infinite_reserve = payload.enabled
 			return true
+		"set_infinite_stamina":
+			if id != 1: return _reject("只有房主可以修改无限体力")
+			if not payload.get("enabled") is bool: return false
+			state.infinite_stamina = payload.enabled
+			return true
 		"reload": return _reload(p)
 		"fire": return _fire(p)
 		"select_weapon":
@@ -187,6 +192,7 @@ func tick(delta: float) -> void:
 		var input: Dictionary = _inputs.get(id, {})
 		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
 		_update_weight(p)
+		p.infinite_stamina = bool(state.get("infinite_stamina",false))
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
 		p.hunger = maxf(0, p.hunger - delta * 0.012)

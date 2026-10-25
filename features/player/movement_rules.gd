@@ -18,12 +18,12 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	var requested := int(input.get("roll_seq",0))
 	if requested > int(roll.seen):
 		roll.seen = requested
-		if not roll.active and roll.cooldown <= 0 and p.stamina >= ROLL_COST and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
+		if not roll.active and roll.cooldown <= 0 and (p.stamina >= ROLL_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
 			roll.active = true; roll.time = 0.0; roll.cooldown = ROLL_COOLDOWN
 			var roll_direction:Vector2=input.get("roll_direction",direction)
 			roll.direction = roll_direction.normalized() if not roll_direction.is_zero_approx() else Vector2(input.get("aim",p.get("aim",Vector2.UP))).normalized()
 			if Vector2(roll.direction).is_zero_approx(): roll.direction = Vector2.UP
-			p.stamina -= ROLL_COST
+			if not p.get("infinite_stamina",false): p.stamina -= ROLL_COST
 	if roll.active:
 		var previous: Vector2 = p.pos
 		var old_time: float = roll.time
@@ -40,17 +40,18 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	p.ads = bool(input.get("ads",false))
 	var sprint_requested := bool(input.get("sprint",false))
 	var exhausted_this_step := false
+	if p.get("infinite_stamina",false): p.stamina = 100.0
 	if not sprint_requested: p.sprint_exhausted = false
 	# A normal run can end the previous frame between 0 and the 1-point sprint
 	# threshold. Treat that state as exhaustion too; otherwise held Shift keeps
 	# spending each tiny recovery pulse and the stamina bar appears frozen.
-	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not direction.is_zero_approx() and p.stamina <= 1.0:
+	if not p.get("infinite_stamina",false) and sprint_requested and not bool(p.get("sprint_exhausted",false)) and not direction.is_zero_approx() and p.stamina <= 1.0:
 		p.stamina = 0.0
 		p.sprint_exhausted = true
 		exhausted_this_step = true
-	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not p.crouch and not p.ads and p.stamina > 1.0 and not direction.is_zero_approx():
+	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not p.crouch and not p.ads and (p.stamina > 1.0 or p.get("infinite_stamina",false)) and not direction.is_zero_approx():
 		var sprint_cost := delta*19.0
-		if p.stamina <= sprint_cost:
+		if not p.get("infinite_stamina",false) and p.stamina <= sprint_cost:
 			p.stamina = 0.0
 			p.sprint_exhausted = true
 			exhausted_this_step = true
@@ -58,7 +59,10 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	else:
 		p.sprint = false
 	var speed := 3.7
-	if p.sprint: speed *= 1.65; p.stamina -= delta*19.0
+	if p.sprint:
+		speed *= 1.65
+		if p.get("infinite_stamina",false): p.stamina = 100.0
+		else: p.stamina -= delta*19.0
 	elif not exhausted_this_step: p.stamina = minf(100,p.stamina+delta*12)
 	if p.crouch: speed *= .48
 	if p.ads: speed *= .62
