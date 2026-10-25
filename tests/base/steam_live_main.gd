@@ -18,7 +18,8 @@ func start()->void:
 	game.smoke=true
 	game.elapsed=-100
 	root.add_child(game)
-	check(game.steam_service.initialize(),"real main Steam service initializes")
+	var initialized: bool=game.steam_service.initialize()
+	check(initialized,"real main Steam service initializes: "+str(game.steam_service.status))
 	if not game.steam_service.initialized:finish();return
 	check(game.steam_service.host_room(0)==OK,"real main requests private lobby")
 	phase=1
@@ -35,6 +36,7 @@ func _process(delta:float)->bool:
 		check(DisplayServer.clipboard_get()==str(game.steam_service.lobby_id),"actual copy button copies the native lobby ID")
 		check(game.steam_service.steam.getLobbyMemberLimit(game.steam_service.lobby_id)==5,"native Steam lobby retains five members")
 		check(game.steam_service.steam.getLobbyData(game.steam_service.lobby_id,"build")==game.steam_service.build_id,"native lobby publishes the exact migrated build")
+		if "--zombie" in OS.get_cmdline_user_args(): check_zombie_host()
 		game.ui.action_requested.emit("menu",{})
 		phase=2
 	elif phase==2:
@@ -46,6 +48,22 @@ func _process(delta:float)->bool:
 		check(false,"real main Steam host timeout")
 		finish()
 	return false
+func check_zombie_host() -> void:
+	# A real Steam host's local authority, not a second account or remote peer.
+	game.ui.toggle_pause()
+	var p: Dictionary=game.session.model.state.players[1]
+	p.bag[23]=game.session.model._item("san_capsule",1)
+	game.session.send("use",{"index":23});game._refresh_ui()
+	check(p.life=="zombie" and p.san==0 and game.ui._soul_panel.visible,"native Steam host confirms SAN depletion and zombie HUD")
+	var origin: Vector2=p.pos
+	game.session.send("move",{"direction":Vector2.RIGHT});game.session.model.tick(.1)
+	check(Vector2(p.pos).distance_to(origin)>.05,"native Steam host zombie remains mobile")
+	check(not game.session.VoiceRules.can_speak(game.session.model.state.players,1),"native Steam host zombie cannot transmit voice")
+	game.ui.action_requested.emit("suicide",{});game._refresh_ui()
+	check(p.life=="soul" and game.session.model.state.corpses.has(p.corpse_uid),"native Steam host suicide leaves soul and corpse")
+	game.ui.action_requested.emit("return_camp",{});game._refresh_ui()
+	check(p.life=="alive" and p.san==30,"native Steam host can recover after zombie suicide")
+	check(game.steam_service.steam.getLobbyData(game.steam_service.lobby_id,"protocol")==game.steam_service.PROTOCOL,"native Steam lobby advertises current zombie protocol")
 func finish()->void:
 	print("STEAM_LIVE_MAIN ",checks," checks, ",failures," failures; no client, no invitation sent")
 	if is_instance_valid(game):game.queue_free()

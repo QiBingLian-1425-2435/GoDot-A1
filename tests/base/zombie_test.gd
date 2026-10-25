@@ -107,5 +107,27 @@ func run():
 		check(game.get_viewport().get_texture().get_image().save_png("res://artifacts/base_tests/zombie_visible.png")==OK,"capture visible zombie HUD")
 	button(game.ui._soul_panel,"自杀，进入灵魂状态").pressed.emit();game._refresh_ui()
 	check(gp.life=="soul","actual UI sends suicide intent through Session")
+	# Exercise the real physics callback; mocked reachability cannot prove walls work.
+	var scene_model=game.session.model
+	scene_model.add_player(2,"physics teammate")
+	var teammate: Dictionary=scene_model.state.players[2]
+	scene_model.Souls.revive(scene_model,gp);scene_model.change_san(1,-100)
+	teammate.pos=gp.pos+Vector2(.75,0);teammate.height=gp.height
+	teammate.bag[20]=scene_model._item("revival_serum",2)
+	var wall := StaticBody3D.new();wall.collision_layer=1;wall.collision_mask=0
+	var collider := CollisionShape3D.new();var shape := BoxShape3D.new()
+	shape.size=Vector3(.08,2,1);collider.shape=shape;wall.add_child(collider)
+	game.add_child(wall)
+	wall.position=Vector3(gp.pos.x+.375,float(gp.height)+.8,gp.pos.y)
+	await physics_frame;await physics_frame
+	scene_model.tick(.1)
+	check(teammate.life=="alive","real StaticBody3D wall blocks zombie contact kill")
+	check(not scene_model.command(2,"use",{"index":20}) and teammate.bag[20].count==2,"real physical wall blocks revival without consuming serum")
+	wall.queue_free();await physics_frame;await physics_frame
+	scene_model.tick(.1)
+	check(teammate.life=="soul","removing physical wall permits automatic contact kill")
+	scene_model.Souls.revive(scene_model,teammate)
+	teammate.pos=gp.pos+Vector2(1.5,0);teammate.bag[20]=scene_model._item("revival_serum",1)
+	check(scene_model.command(2,"use",{"index":20}) and gp.life=="alive" and teammate.bag[20].is_empty(),"real scene allows safe-range item revival after wall removal")
 	game.queue_free();await process_frame
 	print("ZOMBIE_TEST checks=",checks," failures=",failures);quit(1 if failures else 0)
