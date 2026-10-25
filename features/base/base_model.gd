@@ -10,6 +10,7 @@ const WorldTravel = preload("res://features/exploration/world_travel.gd")
 ## Host-authoritative base rules. No files are accessed until an explicit profile call.
 const Loot=preload("res://features/exploration/container_loot.gd")
 const FieldItems=preload("res://features/exploration/field_items.gd")
+const Camp=preload("res://features/base/camp_upgrades.gd")
 const Trade=preload("res://features/inventory/item_trade.gd")
 var field_placement:Callable
 var loot_reachable:Callable
@@ -21,7 +22,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -58,7 +59,7 @@ func add_player(id: int, player_name: String) -> void:
 		p.pos = Vector2(leader.pos)+Vector2(.9,0)
 		p.height = float(leader.get("height",0))
 	reset_transients(id)
-	_update_weight(p)
+	Camp.refresh_player(self,p)
 
 func remove_player(id: int) -> void:
 	if state.players.has(id): Loot.close(self,state.players[id])
@@ -110,6 +111,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			_recovery_after[id]=_clock+10.0
 			last_notice="已移动到附近安全位置，背包已保留"
 			return true
+		"camp_upgrade":return Camp.upgrade(self,p,payload)
 		"buy","sell":return Trade.trade(self,p,action,payload)
 		"craft_item":return Trade.craft(self,p,str(payload.get("kind","")))
 		"search":return FieldItems.search(self,p,str(payload.get("uid","")))
@@ -163,7 +165,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			return false
 		"rest":
 			if not _near(p, "medical"): return _reject("靠近医务床才能休息")
-			p.hp = 100.0; p.stamina = 100.0; p.hunger = 100.0; p.thirst = 100.0
+			p.hp = p.get("max_hp",100.0); p.stamina = p.get("max_stamina",100.0); p.hunger = 100.0; p.thirst = 100.0
 			last_notice = "休息完成，状态已恢复"
 			_animate(p,"interact",0.8)
 			return true
@@ -188,7 +190,7 @@ func tick(delta: float) -> void:
 		var pending:Dictionary=p.get("pending_use",{})
 		if not pending.is_empty():
 			pending.remaining-=delta
-			if pending.remaining<=0:p.hp=minf(100,float(p.hp)+float(pending.hp));p.pending_use={}
+			if pending.remaining<=0:p.hp=minf(float(p.get("max_hp",100)),float(p.hp)+float(pending.hp));p.pending_use={}
 		var input: Dictionary = _inputs.get(id, {})
 		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
 		_update_weight(p)

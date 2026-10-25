@@ -4,10 +4,13 @@ extends RefCounted
 static func save_profile(ctx, path: String, id: int = 1) -> Error:
 	if path.is_empty() or not ctx.state.players.has(id): return ERR_INVALID_PARAMETER
 	var data:=capture(ctx,id)
-	var file = FileAccess.open(path,FileAccess.WRITE)
+	data.camp=ctx.state.camp.duplicate()
+	var file = FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file == null: return FileAccess.get_open_error()
-	file.store_string(JSON.stringify(data))
-	return OK
+	file.store_string(JSON.stringify(data));file.flush()
+	var result:=file.get_error();file.close()
+	if result!=OK:return result
+	return DirAccess.rename_absolute(ProjectSettings.globalize_path(path+".tmp"),ProjectSettings.globalize_path(path))
 
 static func load_profile(ctx, path: String, id: int = 1) -> Error:
 	if not ctx.state.players.has(id): return ERR_INVALID_PARAMETER
@@ -16,6 +19,10 @@ static func load_profile(ctx, path: String, id: int = 1) -> Error:
 	if file == null: return FileAccess.get_open_error()
 	var parser:=JSON.new()
 	if parser.parse(file.get_as_text())!=OK:return ERR_FILE_CORRUPT
+	if not valid(ctx,parser.data):return ERR_FILE_CORRUPT
+	var levels:Variant=parser.data.get("camp",ctx.Camp.initial())
+	if not ctx.Camp.valid(levels):return ERR_FILE_CORRUPT
+	ctx.state.camp=ctx.Camp.normalized(levels)
 	return apply(ctx,parser.data,id)
 
 static func capture(ctx, id: int) -> Dictionary:
@@ -58,7 +65,8 @@ static func apply(ctx, value: Variant, id: int) -> Error:
 			if ctx.Items.definition(item.kind).category == "weapon": magazines[item.uid] = clampi(int(old_magazines.get(old_uid,0)),0,int(ctx.Items.definition(item.kind).magazine))
 	p.bag = data.bag; p.stash = data.stash; p.equipment = data.equipment; p.magazines = magazines
 	p.credits = clampi(int(data.get("credits",500)),0,999999)
-	for stat in ["hp","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,100)
+	ctx.Camp.refresh_player(ctx,p)
+	for stat in ["hp","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,float(p.get("max_"+stat,100)))
 	p.ammo = int(magazines.get(p.equipment.weapon.get("uid",""),0)); p.reloading = false
 	ctx.reset_transients(id)
 	ctx._update_weight(p)

@@ -86,11 +86,11 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if effects.is_empty():return ctx._reject("此物品不能直接使用")
 	var needed:=false
 	for stat in effects:
-		if float(effects[stat])>0 and float(p[stat])<100:needed=true
+		if float(effects[stat])>0 and float(p[stat])<float(p.get("max_"+str(stat),100)):needed=true
 	if not needed:return ctx._reject("当前状态已满，无需消耗")
 	if item.kind=="medical_box":p.pending_use={"remaining":4.0,"hp":80}
 	else:
-		for stat in effects:p[stat]=clampf(float(p[stat])+float(effects[stat]),0,100)
+		for stat in effects:p[stat]=clampf(float(p[stat])+float(effects[stat]),0,float(p.get("max_"+str(stat),100)))
 	item.count-=1
 	if item.count<=0:p.bag[index]={}
 	ctx._update_weight(p)

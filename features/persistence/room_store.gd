@@ -9,6 +9,7 @@ var members: Dictionary={}
 func begin(ctx, file_path: String, owner_key: String, legacy: String="") -> Error:
 	if file_path.is_empty() or owner_key.is_empty():return ERR_INVALID_PARAMETER
 	var saved: Dictionary={}
+	var levels:Dictionary=ctx.Camp.initial()
 	if FileAccess.file_exists(file_path):
 		var parser:=JSON.new()
 		if parser.parse(FileAccess.get_file_as_string(file_path))!=OK:return ERR_FILE_CORRUPT
@@ -17,12 +18,16 @@ func begin(ctx, file_path: String, owner_key: String, legacy: String="") -> Erro
 		for key in parsed.profiles:
 			if not key is String or key.is_empty() or not Profile.valid(ctx,parsed.profiles[key]):return ERR_FILE_CORRUPT
 		if not parsed.profiles.has(owner_key):return ERR_FILE_CORRUPT
+		if not ctx.Camp.valid(parsed.get("camp",ctx.Camp.initial())):return ERR_FILE_CORRUPT
+		levels=ctx.Camp.normalized(parsed.get("camp",ctx.Camp.initial()))
 		saved=parsed.profiles
 	elif FileAccess.file_exists(file_path+".bak"):
 		return ERR_FILE_CORRUPT # Never silently roll back consumed items from an old backup.
 	elif not legacy.is_empty() and FileAccess.file_exists(legacy):
 		var error: Error=Profile.load_profile(ctx,legacy,1)
 		if error!=OK:return error
+	ctx.state.camp=levels
+	ctx.Camp.refresh_all(ctx)
 	path=file_path;owner=owner_key;profiles=saved;members={}
 	var result:=admit(ctx,1,owner_key)
 	if result!=OK:return result
@@ -39,20 +44,23 @@ func admit(ctx, id: int, identity: String) -> Error:
 
 func checkpoint(ctx) -> Error:
 	if path.is_empty():return OK
+	var next_profiles:Dictionary=profiles.duplicate(true)
 	for id in members:
-		if ctx.state.players.has(id):profiles[members[id]]=Profile.capture(ctx,id)
+		if ctx.state.players.has(id):next_profiles[members[id]]=Profile.capture(ctx,id)
 	var absolute:=ProjectSettings.globalize_path(path)
 	var result:=DirAccess.make_dir_recursive_absolute(absolute.get_base_dir())
 	if result!=OK:return result
 	var file:=FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file==null:return FileAccess.get_open_error()
-	file.store_string(JSON.stringify({"version":1,"owner":owner,"profiles":profiles}))
+	file.store_string(JSON.stringify({"version":1,"owner":owner,"profiles":next_profiles,"camp":ctx.state.camp}))
 	file.flush();result=file.get_error();file.close()
 	if result!=OK:return result
 	if FileAccess.file_exists(path):
 		result=DirAccess.copy_absolute(absolute,absolute+".bak")
 		if result!=OK:return result
-	return DirAccess.rename_absolute(absolute+".tmp",absolute)
+	result=DirAccess.rename_absolute(absolute+".tmp",absolute)
+	if result==OK:profiles=next_profiles
+	return result
 
 func detach(ctx, id: int) -> Error:
 	var result:=checkpoint(ctx)
