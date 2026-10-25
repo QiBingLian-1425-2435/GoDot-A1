@@ -132,7 +132,13 @@
     "features/base/camp_upgrades.gd",
     "features/base/camp_upgrades.gd.uid",
     "ui/inventory/camp_panel.gd",
-    "ui/inventory/camp_panel.gd.uid"
+    "ui/inventory/camp_panel.gd.uid",
+    "features/rescue/soul_rules.gd",
+    "features/rescue/soul_rules.gd.uid",
+    "features/rescue/soul_view.gd",
+    "features/rescue/soul_view.gd.uid",
+    "ui/soul_panel.gd",
+    "ui/soul_panel.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

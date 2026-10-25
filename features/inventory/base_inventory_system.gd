@@ -86,7 +86,7 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if effects.is_empty():return ctx._reject("此物品不能直接使用")
 	var needed:=false
 	for stat in effects:
-		if float(effects[stat])>0 and float(p[stat])<float(p.get("max_"+str(stat),100)):needed=true
+		if float(effects[stat])<0 or (float(effects[stat])>0 and float(p[stat])<float(p.get("max_"+str(stat),100))):needed=true
 	if not needed:return ctx._reject("当前状态已满，无需消耗")
 	if item.kind=="medical_box":p.pending_use={"remaining":4.0,"hp":80}
 	else:
@@ -95,6 +95,7 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if item.count<=0:p.bag[index]={}
 	ctx._update_weight(p)
 	ctx._animate(p,"drink" if item.kind in ["water","juice"] else "eat" if info.item_type=="food" else "heal",4.0 if item.kind=="medical_box" else 1.3 if info.item_type=="food" else 1.5)
+	if float(p.hp)<=0: ctx.Souls.die(ctx,p)
 	return true
 
 static func _drop(ctx, p: Dictionary, payload: Dictionary) -> bool:

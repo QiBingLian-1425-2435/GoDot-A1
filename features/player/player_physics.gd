@@ -13,6 +13,11 @@ func configure(match_model) -> void:
 	model = match_model
 	model.motion_solver = solve
 	model.recovery_solver = recover
+	model.rescue_reachable = rescue_reachable
+
+func rescue_reachable(origin: Vector3, target: Vector3) -> bool:
+	if origin.distance_to(target)<.001: return true
+	return get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(origin,target,1)).is_empty()
 
 func solve(id: int, from: Vector2, offset: Vector2) -> Variant:
 	if not world_ready: return Vector3(from.x,float(model.state.players.get(id,{}).get("height",0)),from.y)

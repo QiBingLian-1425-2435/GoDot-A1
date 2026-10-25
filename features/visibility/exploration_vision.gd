@@ -16,6 +16,7 @@ var _clock:=1.0
 var _world_id:=0
 
 func update(ctx, delta: float) -> void:
+	var observer_id: int = ctx.session.model.Souls.observer_id(ctx.session.model.state.players,ctx.session.local_id)
 	var active: bool=ctx.in_game and not ctx.world_loading and ctx.world_id!="bunker"
 	var current_world: int=ctx.world.get_instance_id()
 	if current_world!=_world_id:
@@ -25,11 +26,11 @@ func update(ctx, delta: float) -> void:
 	if is_instance_valid(ctx.tracer_node):ctx.tracer_node.material_override.set_shader_parameter("vision_enabled",enabled)
 	if not enabled:
 		roof_cutaway=false
-		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+		var p:Dictionary=ctx.session.model.state.players.get(observer_id,{})
 		observer=Vector3(Vector2(p.get("pos",Vector2.ZERO)).x,float(p.get("height",0)),Vector2(p.get("pos",Vector2.ZERO)).y)
-		if ctx.actors.has(ctx.session.local_id):observer=ctx.actors[ctx.session.local_id].position
+		if ctx.actors.has(observer_id):observer=ctx.actors[observer_id].position
 		if ctx.in_game and not ctx.world_loading:
-			for id in ctx.actors:ctx.actors[id].visible=id==ctx.session.local_id or can_see(ctx.actors[id].position+Vector3.UP)
+			for id in ctx.actors:ctx.actors[id].visible=id==observer_id or can_see(ctx.actors[id].position+Vector3.UP)
 			for uid in ctx.drops:ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
 			for label in ctx.target_labels:label.visible=can_see(label.position)
 		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{})
@@ -38,11 +39,12 @@ func update(ctx, delta: float) -> void:
 			for drop in ctx.drops.values():drop.visible=false
 			for label in ctx.target_labels:label.visible=false
 		return
-	var player: Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+	var player: Dictionary=ctx.session.model.state.players.get(observer_id,{})
 	if player.is_empty():enabled=false;return
 	var local: Dictionary=ctx.session.local_movement.sample_player(player) if ctx.session.mode=="client" else player
+	if observer_id!=ctx.session.local_id and ctx.session.mode=="client":local=ctx.session.motion_buffer.sample_player(observer_id,player)
 	observer=Vector3(local.pos.x,float(local.get("height",0)),local.pos.y)
-	if ctx.actors.has(ctx.session.local_id):observer=ctx.actors[ctx.session.local_id].position
+	if ctx.actors.has(observer_id):observer=ctx.actors[observer_id].position
 	var facing: Vector2=local.get("aim",Vector2.UP)
 	if not facing.is_zero_approx():aim=facing.normalized()
 	space=ctx.get_world_3d().direct_space_state
@@ -68,7 +70,7 @@ func update(ctx, delta: float) -> void:
 		for key in parameters:ctx.tracer_node.material_override.set_shader_parameter(key,parameters[key])
 	for id in ctx.actors:
 		var actor: Node3D=ctx.actors[id]
-		actor.visible=id==ctx.session.local_id or can_see(actor.position+Vector3(0,.45,0)) or can_see(actor.position+Vector3(0,1.3,0))
+		actor.visible=id==observer_id or can_see(actor.position+Vector3(0,.45,0)) or can_see(actor.position+Vector3(0,1.3,0))
 	for uid in ctx.drops:
 		ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
 	if ctx.world.has_method("vision_targets"):

@@ -86,6 +86,9 @@ func confirm(p: Dictionary) -> void:
 	_pending = {"seq":seq,"start":float(_sent[seq]),"pose":pose}
 
 func advance(delta: float, authoritative: Dictionary) -> void:
+	if authoritative.get("life","alive")=="soul" or float(authoritative.get("hp",100))<=0:
+		clear()
+		return
 	if delta <= 0 or not solver.is_valid(): return
 	delta = minf(delta,.1)
 	if _state.is_empty(): confirm(authoritative)
@@ -132,6 +135,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 
 func sample_player(authoritative: Dictionary) -> Dictionary:
 	var display := authoritative.duplicate()
+	if authoritative.get("life","alive")=="soul" or float(authoritative.get("hp",100))<=0: return display
 	if _state.is_empty(): return display
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
 	display.roll = _state.get("roll",Movement.empty_roll()).duplicate(true)

@@ -20,26 +20,34 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 		ctx.reset_transients(id)
 		ctx.last_notice = "已到达传送点"
 		return true
+	return enter_world(ctx,destination,chosen.spawn)
+
+static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
-	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{})}
+	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{}),"corpses":ctx.state.get("corpses",{})}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})
 	ctx.state.drops = saved.drops
 	ctx.state.targets = saved.targets
 	ctx.state.doors = saved.get("doors",{})
 	ctx.state.containers=saved.get("containers",{})
+	ctx.state.corpses=saved.get("corpses",{})
 	ctx.state.field_effects=[]
 	ctx.state.shots.clear()
 	ctx.state.world = destination
 	ctx.state.map_revision = "" if destination=="bunker" else ctx.map_revision
 	ctx.state.phase = "base" if destination=="bunker" else "exploration"
 	ctx.state.world_revision = int(ctx.state.get("world_revision",0))+1
-	var spawn: Vector3 = chosen.spawn
 	var index := 0
 	for player_id in ctx.state.players:
 		var player: Dictionary = ctx.state.players[player_id]
 		player.pos = Vector2(spawn.x,spawn.z)+Vector2(index%3*.8,index/3*.8)
 		player.height = spawn.y
+		player.possessing = 0; player.rescue = {}
+		if destination=="bunker" and not ctx.Souls.alive(player): ctx.Souls.revive(ctx,player)
+		elif not ctx.Souls.alive(player):
+			var body: Dictionary = ctx.state.corpses.get(player.get("corpse_uid",""),{})
+			if not body.is_empty(): player.pos=body.pos; player.height=body.height
 		ctx.reset_transients(player_id)
 		index += 1
 	ctx.last_notice = "队伍已进入"+{"bunker":"地下基地","surface":"零号区","cave":"神秘山洞"}[destination]

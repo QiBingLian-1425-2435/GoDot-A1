@@ -69,6 +69,8 @@ static func apply(ctx, value: Variant, id: int) -> Error:
 	for stat in ["hp","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,float(p.get("max_"+stat,100)))
 	p.ammo = int(magazines.get(p.equipment.weapon.get("uid",""),0)); p.reloading = false
 	ctx.reset_transients(id)
+	p.life = "alive";p.possessing = 0;p.rescue = {};p.corpse_uid = ""
+	if float(p.hp)<=0 and ctx.state.get("world","bunker")=="bunker": ctx.Souls.revive(ctx,p)
 	ctx._update_weight(p)
 	return OK
 

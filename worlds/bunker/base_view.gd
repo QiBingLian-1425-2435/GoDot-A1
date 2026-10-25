@@ -31,15 +31,16 @@ static func _setup_environment(ctx)->void:
 static func _update_camera(ctx, delta:float)->void:
 	var target =Vector3(0,0,3)
 	if ctx.session!=null:
-		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+		var observer_id: int = ctx.session.model.Souls.observer_id(ctx.session.model.state.players,ctx.session.local_id)
+		var p:Dictionary=ctx.session.model.state.players.get(observer_id,{})
 		var pos:Vector2=p.get("pos",Vector2(0,3))
-		if ctx.actors.has(ctx.session.local_id):
-			var visible_pos:Vector3=ctx.actors[ctx.session.local_id].position
+		if ctx.actors.has(observer_id):
+			var visible_pos:Vector3=ctx.actors[observer_id].position
 			pos=Vector2(visible_pos.x,visible_pos.z)
 		if ctx.world_id=="bunker": target=Vector3(pos.x*0.76,0,pos.y*0.76)
 		else:
 			var height: float = float(p.get("height",0))
-			if ctx.actors.has(ctx.session.local_id): height=ctx.actors[ctx.session.local_id].position.y
+			if ctx.actors.has(observer_id): height=ctx.actors[observer_id].position.y
 			target=Vector3(pos.x,height,pos.y)
 	if ctx.world_id!="bunker" and ctx.camera_focus.distance_to(target)>6:ctx.camera_focus=target
 	else:ctx.camera_focus=ctx.camera_focus.lerp(target,minf(1,delta*6))
@@ -68,7 +69,7 @@ static func _update_actors(ctx, delta:float)->void:
 			ctx.add_child(actor)
 			actor.setup(Color("87c9db") if id!=ctx.session.local_id else Color("d7c583"),str(players[id].name))
 			ctx.actors[id]=actor
-		ctx.actors[id].visible=true
+		ctx.actors[id].visible=ctx.session.model.Souls.alive(players[id])
 		var display:Dictionary=players[id]
 		if ctx.session.mode=="client":
 			display=ctx.session.local_movement.sample_player(players[id]) if id==ctx.session.local_id else ctx.session.motion_buffer.sample_player(id,players[id])

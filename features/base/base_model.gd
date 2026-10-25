@@ -12,6 +12,8 @@ const Loot=preload("res://features/exploration/container_loot.gd")
 const FieldItems=preload("res://features/exploration/field_items.gd")
 const Camp=preload("res://features/base/camp_upgrades.gd")
 const Trade=preload("res://features/inventory/item_trade.gd")
+const Souls = preload("res://features/rescue/soul_rules.gd")
+var rescue_reachable: Callable
 var field_placement:Callable
 var loot_reachable:Callable
 const Items = preload("res://features/inventory/item_catalog.gd")
@@ -38,6 +40,7 @@ var recovery_solver: Callable
 var _recovery_after: Dictionary = {}
 
 func _init() -> void:
+	state.corpses = {}
 	for i in range(3):
 		state.targets.append({"id":i, "pos":Vector2(8 + i * 2, 8.8), "hp":100, "max_hp":100, "hits":0})
 
@@ -54,6 +57,7 @@ func add_player(id: int, player_name: String) -> void:
 		_insert(p.stash, _item(spec[0], spec[1]))
 	state.players[id] = p
 	p.height = 0.0
+	p.life = "alive"; p.possessing = 0; p.rescue = {}; p.corpse_uid = ""
 	if state.get("world","bunker")!="bunker" and not state.players.is_empty():
 		var leader: Dictionary = state.players.values()[0]
 		p.pos = Vector2(leader.pos)+Vector2(.9,0)
@@ -94,6 +98,12 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
+	if float(p.hp)<=0: Souls.die(self,p)
+	if action in ["soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
+		if not world_ready: return false
+		return Souls.command(self,p,action,payload)
+	if not Souls.alive(p): return _reject("灵魂状态可等待救援或附身存活队友")
+	if not p.get("rescue",{}).is_empty() and action != "move": p.rescue = {}
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("探索时无法访问基地仓库")
 	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("翻滚中，请稍候")
@@ -114,7 +124,10 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		"camp_upgrade":return Camp.upgrade(self,p,payload)
 		"buy","sell":return Trade.trade(self,p,action,payload)
 		"craft_item":return Trade.craft(self,p,str(payload.get("kind","")))
-		"search":return FieldItems.search(self,p,str(payload.get("uid","")))
+		"search":
+			var uid := str(payload.get("uid",""))
+			if state.corpses.has(uid): return Loot.open(self,p,state.corpses[uid])
+			return FieldItems.search(self,p,uid)
 		"loot_take":return Loot.take(self,p,payload)
 		"loot_close":return Loot.close(self,p,str(payload.get("uid","")))
 		"door": return WorldTravel.toggle_door(self,id,payload)
@@ -184,13 +197,18 @@ func tick(delta: float) -> void:
 	if not is_finite(delta) or delta <= 0.0: return
 	delta = minf(delta, 0.1)
 	_clock += delta
+	Souls.tick(self,0.0)
 	Loot.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
+		if not Souls.alive(p): continue
 		var pending:Dictionary=p.get("pending_use",{})
 		if not pending.is_empty():
 			pending.remaining-=delta
 			if pending.remaining<=0:p.hp=minf(float(p.get("max_hp",100)),float(p.hp)+float(pending.hp));p.pending_use={}
+		if float(p.hp)<=0:
+			Souls.die(self,p)
+			continue
 		var input: Dictionary = _inputs.get(id, {})
 		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
 		_update_weight(p)
@@ -213,6 +231,7 @@ func tick(delta: float) -> void:
 					p.ammo += needed if state.get("infinite_reserve",false) else _consume(p.bag,"ammo",needed)
 					p.magazines[weapon.uid] = p.ammo
 				p.reloading = false; p.reload_progress = 0.0
+	Souls.tick(self,delta)
 	for i in range(state.shots.size() - 1, -1, -1):
 		state.shots[i].ttl -= delta
 		if state.shots[i].ttl <= 0: state.shots.remove_at(i)

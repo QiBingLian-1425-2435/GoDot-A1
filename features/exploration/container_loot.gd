@@ -8,12 +8,15 @@ const FOOD = ["canned_food", "biscuits", "energy_bar"]
 const SEARCH_SECONDS := 1.4
 
 static func station(ctx, uid: String) -> Dictionary:
+	if ctx.state.get("corpses",{}).has(uid): return ctx.state.corpses[uid]
 	for target in ctx.stations:
 		if target.get("kind") == "loot" and target.get("uid") == uid:
 			return target
 	return {}
 
 static func reachable(ctx, p: Dictionary, target: Dictionary) -> bool:
+	if not ctx.Souls.alive(p): return false
+	if target.get("kind","") == "corpse": return ctx.Souls.reachable(ctx,p,target)
 	if target.is_empty() or not ctx.world_ready or target.get("world") != ctx.state.world:
 		return false
 	if Vector2(p.pos).distance_to(target.pos) > 2.4 or absf(float(p.get("height", 0)) - float(target.height)) > 2:
@@ -103,6 +106,8 @@ static func take(ctx, p: Dictionary, payload: Dictionary) -> bool:
 		if not ctx._insert(copy, box.items[i].duplicate(true)):
 			continue
 		p.bag = copy
+		var item: Dictionary = box.items[i]
+		if Items.definition(item.kind).category == "weapon": p.magazines[item.uid] = int(item.get("magazine",0))
 		box.items[i] = {}
 		taken += 1
 	if taken == 0:

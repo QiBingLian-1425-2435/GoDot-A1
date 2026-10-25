@@ -78,6 +78,9 @@ func run() -> void:
 	var before: Dictionary=model.state.duplicate(true)
 	settle()
 	check(model.state==before,"view evaluation does not change shared actors, inventory or world state")
+	p.hp=0;model.tick(.01);model.command(1,"possess",{"target":2});settle()
+	check(game.vision.observer.distance_to(game.actors[2].position)<.01,"possessed soul uses teammate observer in real exploration vision")
+	model.Souls.revive(model,p);p.pos=spawn;p.aim=forward;settle()
 	check(game.world._terrain_material.get_shader_parameter("vision_enabled"),"the real terrain receives the local fog parameters")
 	await capture("forward")
 	if DisplayServer.get_name()!="headless":
@@ -99,11 +102,13 @@ func run() -> void:
 	check(not game.drops.hidden.visible and game.nearest.get("uid","")!="hidden","an unseen nearby item has no pickup prompt")
 	var hidden_containers:=0
 	for target in game.world.vision_targets():
+		if target.nodes.is_empty():continue # Semantic search targets can have bounds without a render node.
 		if not target.nodes[0].visible:hidden_containers+=1
 	check(hidden_containers>50,"real static containers outside sight are hidden with their full mesh groups")
 	# Find one original container with an exposed sample and verify turn-away hiding.
 	var exercised:=false
 	for target in game.world.vision_targets():
+		if target.nodes.is_empty():continue
 		var point: Vector3=target.points[0]
 		for direction in [Vector2.UP,Vector2.DOWN,Vector2.LEFT,Vector2.RIGHT]:
 			p.pos=Vector2(point.x,point.z)-direction*5;p.height=point.y-.6;p.aim=direction

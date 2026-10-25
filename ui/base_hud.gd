@@ -4,6 +4,11 @@ const ContainerPanel = preload("res://ui/inventory/container_panel.gd")
 const InventoryPanel = preload("res://ui/inventory/inventory_panel.gd")
 const MenuScreen = preload("res://ui/menu/menu_screen.gd")
 const SteamPanel = preload("res://ui/network/steam_panel.gd")
+const Souls = preload("res://features/rescue/soul_rules.gd")
+const SoulPanel = preload("res://ui/soul_panel.gd")
+var _soul_panel: Control
+var _soul_signature := ""
+var _soul_status: Label
 
 signal action_requested(action: String, payload: Dictionary)
 
@@ -20,6 +25,7 @@ const PANEL := Color(0.10, 0.15, 0.17, 0.97)
 var _loot_uid := ""
 var _loot_dismissed_uid := ""
 var _loot_selected := -1
+var _loot_page := 0
 var _loot_slots: Array = []
 var _loot_buttons: Array = []
 var _loot_bag: Array = []
@@ -148,6 +154,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func show_menu() -> void:
+	if is_instance_valid(_soul_panel): _soul_panel.hide()
 	_in_game = false
 	_menu.visible = true
 	_hud.visible = false
@@ -242,6 +249,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	if not is_instance_valid(_root):
 		return
 	var p := _player()
+	SoulPanel.sync(self)
 	ContainerPanel.sync(self)
 	var world_name: String = str(state.get("world","bunker"))
 	_world_label.text = {"bunker":"避 难 所","surface":"零 号 区","cave":"神 秘 山 洞"}.get(world_name,"探索区域")

@@ -14,7 +14,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -155,6 +155,7 @@ func offline() -> void:
 	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
 	peer_validator = Callable(); peer_name_provider = Callable()
 	model.state.field_effects=[];model.state.containers={}
+	model.state.corpses={}
 	model.state.camp=_local_camp.duplicate()
 	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
 	model.state.world = "bunker"; model.state.phase = "base"
@@ -174,6 +175,7 @@ func offline() -> void:
 		model.state.players[1].fire_timer = 0.0
 	model.Camp.refresh_player(model,model.state.players[1])
 	model.reset_transients(1)
+	if not model.Souls.alive(model.state.players[1]): model.Souls.revive(model,model.state.players[1])
 	_voice_limits.clear(); _voice_sequences.clear()
 	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
 	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
@@ -202,7 +204,7 @@ func send(action: String, payload: Dictionary = {}) -> void:
 			_roll_capture=false
 		payload.roll_direction=_roll_direction
 	var clean := _clean_payload(action,payload)
-	if action in ["unstuck","use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"]:clean.world_revision=int(model.state.get("world_revision",0))
+	if action in ["soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","unstuck","use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"]:clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
 	if action == "move" and clean.is_empty(): return
 	if mode == "client":
@@ -280,6 +282,9 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
 	if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 	match action:
+		"possess","rescue":
+			if payload.get("target") is int: clean.target = payload.target
+			if action=="rescue" and payload.get("uid") is String: clean.uid=str(payload.uid).left(64)
 		"camp_upgrade":
 			if payload.get("facility") is String:clean.facility=str(payload.facility).left(24)
 			if payload.get("expected_level") is int:clean.expected_level=payload.expected_level
@@ -361,7 +366,7 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
 	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
-	if action in ["use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
+	if action in ["soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	var accepted: bool=_execute_command(sender,action,_clean_payload(action,payload))
 	if accepted and action not in ["fire","camp_upgrade"] and not room_store.path.is_empty():save_room()
 	if not model.last_notice.is_empty():

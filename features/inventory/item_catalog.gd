@@ -1,6 +1,7 @@
 extends RefCounted
 ## Read-only item definitions. Runtime stacks always live in Model state.
 const DEFS := {
+	"poison_capsule": {"name":"剧毒胶囊（服用致死）","weight":0.02,"stack":1,"color":Color("a577bf"),"category":"food","description":"危险：服用后生命立即归零，进入灵魂状态。装备留在遗体中，可由队友救援。"},
 	"rifle": {"name":"巡林步枪", "weight":3.4, "stack":1, "color":Color("aab8a0"), "category":"weapon", "description":"基地训练用自动步枪。30发弹匣，R装填。", "magazine":30, "damage":34, "fire_interval":0.10, "reload_time":1.15},
 	"pistol": {"name":"轻型手枪", "weight":1.1, "stack":1, "color":Color("b4bec5"), "category":"weapon", "description":"轻便的备用武器。12发弹匣。", "magazine":12, "damage":20, "fire_interval":0.16, "reload_time":0.85},
 	"ammo": {"name":"通用训练弹", "weight":0.025, "stack":60, "color":Color("d5b26f"), "category":"ammo", "description":"两种训练武器共用的弹药。"},
@@ -30,8 +31,8 @@ const DEFS := {
 }
 
 const TYPES := {"food":"食品饮料","medical":"医疗用品","tool":"工具道具","material":"制作材料","valuable":"贵重物品","equipment":"武器装备"}
-const VALUES := {"rifle":900,"pistol":350,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"backpack":200,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
-const EFFECTS := {"medkit":{"hp":45},"bandage":{"hp":18},"water":{"thirst":40},"canned_food":{"hunger":35},"biscuits":{"hunger":30,"thirst":-5},"juice":{"thirst":30,"hunger":10},"energy_bar":{"hunger":55,"stamina":20},"medical_box":{"hp":80}}
+const VALUES := {"poison_capsule":10,"rifle":900,"pistol":350,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"backpack":200,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
+const EFFECTS := {"poison_capsule":{"hp":-1000},"medkit":{"hp":45},"bandage":{"hp":18},"water":{"thirst":40},"canned_food":{"hunger":35},"biscuits":{"hunger":30,"thirst":-5},"juice":{"thirst":30,"hunger":10},"energy_bar":{"hunger":55,"stamina":20},"medical_box":{"hp":80}}
 const TIERS := ["普通","优良","稀有","史诗","珍贵","至宝"]
 const COLORS := [Color("c5ccc9"),Color("73bc81"),Color("639ee5"),Color("b183df"),Color("edc65c"),Color("ed7474")]
 static var _definitions: Dictionary={}

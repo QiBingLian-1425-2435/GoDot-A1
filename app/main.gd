@@ -52,8 +52,11 @@ var player_physics: Node3D
 var vision = Vision.new()
 var field_item_view:Node3D
 var global_map:Control
+var soul_view: Node3D
 
 func _ready()->void:
+	soul_view = preload("res://features/rescue/soul_view.gd").new()
+	add_child(soul_view)
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
 	add_child(field_item_view)
 	_setup_environment()
@@ -236,6 +239,7 @@ func _return_menu()->void:
 	joining=false
 	in_game=false
 	session.offline()
+	soul_view.update(self)
 	field_item_view.update(self)
 	if is_instance_valid(steam_service):steam_service.leave_room()
 	session.set_physics_process(false)
@@ -298,6 +302,7 @@ func _process(delta:float)->void:
 		_update_camera(delta)
 		_update_drops()
 		vision.update(self,delta)
+		soul_view.update(self)
 		field_item_view.update(self)
 		_update_tracers()
 		_update_interaction()
@@ -337,6 +342,9 @@ func _update_interaction()->void:
 		ui.set_interaction("")
 		return
 	var p:Dictionary=session.model.state.players.get(session.local_id,{})
+	if not session.model.Souls.alive(p):
+		ui.set_interaction("")
+		return
 	var pos:Vector2=p.get("pos",Vector2.ZERO)
 	var distance:=2.4
 	for uid in session.model.state.drops:
@@ -375,12 +383,27 @@ func _update_interaction()->void:
 				nearest.title="搜索厕所" if box.is_empty() else "继续搜索厕所" if int(box.revealed)<box.items.size() else "查看厕所物品"
 		if station.get("kind")=="door":
 			nearest.title="关门" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "开门"
+	for uid in session.model.state.get("corpses",{}):
+		var body: Dictionary = session.model.state.corpses[uid]
+		if not session.model.Souls.reachable(session.model,p,body): continue
+		var d: float = pos.distance_to(body.pos)
+		var owner: Dictionary = session.model.state.players.get(int(body.owner),{})
+		var can_rescue: bool = not owner.is_empty() and not session.model.Souls.alive(owner) and owner.get("corpse_uid","")==uid
+		var box: Dictionary = session.model.state.containers.get(uid,{})
+		var has_items: bool = int(box.get("revealed",0))<box.get("items",[]).size()
+		for item in box.get("items",[]):
+			if not item.is_empty(): has_items=true;break
+		if d>distance: continue
+		if is_equal_approx(d,distance) and not ((can_rescue and not nearest.get("rescuable",false)) or (has_items and not nearest.get("remaining",true))): continue
+		distance = d
+		nearest = {"kind":"corpse","uid":uid,"target":body.owner,"rescuable":can_rescue,"remaining":has_items,"title":str(body.container_name)+("  /  F 救援（3秒）" if can_rescue else "")}
 	ui.set_interaction("" if nearest.is_empty() else "E   "+str(nearest.title))
 
 func _interact()->void:
 	if world_loading:return
 	if nearest.is_empty():return
 	match str(nearest.kind):
+		"corpse": session.send("search",{"uid":nearest.uid})
 		"loot":session.send("search",{"uid":nearest.uid})
 		"door":session.send("door",{"uid":nearest.uid})
 		"travel":session.send("travel",{"route":nearest.uid})

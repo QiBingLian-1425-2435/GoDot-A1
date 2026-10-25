@@ -26,7 +26,7 @@ func update(enabled: bool, allowed: bool, _delta: float) -> void:
 	if context!=_context:
 		stop();clear_playback();_context=context
 	var connected: bool=session.mode in ["host","client"] and session.local_id>0 and session._session_token>0 and session.model.state.players.has(session.local_id) and session.model.world_ready
-	var wanted:=enabled and allowed and connected and available() and not muted
+	var wanted:=enabled and allowed and connected and Rules.can_speak(session.model.state.players,session.local_id) and available() and not muted
 	if not wanted and (not enabled or not allowed or not connected or muted):_error_latched=false
 	if wanted and not recording and not _error_latched:
 		# Steam may still have trailing data after StopVoiceRecording. Drain before reopening capture.

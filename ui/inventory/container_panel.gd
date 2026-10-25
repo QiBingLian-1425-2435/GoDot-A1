@@ -27,6 +27,7 @@ static func open(ctx, uid: String) -> void:
 	ctx._dialog_panel("搜索厕所" if box.get("title", "") == "厕所" else "搜索容器", Vector2(1160, 730))
 	ctx._loot_uid = uid
 	ctx._loot_selected = -1
+	ctx._loot_page = 0
 	ctx._loot_slots = []; ctx._loot_bag = []; ctx._loot_buttons = []
 	ctx._label(ctx._dialog, "随身背包", Rect2(32, 86, 470, 36), 24, ctx.INK)
 	ctx._loot_weight = ctx._label(ctx._dialog, "", Rect2(32, 128, 470, 30), 18, ctx.MUTED)
@@ -48,12 +49,14 @@ static func open(ctx, uid: String) -> void:
 		var slot = icon(ctx, button, Vector2(8, 8), Vector2(80, 80))
 		var label = ctx._label(button, "", Rect2(7, 88, 166, 25), 15, ctx.INK, HORIZONTAL_ALIGNMENT_CENTER)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.pressed.connect(func(): ctx._loot_selected = i; refresh(ctx))
+		button.pressed.connect(func(): ctx._loot_selected = ctx._loot_page*6+i; refresh(ctx))
 		button.gui_input.connect(func(event: InputEvent):
 			if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and event.double_click:
-				ctx._loot_selected = i; take(ctx, false))
+				ctx._loot_selected = ctx._loot_page*6+i; take(ctx, false))
 		ctx._loot_slots.append({"icon": slot, "label": label})
 		ctx._loot_buttons.append(button)
+	ctx._button(ctx._dialog,"上一页",Rect2(530,442,274,30),func():ctx._loot_page=maxi(0,ctx._loot_page-1);refresh(ctx),ctx.TEAL,16)
+	ctx._button(ctx._dialog,"下一页",Rect2(824,442,274,30),func():ctx._loot_page=mini(maxi(0,ceili(box.items.size()/6.0)-1),ctx._loot_page+1);refresh(ctx),ctx.TEAL,16)
 	ctx._loot_detail = ctx._label(ctx._dialog, "逐格搜索后才能拿取。单击查看，双击拿取整组。", Rect2(530, 466, 590, 115), 17, ctx.MUTED)
 	ctx._loot_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ctx._button(ctx._dialog, "拿取选中", Rect2(530, 590, 274, 48), func(): take(ctx, false), ctx.GREEN, 20)
@@ -81,17 +84,19 @@ static func refresh(ctx) -> void:
 		var item: Dictionary = p.bag[i] if i < p.bag.size() else {}
 		ctx._loot_bag[i].set_item(item, ctx.Items.definition(item.kind) if not item.is_empty() else {})
 	var remaining := 0
+	for index in range(int(box.revealed)):
+		if not box.items[index].is_empty(): remaining += 1
 	for i in range(ctx._loot_slots.size()):
+		var slot_index: int = ctx._loot_page*6+i
 		var part: Dictionary = ctx._loot_slots[i]
-		var exists: bool = i < box.items.size()
-		var known: bool = exists and i < int(box.revealed)
-		var item: Dictionary = box.items[i] if known else {}
+		var exists: bool = slot_index < box.items.size()
+		var known: bool = exists and slot_index < int(box.revealed)
+		var item: Dictionary = box.items[slot_index] if known else {}
 		part.icon.set_item(item, ctx.Items.definition(item.kind) if not item.is_empty() else {})
-		part.label.text = "空格" if not exists else "已拿走" if known and item.is_empty() else str(ctx.Items.definition(item.kind).name) if known else "搜索中…" if i == int(box.revealed) else "未搜索 · ?"
+		part.label.text = "空格" if not exists else "已拿走" if known and item.is_empty() else str(ctx.Items.definition(item.kind).name) if known else "搜索中…" if slot_index == int(box.revealed) else "未搜索 · ?"
 		ctx._loot_buttons[i].disabled = not known or item.is_empty()
 		ctx._loot_buttons[i].tooltip_text = ctx.Items.details(item) if not item.is_empty() else ""
-		part.icon.selected = i == ctx._loot_selected
-		if known and not item.is_empty(): remaining += 1
+		part.icon.selected = slot_index == ctx._loot_selected
 	var complete: bool = int(box.revealed) >= box.items.size()
 	var owner: int = int(box.searcher)
 	ctx._loot_status.text = ("箱子已搜空" if remaining == 0 else "搜索完成 · 可拿取 %d 组" % remaining) if complete else ("正在搜索" if owner == ctx._local_id else "队友正在搜索") + " · %d / %d" % [int(box.revealed), box.items.size()]

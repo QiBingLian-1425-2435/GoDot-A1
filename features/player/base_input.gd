@@ -7,6 +7,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if not ctx.in_game:return
 	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()) or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
+	if not ctx.session.model.Souls.alive(ctx.session.model.state.players.get(ctx.session.local_id,{})): blocked=true
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
 	if not blocked and focused:
@@ -28,7 +29,8 @@ static func _physics_process(ctx, delta:float)->void:
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked
 	ctx.crosshair.aiming=Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked else Input.MOUSE_MODE_VISIBLE
+	var soul_controls: bool = is_instance_valid(ctx.ui._soul_panel) and ctx.ui._soul_panel.visible
+	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked and not soul_controls else Input.MOUSE_MODE_VISIBLE
 	var audible_motion := p
 	if ctx.session.mode == "client" and ctx.session.local_movement != null:
 		audible_motion = ctx.session.local_movement.sample_player(p)
@@ -54,6 +56,9 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN: ctx.camera_zoom=minf(31,ctx.camera_zoom+1)
 	if not event is InputEventKey or not event.pressed or event.echo:return
 	match event.physical_keycode:
+		KEY_F:
+			if not ctx.ui.is_blocking() and ctx.nearest.get("kind","")=="corpse":
+				ctx.session.send("rescue",{"target":ctx.nearest.target,"uid":ctx.nearest.uid})
 		KEY_M:
 			ctx.toggle_global_map()
 			ctx.get_viewport().set_input_as_handled()
