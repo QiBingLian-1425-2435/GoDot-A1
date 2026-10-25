@@ -60,6 +60,8 @@ static func _update_actors(ctx, delta:float)->void:
 		if not players.has(id):
 			ctx.actors[id].queue_free()
 			ctx.actors.erase(id)
+			ctx.last_shots.erase(id)
+			ctx.last_reloading.erase(id)
 	for id in players:
 		if not ctx.actors.has(id):
 			var actor =ctx.Actor.new()
@@ -75,6 +77,10 @@ static func _update_actors(ctx, delta:float)->void:
 		if shots>int(ctx.last_shots.get(id,shots)):
 			ctx.sound.play("pistol" if players[id].equipment.weapon.get("kind","")=="pistol" else "fire")
 		ctx.last_shots[id]=shots
+		var reloading:bool=bool(players[id].get("reloading",false))
+		if ctx.last_reloading.has(id) and reloading and not bool(ctx.last_reloading[id]):
+			ctx.sound.play("reload")
+		ctx.last_reloading[id]=reloading
 	var targets:Array=ctx.session.model.state.get("targets",[])
 	if ctx.world.has_method("update_targets"):ctx.world.update_targets(targets)
 	while ctx.target_labels.size()<targets.size():

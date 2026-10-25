@@ -48,10 +48,13 @@ func run():
 	check(not m.command(1,"fire") and not p.reloading, "no weapon cannot reload")
 	# Replay the existing held-fire intent cadence through the actual Session/Main HUD.
 	var game = Main.new(); game.smoke = true; game.elapsed = -10000
-	root.add_child(game); game.sound.muted = true
+	root.add_child(game)
 	game.set_process(false); game.set_physics_process(false); game.session.set_physics_process(false)
 	game._start_solo(); game.session.set_physics_process(false)
 	p = game.session.model.state.players[1]
+	var heard:Array[String]=[]
+	game.sound.sound_played.connect(func(kind:String): heard.append(kind))
+	game._update_actors(.016)
 	p.ammo = 1; p.magazines[p.equipment.weapon.uid] = 1
 	p.bag = game.session.model._empty_slots(24); p.bag[0] = game.session.model._item("ammo", 5)
 	check(not game.ui.is_blocking(), "gameplay is ready for repeated fire intents")
@@ -60,6 +63,14 @@ func run():
 		game.session.model.tick(.05)
 		if p.reloading: break
 	check(p.reloading and p.ammo == 0 and p.shots == 1, "repeated fire after last round starts reload")
+	game._update_actors(.016)
+	check(heard.count("reload") == 1, "confirmed reload transition plays one reload sound")
+	game._update_actors(.016)
+	check(heard.count("reload") == 1, "repeated snapshots do not replay reload sound")
+	game.session.model.add_player(2,"joining")
+	game.session.model.state.players[2].reloading=true
+	game._update_actors(.016)
+	check(heard.count("reload") == 1, "joining during an existing reload does not replay stale sound")
 	game._refresh_ui()
 	check(game.ui._reload_label.text.contains("换弹") or game.ui._reload_label.text.contains("装填"), "HUD shows automatic reload")
 	if DisplayServer.get_name() != "headless":

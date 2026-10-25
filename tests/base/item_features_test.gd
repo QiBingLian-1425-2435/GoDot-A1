@@ -42,16 +42,38 @@ func run():
 	var m=fixture();var p:Dictionary=m.state.players[1]
 	p.credits=10000;var cash:int=p.credits
 	check(m.command(1,"buy",{"kind":"juice","count":1,"price":0}) and p.credits==cash-360,"host derives buy price instead of trusting payload")
+	var buy_funds:int=p.credits;var buy_bag:Array=p.bag.duplicate(true)
+	for invalid in [0,-1,21,1.5,"1",null]:
+		check(not m.command(1,"buy",{"kind":"scrap","count":invalid}) and p.credits==buy_funds and p.bag==buy_bag,"invalid purchase preserves assets: "+str(invalid))
+	p.credits=0
+	check(not m.command(1,"buy",{"kind":"scrap","count":1}) and p.bag==buy_bag,"insufficient purchase funds preserves bag")
+	p.credits=buy_funds
 	check(m.command(1,"buy",{"kind":"helmet","count":1}) and m._count(p.bag,"helmet")==1,"basic equipment can be repurchased after sale")
 	check(not m.command(1,"buy",{"kind":"gold_statue","count":1}),"valuable trophies cannot be purchased")
 	check(not m.command(1,"buy",{"kind":"water","count":-1}),"negative purchase rejected")
 	p.pos=Vector2(10,0);cash=p.credits
 	check(not m.command(1,"buy",{"kind":"water","count":1}) and p.credits==cash,"distant purchase does not debit")
 	p.pos=Vector2.ZERO;fill(m,p,"encrypted_core");cash=p.credits
-	check(not m.command(1,"sell",{"index":0,"uid":"forged"}) and p.credits==cash,"stale/forged item UID cannot sell another item")
-	check(m.command(1,"sell",{"index":0,"uid":p.bag[0].uid}) and p.credits==cash+18000 and p.bag[0].is_empty(),"selling one red trophy removes it exactly once")
+	check(not m.command(1,"sell",{"count":1,"index":0,"uid":"forged"}) and p.credits==cash,"stale/forged item UID cannot sell another item")
+	check(m.command(1,"sell",{"count":1,"index":0,"uid":p.bag[0].uid}) and p.credits==cash+18000 and p.bag[0].is_empty(),"selling one red trophy removes it exactly once")
+	for kind in ["scrap","tape","battery","circuit_board","optical_parts"]:
+		fill(m,p,kind,3);p.credits=100000;cash=p.credits
+		var uid:String=p.bag[0].uid
+		check(m.command(1,"sell",{"index":0,"uid":uid,"count":2}) and p.bag[0].count==1 and p.bag[0].uid==uid and p.credits==cash+2*int(Items.definition(kind).value),"partial material sale preserves UID: "+kind)
+		check(m.command(1,"buy",{"kind":kind,"count":2}) and m._count(p.bag,kind)==3,"material purchase: "+kind)
+		var unchanged:Array=p.bag.duplicate(true);var funds:int=p.credits
+		for invalid in [0,-1,4,1.5,"1",null]:
+			check(not m.command(1,"sell",{"index":0,"uid":uid,"count":invalid}) and p.bag==unchanged and p.credits==funds,"invalid sale atomic: "+str(invalid))
+		p.credits=999999
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and p.bag==unchanged and p.credits==999999,"credit ceiling rejects sale")
+		p.credits=funds;p.pos=Vector2(10,0)
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and p.bag==unchanged and p.credits==funds,"distant sale rejected")
+		p.pos=Vector2.ZERO;m.state.world="surface"
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and not m.command(1,"buy",{"kind":kind,"count":1}) and p.bag==unchanged and p.credits==funds,"field trade rejected")
+		m.state.world="bunker"
+		check(m.command(1,"sell",{"index":0,"uid":uid,"count":3}) and p.bag[0].is_empty(),"full material sale")
 	fill(m,p,"ammo",60);cash=p.credits
-	check(not m.command(1,"sell",{"index":0,"uid":p.bag[0].uid}) and p.credits==cash and p.bag[0].count==60,"free training ammunition cannot be sold")
+	check(not m.command(1,"sell",{"count":1,"index":0,"uid":p.bag[0].uid}) and p.credits==cash and p.bag[0].count==60,"free training ammunition cannot be sold")
 	p.bag=m._empty_slots(24)
 	for i in range(24):p.bag[i]=m._item("gold_statue",1)
 	var before:Array=p.bag.duplicate(true);cash=p.credits
@@ -126,11 +148,59 @@ func run():
 	check(game.ui._dialog_kind=="基地商人","E at actual trader opens shop")
 	var shop=game.ui._dialog.find_child("ShopItems",true,false)
 	for i in range(shop.item_count):
-		if shop.get_item_metadata(i)=="glowstick":shop.select(i);shop.item_selected.emit(i)
+		if shop.get_item_metadata(i).kind=="glowstick":shop.select(i);shop.item_selected.emit(i)
 	var existing:int=game.session.model._count(player.bag,"glowstick")
 	check(press_text(game.ui._dialog,"购买1件") and game.session.model._count(player.bag,"glowstick")==existing+1,"shop button buys real item through session")
 	game._refresh_ui();check(game.ui._shop_details.text.contains("9550"),"shop funds update after host confirmation")
 	await capture(game,"shop")
+	var shop_filter:OptionButton=game.ui._dialog.get_node("ShopFilter")
+	shop_filter.select(1);shop_filter.item_selected.emit(1)
+	check(shop.item_count==5 and game.ui._shop_kind.is_empty(),"material filter has five rows and clears selection")
+	shop.select(0);shop.item_selected.emit(0)
+	var quantity:SpinBox=game.ui._dialog.get_node("ShopQuantity")
+	var confirm:Button=game.ui._dialog.get_node("ShopConfirm")
+	check(press_text(game.ui._dialog,"最大") and int(quantity.value)==20,"buy maximum is capped to one stack")
+	await process_frame
+	var scraps:int=game.session.model._count(player.bag,"scrap")
+	confirm.pressed.emit()
+	check(game.session.model._count(player.bag,"scrap")==scraps+20,"quantity purchase changes real inventory")
+	game._refresh_ui()
+	var modes:OptionButton=game.ui._dialog.get_node("ShopMode")
+	modes.select(1);modes.item_selected.emit(1)
+	check(confirm.disabled and game.ui._shop_kind.is_empty(),"sell page requires explicit selection")
+	shop.select(0);shop.item_selected.emit(0)
+	var selection:Dictionary=game.ui._dialog.get_meta("selection")
+	var sold_uid:String=selection.uid;var sold_index:int=selection.index
+	var sold_count:int=player.bag[sold_index].count
+	quantity.value=2;await process_frame;confirm.pressed.emit();game._refresh_ui()
+	check(player.bag[sold_index].count==sold_count-2 and player.bag[sold_index].uid==sold_uid,"panel partial sale preserves stack UID")
+	await capture(game,"material_sale")
+	var moved:Dictionary=player.bag[sold_index];player.bag[sold_index]={};player.bag[23]=moved;game._refresh_ui()
+	check(confirm.disabled and game.ui._shop_kind.is_empty(),"moved selected stack clears sale without selecting another")
+	modes.select(0);modes.item_selected.emit(0);shop.select(0);shop.item_selected.emit(0)
+	player.credits=0;game._refresh_ui()
+	check(confirm.disabled and game.ui._shop_details.text.contains("资金不足"),"insufficient funds disables purchase")
+	player.credits=108;game._refresh_ui();press_text(game.ui._dialog,"最大")
+	check(int(quantity.value)==2,"buy maximum respects affordable quantity")
+	player.credits=10000
+	for i in range(24):player.bag[i]=game.session.model._item("gold_statue",1)
+	player.bag[0]=game.session.model._item("scrap",19);game._refresh_ui();press_text(game.ui._dialog,"最大")
+	check(int(quantity.value)==1,"buy maximum respects remaining stack capacity")
+	modes.select(1);modes.item_selected.emit(1);shop.select(0);shop.item_selected.emit(0)
+	player.credits=999999;game._refresh_ui()
+	check(confirm.disabled and game.ui._shop_details.text.contains("资金已达上限"),"sell ceiling disables confirmation")
+	player.credits=1000
+	game.ui._context_data={"index":0,"item":player.bag[0].duplicate(true)}
+	game.ui._context_selected(6)
+	check(player.bag[0].is_empty() and player.credits==1342,"backpack legacy whole-stack sale passes explicit count")
+	modes.select(0);modes.item_selected.emit(0);shop.select(0);shop.item_selected.emit(0)
+	player.credits=10000
+	for i in range(24):player.bag[i]=game.session.model._item("gold_statue",1)
+	game._refresh_ui();check(confirm.disabled and game.ui._shop_details.text.contains("背包空间不足"),"full bag disables purchase")
+	player.bag=game.session.model._empty_slots(24);player.bag[kinds.find("glowstick")]=game.session.model._item("glowstick",1)
+	game.session.model.state.world_revision+=1;game._refresh_ui()
+	check(not is_instance_valid(game.ui._dialog),"map revision closes shop")
+
 	game.ui._close_dialog();player.pos=Vector2(-9,2.2);game._update_interaction();game._interact()
 	check(game.ui._dialog_kind=="工作台制作","E at workbench opens recipe list")
 	await capture(game,"recipes")

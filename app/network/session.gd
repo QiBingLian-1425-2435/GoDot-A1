@@ -14,7 +14,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -226,6 +226,7 @@ func _physics_process(delta: float) -> void:
 		_move_clock += delta
 		if _move_clock >= 0.05:
 			_flush_movement(false)
+		local_movement.infinite_stamina = bool(model.state.get("infinite_stamina",false))
 		if model.state.players.has(local_id): local_movement.advance(delta,model.state.players[local_id])
 		return
 	_room_save_clock+=delta
@@ -276,6 +277,8 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 		"set_infinite_reserve":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
+		"set_infinite_stamina":
+			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"travel":
 			if payload.get("route") is String: clean.route = str(payload.route).left(64)
 		"move":
@@ -292,6 +295,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 				if payload.get(key) is int: clean[key] = payload[key]
 				elif payload.get(key) is String: clean[key] = str(payload[key]).left(16)
 		"use","drop","equip","sell":
+			if action=="sell":clean.count=payload.get("count") if payload.get("count") is int else 0
 			if payload.get("index") is int: clean.index = payload.index
 			if payload.get("uid") is String:clean.uid=str(payload.uid).left(64)
 		"split":
@@ -306,7 +310,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("index") is int:clean.index=payload.index
 		"buy","craft_item":
 			if payload.get("kind") is String:clean.kind=str(payload.kind).left(32)
-			if payload.get("count") is int:clean.count=payload.count
+			if payload.has("count"):clean.count=payload.count if payload.count is int else 0
 		"sort":
 			if payload.get("mode") is String:clean.mode=str(payload.mode).left(16)
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)

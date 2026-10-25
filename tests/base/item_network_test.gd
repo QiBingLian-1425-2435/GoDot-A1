@@ -39,11 +39,27 @@ func run():
 		report(role+"_ready")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==1),"phase1")
 		if role=="a":
-			session.send("buy",{"kind":"water","count":1,"price":0,"credits":999999})
-			check(await wait_for(func():return player().credits==9910 and session.model._count(player().bag,"water")==1),"remote purchase has authoritative price and item")
+			session._intent_seq+=1
+			session._intent.rpc_id(1,"buy",{"kind":"scrap","count":1,"world_revision":int(session.model.state.world_revision)-1},session._session_token,session._intent_seq)
+			session.send("buy",{"kind":"scrap","count":1.5})
+			await create_timer(.3).timeout
+			check(player().credits==10000 and session.model._count(player().bag,"scrap")==5,"near trader rejects stale map and fractional count")
+			session.send("buy",{"kind":"scrap","count":3,"price":0,"credits":999999})
+			var seq:int=session._intent_seq
+			session._intent.rpc_id(1,"buy",{"kind":"scrap","count":3,"world_revision":int(session.model.state.world_revision)},session._session_token,seq)
+			check(await wait_for(func():return player().credits==9838 and session.model._count(player().bag,"scrap")==8),"remote material purchase has authoritative price and item")
+			await create_timer(.3).timeout
+			check(player().credits==9838 and session.model._count(player().bag,"scrap")==8,"repeated intent sequence does not buy twice")
 		else:
-			session.send("sell",{"index":3,"uid":player().bag[3].uid,"value":999999})
+			session.send("sell",{"count":1,"index":3,"uid":player().bag[3].uid,"value":999999})
 			check(await wait_for(func():return player().credits==16800 and player().bag[3].is_empty()),"remote sale credits only catalog value")
+			var uid:String=player().bag[4].uid
+			session.send("sell",{"index":4,"uid":uid,"count":2,"value":999999})
+			check(await wait_for(func():return player().credits==16836 and player().bag[4].count==3),"remote partial material sale")
+			check(player().bag[4].uid==uid,"remote remainder retains UID")
+			session._intent.rpc_id(1,"sell",{"index":4,"uid":uid,"count":2,"world_revision":int(session.model.state.world_revision)},session._session_token,session._intent_seq)
+			await create_timer(.3).timeout
+			check(player().credits==16836 and player().bag[4].count==3,"repeated sale sequence does not sell twice")
 			report(role+"_one")
 		report(role+"_one")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==2),"phase2")
@@ -69,11 +85,16 @@ func run():
 		report(role+"_three")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==4),"phase4")
 		var cash:int=player().credits
+		var materials:int=session.model._count(player().bag,"scrap")
+		session._intent_seq+=1
+		session._intent.rpc_id(1,"buy",{"kind":"scrap","count":1,"world_revision":int(session.model.state.world_revision)-1},session._session_token,session._intent_seq)
 		session.send("buy",{"kind":"juice","count":1})
+		session.send("sell",{"index":4,"uid":player().bag[4].uid,"count":1})
 		await create_timer(.4).timeout
-		check(player().credits==cash,"out-of-range remote buy cannot spend or grant")
+		check(player().credits==cash and session.model._count(player().bag,"scrap")==materials,"distant sale/buy and stale map intent preserve assets")
 		await finish();return
 	check(session.host(PORT)==OK,"host starts")
+	check(session.configure_room("user://material_trade_"+run_id+"/room.json","owner",func(id):return "guest_"+str(id))==OK,"isolated room save configured")
 	for who in ["a","b"]:
 		var pid:=OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--script","res://tests/base/item_network_test.gd","--",who,run_id]);children.append(pid)
 		check(pid>0,"independent "+who+" client")
@@ -82,10 +103,17 @@ func run():
 	session.model.stations=[{"kind":"trader","pos":Vector2.ZERO}]
 	for id in [a,b]:
 		var p:Dictionary=session.model.state.players[id];p.pos=Vector2.ZERO;p.aim=Vector2.UP;p.credits=10000;p.bag=session.model._empty_slots(24)
-		for spec in [["smoke_grenade",1],["lockpick",2],["juice",1],["gold_statue",1]]:session.model._insert(p.bag,session.model._item(spec[0],spec[1]))
+		for spec in [["smoke_grenade",1],["lockpick",2],["juice",1],["gold_statue",1],["scrap",5]]:session.model._insert(p.bag,session.model._item(spec[0],spec[1]))
 	phase(1)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_one")) and FileAccess.file_exists(path("b_one"))),"trade reports")
-	check(session.model.state.players[a].credits==9910 and session.model.state.players[b].credits==16800,"host confirms buy/sell economic values")
+	check(session.model.state.players[a].credits==9838 and session.model.state.players[b].credits==16836,"host confirms buy/sell economic values")
+	var restored=Session.new()
+	check(restored.room_store.begin(restored.model,session.room_store.path,"owner")==OK,"reopen confirmed material room save")
+	for id in [a,b]:
+		restored.model.add_player(id,"restored")
+		check(restored.room_store.admit(restored.model,id,"guest_"+str(id))==OK,"restore guest identity")
+		check(restored.model.state.players[id].credits==session.model.state.players[id].credits and restored.model._count(restored.model.state.players[id].bag,"scrap")==session.model._count(session.model.state.players[id].bag,"scrap"),"material and credits survive room reopen")
+	restored.free()
 	phase(2)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_two")) and FileAccess.file_exists(path("b_two"))),"both clients observe smoke")
 	check(session.model.state.field_effects.size()==1 and session.model._count(session.model.state.players[a].bag,"smoke_grenade")==0,"one remote tool consumed exactly once")

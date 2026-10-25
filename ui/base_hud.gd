@@ -235,6 +235,10 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		if infinite != null:
 			infinite.set_pressed_no_signal(state.get("infinite_reserve",false))
 			infinite.disabled = mode in ["client","join"]
+		var stamina = _dialog.get_node_or_null("InfiniteStamina")
+		if stamina != null:
+			stamina.set_pressed_no_signal(state.get("infinite_stamina",false))
+			stamina.disabled = mode in ["client","join"]
 	if not is_instance_valid(_root):
 		return
 	var p := _player()

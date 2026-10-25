@@ -18,7 +18,7 @@ SUITES = {
     'doors': [('door_interaction_test', True, []), ('door_interaction_test', False, [])],
     'recovery': [('exploration_recovery_test', True, []), ('recovery_network_test', True, []), ('exploration_recovery_test', False, [])],
     'vision': [('vision_presentation_test', True, []), ('vision_presentation_test', False, []), ('vision_rules_test', True, []), ('vision_integration_test', True, []), ('ground_zero_network_test', True, ['--vision']), ('vision_integration_test', False, [])],
-    'fast': [('spatial_movement_test', True, []), ('local_movement_test', True, []), ('tracer_view_test', True, []), ('ammo_supply_test', True, []), ('movement_smoothing_test', True, []), ('duckov_model_test', True, []), ('duckov_animation_model_test', True, []),
+    'fast': [('spatial_movement_test', True, []), ('local_movement_test', True, []), ('tracer_view_test', True, []), ('ammo_supply_test', True, []), ('movement_smoothing_test', True, []), ('duckov_model_test', True, []), ('duckov_animation_model_test', True, []), ('infinite_stamina_test', True, []),
              ('duckov_actor_animation_test', True, []), ('migration_contract_test', True, []),
              ('steam_service_test', True, []), ('steam_main_integration_test', True, [])],
     'network': [('ammo_supply_network_test', True, []), ('movement_scene_network_test', True, []), ('duckov_network_test', True, []), ('duckov_network_test', True, ['--host-loss']),

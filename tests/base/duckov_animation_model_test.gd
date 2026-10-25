@@ -127,3 +127,4 @@ func run() -> void:
 	await process_frame
 	print("DUCKOV_ANIMATION_MODEL_TEST ",checks," checks, ",failures," failures")
 	quit(0 if failures == 0 else 1)
+
