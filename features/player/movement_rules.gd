@@ -41,6 +41,13 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	var sprint_requested := bool(input.get("sprint",false))
 	var exhausted_this_step := false
 	if not sprint_requested: p.sprint_exhausted = false
+	# A normal run can end the previous frame between 0 and the 1-point sprint
+	# threshold. Treat that state as exhaustion too; otherwise held Shift keeps
+	# spending each tiny recovery pulse and the stamina bar appears frozen.
+	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not direction.is_zero_approx() and p.stamina <= 1.0:
+		p.stamina = 0.0
+		p.sprint_exhausted = true
+		exhausted_this_step = true
 	if sprint_requested and not bool(p.get("sprint_exhausted",false)) and not p.crouch and not p.ads and p.stamina > 1.0 and not direction.is_zero_approx():
 		var sprint_cost := delta*19.0
 		if p.stamina <= sprint_cost:
@@ -65,3 +72,4 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	p.velocity = (Vector2(p.pos)-previous)/delta
 	var aim: Vector2 = input.get("aim",p.get("aim",Vector2.UP))
 	if aim.length_squared() > .001: p.aim = aim.normalized()
+
