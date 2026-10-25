@@ -63,6 +63,7 @@ func _ready()->void:
 	session=load("res://app/network/session.gd").new()
 	session.name="Session"
 	add_child(session)
+	session.upgrade_checkpoint=_save_camp_upgrade
 	session.set_physics_process(false)
 	session.model.obstacles.assign(world.obstacles())
 	session.model.stations=world.interactions()
@@ -148,7 +149,10 @@ func _start_solo()->void:
 	if is_instance_valid(steam_service):steam_service.leave_room()
 	session.start_solo()
 	if not smoke and capture_path.is_empty():
-		session.model.load_profile(profile_path,1)
+		var loaded:int=session.model.load_profile(profile_path,1)
+		if loaded not in [OK,ERR_FILE_NOT_FOUND]:
+			ui.toast("本机营地存档读取失败，原存档未覆盖："+error_string(loaded))
+			return
 	_enter_base()
 
 func _enter_base()->void:
@@ -383,6 +387,7 @@ func _interact()->void:
 		"pickup":session.send("pickup",{"uid":nearest.uid})
 		"stash":ui.toggle_inventory(true)
 		"medical":session.send("rest")
+		"camp_management":preload("res://ui/inventory/camp_panel.gd").open(ui)
 		"workbench":ui.open_item_shop("craft")
 		"trader","merchant":ui.open_item_shop("buy")
 		"range":session.send("reset_targets")
@@ -434,3 +439,7 @@ func _on_steam_failure(message:String)->void:
 	if session.transport=="steam":_return_menu()
 	joining=false
 	if is_instance_valid(ui):ui.toast(message)
+
+func _save_camp_upgrade(staged) -> Error:
+	if smoke or not capture_path.is_empty():return OK
+	return staged.save_profile(profile_path,1)

@@ -53,6 +53,8 @@ func note_sent(seq: int, edge: bool) -> void:
 		_pending.clear()
 
 func confirm(p: Dictionary) -> void:
+	if not _state.is_empty() and float(_state.get("max_stamina",100))!=float(p.get("max_stamina",100)):clear()
+	if not _state.is_empty() and float(_state.get("max_weight",28))!=float(p.get("max_weight",28)):clear()
 	if int(p.get("relocation_seq",0))!=_relocation_seq:
 		clear()
 		_relocation_seq=int(p.get("relocation_seq",0))
@@ -145,6 +147,7 @@ func _solve(from: Vector2, offset: Vector2, pose: Dictionary) -> Variant:
 func _copy_motion(p: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for key in FIELDS: result[key] = p[key]
+	result.max_stamina = p.get("max_stamina",100.0)
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
 	result.infinite_stamina = infinite_stamina

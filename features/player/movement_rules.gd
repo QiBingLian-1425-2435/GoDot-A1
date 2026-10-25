@@ -40,7 +40,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	p.ads = bool(input.get("ads",false))
 	var sprint_requested := bool(input.get("sprint",false))
 	var exhausted_this_step := false
-	if p.get("infinite_stamina",false): p.stamina = 100.0
+	if p.get("infinite_stamina",false): p.stamina = float(p.get("max_stamina",100))
 	if not sprint_requested: p.sprint_exhausted = false
 	# A normal run can end the previous frame between 0 and the 1-point sprint
 	# threshold. Treat that state as exhaustion too; otherwise held Shift keeps
@@ -61,9 +61,9 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	var speed := 3.7
 	if p.sprint:
 		speed *= 1.65
-		if p.get("infinite_stamina",false): p.stamina = 100.0
+		if p.get("infinite_stamina",false): p.stamina = float(p.get("max_stamina",100))
 		else: p.stamina -= delta*19.0
-	elif not exhausted_this_step: p.stamina = minf(100,p.stamina+delta*12)
+	elif not exhausted_this_step: p.stamina = minf(float(p.get("max_stamina",100)),p.stamina+delta*12)
 	if p.crouch: speed *= .48
 	if p.ads: speed *= .62
 	if p.weight > p.max_weight: speed *= clampf(p.max_weight/p.weight,.3,1.0)

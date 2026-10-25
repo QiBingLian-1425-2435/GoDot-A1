@@ -259,6 +259,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		return
 	for key in ["hp", "stamina", "hunger", "thirst"]:
 		var value := float(p.get(key, 100.0))
+		_bars[key].max_value = float(p.get("max_"+key,100))
 		_bars[key].value = value
 		_stat_labels[key].text = "%d" % roundi(value)
 	_ammo_label.text = "%02d" % int(p.get("ammo", 0))
@@ -282,6 +283,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		_quick_slots[i].set_item(quick_item, _definition(quick_item))
 	if _inventory.visible:
 		_update_inventory()
+	if is_instance_valid(_dialog) and _dialog_kind=="营地建设":preload("res://ui/inventory/camp_panel.gd").refresh(self)
 	if is_instance_valid(_dialog) and _dialog_kind in ["基地商人","工作台制作"]:preload("res://ui/inventory/item_shop.gd").refresh(self)
 
 func set_interaction(text: String) -> void:

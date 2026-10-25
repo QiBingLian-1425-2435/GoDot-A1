@@ -49,4 +49,4 @@ static func _count(container: Array, kind: String) -> int:
 
 static func _update_weight(p: Dictionary) -> void:
 	p.weight = Items.weight(p.bag) + Items.weight(p.equipment.values())
-	p.max_weight = 44.0 if not p.equipment.backpack.is_empty() else 28.0
+	p.max_weight = (44.0 if not p.equipment.backpack.is_empty() else 28.0)+float(p.get("camp_weight_bonus",0))

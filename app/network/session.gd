@@ -14,7 +14,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close"]
+const ACTIONS := ["transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -46,6 +46,8 @@ var _move_pending: Dictionary = {}
 var _connect_elapsed := 0.0
 var _local_profile: Dictionary = {}
 var room_store=RoomStore.new()
+var upgrade_checkpoint:Callable
+var _local_camp:Dictionary=Model.Camp.initial()
 var peer_identity_provider: Callable
 var _room_save_clock:=0.0
 
@@ -143,6 +145,7 @@ func save_room() -> Error:
 func offline() -> void:
 	_roll_seq=0;_roll_capture=false
 	if not room_store.path.is_empty():save_room()
+	if mode!="client" and room_store.path.is_empty():_local_camp=model.state.camp.duplicate()
 	room_store.clear();peer_identity_provider=Callable()
 	if mode == "client": model.state.infinite_reserve = false
 	if mode != "client" and model.state.players.has(local_id):
@@ -152,6 +155,7 @@ func offline() -> void:
 	mode = "offline"; transport = "offline"; local_id = 1; connection_status = "离线基地"
 	peer_validator = Callable(); peer_name_provider = Callable()
 	model.state.field_effects=[];model.state.containers={}
+	model.state.camp=_local_camp.duplicate()
 	model.state.players.clear(); model.state.drops.clear(); model.state.shots.clear()
 	model.state.world = "bunker"; model.state.phase = "base"
 	model.state.world_revision = int(model.state.get("world_revision",0))+1
@@ -168,6 +172,7 @@ func offline() -> void:
 		model.state.players[1].height = 0.0
 		model.state.players[1].reloading = false
 		model.state.players[1].fire_timer = 0.0
+	model.Camp.refresh_player(model,model.state.players[1])
 	model.reset_transients(1)
 	_voice_limits.clear(); _voice_sequences.clear()
 	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
@@ -197,7 +202,7 @@ func send(action: String, payload: Dictionary = {}) -> void:
 			_roll_capture=false
 		payload.roll_direction=_roll_direction
 	var clean := _clean_payload(action,payload)
-	if action in ["unstuck","use","search","buy","sell","craft_item","loot_take","loot_close"]:clean.world_revision=int(model.state.get("world_revision",0))
+	if action in ["unstuck","use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"]:clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
 	if action == "move" and clean.is_empty(): return
 	if mode == "client":
@@ -211,9 +216,11 @@ func send(action: String, payload: Dictionary = {}) -> void:
 			_intent_seq += 1
 			_intent.rpc_id(1,action,clean,_session_token,_intent_seq)
 	else:
-		var accepted: bool=model.command(local_id,action,clean)
-		if accepted and action not in ["move","fire"] and not room_store.path.is_empty():save_room()
-		if not model.last_notice.is_empty(): notice.emit(model.last_notice)
+		var accepted: bool=_execute_command(local_id,action,clean)
+		if accepted and action not in ["move","fire","camp_upgrade"] and not room_store.path.is_empty():save_room()
+		if not model.last_notice.is_empty():
+			notice.emit(model.last_notice)
+			if accepted and action=="camp_upgrade" and mode=="host":_notice.rpc(model.last_notice)
 		if action != "move":
 			state_changed.emit()
 			if mode == "host": _broadcast_snapshot(true)
@@ -273,6 +280,9 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	var clean: Dictionary = {}
 	if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 	match action:
+		"camp_upgrade":
+			if payload.get("facility") is String:clean.facility=str(payload.facility).left(24)
+			if payload.get("expected_level") is int:clean.expected_level=payload.expected_level
 		"unstuck":
 			if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 		"set_infinite_reserve":
@@ -351,10 +361,13 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
 	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
-	if action in ["use","search","buy","sell","craft_item","loot_take","loot_close"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
-	var accepted: bool=model.command(sender,action,_clean_payload(action,payload))
-	if accepted and action!="fire" and not room_store.path.is_empty():save_room()
-	if not model.last_notice.is_empty(): _notice.rpc_id(sender,model.last_notice)
+	if action in ["use","search","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
+	var accepted: bool=_execute_command(sender,action,_clean_payload(action,payload))
+	if accepted and action not in ["fire","camp_upgrade"] and not room_store.path.is_empty():save_room()
+	if not model.last_notice.is_empty():
+		if accepted and action=="camp_upgrade":
+			notice.emit(model.last_notice);_notice.rpc(model.last_notice)
+		else:_notice.rpc_id(sender,model.last_notice)
 	state_changed.emit()
 	_broadcast_snapshot(true)
 
@@ -579,3 +592,20 @@ func _accept_voice(speaker: int, bytes: PackedByteArray, sequence: int, token: i
 func _voice_down(speaker: int, bytes: PackedByteArray, sequence: int, token: int, revision: int) -> void:
 	if mode!="client" or multiplayer.get_remote_sender_id()!=1 or speaker==local_id:return
 	if _accept_voice(speaker,bytes,sequence,token,revision):voice_received.emit(speaker,bytes)
+
+# Candidate state is never published until the matching assets and camp save succeeds.
+func _execute_command(id:int,action:String,payload:Dictionary) -> bool:
+	if action!="camp_upgrade":return model.command(id,action,payload)
+	var trial=Model.new()
+	trial.state=model.state.duplicate(true);trial.stations=model.stations;trial.world_ready=model.world_ready
+	if not trial.command(id,action,payload):return model._reject(trial.last_notice)
+	var result:Error=ERR_UNCONFIGURED
+	if not room_store.path.is_empty():result=room_store.checkpoint(trial)
+	elif upgrade_checkpoint.is_valid():result=upgrade_checkpoint.call(trial)
+	if result!=OK:return model._reject("营地升级保存失败，资源未扣除："+error_string(result))
+	model.state.camp=trial.state.camp
+	model.state.players[id].bag=trial.state.players[id].bag
+	model.state.players[id].credits=trial.state.players[id].credits
+	model.Camp.refresh_all(model)
+	model.last_notice=trial.last_notice
+	return true
