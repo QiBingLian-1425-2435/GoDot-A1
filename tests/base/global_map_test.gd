@@ -14,6 +14,19 @@ func _init() -> void:
 	map.set_open(true)
 	assert(map.is_open())
 	assert(map._players.size()==2)
+	assert(is_equal_approx(map._zoom,1.0))
+	map.set_zoom(9.0)
+	assert(is_equal_approx(map._zoom,3.0))
+	map.set_zoom(0.1)
+	assert(is_equal_approx(map._zoom,1.0))
+	map.center_on_local()
+	assert(is_equal_approx(map._zoom,2.0))
+	assert(map._pan.length()<0.01)
+	map._pan=Vector2(99999,-99999);map._apply_view()
+	var limit:Vector2=map._map_content.size*(map._zoom-1.0)*.5
+	assert(map._pan.x<=limit.x and map._pan.y>=-limit.y)
+	map.reset_view()
+	assert(is_equal_approx(map._zoom,1.0) and map._pan==Vector2.ZERO)
 	var capture_path:=""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--capture="):capture_path=arg.trim_prefix("--capture=")
