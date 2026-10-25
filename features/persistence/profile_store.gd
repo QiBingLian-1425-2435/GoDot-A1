@@ -27,7 +27,7 @@ static func load_profile(ctx, path: String, id: int = 1) -> Error:
 
 static func capture(ctx, id: int) -> Dictionary:
 	var p: Dictionary=ctx.state.players[id]
-	return {"version":1,"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
+	return {"version":1,"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"san":p.get("san",100),"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
 
 static func valid(ctx, data: Variant) -> bool:
 	if not data is Dictionary or int(data.get("version",0)) != 1: return false
@@ -40,7 +40,7 @@ static func valid(ctx, data: Variant) -> bool:
 		if not data.equipment.has(slot): return false
 		if not data.equipment[slot].is_empty() and ctx.Items.definition(data.equipment[slot].kind).category != slot: return false
 	if data.equipment.size() != 4: return false
-	for key in ["hp","hunger","thirst","stamina","credits"]:
+	for key in ["hp","san","hunger","thirst","stamina","credits"]:
 		var value: Variant=data.get(key,100)
 		if (not value is int and not value is float) or not is_finite(float(value)):return false
 	if data.has("magazines"):
@@ -66,11 +66,11 @@ static func apply(ctx, value: Variant, id: int) -> Error:
 	p.bag = data.bag; p.stash = data.stash; p.equipment = data.equipment; p.magazines = magazines
 	p.credits = clampi(int(data.get("credits",500)),0,999999)
 	ctx.Camp.refresh_player(ctx,p)
-	for stat in ["hp","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,float(p.get("max_"+stat,100)))
+	for stat in ["hp","san","hunger","thirst","stamina"]: p[stat] = clampf(float(data.get(stat,100)),0,float(p.get("max_"+stat,100)))
 	p.ammo = int(magazines.get(p.equipment.weapon.get("uid",""),0)); p.reloading = false
 	ctx.reset_transients(id)
 	p.life = "alive";p.possessing = 0;p.rescue = {};p.corpse_uid = ""
-	if float(p.hp)<=0 and ctx.state.get("world","bunker")=="bunker": ctx.Souls.revive(ctx,p)
+	if (float(p.hp)<=0 or float(p.san)<=0) and ctx.state.get("world","bunker")=="bunker": ctx.Souls.revive(ctx,p)
 	ctx._update_weight(p)
 	return OK
 

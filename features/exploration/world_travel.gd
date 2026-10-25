@@ -23,6 +23,9 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 	return enter_world(ctx,destination,chosen.spawn)
 
 static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
+	for member in ctx.state.players.values():
+		ctx.Souls.reconcile(ctx,member)
+		if ctx.Souls.zombie(member): return ctx._reject("队伍中有尸变者，无法切换地图或撤离；请先复活或自杀进入灵魂状态")
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
 	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":ctx.state.get("containers",{}),"corpses":ctx.state.get("corpses",{})}

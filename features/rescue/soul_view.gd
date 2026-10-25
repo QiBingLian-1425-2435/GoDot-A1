@@ -21,4 +21,4 @@ func update(ctx) -> void:
 		actor.nameplate.text = str(body.container_name)+"  [E] 搜索  [F] 救援"
 		actor.visible = ctx.in_game and not ctx.world_loading and ctx.vision.can_see(Vector3(body.pos.x,float(body.height)+.4,body.pos.y))
 	for id in ctx.actors:
-		if not ctx.session.model.Souls.alive(ctx.session.model.state.players.get(id,{})): ctx.actors[id].visible=false
+		if not ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})): ctx.actors[id].visible=false

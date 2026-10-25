@@ -388,7 +388,7 @@ func _update_interaction()->void:
 		if not session.model.Souls.reachable(session.model,p,body): continue
 		var d: float = pos.distance_to(body.pos)
 		var owner: Dictionary = session.model.state.players.get(int(body.owner),{})
-		var can_rescue: bool = not owner.is_empty() and not session.model.Souls.alive(owner) and owner.get("corpse_uid","")==uid
+		var can_rescue: bool = owner.get("life","alive")=="soul" and owner.get("corpse_uid","")==uid
 		var box: Dictionary = session.model.state.containers.get(uid,{})
 		var has_items: bool = int(box.get("revealed",0))<box.get("items",[]).size()
 		for item in box.get("items",[]):

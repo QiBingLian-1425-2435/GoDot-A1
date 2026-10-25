@@ -265,7 +265,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		_connection_text.text = status if not status.is_empty() else "正在连接基地…"
 	if p.is_empty():
 		return
-	for key in ["hp", "stamina", "hunger", "thirst"]:
+	for key in ["hp", "stamina", "hunger", "thirst", "san"]:
 		var value := float(p.get(key, 100.0))
 		_bars[key].max_value = float(p.get("max_"+key,100))
 		_bars[key].value = value
@@ -329,13 +329,13 @@ func _build_hud() -> void:
 	_world_label = _label(top, "避 难 所", Rect2(18,7,210,29), 24, Color("f0e8c6"))
 	_world_note = _label(top, "安全区域  ·  基地仓库 / 工作台 / 射击区", Rect2(18,39,440,21), 14, Color("b2c7c2"))
 	_network_label = _label(_hud, "单人基地", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
-	var hp_panel := _panel(_hud, Rect2(26,710,350,154), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
+	var hp_panel := _panel(_hud, Rect2(26,686,350,178), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label(hp_panel, "鸭鸭", Rect2(18,10,100,25), 21, INK)
 	_label(hp_panel, "生命体征", Rect2(202,13,130,23), 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
-	var keys := ["hp", "stamina", "hunger", "thirst"]
-	var names := ["生命", "耐力", "能量", "水分"]
-	var colors := [Color("cf8375"),Color("c3cb86"),Color("c9ab69"),Color("73b6c7")]
+	var keys := ["hp", "stamina", "hunger", "thirst", "san"]
+	var names := ["生命", "耐力", "能量", "水分", "SAN"]
+	var colors := [Color("cf8375"),Color("c3cb86"),Color("c9ab69"),Color("73b6c7"),Color("a577bf")]
 	for i in range(keys.size()):
 		_label(hp_panel,names[i],Rect2(18,44+i*24,45,22),14,MUTED)
 		_bars[keys[i]] = _progress(hp_panel, Rect2(69,51+i*24,219,9), colors[i])

@@ -69,11 +69,12 @@ static func _update_actors(ctx, delta:float)->void:
 			ctx.add_child(actor)
 			actor.setup(Color("87c9db") if id!=ctx.session.local_id else Color("d7c583"),str(players[id].name))
 			ctx.actors[id]=actor
-		ctx.actors[id].visible=ctx.session.model.Souls.alive(players[id])
+		ctx.actors[id].visible=ctx.session.model.Souls.mobile(players[id])
 		var display:Dictionary=players[id]
 		if ctx.session.mode=="client":
 			display=ctx.session.local_movement.sample_player(players[id]) if id==ctx.session.local_id else ctx.session.motion_buffer.sample_player(id,players[id])
 		ctx.actors[id].update_actor(display,delta,id==ctx.session.local_id)
+		ctx.actors[id].nameplate.text = str(players[id].name)+(" [尸变]" if ctx.session.model.Souls.zombie(players[id]) else "")
 		var shots:int=players[id].get("shots",0)
 		if shots>int(ctx.last_shots.get(id,shots)):
 			ctx.sound.play("pistol" if players[id].equipment.weapon.get("kind","")=="pistol" else "fire")

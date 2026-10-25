@@ -11,7 +11,7 @@ static func roll_curve(t: float) -> float:
 	return t*t*(3.0-2.0*t)
 ## Shared movement math only. The supplied solver owns collision; no inventory/actions here.
 static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callable) -> void:
-	if float(p.get("hp",100))<=0 or p.get("life","alive")=="soul":
+	if p.get("life","alive")=="soul" or (float(p.get("hp",100))<=0 and p.get("life","alive")!="zombie"):
 		p.velocity = Vector2.ZERO; p.sprint = false; p.crouch = false; p.ads = false
 		p.roll = empty_roll()
 		return

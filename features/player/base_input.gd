@@ -7,7 +7,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if not ctx.in_game:return
 	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()) or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
-	if not ctx.session.model.Souls.alive(ctx.session.model.state.players.get(ctx.session.local_id,{})): blocked=true
+	if not ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(ctx.session.local_id,{})): blocked=true
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
 	if not blocked and focused:
@@ -24,7 +24,7 @@ static func _physics_process(ctx, delta:float)->void:
 		if point is Vector3:
 			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
 	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Input.is_physical_key_pressed(KEY_SHIFT) and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and not blocked and focused})
-	if not blocked and focused and ctx.trigger_held and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ctx.fire_clock<=0:
+	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and ctx.fire_clock<=0:
 		ctx.session.send("fire")
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked
@@ -55,6 +55,7 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		if event.button_index==MOUSE_BUTTON_WHEEL_UP: ctx.camera_zoom=maxf(14,ctx.camera_zoom-1)
 		if event.button_index==MOUSE_BUTTON_WHEEL_DOWN: ctx.camera_zoom=minf(31,ctx.camera_zoom+1)
 	if not event is InputEventKey or not event.pressed or event.echo:return
+	if ctx.session.model.Souls.zombie(ctx.session.model.state.players.get(ctx.session.local_id,{})) and event.physical_keycode not in [KEY_ESCAPE,KEY_F11]: return
 	match event.physical_keycode:
 		KEY_F:
 			if not ctx.ui.is_blocking() and ctx.nearest.get("kind","")=="corpse":

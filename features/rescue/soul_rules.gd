@@ -1,6 +1,40 @@
 extends RefCounted
 ## Only BaseModel invokes these transitions on the authority.
 const RESCUE_SECONDS := 3.0
+const ZOMBIE_KILL_RANGE := 0.9
+
+static func zombie(p: Dictionary) -> bool:
+	return p.get("life", "alive") == "zombie"
+
+static func mobile(p: Dictionary) -> bool:
+	return alive(p) or zombie(p)
+
+static func zombify(ctx, p: Dictionary) -> void:
+	if not alive(p): return
+	ctx.reset_transients(int(p.id))
+	p.life = "zombie"; p.hp = 0.0; p.san = 0.0; p.possessing = 0; p.rescue = {}
+	p.relocation_seq = int(p.get("relocation_seq",0))+1
+
+static func reconcile(ctx, p: Dictionary) -> void:
+	if p.get("life", "alive") != "alive": return
+	if float(p.hp)<=0: die(ctx,p)
+	elif float(p.get("san",100))<=0: zombify(ctx,p)
+
+static func use_revival(ctx, p: Dictionary, index: int) -> bool:
+	var chosen: Dictionary = {}
+	var distance := 2.4
+	for target in ctx.state.players.values():
+		if alive(target) or target.id==p.id: continue
+		var body: Dictionary = {"pos":target.pos,"height":target.get("height",0),"world":ctx.state.world} if zombie(target) else ctx.state.corpses.get(target.get("corpse_uid",""),{})
+		if not reachable(ctx,p,body): continue
+		var d: float = Vector2(p.pos).distance_to(body.pos)
+		if d<=distance: chosen=target; distance=d
+	if chosen.is_empty(): return ctx._reject("附近没有同层、无遮挡的尸变队友或灵魂遗体")
+	p.bag[index].count-=1
+	if p.bag[index].count<=0: p.bag[index]={}
+	revive(ctx,chosen)
+	ctx._update_weight(p); ctx._animate(p,"heal",1.5)
+	return true
 
 static func alive(p: Dictionary) -> bool:
 	return not p.is_empty() and float(p.get("hp",100)) > 0 and p.get("life","alive") == "alive"
@@ -8,7 +42,7 @@ static func alive(p: Dictionary) -> bool:
 static func observer_id(players: Dictionary, id: int) -> int:
 	var p: Dictionary = players.get(id,{})
 	var target := int(p.get("possessing",0))
-	return target if not alive(p) and alive(players.get(target,{})) else id
+	return target if p.get("life", "alive")=="soul" and alive(players.get(target,{})) else id
 
 static func die(ctx, p: Dictionary) -> void:
 	if p.get("life","alive") == "soul": return
@@ -48,6 +82,10 @@ static func reachable(ctx, p: Dictionary, body: Dictionary) -> bool:
 	return true
 
 static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> bool:
+	if zombie(p):
+		if action != "suicide": return false
+		die(ctx,p)
+		return true
 	match action:
 		"soul_wait":
 			if alive(p): return false
@@ -69,7 +107,7 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 			var ghost: Dictionary = ctx.state.players[target]
 			var body: Dictionary = ctx.state.corpses.get(ghost.get("corpse_uid",""),{})
 			if payload.has("uid") and payload.uid!=body.get("uid",""): return false
-			if alive(ghost) or not reachable(ctx,p,body): return ctx._reject("请靠近同层、无遮挡的队友遗体")
+			if ghost.get("life","alive")!="soul" or not reachable(ctx,p,body): return ctx._reject("请靠近同层、无遮挡的队友遗体")
 			if not p.get("rescue",{}).is_empty(): return false
 			ctx.Loot.close(ctx,p)
 			p.pending_use = {}
@@ -80,18 +118,30 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 			return true
 		"return_camp":
 			for member in ctx.state.players.values():
+				if zombie(member): return ctx._reject("尸变者无法撤离，请先使用复活针或自杀进入灵魂状态")
 				if alive(member): return ctx._reject("还有队友存活，请等待救援或队伍返回营地")
 			return ctx.WorldTravel.enter_world(ctx,"bunker",Vector3(-1,0,4))
 	return false
 
 static func revive(ctx, p: Dictionary) -> void:
 	p.life = "alive"; p.hp = minf(30,float(p.get("max_hp",100))); p.possessing = 0; p.rescue = {}
+	p.san = 30.0
 	p.relocation_seq = int(p.get("relocation_seq",0))+1
 	ctx.reset_transients(int(p.id))
 
 static func tick(ctx, delta: float) -> void:
 	for p in ctx.state.players.values():
-		if float(p.hp)<=0: die(ctx,p)
+		reconcile(ctx,p)
+	# Gather victims before mutation, so conversion order cannot affect attacks.
+	var victims: Dictionary = {}
+	if ctx.world_ready:
+		for attacker in ctx.state.players.values():
+			if not zombie(attacker): continue
+			for target in ctx.state.players.values():
+				if not alive(target) or Vector2(attacker.pos).distance_to(target.pos)>ZOMBIE_KILL_RANGE: continue
+				var body := {"pos":attacker.pos,"height":attacker.get("height",0),"world":ctx.state.world}
+				if reachable(ctx,target,body): victims[target.id]=target
+	for target in victims.values(): die(ctx,target)
 	for p in ctx.state.players.values():
 		if not alive(p):
 			if not alive(ctx.state.players.get(int(p.get("possessing",0)),{})): p.possessing = 0
@@ -100,7 +150,7 @@ static func tick(ctx, delta: float) -> void:
 		if rescue.is_empty(): continue
 		var ghost: Dictionary = ctx.state.players.get(int(rescue.target),{})
 		var body: Dictionary = ctx.state.corpses.get(str(rescue.uid),{})
-		if ghost.is_empty() or alive(ghost) or ghost.get("corpse_uid","")!=rescue.uid or not reachable(ctx,p,body) or Vector2(p.pos).distance_to(rescue.origin)>.15:
+		if ghost.is_empty() or ghost.get("life","alive")!="soul" or ghost.get("corpse_uid","")!=rescue.uid or not reachable(ctx,p,body) or Vector2(p.pos).distance_to(rescue.origin)>.15:
 			p.rescue = {}; continue
 		rescue.remaining -= delta
 		if float(rescue.remaining)<=0:

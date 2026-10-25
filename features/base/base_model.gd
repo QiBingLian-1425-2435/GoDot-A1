@@ -58,6 +58,7 @@ func add_player(id: int, player_name: String) -> void:
 	state.players[id] = p
 	p.height = 0.0
 	p.life = "alive"; p.possessing = 0; p.rescue = {}; p.corpse_uid = ""
+	p.san = 100.0
 	if state.get("world","bunker")!="bunker" and not state.players.is_empty():
 		var leader: Dictionary = state.players.values()[0]
 		p.pos = Vector2(leader.pos)+Vector2(.9,0)
@@ -70,6 +71,24 @@ func remove_player(id: int) -> void:
 	_recovery_after.erase(id)
 	state.players.erase(id)
 	_inputs.erase(id)
+
+## Authority-only combat entry: enemies must select and damage only living players.
+func enemy_targets() -> Array:
+	return state.players.values().filter(func(p): return Souls.alive(p))
+
+func enemy_damage(id: int, amount: float) -> bool:
+	var p: Dictionary = state.players.get(id,{})
+	if not world_ready or not Souls.alive(p) or not is_finite(amount) or amount<=0: return false
+	p.hp = maxf(0,float(p.hp)-amount)
+	Souls.reconcile(self,p)
+	return true
+
+func change_san(id: int, amount: float) -> bool:
+	var p: Dictionary = state.players.get(id,{})
+	if not world_ready or not Souls.alive(p) or not is_finite(amount): return false
+	p.san = clampf(float(p.get("san",100))+amount,0,100)
+	Souls.reconcile(self,p)
+	return true
 
 func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
@@ -98,11 +117,11 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
-	if float(p.hp)<=0: Souls.die(self,p)
-	if action in ["soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
+	Souls.reconcile(self,p)
+	if action in ["suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
 		if not world_ready: return false
 		return Souls.command(self,p,action,payload)
-	if not Souls.alive(p): return _reject("灵魂状态可等待救援或附身存活队友")
+	if not Souls.alive(p) and not (Souls.zombie(p) and action=="move"): return _reject("当前生命状态无法进行此操作")
 	if not p.get("rescue",{}).is_empty() and action != "move": p.rescue = {}
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("探索时无法访问基地仓库")
@@ -201,7 +220,12 @@ func tick(delta: float) -> void:
 	Loot.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
-		if not Souls.alive(p): continue
+		if not Souls.mobile(p): continue
+		if Souls.zombie(p):
+			var zombie_input: Dictionary = _inputs.get(id,{})
+			if _clock-float(zombie_input.get("stamp",-100))>INPUT_TIMEOUT: zombie_input={}
+			Movement.step(p,zombie_input,delta,solve_motion.bind(int(id)))
+			continue
 		var pending:Dictionary=p.get("pending_use",{})
 		if not pending.is_empty():
 			pending.remaining-=delta

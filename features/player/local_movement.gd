@@ -86,7 +86,7 @@ func confirm(p: Dictionary) -> void:
 	_pending = {"seq":seq,"start":float(_sent[seq]),"pose":pose}
 
 func advance(delta: float, authoritative: Dictionary) -> void:
-	if authoritative.get("life","alive")=="soul" or float(authoritative.get("hp",100))<=0:
+	if authoritative.get("life","alive")=="soul" or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive")!="zombie"):
 		clear()
 		return
 	if delta <= 0 or not solver.is_valid(): return
@@ -135,7 +135,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 
 func sample_player(authoritative: Dictionary) -> Dictionary:
 	var display := authoritative.duplicate()
-	if authoritative.get("life","alive")=="soul" or float(authoritative.get("hp",100))<=0: return display
+	if authoritative.get("life","alive")=="soul" or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive")!="zombie"): return display
 	if _state.is_empty(): return display
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
 	display.roll = _state.get("roll",Movement.empty_roll()).duplicate(true)
@@ -155,6 +155,6 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
 	result.infinite_stamina = infinite_stamina
-	for key in ["reloading","pending_use","loot_uid","hp"]:
+	for key in ["reloading","pending_use","loot_uid","hp","life"]:
 		if p.has(key):result[key]=p[key]
 	return result

@@ -80,6 +80,7 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if index < 0 or p.bag[index].is_empty(): return false
 	var item: Dictionary = p.bag[index]
 	var info:Dictionary=ctx.Items.definition(item.kind)
+	if item.kind=="revival_serum": return ctx.Souls.use_revival(ctx,p,index)
 	if not p.get("pending_use",{}).is_empty():return ctx._reject("正在治疗，请稍候")
 	if info.item_type=="tool":return ctx.FieldItems.use(ctx,p,str(item.kind))
 	var effects:Dictionary=info.effects
@@ -95,7 +96,7 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if item.count<=0:p.bag[index]={}
 	ctx._update_weight(p)
 	ctx._animate(p,"drink" if item.kind in ["water","juice"] else "eat" if info.item_type=="food" else "heal",4.0 if item.kind=="medical_box" else 1.3 if info.item_type=="food" else 1.5)
-	if float(p.hp)<=0: ctx.Souls.die(ctx,p)
+	ctx.Souls.reconcile(ctx,p)
 	return true
 
 static func _drop(ctx, p: Dictionary, payload: Dictionary) -> bool:
