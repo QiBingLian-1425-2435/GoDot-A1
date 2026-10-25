@@ -39,6 +39,11 @@ func run():
 		report(role+"_ready")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==1),"phase1")
 		if role=="a":
+			session._intent_seq+=1
+			session._intent.rpc_id(1,"buy",{"kind":"scrap","count":1,"world_revision":int(session.model.state.world_revision)-1},session._session_token,session._intent_seq)
+			session.send("buy",{"kind":"scrap","count":1.5})
+			await create_timer(.3).timeout
+			check(player().credits==10000 and session.model._count(player().bag,"scrap")==5,"near trader rejects stale map and fractional count")
 			session.send("buy",{"kind":"scrap","count":3,"price":0,"credits":999999})
 			var seq:int=session._intent_seq
 			session._intent.rpc_id(1,"buy",{"kind":"scrap","count":3,"world_revision":int(session.model.state.world_revision)},session._session_token,seq)

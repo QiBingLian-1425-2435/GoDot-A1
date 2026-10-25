@@ -42,6 +42,12 @@ func run():
 	var m=fixture();var p:Dictionary=m.state.players[1]
 	p.credits=10000;var cash:int=p.credits
 	check(m.command(1,"buy",{"kind":"juice","count":1,"price":0}) and p.credits==cash-360,"host derives buy price instead of trusting payload")
+	var buy_funds:int=p.credits;var buy_bag:Array=p.bag.duplicate(true)
+	for invalid in [0,-1,21,1.5,"1",null]:
+		check(not m.command(1,"buy",{"kind":"scrap","count":invalid}) and p.credits==buy_funds and p.bag==buy_bag,"invalid purchase preserves assets: "+str(invalid))
+	p.credits=0
+	check(not m.command(1,"buy",{"kind":"scrap","count":1}) and p.bag==buy_bag,"insufficient purchase funds preserves bag")
+	p.credits=buy_funds
 	check(m.command(1,"buy",{"kind":"helmet","count":1}) and m._count(p.bag,"helmet")==1,"basic equipment can be repurchased after sale")
 	check(not m.command(1,"buy",{"kind":"gold_statue","count":1}),"valuable trophies cannot be purchased")
 	check(not m.command(1,"buy",{"kind":"water","count":-1}),"negative purchase rejected")

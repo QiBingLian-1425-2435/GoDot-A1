@@ -307,7 +307,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("index") is int:clean.index=payload.index
 		"buy","craft_item":
 			if payload.get("kind") is String:clean.kind=str(payload.kind).left(32)
-			if payload.get("count") is int:clean.count=payload.count
+			if payload.has("count"):clean.count=payload.count if payload.count is int else 0
 		"sort":
 			if payload.get("mode") is String:clean.mode=str(payload.mode).left(16)
 			if payload.get("container") is String: clean.container = str(payload.container).left(16)
