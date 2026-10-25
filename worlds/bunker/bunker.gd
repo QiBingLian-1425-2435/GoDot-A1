@@ -10,6 +10,7 @@ const YELLOW := Color("c5a962")
 const PURPLE := Color("71617e")
 var _blocks: Array = []
 var _points: Array = [
+	{"id":"camp_management","title":"营地管理 · 建设与强化","pos":Vector2(-1,-1.9),"kind":"camp_management"},
 	{"id":"stash","title":"仓库 · 整理物资","pos":Vector2(9,-5.3),"kind":"stash"},
 	{"id":"workbench","title":"工作台 · 选择配方制作道具","pos":Vector2(-9,2.2),"kind":"workbench"},
 	{"id":"medical","title":"医疗站 · 治疗","pos":Vector2(-10,-5.2),"kind":"medical"},
@@ -345,7 +346,7 @@ func _build_operations() -> void:
 	G.rod(self,Vector3(.2,1.17,-3.1),Vector3(.2,1.63,-3.1),.014,Color("5b777c"),.6)
 	_desk_lamp(Vector3(-2.25,.98,-4.25),Color("e7c890"))
 	_light(Vector3(-1.0,2.3,-3.5),Color("e4c28e"),.9,4.0)
-	_floor_label("OPERATIONS",Vector2(-.6,-1.9),26,Color("afb9a7"))
+	_floor_label("CAMP UPGRADES",Vector2(-.6,-1.9),26,Color("afb9a7"))
 	# Trading booth between quarters and the operations table.
 	_table(Vector2(-6.6,-3.8),Vector2(1.3,2.4),.9,Color("6c7969"))
 	G.box(self,Vector3(-6.6,1.08,-4.3),Vector3(.52,.30,.46),Color("3a4f55"),.2)

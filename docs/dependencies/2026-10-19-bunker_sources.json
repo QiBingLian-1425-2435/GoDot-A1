@@ -130,7 +130,9 @@
     "ui/inventory/container_panel.gd",
     "ui/inventory/container_panel.gd.uid",
     "features/base/camp_upgrades.gd",
-    "features/base/camp_upgrades.gd.uid"
+    "features/base/camp_upgrades.gd.uid",
+    "ui/inventory/camp_panel.gd",
+    "ui/inventory/camp_panel.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"
