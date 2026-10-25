@@ -42,7 +42,7 @@ func run():
 			session.send("buy",{"kind":"water","count":1,"price":0,"credits":999999})
 			check(await wait_for(func():return player().credits==9910 and session.model._count(player().bag,"water")==1),"remote purchase has authoritative price and item")
 		else:
-			session.send("sell",{"index":3,"uid":player().bag[3].uid,"value":999999})
+			session.send("sell",{"count":1,"index":3,"uid":player().bag[3].uid,"value":999999})
 			check(await wait_for(func():return player().credits==16800 and player().bag[3].is_empty()),"remote sale credits only catalog value")
 			report(role+"_one")
 		report(role+"_one")

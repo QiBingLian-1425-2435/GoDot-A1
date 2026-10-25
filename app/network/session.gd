@@ -292,6 +292,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 				if payload.get(key) is int: clean[key] = payload[key]
 				elif payload.get(key) is String: clean[key] = str(payload[key]).left(16)
 		"use","drop","equip","sell":
+			if action=="sell":clean.count=payload.get("count") if payload.get("count") is int else 0
 			if payload.get("index") is int: clean.index = payload.index
 			if payload.get("uid") is String:clean.uid=str(payload.uid).left(64)
 		"split":

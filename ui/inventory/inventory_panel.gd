@@ -144,7 +144,7 @@ static func _context_selected(ctx, id: int) -> void:
 		2: ctx._quick_transfer(ctx._context_data)
 		3: ctx.action_requested.emit("drop",{"index":index})
 		4: ctx.action_requested.emit("unequip",{"slot":index})
-		6: ctx.action_requested.emit("sell",{"index":index,"uid":ctx._context_data.get("item",{}).get("uid","")})
+		6: ctx.action_requested.emit("sell",{"index":index,"uid":ctx._context_data.get("item",{}).get("uid",""),"count":int(ctx._context_data.get("item",{}).get("count",0))})
 		5: ctx.action_requested.emit("split",{"container":str(ctx._context_data.get("from","bag")),"index":index})
 
 static func _inspect(ctx, item: Dictionary) -> void:

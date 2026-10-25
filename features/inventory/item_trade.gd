@@ -7,14 +7,20 @@ static func trade(ctx, p: Dictionary, action: String, payload: Dictionary) -> bo
 	if ctx.state.world!="bunker" or not ctx._near(p,"trader"):return ctx._reject("请靠近基地商人")
 	if action=="sell":
 		var index:int=ctx._index(payload.get("index"),p.bag.size())
-		if index<0 or p.bag[index].is_empty():return false
+		if index<0 or p.bag[index].is_empty():return ctx._reject("物品已移动，请重新选择")
 		var item:Dictionary=p.bag[index];var info:=Items.definition(item.kind)
 		if payload.get("uid","")!=item.uid:return ctx._reject("物品已移动，请重新选择")
 		if not info.sellable:return ctx._reject("训练弹不可出售")
-		var amount:int=int(info.value)*int(item.count)
+		var count:Variant=payload.get("count")
+		if not count is int or count<1 or count>int(item.count):return ctx._reject("出售数量无效，请重新选择")
+		var amount:int=int(info.value)*count
 		if p.credits+amount>999999:return ctx._reject("资金已达上限")
-		p.credits+=amount;p.bag[index]={};p.magazines.erase(item.uid);ctx._update_weight(p)
-		ctx.last_notice="已出售 %s ×%d，获得%d基地币"%[info.name,item.count,amount];return true
+		p.credits+=amount
+		if count==int(item.count):
+			p.bag[index]={};p.magazines.erase(item.uid)
+		else:item.count-=count
+		ctx._update_weight(p)
+		ctx.last_notice="已出售 %s ×%d，获得%d基地币"%[info.name,count,amount];return true
 	var kind:=str(payload.get("kind",""));var count:Variant=payload.get("count",1)
 	if not available(kind) or not count is int or count<1 or count>int(Items.definition(kind).stack):return false
 	var price:int=int(Items.definition(kind).buy_price)*count

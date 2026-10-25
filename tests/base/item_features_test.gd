@@ -48,10 +48,26 @@ func run():
 	p.pos=Vector2(10,0);cash=p.credits
 	check(not m.command(1,"buy",{"kind":"water","count":1}) and p.credits==cash,"distant purchase does not debit")
 	p.pos=Vector2.ZERO;fill(m,p,"encrypted_core");cash=p.credits
-	check(not m.command(1,"sell",{"index":0,"uid":"forged"}) and p.credits==cash,"stale/forged item UID cannot sell another item")
-	check(m.command(1,"sell",{"index":0,"uid":p.bag[0].uid}) and p.credits==cash+18000 and p.bag[0].is_empty(),"selling one red trophy removes it exactly once")
+	check(not m.command(1,"sell",{"count":1,"index":0,"uid":"forged"}) and p.credits==cash,"stale/forged item UID cannot sell another item")
+	check(m.command(1,"sell",{"count":1,"index":0,"uid":p.bag[0].uid}) and p.credits==cash+18000 and p.bag[0].is_empty(),"selling one red trophy removes it exactly once")
+	for kind in ["scrap","tape","battery","circuit_board","optical_parts"]:
+		fill(m,p,kind,3);p.credits=100000;cash=p.credits
+		var uid:String=p.bag[0].uid
+		check(m.command(1,"sell",{"index":0,"uid":uid,"count":2}) and p.bag[0].count==1 and p.bag[0].uid==uid and p.credits==cash+2*int(Items.definition(kind).value),"partial material sale preserves UID: "+kind)
+		check(m.command(1,"buy",{"kind":kind,"count":2}) and m._count(p.bag,kind)==3,"material purchase: "+kind)
+		var unchanged:Array=p.bag.duplicate(true);var funds:int=p.credits
+		for invalid in [0,-1,4,1.5,"1",null]:
+			check(not m.command(1,"sell",{"index":0,"uid":uid,"count":invalid}) and p.bag==unchanged and p.credits==funds,"invalid sale atomic: "+str(invalid))
+		p.credits=999999
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and p.bag==unchanged and p.credits==999999,"credit ceiling rejects sale")
+		p.credits=funds;p.pos=Vector2(10,0)
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and p.bag==unchanged and p.credits==funds,"distant sale rejected")
+		p.pos=Vector2.ZERO;m.state.world="surface"
+		check(not m.command(1,"sell",{"index":0,"uid":uid,"count":1}) and not m.command(1,"buy",{"kind":kind,"count":1}) and p.bag==unchanged and p.credits==funds,"field trade rejected")
+		m.state.world="bunker"
+		check(m.command(1,"sell",{"index":0,"uid":uid,"count":3}) and p.bag[0].is_empty(),"full material sale")
 	fill(m,p,"ammo",60);cash=p.credits
-	check(not m.command(1,"sell",{"index":0,"uid":p.bag[0].uid}) and p.credits==cash and p.bag[0].count==60,"free training ammunition cannot be sold")
+	check(not m.command(1,"sell",{"count":1,"index":0,"uid":p.bag[0].uid}) and p.credits==cash and p.bag[0].count==60,"free training ammunition cannot be sold")
 	p.bag=m._empty_slots(24)
 	for i in range(24):p.bag[i]=m._item("gold_statue",1)
 	var before:Array=p.bag.duplicate(true);cash=p.credits
