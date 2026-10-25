@@ -32,6 +32,7 @@ static func sync(ctx) -> void:
 	ctx.vision.enabled=false
 	ctx.session.reset_world_motion()
 	ctx.last_shots.clear()
+	ctx.last_reloading.clear()
 	for node in ctx.drops.values(): node.free()
 	ctx.drops.clear()
 	for label in ctx.target_labels: label.free()

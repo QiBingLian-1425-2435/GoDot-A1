@@ -34,6 +34,7 @@ var camera_zoom:=20.0
 var crouched:=false
 var nearest:Dictionary={}
 var last_shots:Dictionary={}
+var last_reloading:Dictionary={}
 var station_dialog:AcceptDialog
 var capture_path:=""
 var capture_mode:="menu"
