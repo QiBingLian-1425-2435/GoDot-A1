@@ -1,4 +1,5 @@
 {
+  "world_travel.010": "Wait for every living teammate on this map at the same extraction point (within 2.4 m). Dead teammates do not block extraction.",
   "main.001": "Base Facilities",
   "main.002": "Return to Base",
   "main.003": "Could not load local camp save; original file preserved: ",

@@ -8,7 +8,7 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 			chosen = station
 			break
 	if chosen.is_empty() or chosen.get("world","")!=ctx.state.get("world","bunker"): return false
-	if Vector2(p.pos).distance_to(chosen.pos)>2.4: return ctx._reject("⟦world_travel.001⟧")
+	if Vector2(p.pos).distance_to(chosen.pos)>2.4001: return ctx._reject("⟦world_travel.001⟧")
 	if absf(float(p.get("height",0))-float(chosen.get("height",p.get("height",0))))>3: return false
 	var destination: String = str(chosen.destination)
 	if not destination in ["bunker","surface","cave"]: return false
@@ -20,6 +20,11 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 		ctx.reset_transients(id)
 		ctx.last_notice = "⟦world_travel.003⟧"
 		return true
+	if destination=="bunker" and ctx.state.get("world","")!="bunker":
+		for member in ctx.state.players.values():
+			ctx.Souls.reconcile(ctx,member)
+			if ctx.Souls.alive(member) and (Vector2(member.pos).distance_to(chosen.pos)>2.4001 or absf(float(member.get("height",0))-float(chosen.get("height",0)))>3):
+				return ctx._reject("⟦world_travel.010⟧")
 	return enter_world(ctx,destination,chosen.spawn)
 
 static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:

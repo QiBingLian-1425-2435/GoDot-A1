@@ -120,6 +120,7 @@ func host_step() -> void:
 		check(bool(model.state.doors.get(model.state.qa_door,false)),"the host preserves shared door state across the cave round trip")
 		var entry:=Vector2(455.72,-103.62)
 		p.pos=entry;p.height=-1.13;model.reset_transients(remote_id)
+		model.state.players[1].pos=entry+Vector2(.8,0);model.state.players[1].height=-1.13;model.reset_transients(1)
 		model.state.qa_stage=5;game.session._broadcast_snapshot(true);phase=5
 func client_step() -> void:
 	if not game.in_game or game.world_loading or not game.session.model.state.players.has(game.session.local_id):return

@@ -38,10 +38,29 @@ static func _fire(ctx, p: Dictionary) -> bool:
 		var along = offset.dot(direction)
 		if along > 0 and along < distance and absf(offset.cross(direction)) <= 0.55:
 			distance = along; chosen = target; impact = "target"
-	if not chosen.is_empty():
+	# Exploration friendly fire uses host positions and the same world occlusion.
+	var teammate: Dictionary = {}
+	if ctx.state.get("world","bunker")!="bunker":
+		for member in ctx.state.players.values():
+			if member.id==p.id or not ctx.Souls.mobile(member): continue
+			if absf(float(member.get("height",0))+.9-height)>.8: continue
+			var offset: Vector2 = Vector2(member.pos)-origin
+			var along: float = offset.dot(direction)
+			var side: float = absf(offset.cross(direction))
+			if along<=0 or side>ctx.PLAYER_RADIUS: continue
+			var hit: float = maxf(0,along-sqrt(ctx.PLAYER_RADIUS*ctx.PLAYER_RADIUS-side*side))
+			if hit<distance:
+				distance=hit;teammate=member;impact="player"
+	if not teammate.is_empty():
+		var damage := float(ctx.Items.definition(weapon.kind).get("damage",20))
+		if ctx.Souls.zombie(teammate): ctx.Souls.die(ctx,teammate)
+		else:
+			teammate.hp=maxf(0,float(teammate.hp)-damage)
+			ctx.Souls.reconcile(ctx,teammate)
+	elif not chosen.is_empty():
 		chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
 		chosen.hits = int(chosen.get("hits",0)) + 1
-	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1),"ttl":0.16})
+	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1) if teammate.is_empty() else -1,"hit_player_id":teammate.get("id",0),"ttl":0.16})
 	return true
 
 static func _ray_rect(ctx, origin: Vector2, direction: Vector2, rect: Rect2) -> float:

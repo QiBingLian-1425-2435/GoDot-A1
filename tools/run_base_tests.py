@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "extraction": [("party_extraction_test", True, []), ("party_extraction_network_test", True, [])],
     "localization": [("localization_test", True, []), ("localization_network_test", True, []), ("localization_test", False, [])],
     "zombie": [("zombie_test", True, []), ("zombie_network_test", True, []), ("zombie_test", False, [])],
     "soul": [("soul_test", True, []), ("soul_network_test", True, []), ("soul_test", False, [])],
@@ -74,7 +75,7 @@ def run(engine, suite, steam_live):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', type=Path, default=DEFAULT_ENGINE)
-    parser.add_argument('--suite', choices=['zombie', 'soul', 'camp', 'steps', 'roll', 'auto_reload', 'toilet', 'loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
+    parser.add_argument('--suite', choices=['extraction', 'zombie', 'soul', 'camp', 'steps', 'roll', 'auto_reload', 'toilet', 'loot', 'items', 'voice', 'persistence', 'doors', 'recovery', 'fast', 'network', 'ui', 'exploration', 'vision', 'all'], default='fast')
     parser.add_argument('--steam-live', action='store_true', help='Requires Steam login; creates a private test room, sends no invitations')
     args = parser.parse_args()
     sys.exit(run(args.godot.resolve(), args.suite, args.steam_live))
