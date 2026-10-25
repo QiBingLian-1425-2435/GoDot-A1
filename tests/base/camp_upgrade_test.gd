@@ -88,6 +88,8 @@ func run():
 	session.send("camp_upgrade",{"facility":"medical","expected_level":0})
 	check(session.model.state.camp.medical==1 and p.credits==50,"save success publishes upgrade")
 	var solo=fixture();check(solo.load_profile(folder+"/solo.json")==OK and solo.state.camp.medical==1 and solo.state.players[1].credits==50,"solo camp persists")
+	solo.state.players[1].hp=105;solo.save_profile(folder+"/high_hp.json")
+	var high=fixture();check(high.load_profile(folder+"/high_hp.json")==OK and high.state.players[1].hp==105,"profile load preserves health above old 100 ceiling")
 	var legacy:Dictionary=solo.Profile.capture(solo,1);write_json(folder+"/legacy.json",legacy)
 	check(solo.load_profile(folder+"/legacy.json")==OK and solo.state.camp.medical==0,"old solo profile defaults to unupgraded")
 	legacy.camp={"medical":4,"training":0,"logistics":0};write_json(folder+"/bad.json",legacy)
@@ -100,6 +102,15 @@ func run():
 	var old=Session.new();check(old.configure_room(folder+"/old_room.json","owner",func(id):return str(id))==OK and old.model.state.camp.medical==0,"old room defaults to unupgraded")
 	disk.camp={"medical":0,"training":-1,"logistics":0};write_json(folder+"/bad_room.json",disk)
 	check(old.configure_room(folder+"/bad_room.json","owner",func(id):return str(id))==ERR_FILE_CORRUPT,"invalid room camp rejected")
+	var good_path:String=session.room_store.path
+	var cache_before:Dictionary=session.room_store.profiles.duplicate(true)
+	var disk_before:=FileAccess.get_file_as_string(good_path)
+	write_json(folder+"/blocked",{})
+	session.room_store.path=folder+"/blocked/room.json"
+	p=session.model.state.players[1];supply(session.model,p,session.model.Camp.DEFS.training.costs[0]);before=p.bag.duplicate(true);cash=p.credits
+	session.send("camp_upgrade",{"facility":"training","expected_level":0})
+	check(session.model.state.camp.training==0 and p.bag==before and p.credits==cash and session.room_store.profiles==cache_before and FileAccess.get_file_as_string(good_path)==disk_before,"real filesystem save failure preserves state, cache and prior disk")
+	session.room_store.path=good_path
 	session.offline();check(session.model.state.camp.medical==0,"leaving host room restores separate personal camp")
 	session.free();restored.free();old.free()
 	var game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true;game.set_process(false);game.set_physics_process(false);game.session.set_physics_process(false);game._start_solo()
@@ -112,9 +123,22 @@ func run():
 	button.pressed.emit();game._refresh_ui()
 	check(game.session.model.state.camp.medical==1 and player.credits==50 and game.ui._bars.hp.max_value==105,"confirmed upgrade changes actual rules and HUD")
 	check(button.disabled,"next tier disabled without resources")
+	var training_cost:Dictionary=game.session.model.Camp.DEFS.training.costs[0]
+	supply(game.session.model,player,training_cost)
+	var facilities:ItemList=game.ui._dialog.get_node("CampFacilities")
+	facilities.select(1);facilities.item_selected.emit(1);button.pressed.emit()
+	player.credits-=1;game._refresh_ui()
+	check(button.text=="准备升级" and game.session.model.state.camp.training==0,"changed assets require fresh confirmation")
+
 	game.session.model.state.camp={"medical":3,"training":3,"logistics":3};game.session.model.Camp.refresh_all(game.session.model);game._refresh_ui()
 	check(button.text=="已满级" and button.disabled,"max tier UI")
 	await capture(game,"max")
 	game.session.model.state.world_revision+=1;game._refresh_ui();check(not is_instance_valid(game.ui._dialog),"map change closes upgrade panel")
-	game._return_menu();game.queue_free();await process_frame;await process_frame
+	game._return_menu()
+	game.smoke=false;game.profile_path=folder+"/bad.json";game.legacy_profile_path=folder+"/bad.json"
+	var corrupt_before:=FileAccess.get_file_as_string(game.profile_path)
+	game._start_solo()
+	check(not game.in_game and FileAccess.get_file_as_string(game.profile_path)==corrupt_before,"corrupt solo camp blocks entry without overwriting save")
+	game.smoke=true
+	game.queue_free();await process_frame;await process_frame
 	print("CAMP_UPGRADE checks=",checks," failures=",failures);quit(1 if failures else 0)
