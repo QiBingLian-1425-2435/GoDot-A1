@@ -322,7 +322,7 @@
   "base_hud.026": "生命体征",
   "base_hud.027": "生命",
   "base_hud.028": "耐力",
-  "base_hud.029": "能量",
+  "base_hud.029": "饱食度",
   "base_hud.030": "水分",
   "base_hud.031": "切换武器    /    医疗 · 饮水",
   "base_hud.032": "当前武器",
@@ -621,5 +621,10 @@
   "keys.action.water": "饮水",
   "keys.action.save": "保存",
   "keys.action.fullscreen": "全屏切换",
-  "keys.single": "%s"
+  "keys.single": "%s",
+  "satiety.weight": "%.1f / %.1f kg · 饥饿",
+  "satiety.tip": "基础负重上限 %.1f kg\n饱食度低于50时逐渐降低负重上限，饱食度为0时保留50%%。\n进食恢复上限；超重会减速，已有物品不会丢失。",
+  "enemy.name": "狂化鸭",
+  "enemy.dead": "狂化鸭 · 已击倒",
+  "enemy.health": "狂化鸭  %d / 100%s"
 }

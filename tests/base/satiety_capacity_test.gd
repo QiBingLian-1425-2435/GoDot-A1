@@ -9,6 +9,7 @@ func check(ok: bool, label: String):
 	print("PASS: " if ok else "FAIL: ", label)
 	if not ok: failures += 1
 func run():
+	preload("res://features/localization/game_text.gd").set_locale("zh_CN",false)
 	var m = Model.new()
 	m.add_player(1,"owner")
 	var p: Dictionary = m.state.players[1]

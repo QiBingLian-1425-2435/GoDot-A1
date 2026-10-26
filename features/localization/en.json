@@ -322,7 +322,7 @@
   "base_hud.026": "Vitals",
   "base_hud.027": "Health",
   "base_hud.028": "Stamina",
-  "base_hud.029": "Energy",
+  "base_hud.029": "Satiety",
   "base_hud.030": "Water",
   "base_hud.031": "Switch Weapon / Heal · Drink",
   "base_hud.032": "Current Weapon",
@@ -621,5 +621,10 @@
   "keys.action.water": "Drink Water",
   "keys.action.save": "Save",
   "keys.action.fullscreen": "Toggle Fullscreen",
-  "keys.single": "%s"
+  "keys.single": "%s",
+  "satiety.weight": "%.1f / %.1f kg · Hungry",
+  "satiety.tip": "Base capacity %.1f kg\nBelow 50 satiety, capacity gradually falls to 50%% at zero.\nEating restores capacity. Overload slows movement; carried items are retained.",
+  "enemy.name": "Feral Duck",
+  "enemy.dead": "Feral Duck · Defeated",
+  "enemy.health": "Feral Duck  %d / 100%s"
 }

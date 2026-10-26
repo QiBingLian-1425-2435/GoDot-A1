@@ -36,7 +36,7 @@ func start() -> void:
 	root.add_child(game);game.set_physics_process(false)
 	game.session.notice.connect(func(message: String):
 		print("GROUND_ZERO_NET_NOTICE ",message)
-		if message.contains("靠近地图入口"):saw_rejection=true)
+		if message.contains("⟦world_travel.001⟧"):saw_rejection=true)
 	if client:
 		check(game.session.join("127.0.0.1",PORT)==OK,"client starts an independent ENet connection")
 		game.session.set_physics_process(true);game.joining=true

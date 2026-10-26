@@ -1,4 +1,5 @@
 extends Node3D
+const Texts=preload("res://features/localization/game_text.gd")
 ## Local-only visual for confirmed hostile state. No physics or damage here.
 const G=preload("res://features/geometry/geometry.gd")
 var rig:Node3D
@@ -25,7 +26,7 @@ func _ready():
 		G.sphere(wing,Vector3(0,-.18,0),Vector3(.24,.52,.31),Color("697457"))
 		for claw in [-1,0,1]:G.rod(wing,Vector3(claw*.06,-.34,-.06),Vector3(claw*.08,-.52,-.18),.025,Color("e2d2a7"))
 	G.box(rig,Vector3(0,.80,-.33),Vector3(.53,.27,.08),Color("692d2d"))
-	title=G.text(self,"狂化鸭",Vector3(0,1.8,0),22,Color("ed9a83"))
+	title=G.text(self,Texts.resolve("⟦enemy.name⟧"),Vector3(0,1.8,0),22,Color("ed9a83"))
 	title.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	title.outline_size=4
 func update_enemy(data:Dictionary,delta:float):
@@ -38,7 +39,7 @@ func update_enemy(data:Dictionary,delta:float):
 	var moving:float=minf(1,Vector2(data.velocity).length()/4.6)
 	if data.hp<=0:
 		rig.rotation.z=lerp_angle(rig.rotation.z,1.5,1-exp(-delta*9));rig.position.y=lerpf(rig.position.y,.55,1-exp(-delta*9))
-		title.text="狂化鸭 · 已击倒";return
+		Texts.bind(title,"⟦enemy.dead⟧");return
 	if int(data.attack_seq)!=last_attack:last_attack=int(data.attack_seq);swing=.3
 	swing=maxf(0,swing-delta)
 	var charge:float=1.0-float(data.timer)/.45 if data.mode=="windup" else 0.0
@@ -46,5 +47,5 @@ func update_enemy(data:Dictionary,delta:float):
 	rig.position.y=absf(sin(clock*13))*.055*moving
 	for i in feet.size():feet[i].rotation.x=sin(clock*13+i*PI)*.65*moving
 	for i in wings.size():wings[i].rotation.x=-.6*charge-1.5*sin(swing/.3*PI)+sin(clock*13+i*PI)*.25*moving
-	title.text="狂化鸭  %d / 100%s"%[data.hp,"  !" if data.mode=="windup" else ""]
+	Texts.bind(title,Texts.format("⟦enemy.health⟧",[data.hp,"  !" if data.mode=="windup" else ""]))
 	title.modulate=Color("ff694f") if data.mode=="windup" else Color.WHITE

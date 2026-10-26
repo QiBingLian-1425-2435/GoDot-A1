@@ -98,8 +98,6 @@ func change_san(id: int, amount: float) -> bool:
 func reset_transients(id: int) -> void:
 	if not state.players.has(id): return
 	var p: Dictionary = state.players[id]
-	p.knockout_remaining=0.0;p.enemy_immunity=0.0
-	if float(p.hp)<=0:p.hp=50.0
 	Loot.close(self,p)
 	var roll_seen:int=int(p.get("roll",{}).get("seen",0))
 	p.roll=Movement.empty_roll();p.roll.seen=roll_seen

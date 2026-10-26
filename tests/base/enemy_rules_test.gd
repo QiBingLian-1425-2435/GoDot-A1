@@ -43,12 +43,12 @@ func run():
 	check(p.hp==82,"recovery interval prevents damage every tick")
 	e.mode="idle";e.timer=0;p.hp=10
 	for i in range(7):m.tick(.1)
-	check(p.hp==0 and p.knockout_remaining>0,"lethal hit starts temporary knockout")
+	check(p.hp==0 and p.life=="soul" and m.state.corpses.has(p.corpse_uid),"lethal hit uses mainline soul and corpse flow")
 	var down_at:Vector2=p.pos
 	check(not m.command(1,"fire") and not m.command(1,"move",{"direction":Vector2.RIGHT}),"knocked out player cannot attack or move")
 	m.tick(.1);check(p.pos==down_at,"old movement does not move knocked out body")
 	for i in range(55):m.tick(.1)
-	check(p.hp==50 and p.pos==Vector2(8,8) and p.enemy_immunity>0,"knockout returns to region entrance with recovery grace")
+	check(p.hp==0 and p.life=="soul","monster integration does not auto-revive souls")
 	m=fixture();p=m.state.players[1];e=m.state.enemies[1]
 	p.pos=Vector2(0,3);p.aim=Vector2.UP
 	for i in range(3):p.fire_timer=0;m.command(1,"fire")

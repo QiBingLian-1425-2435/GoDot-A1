@@ -349,10 +349,6 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	_apply_direction(velocity, moving, _visual_action_weight)
 	_update_props(action_weight, kind)
 	_apply_roll(data)
-	if float(data.get("hp",100))<=0:
-		animation_state="downed"
-		pivot.rotation.z=1.4;pivot.position.y=.35
-		flash.visible=false;flash_light.visible=false
 	var blink := maxf(0, 1.0-absf(fmod(_clock+float(nameplate.text.hash()%100)*.01, 4.3)-.12)/.085)
 	for i in range(_eyes.size()): _eyes[i].scale.y = (.106 if i%2 == 0 else .025) * (1-blink*.94)
 	previous_shots = shots

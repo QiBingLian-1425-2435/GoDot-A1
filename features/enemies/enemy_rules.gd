@@ -6,7 +6,6 @@ const REACH := 1.35
 const DAMAGE := 18.0
 const WINDUP := .45
 const RECOVERY := .85
-const RESPAWN_TIME := 5.0
 
 static func create(id: int, at: Vector3, facing: Vector2) -> Dictionary:
 	return {"id":id,"pos":Vector2(at.x,at.z),"height":at.y,"home":at,"aim":facing.normalized(),"velocity":Vector2.ZERO,"hp":100,"max_hp":100,"mode":"idle","target":0,"last_seen":at,"memory":0.0,"timer":0.0,"attack_seq":0}
@@ -15,7 +14,7 @@ static func at(p: Dictionary) -> Vector3:
 	return Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)
 
 static func visible(ctx, enemy: Dictionary, player: Dictionary) -> bool:
-	if float(player.get("hp",0))<=0 or float(player.get("enemy_immunity",0))>0:return false
+	if not ctx.Souls.alive(player):return false
 	var offset: Vector2=player.pos-enemy.pos
 	if offset.length()>SIGHT_RANGE or absf(at(player).y-at(enemy).y)>2.0:return false
 	# Nearby movement can be noticed; farther targets must be in front (140 degrees).
@@ -28,15 +27,6 @@ static func clear_sight(ctx, from: Vector3, to: Vector3) -> bool:
 
 static func tick(ctx, delta: float) -> void:
 	if not ctx.world_ready or ctx.state.get("world","bunker")=="bunker":return
-	for p in ctx.state.players.values():
-		p.enemy_immunity=maxf(0,float(p.get("enemy_immunity",0))-delta)
-		if float(p.hp)>0:continue
-		p.knockout_remaining=maxf(0,float(p.get("knockout_remaining",RESPAWN_TIME))-delta)
-		if p.knockout_remaining<=0:
-			var spawn:Vector3=p.get("enemy_return",at(p))
-			p.pos=Vector2(spawn.x,spawn.z);p.height=spawn.y;p.hp=50.0
-			p.relocation_seq=int(p.get("relocation_seq",0))+1
-			ctx.reset_transients(int(p.id));p.enemy_immunity=3.0
 	for enemy in ctx.state.get("enemies",{}).values():
 		enemy.velocity=Vector2.ZERO
 		if enemy.hp<=0:enemy.mode="dead";enemy.target=0;continue
@@ -44,18 +34,13 @@ static func tick(ctx, delta: float) -> void:
 		if enemy.mode=="windup":
 			if enemy.timer<=0:
 				var victim:Dictionary=ctx.state.players.get(enemy.target,{})
-				if not victim.is_empty() and victim.hp>0 and float(victim.get("enemy_immunity",0))<=0 and at(enemy).distance_to(at(victim))<=REACH+.2 and clear_sight(ctx,at(enemy),at(victim)):
-					victim.hp=maxf(0,float(victim.hp)-DAMAGE)
-					if victim.hp<=0:
-						ctx.Loot.close(ctx,victim)
-						victim.knockout_remaining=RESPAWN_TIME;victim.roll=ctx.Movement.empty_roll()
-						victim.reloading=false;victim.reload_timer=0;victim.reload_progress=0;victim.pending_use={}
-						victim.velocity=Vector2.ZERO
+				if ctx.Souls.alive(victim) and at(enemy).distance_to(at(victim))<=REACH+.2 and clear_sight(ctx,at(enemy),at(victim)):
+					ctx.enemy_damage(int(victim.id),DAMAGE)
 				enemy.attack_seq+=1;enemy.mode="recover";enemy.timer=RECOVERY
 			continue
 		if enemy.mode=="recover" and enemy.timer>0:continue
 		var chosen:Dictionary={};var nearest:=SIGHT_RANGE+1
-		for player in ctx.state.players.values():
+		for player in ctx.enemy_targets():
 			if at(player).distance_to(enemy.home)>28:continue
 			var distance:float=Vector2(player.pos).distance_to(enemy.pos)
 			if distance<nearest and visible(ctx,enemy,player):chosen=player;nearest=distance
