@@ -226,6 +226,9 @@ func _on_action(action:String,payload:Dictionary)->void:
 			_save(false)
 			get_tree().quit()
 		"settings":
+			if payload.has("voice_always_on"):
+				voice.always_on=bool(payload.voice_always_on);ui.voice_always_on=voice.always_on
+				if not voice.always_on:voice.stop()
 			if payload.has("voice_muted"):
 				voice.set_muted(bool(payload.voice_muted));ui.voice_muted=voice.muted
 			if payload.has("volume"):
@@ -294,7 +297,7 @@ func _process(delta:float)->void:
 		# Gameplay panels (inventory, container search, item/station dialogs and pause)
 		# must not cut off team conversation. Background/transition capture still stops.
 		var allowed: bool=_voice_context_allows_capture() and DisplayServer.window_is_focused()
-		voice.update(true,allowed,delta)
+		voice.update(voice.always_on or preload("res://features/player/key_bindings.gd").held("voice"),allowed,delta)
 		ui.set_voice_status(voice.status+voice.speaking_names())
 	if joining and session.local_id>0 and session.model.state.players.has(session.local_id) and session.mode=="client":_enter_base()
 	if session.mode=="client":had_remote=true

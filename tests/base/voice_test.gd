@@ -100,6 +100,20 @@ func run():
 	voice.queue_free();service.queue_free();s.queue_free();await process_frame
 	var main=Main.new();main.smoke=true;main.elapsed=-10000;root.add_child(main);main.sound.muted=true
 	main._start_solo();main.ui._open_settings()
+	var always_on=main.ui._dialog.find_child("VoiceAlwaysOn",true,false)
+	check(always_on!=null and not main.voice.always_on,"push to talk is default and settings expose open mic")
+	always_on.button_pressed=true
+	check(main.voice.always_on and main.ui.voice_always_on,"open mic setting reaches controller")
+	main.ui._close_dialog();main.ui._open_settings()
+	always_on=main.ui._dialog.find_child("VoiceAlwaysOn",true,false)
+	check(always_on.button_pressed,"reopening settings retains open mic choice")
+	if DisplayServer.get_name()!="headless":
+		await process_frame;await process_frame
+		var settings_path:=ProjectSettings.globalize_path("res://artifacts/voice_settings.png")
+		DirAccess.make_dir_recursive_absolute(settings_path.get_base_dir())
+		check(root.get_texture().get_image().save_png(settings_path)==OK,"settings screenshot saved")
+	always_on.button_pressed=false
+	check(not main.voice.always_on,"open mic can switch back to push to talk")
 	var button=main.ui._dialog.find_child("VoiceMute",true,false)
 	check(button!=null,"settings expose voice mute")
 	if button!=null:

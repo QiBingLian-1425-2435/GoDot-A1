@@ -288,10 +288,10 @@
   "soul_rules.004": "Zombies cannot extract. Use revival serum or enter soul state first.",
   "soul_rules.005": "A teammate is still alive. Wait for rescue or the team's return to camp.",
   "soul_view.001": "  Search / Rescue (see key bindings)",
-  "proximity_voice.001": "Open mic on · Within 20 m",
+  "proximity_voice.001": "Transmitting · Within 20 m",
   "proximity_voice.002": "Voice unavailable: check Steam microphone and Windows permissions",
   "proximity_voice.003": "Voice off (enable in Settings)",
-  "proximity_voice.004": "Open mic awaiting connection · Within 20 m",
+  "proximity_voice.004": "Voice ready · Within 20 m",
   "proximity_voice.005": "Voice requires Steam sign-in · Check microphone settings",
   "proximity_voice.006": " · Speaking: ",
   "base_hud.001": "Checking Steam…",
@@ -626,5 +626,7 @@
   "satiety.tip": "Base capacity %.1f kg\nBelow 50 satiety, capacity gradually falls to 50%% at zero.\nEating restores capacity. Overload slows movement; carried items are retained.",
   "enemy.name": "Feral Duck",
   "enemy.dead": "Feral Duck · Defeated",
-  "enemy.health": "Feral Duck  %d / 100%s"
+  "enemy.health": "Feral Duck  %d / 100%s",
+  "settings.voice_always_on": "Open microphone (no key required)",
+  "keys.action.voice": "Push to talk (default Q)"
 }

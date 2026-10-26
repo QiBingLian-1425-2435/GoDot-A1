@@ -69,7 +69,7 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
-	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,740))
+	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,790))
 	ctx._label(ctx._dialog,"⟦menu_screen.011⟧",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
 	volume.position = Vector2(250,111)
@@ -123,10 +123,18 @@ static func _open_settings(ctx) -> void:
 	voice_mute.toggled.connect(func(value: bool) -> void:
 		ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}))
 	ctx._dialog.add_child(voice_mute)
-	ctx._label(ctx._dialog,"⟦settings.language⟧",Rect2(34,552,200,32),21,ctx.INK)
+	var always_on=CheckButton.new()
+	always_on.name="VoiceAlwaysOn"
+	Texts.bind(always_on, "⟦settings.voice_always_on⟧", "text")
+	always_on.position=Vector2(34,535);always_on.size=Vector2(570,42)
+	always_on.button_pressed=ctx.voice_always_on
+	always_on.toggled.connect(func(value: bool) -> void:
+		ctx.action_requested.emit("settings",{"voice_always_on":value}))
+	ctx._dialog.add_child(always_on)
+	ctx._label(ctx._dialog,"⟦settings.language⟧",Rect2(34,602,200,32),21,ctx.INK)
 	var language := OptionButton.new()
 	language.name = "LanguageSelect"
-	language.position = Vector2(250,548)
+	language.position = Vector2(250,598)
 	language.size = Vector2(340,42)
 	language.add_theme_font_size_override("font_size",21)
 	var locales := Texts.available_locales()
@@ -138,8 +146,8 @@ static func _open_settings(ctx) -> void:
 		if Texts.set_locale(str(language.get_item_metadata(index))) != OK:
 			ctx.toast("⟦settings.language_save_failed⟧"))
 	ctx._dialog.add_child(language)
-	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,610,570,42),ctx._open_key_bindings,ctx.TEAL,21)
-	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,669,300,44),ctx._close_dialog,ctx.GREEN,23)
+	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,660,570,42),ctx._open_key_bindings,ctx.TEAL,21)
+	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,719,300,44),ctx._close_dialog,ctx.GREEN,23)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()

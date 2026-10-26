@@ -4,13 +4,14 @@ const Texts = preload("res://features/localization/game_text.gd")
 const PATH := "user://key_bindings.cfg"
 const DEFAULTS := {
 	"move_up": [KEY_W], "move_down": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
-	"sprint": [KEY_SHIFT], "crouch": [KEY_C], "roll": [KEY_SPACE],
+	"voice": [KEY_Q], "sprint": [KEY_SHIFT], "crouch": [KEY_C], "roll": [KEY_SPACE],
 	"fire": [-MOUSE_BUTTON_LEFT], "aim": [-MOUSE_BUTTON_RIGHT],
 	"interact": [KEY_E], "rescue": [KEY_F], "reload": [KEY_R],
 	"inventory": [KEY_TAB, KEY_I], "map": [KEY_M], "rifle": [KEY_1], "pistol": [KEY_2],
 	"medkit": [KEY_4], "water": [KEY_5], "save": [KEY_F5], "fullscreen": [KEY_F11]
 }
 const LABELS := {
+	"voice": "⟦keys.action.voice⟧",
 	"move_up": "⟦keys.action.move_up⟧", "move_down": "⟦keys.action.move_down⟧",
 	"move_left": "⟦keys.action.move_left⟧", "move_right": "⟦keys.action.move_right⟧",
 	"sprint": "⟦keys.action.sprint⟧", "crouch": "⟦keys.action.crouch⟧", "roll": "⟦keys.action.roll⟧",

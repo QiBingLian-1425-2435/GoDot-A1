@@ -51,7 +51,7 @@ func run() -> void:
 	check(entry != null,"settings entry")
 	entry.pressed.emit()
 	var panel = hud._key_bindings_panel
-	check(panel.buttons.size() == 20,"all common actions listed")
+	check(panel.buttons.size() == 21 and panel.buttons.has("voice"),"all common actions listed")
 	var before: Dictionary = main.session.model.state.duplicate(true)
 	panel.buttons.crouch.pressed.emit()
 	await tap(KEY_W)

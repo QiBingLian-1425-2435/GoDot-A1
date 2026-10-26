@@ -43,6 +43,7 @@ var _shop_kind:=""
 var _shop_mode:=""
 var _shop_details:Label
 var voice_muted:=false
+var voice_always_on:=false
 var _voice_label:Label
 var _root: Control
 var _menu: Control

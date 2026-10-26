@@ -5,6 +5,7 @@ var session: Node
 var service: Node
 var recording:=false
 var muted:=false
+var always_on:=false
 var volume:=1.0
 var status:="⟦proximity_voice.001⟧"
 var _sequence:=0
