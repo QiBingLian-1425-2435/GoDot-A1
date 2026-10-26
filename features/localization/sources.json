@@ -77,12 +77,12 @@
     "app/main.gd:456"
   ],
   "session.001": [
-    "app/network/session.gd:160",
-    "app/network/session.gd:25"
+    "app/network/session.gd:25",
+    "app/network/session.gd:160"
   ],
   "session.002": [
-    "app/network/session.gd:176",
     "app/network/session.gd:59",
+    "app/network/session.gd:176",
     "app/network/steam_service.gd:205",
     "app/network/steam_service.gd:207"
   ],
@@ -154,8 +154,8 @@
     "app/network/session.gd:655"
   ],
   "steam_service.001": [
-    "app/network/steam_service.gd:141",
-    "app/network/steam_service.gd:20"
+    "app/network/steam_service.gd:20",
+    "app/network/steam_service.gd:141"
   ],
   "steam_service.002": [
     "app/network/steam_service.gd:50"
@@ -450,7 +450,7 @@
   "field_item_view.002": [
     "features/exploration/field_item_view.gd:22",
     "features/voice/proximity_voice.gd:110",
-    "ui/map/global_map.gd:170"
+    "ui/map/global_map.gd:182"
   ],
   "field_items.001": [
     "features/exploration/field_items.gd:6"
@@ -986,13 +986,13 @@
   ],
   "base_hud.022": [
     "ui/base_hud.gd:306",
-    "ui/inventory/camp_panel.gd:20",
-    "ui/inventory/camp_panel.gd:6"
+    "ui/inventory/camp_panel.gd:6",
+    "ui/inventory/camp_panel.gd:20"
   ],
   "base_hud.023": [
     "ui/base_hud.gd:307",
-    "ui/inventory/item_shop.gd:43",
-    "ui/inventory/item_shop.gd:6"
+    "ui/inventory/item_shop.gd:6",
+    "ui/inventory/item_shop.gd:43"
   ],
   "base_hud.024": [
     "ui/base_hud.gd:307",
@@ -1225,8 +1225,8 @@
     "ui/inventory/inventory_panel.gd:11"
   ],
   "inventory_panel.004": [
-    "ui/inventory/inventory_panel.gd:103",
-    "ui/inventory/inventory_panel.gd:13"
+    "ui/inventory/inventory_panel.gd:13",
+    "ui/inventory/inventory_panel.gd:103"
   ],
   "inventory_panel.005": [
     "ui/inventory/inventory_panel.gd:20"
@@ -1351,8 +1351,8 @@
     "ui/inventory/item_shop.gd:37"
   ],
   "item_shop.012": [
-    "ui/inventory/item_shop.gd:154",
-    "ui/inventory/item_shop.gd:49"
+    "ui/inventory/item_shop.gd:49",
+    "ui/inventory/item_shop.gd:154"
   ],
   "item_shop.013": [
     "ui/inventory/item_shop.gd:49"
@@ -1394,23 +1394,23 @@
     "ui/inventory/item_shop.gd:154"
   ],
   "global_map.001": [
-    "ui/map/global_map.gd:49",
-    "ui/map/global_map.gd:84"
+    "ui/map/global_map.gd:54",
+    "ui/map/global_map.gd:88"
   ],
   "global_map.002": [
-    "ui/map/global_map.gd:75"
+    "ui/map/global_map.gd:79"
   ],
   "global_map.003": [
-    "ui/map/global_map.gd:76"
+    "ui/map/global_map.gd:80"
   ],
   "global_map.004": [
-    "ui/map/global_map.gd:84"
+    "ui/map/global_map.gd:88"
   ],
   "global_map.005": [
-    "ui/map/global_map.gd:160"
+    "ui/map/global_map.gd:172"
   ],
   "global_map.006": [
-    "ui/map/global_map.gd:170"
+    "ui/map/global_map.gd:182"
   ],
   "menu_screen.001": [
     "ui/menu/menu_screen.gd:26"
@@ -1816,10 +1816,10 @@
     "ui/inventory/item_shop.gd:122"
   ],
   "format.global_map.001": [
-    "ui/map/global_map.gd:73"
+    "ui/map/global_map.gd:77"
   ],
   "format.global_map.002": [
-    "ui/map/global_map.gd:146"
+    "ui/map/global_map.gd:157"
   ],
   "format.base_view.001": [
     "worlds/bunker/base_view.gd:124"
