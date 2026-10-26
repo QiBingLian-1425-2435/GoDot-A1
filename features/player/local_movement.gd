@@ -54,11 +54,14 @@ func note_sent(seq: int, edge: bool) -> void:
 
 func confirm(p: Dictionary) -> void:
 	if not _state.is_empty() and (_state.get("life","alive")!=p.get("life","alive") or _state.get("soul_speed",2)!=p.get("soul_speed",2)):clear()
-	if not _state.is_empty() and float(_state.get("max_stamina",100))!=float(p.get("max_stamina",100)):clear()
-	if not _state.is_empty() and float(_state.get("max_weight",28))!=float(p.get("max_weight",28)):clear()
 	if int(p.get("relocation_seq",0))!=_relocation_seq:
 		clear()
 		_relocation_seq=int(p.get("relocation_seq",0))
+	if not _state.is_empty():
+		_state.max_stamina=p.get("max_stamina",100.0)
+		_state.stamina=minf(_state.stamina,_state.max_stamina)
+		_state.weight=p.weight
+		_state.max_weight=p.max_weight
 	var pose := _copy_motion(p)
 	if _state.is_empty() or (_has_authority and _last_authority.distance_to(p.pos) > SNAP_DISTANCE):
 		_state = pose
@@ -113,6 +116,11 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		_state = _copy_motion(authoritative)
 		_offset = Vector2.ZERO
 		_settling = false
+	# Capacity drifts with hunger. Updating stats must not discard unacknowledged
+	# movement or snap presentation back by the network round-trip distance.
+	_state.max_stamina=authoritative.get("max_stamina",100.0)
+	_state.weight=authoritative.get("weight",_state.weight)
+	_state.max_weight=authoritative.get("max_weight",_state.max_weight)
 	_state.hp=authoritative.get("hp",100.0)
 	Movement.step(_state,input,delta,_solve.bind(_state))
 	_history.append({"start":_clock,"end":_clock+delta,"input":input.duplicate()})

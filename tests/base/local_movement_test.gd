@@ -17,6 +17,7 @@ func run() -> void:
 	test_latency(15,true)
 	test_isolation_and_reset()
 	test_rest_correction()
+	test_capacity_updates()
 	print("LOCAL_MOVEMENT ",checks," checks, ",failures," failures")
 	quit(0 if failures == 0 else 1)
 
@@ -160,3 +161,19 @@ func test_rest_correction() -> void:
 		prediction.set_input({"direction":Vector2.ZERO})
 		prediction.advance(DT,p)
 	check(prediction._offset.length() < .001,"repeated zero input cannot freeze a large host correction")
+
+func test_capacity_updates() -> void:
+	var model=Model.new();model.add_player(1,"capacity")
+	var p:Dictionary=model.state.players[1].duplicate(true)
+	var prediction=Local.new();prediction.solver=model.solve_motion.bind(0)
+	prediction.confirm(p)
+	for frame in range(15):
+		prediction.set_input({"direction":Vector2.RIGHT})
+		prediction.note_sent(frame+1,false)
+		prediction.advance(DT,p)
+	var before:Vector2=prediction.sample_player(p).pos
+	var clock_before:float=prediction._clock
+	p.max_weight-=.001
+	prediction.confirm(p)
+	check(prediction._clock==clock_before and not prediction._sent.is_empty(),"hunger capacity update preserves prediction timeline and unacknowledged inputs")
+	check(prediction.sample_player(p).pos.distance_to(before)<.001,"capacity drift cannot snap local player back to delayed host position")
