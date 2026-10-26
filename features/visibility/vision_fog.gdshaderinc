@@ -33,7 +33,7 @@ float vision_visibility(vec3 world) {
 	return max(near,cone*radius)*sight;
 }
 vec3 apply_vision_fog(vec3 color, vec3 world) {
-	float amount=vision_visibility(world);
-	// Retain texture hue and detail: darkness must not replace materials with gray.
-	return color*mix(vec3(0.10,0.12,0.16),vec3(1.0),amount);
+	// Keep the environment readable in daylight. Gameplay information is limited by
+	// per-entity visibility checks; the cone still drives roof cutaway and smoke.
+	return color;
 }
