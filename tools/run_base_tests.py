@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "camp_recovery": [("camp_recovery_test", True, [])],
     "integration": [("main_enemy_integration_test", True, []), ("key_bindings_test", True, [])],
     "refresh": [("exploration_refresh_test", True, []), ("enemy_world_test", True, []), ("enemy_world_test", False, []), ("container_search_test", True, []), ("item_network_test", True, []), ("ground_zero_network_test", True, [])],
     "enemies": [("enemy_rules_test", True, []), ("enemy_world_test", True, []), ("enemy_world_test", False, []), ("enemy_network_test", True, []), ("enemy_visual_test", False, [])],

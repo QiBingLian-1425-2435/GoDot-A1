@@ -242,12 +242,19 @@ func tick(delta: float) -> void:
 			continue
 		var input: Dictionary = _inputs.get(id, {})
 		if _clock - float(input.get("stamp", -100)) > INPUT_TIMEOUT: input = {}
-		p.hunger = maxf(0, p.hunger - delta * 0.012)
+		var in_camp: bool = state.get("world", "bunker") == "bunker"
+		if in_camp:
+			_restore_camp_status(p)
+		else:
+			p.hunger = maxf(0, p.hunger - delta * 0.012)
 		_update_weight(p)
 		p.infinite_stamina = bool(state.get("infinite_stamina",false))
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
-		p.thirst = maxf(0, p.thirst - delta * 0.018)
+		if in_camp:
+			_restore_camp_status(p)
+		else:
+			p.thirst = maxf(0, p.thirst - delta * 0.018)
 		p.fire_timer = maxf(0, float(p.fire_timer) - delta)
 		if p.reloading:
 			p.reload_timer = maxf(0, float(p.reload_timer) - delta)
@@ -270,6 +277,13 @@ func tick(delta: float) -> void:
 	for i in range(state.field_effects.size()-1,-1,-1):
 		state.field_effects[i].ttl-=delta
 		if state.field_effects[i].ttl<=0:state.field_effects.remove_at(i)
+
+func _restore_camp_status(p: Dictionary) -> void:
+	p.hp = float(p.get("max_hp", 100.0))
+	p.stamina = float(p.get("max_stamina", 100.0))
+	p.hunger = 100.0
+	p.thirst = 100.0
+	p.san = 100.0
 
 func solve_motion(from: Vector2, travel: Vector2, id: int) -> Variant:
 	if motion_solver.is_valid(): return motion_solver.call(id,from,travel)
