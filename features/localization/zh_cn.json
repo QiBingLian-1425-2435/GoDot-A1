@@ -510,8 +510,8 @@
   "soul_panel.003": "自杀，进入灵魂状态",
   "soul_panel.004": "灵魂状态",
   "soul_panel.005": "附身中：",
-  "soul_panel.006": " · 可语音",
-  "soul_panel.007": "等待队友救援 · 遗体保留背包与装备",
+  "soul_panel.006": " · 仅与你附身的队友互通语音",
+  "soul_panel.007": "自由灵魂 · 全向明亮视野 · 仅自己可见",
   "soul_panel.008": "等待救援 / 解除附身",
   "soul_panel.009": "附身 ",
   "soul_panel.010": "全队已失去行动能力。\n可返回营地恢复，遗留装备留在原地。",
@@ -631,5 +631,6 @@
   "keys.action.voice": "按住讲话（默认 Q）",
   "settings.infinite_credits": "无限金币",
   "settings.infinite_credits_hint": "房主开关，全队生效：购买与营地升级不扣金币，材料仍正常消耗。",
-  "settings.infinite_credits_host_only": "只有房主可以设置无限金币"
+  "settings.infinite_credits_host_only": "只有房主可以设置无限金币",
+  "soul_roaming.controls": "移动键漂浮 · 2/4/6/8 倍移速\n靠近存活队友 2.4 米内可附身"
 }

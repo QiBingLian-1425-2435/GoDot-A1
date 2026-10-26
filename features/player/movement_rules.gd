@@ -11,7 +11,24 @@ static func roll_curve(t: float) -> float:
 	return t*t*(3.0-2.0*t)
 ## Shared movement math only. The supplied solver owns collision; no inventory/actions here.
 static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callable) -> void:
-	if p.get("life","alive")=="soul" or (float(p.get("hp",100))<=0 and p.get("life","alive")!="zombie"):
+	if p.get("life","")=="soul":
+		if int(p.get("possessing",0))>0:
+			p.velocity=Vector2.ZERO;p.sprint=false;p.crouch=false;p.ads=false;p.roll=empty_roll()
+			return
+		var direction: Vector2 = Vector2(input.get("direction",Vector2.ZERO)).limit_length(1)
+		var speed: int = int(p.get("soul_speed",2))
+		if speed not in [2,4,6,8]:speed=2
+		var previous: Vector2 = p.pos
+		var next: Vector2 = previous+direction*3.7*speed*delta
+		var bounds: Rect2 = p.get("soul_bounds",Rect2(-10000,-10000,20000,20000))
+		next=next.clamp(bounds.position,bounds.end)
+		var solved: Variant = solver.call(previous,next-previous)
+		if solved is Vector3:p.pos=Vector2(solved.x,solved.z);p.height=solved.y
+		else:p.pos=solved
+		p.velocity=(Vector2(p.pos)-previous)/maxf(delta,.000001)
+		p.sprint=false;p.crouch=false;p.ads=false;p.roll=empty_roll()
+		return
+	if float(p.get("hp",100))<=0 and p.get("life","alive")!="zombie":
 		p.velocity = Vector2.ZERO; p.sprint = false; p.crouch = false; p.ads = false
 		p.roll = empty_roll()
 		return

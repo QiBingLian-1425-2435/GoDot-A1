@@ -14,6 +14,12 @@ func configure(match_model) -> void:
 	model.motion_solver = solve
 	model.recovery_solver = recover
 	model.rescue_reachable = rescue_reachable
+	model.soul_height = soul_height
+
+func soul_height(pos: Vector2, height: float) -> float:
+	if not spatial_enabled or not world_ready:return height
+	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(pos.x,height+2,pos.y),Vector3(pos.x,-2000,pos.y),1))
+	return float(hit.position.y) if not hit.is_empty() else height
 
 func rescue_reachable(origin: Vector3, target: Vector3) -> bool:
 	if origin.distance_to(target)<.001: return true

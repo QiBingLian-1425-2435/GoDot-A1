@@ -13,6 +13,7 @@ SUITES = {
     "refresh": [("exploration_refresh_test", True, []), ("enemy_world_test", True, []), ("enemy_world_test", False, []), ("container_search_test", True, []), ("item_network_test", True, []), ("ground_zero_network_test", True, [])],
     "enemies": [("enemy_rules_test", True, []), ("enemy_world_test", True, []), ("enemy_world_test", False, []), ("enemy_network_test", True, []), ("enemy_visual_test", False, [])],
     "satiety": [("satiety_capacity_test", True, []), ("satiety_capacity_test", False, []), ("satiety_network_test", True, [])],
+    "soul_roaming": [("soul_roaming_test", True, []), ("soul_network_test", True, []), ("soul_roaming_test", False, [])],
     "extraction": [("party_extraction_test", True, []), ("party_extraction_network_test", True, [])],
     "localization": [("localization_test", True, []), ("localization_network_test", True, []), ("localization_test", False, [])],
     "zombie": [("zombie_test", True, []), ("zombie_network_test", True, []), ("zombie_test", False, [])],
@@ -59,7 +60,7 @@ def run(engine, suite, steam_live):
         suffix = '_host_loss' if arguments == ['--host-loss'] else ''
         if name == 'ground_zero_integration_test' and not headless:
             suffix = '_visible'
-        if name in ('infinite_credits_test', 'enemy_world_test', 'satiety_capacity_test', 'localization_test', 'zombie_test', 'soul_test', 'camp_upgrade_test', 'roll_test', 'auto_reload_test', 'toilet_search_test', 'item_features_test', 'item_world_test', 'vision_presentation_test', 'voice_test', 'vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
+        if name in ('soul_roaming_test', 'infinite_credits_test', 'enemy_world_test', 'satiety_capacity_test', 'localization_test', 'zombie_test', 'soul_test', 'camp_upgrade_test', 'roll_test', 'auto_reload_test', 'toilet_search_test', 'item_features_test', 'item_world_test', 'vision_presentation_test', 'voice_test', 'vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
             suffix = '_visible'
         if arguments == ['--vision']:
             suffix = '_vision'

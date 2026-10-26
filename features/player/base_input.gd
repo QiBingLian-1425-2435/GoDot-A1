@@ -8,7 +8,8 @@ static func _physics_process(ctx, delta:float)->void:
 	if not ctx.in_game:return
 	var blocked:bool=ctx.world_loading or ctx.ui.is_blocking() or (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()) or ctx.station_dialog.visible or (is_instance_valid(ctx.steam_service) and ctx.steam_service.overlay_active)
 	var focused =DisplayServer.window_is_focused() or ctx.smoke or not ctx.capture_path.is_empty()
-	if not ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(ctx.session.local_id,{})): blocked=true
+	var player: Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+	if not ctx.session.model.Souls.mobile(player) and not ctx.session.model.Souls.free_soul(player): blocked=true
 	if blocked or not focused:ctx.trigger_held=false
 	var axis =Vector2.ZERO
 	if not blocked and focused:
@@ -28,7 +29,7 @@ static func _physics_process(ctx, delta:float)->void:
 	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and Keys.held("fire") and ctx.fire_clock<=0:
 		ctx.session.send("fire")
 		ctx.fire_clock=0.13
-	ctx.crosshair.active=not blocked
+	ctx.crosshair.active=not blocked and ctx.session.model.Souls.mobile(p)
 	ctx.crosshair.aiming=Keys.held("aim")
 	var soul_controls: bool = is_instance_valid(ctx.ui._soul_panel) and ctx.ui._soul_panel.visible
 	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked and not soul_controls else Input.MOUSE_MODE_VISIBLE
@@ -39,6 +40,7 @@ static func _physics_process(ctx, delta:float)->void:
 	ctx.sound.step(delta,footstep.moving,footstep.sprint)
 
 static func _footstep_state(motion: Dictionary) -> Dictionary:
+	if motion.get("life","")=="soul":return {"moving":false,"sprint":false}
 	# Input expresses intent; collision-resolved velocity says whether the feet
 	# actually travelled. Holding a key into a wall or corner must stay silent.
 	var velocity: Vector2 = motion.get("velocity",Vector2.ZERO)

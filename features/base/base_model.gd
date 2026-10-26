@@ -18,6 +18,7 @@ const Camp=preload("res://features/base/camp_upgrades.gd")
 const Trade=preload("res://features/inventory/item_trade.gd")
 const Souls = preload("res://features/rescue/soul_rules.gd")
 var rescue_reachable: Callable
+var soul_height: Callable
 var field_placement:Callable
 var loot_reachable:Callable
 const Items = preload("res://features/inventory/item_catalog.gd")
@@ -123,10 +124,10 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		return false
 	var p: Dictionary = state.players[id]
 	Souls.reconcile(self,p)
-	if action in ["suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
+	if action in ["soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
 		if not world_ready: return false
 		return Souls.command(self,p,action,payload)
-	if not Souls.alive(p) and not (Souls.zombie(p) and action=="move"): return _reject("⟦base_model.001⟧")
+	if not Souls.alive(p) and not ((Souls.zombie(p) or p.get("life","")=="soul") and action=="move"): return _reject("⟦base_model.001⟧")
 	if not p.get("rescue",{}).is_empty() and action != "move": p.rescue = {}
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("⟦base_model.002⟧")
@@ -232,6 +233,12 @@ func tick(delta: float) -> void:
 	Enemies.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
+		if p.get("life","")=="soul":
+			p.soul_bounds=bounds
+			var soul_input: Dictionary = _inputs.get(id,{})
+			if _clock-float(soul_input.get("stamp",-100))>INPUT_TIMEOUT:soul_input={}
+			Movement.step(p,soul_input,delta,solve_motion.bind(int(id)))
+			continue
 		if not Souls.mobile(p): continue
 		if Souls.zombie(p):
 			var zombie_input: Dictionary = _inputs.get(id,{})
@@ -291,6 +298,11 @@ func _restore_camp_status(p: Dictionary) -> void:
 	p.san = 100.0
 
 func solve_motion(from: Vector2, travel: Vector2, id: int) -> Variant:
+	var p: Dictionary = state.players.get(id,{})
+	if p.get("life","")=="soul":
+		var pos := from+travel
+		var height: float = soul_height.call(pos,float(p.get("height",0))) if soul_height.is_valid() else float(p.get("height",0))
+		return Vector3(pos.x,height,pos.y)
 	if motion_solver.is_valid(): return motion_solver.call(id,from,travel)
 	var pos := from
 	var steps := maxi(1,int(ceil(travel.length()/.12)))

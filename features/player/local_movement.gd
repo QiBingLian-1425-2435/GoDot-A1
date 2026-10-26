@@ -53,6 +53,7 @@ func note_sent(seq: int, edge: bool) -> void:
 		_pending.clear()
 
 func confirm(p: Dictionary) -> void:
+	if not _state.is_empty() and (_state.get("life","alive")!=p.get("life","alive") or _state.get("soul_speed",2)!=p.get("soul_speed",2)):clear()
 	if not _state.is_empty() and float(_state.get("max_stamina",100))!=float(p.get("max_stamina",100)):clear()
 	if not _state.is_empty() and float(_state.get("max_weight",28))!=float(p.get("max_weight",28)):clear()
 	if int(p.get("relocation_seq",0))!=_relocation_seq:
@@ -86,7 +87,7 @@ func confirm(p: Dictionary) -> void:
 	_pending = {"seq":seq,"start":float(_sent[seq]),"pose":pose}
 
 func advance(delta: float, authoritative: Dictionary) -> void:
-	if authoritative.get("life","alive")=="soul" or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive")!="zombie"):
+	if (authoritative.get("life","")=="soul" and int(authoritative.get("possessing",0))>0) or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive") not in ["soul","zombie"]):
 		clear()
 		return
 	if delta <= 0 or not solver.is_valid(): return
@@ -136,7 +137,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 
 func sample_player(authoritative: Dictionary) -> Dictionary:
 	var display := authoritative.duplicate()
-	if authoritative.get("life","alive")=="soul" or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive")!="zombie"): return display
+	if (authoritative.get("life","")=="soul" and int(authoritative.get("possessing",0))>0) or (float(authoritative.get("hp",100))<=0 and authoritative.get("life","alive") not in ["soul","zombie"]): return display
 	if _state.is_empty(): return display
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
 	display.roll = _state.get("roll",Movement.empty_roll()).duplicate(true)
@@ -145,6 +146,10 @@ func sample_player(authoritative: Dictionary) -> Dictionary:
 	return display
 
 func _solve(from: Vector2, offset: Vector2, pose: Dictionary) -> Variant:
+	if pose.get("life","")=="soul":
+		var bounds: Rect2=pose.get("soul_bounds",Rect2(-10000,-10000,20000,20000))
+		var point: Vector2=(from+offset).clamp(bounds.position,bounds.end)
+		return Vector3(point.x,float(pose.get("height",0)),point.y)
 	if spatial_solver.is_valid():
 		return spatial_solver.call(Vector3(from.x,float(pose.get("height",0)),from.y),offset)
 	return solver.call(from,offset)
@@ -156,6 +161,6 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
 	result.infinite_stamina = infinite_stamina
-	for key in ["reloading","pending_use","loot_uid","hp","life"]:
+	for key in ["reloading","pending_use","loot_uid","hp","life","soul_speed","soul_bounds","possessing"]:
 		if p.has(key):result[key]=p[key]
 	return result

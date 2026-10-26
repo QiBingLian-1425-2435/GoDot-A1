@@ -121,37 +121,37 @@
     "app/network/session.gd:199"
   ],
   "session.014": [
-    "app/network/session.gd:563"
+    "app/network/session.gd:565"
   ],
   "session.015": [
-    "app/network/session.gd:572"
+    "app/network/session.gd:574"
   ],
   "session.016": [
-    "app/network/session.gd:579"
+    "app/network/session.gd:581"
   ],
   "session.017": [
-    "app/network/session.gd:584"
+    "app/network/session.gd:586"
   ],
   "session.018": [
-    "app/network/session.gd:590"
+    "app/network/session.gd:592"
   ],
   "session.019": [
-    "app/network/session.gd:590"
+    "app/network/session.gd:592"
   ],
   "session.020": [
-    "app/network/session.gd:597"
+    "app/network/session.gd:599"
   ],
   "session.021": [
-    "app/network/session.gd:597"
+    "app/network/session.gd:599"
   ],
   "session.022": [
-    "app/network/session.gd:605"
+    "app/network/session.gd:607"
   ],
   "session.023": [
-    "app/network/session.gd:605"
+    "app/network/session.gd:607"
   ],
   "session.024": [
-    "app/network/session.gd:655"
+    "app/network/session.gd:657"
   ],
   "steam_service.001": [
     "app/network/steam_service.gd:20",
@@ -282,52 +282,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:129"
+    "features/base/base_model.gd:130"
   ],
   "base_model.002": [
-    "features/base/base_model.gd:132"
-  ],
-  "base_model.003": [
     "features/base/base_model.gd:133"
   ],
-  "base_model.004": [
-    "features/base/base_model.gd:136"
+  "base_model.003": [
+    "features/base/base_model.gd:134"
   ],
-  "base_model.005": [
+  "base_model.004": [
     "features/base/base_model.gd:137"
   ],
-  "base_model.006": [
+  "base_model.005": [
     "features/base/base_model.gd:138"
   ],
+  "base_model.006": [
+    "features/base/base_model.gd:139"
+  ],
   "base_model.007": [
-    "features/base/base_model.gd:140"
+    "features/base/base_model.gd:141"
   ],
   "base_model.008": [
-    "features/base/base_model.gd:146"
+    "features/base/base_model.gd:147"
   ],
   "base_model.009": [
-    "features/base/base_model.gd:176"
+    "features/base/base_model.gd:177"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:183"
+    "features/base/base_model.gd:184"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:187"
+    "features/base/base_model.gd:188"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:192"
+    "features/base/base_model.gd:193"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:209"
+    "features/base/base_model.gd:210"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:212"
+    "features/base/base_model.gd:213"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:219"
+    "features/base/base_model.gd:220"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:221"
+    "features/base/base_model.gd:222"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -450,7 +450,7 @@
   "field_item_view.002": [
     "features/exploration/field_item_view.gd:22",
     "features/voice/proximity_voice.gd:110",
-    "ui/map/global_map.gd:182"
+    "ui/map/global_map.gd:183"
   ],
   "field_items.001": [
     "features/exploration/field_items.gd:6"
@@ -873,29 +873,29 @@
     "features/player/animation/animation_preview.gd:98"
   ],
   "base_input.001": [
-    "features/player/base_input.gd:113"
+    "features/player/base_input.gd:115"
   ],
   "base_input.002": [
-    "features/player/base_input.gd:124"
+    "features/player/base_input.gd:126"
   ],
   "soul_rules.001": [
-    "features/rescue/soul_rules.gd:32"
+    "features/rescue/soul_rules.gd:52"
   ],
   "soul_rules.002": [
-    "features/rescue/soul_rules.gd:63",
-    "features/rescue/soul_rules.gd:64"
+    "features/rescue/soul_rules.gd:85",
+    "features/rescue/soul_rules.gd:86"
   ],
   "soul_rules.003": [
-    "features/rescue/soul_rules.gd:110"
+    "features/rescue/soul_rules.gd:141"
   ],
   "soul_rules.004": [
-    "features/rescue/soul_rules.gd:121"
+    "features/rescue/soul_rules.gd:152"
   ],
   "soul_rules.005": [
-    "features/rescue/soul_rules.gd:122"
+    "features/rescue/soul_rules.gd:153"
   ],
   "soul_view.001": [
-    "features/rescue/soul_view.gd:22"
+    "features/rescue/soul_view.gd:72"
   ],
   "proximity_voice.001": [
     "features/voice/proximity_voice.gd:10",
@@ -1410,7 +1410,7 @@
     "ui/map/global_map.gd:172"
   ],
   "global_map.006": [
-    "ui/map/global_map.gd:182"
+    "ui/map/global_map.gd:183"
   ],
   "menu_screen.001": [
     "ui/menu/menu_screen.gd:26"
@@ -1584,49 +1584,49 @@
     "ui/network/steam_panel.gd:153"
   ],
   "soul_panel.001": [
-    "ui/soul_panel.gd:20"
-  ],
-  "soul_panel.002": [
-    "ui/soul_panel.gd:21"
-  ],
-  "soul_panel.003": [
     "ui/soul_panel.gd:22"
   ],
-  "soul_panel.004": [
+  "soul_panel.002": [
+    "ui/soul_panel.gd:23"
+  ],
+  "soul_panel.003": [
     "ui/soul_panel.gd:24"
   ],
-  "soul_panel.005": [
+  "soul_panel.004": [
     "ui/soul_panel.gd:26"
+  ],
+  "soul_panel.005": [
+    "ui/soul_panel.gd:28"
   ],
   "soul_panel.006": [
-    "ui/soul_panel.gd:26"
+    "ui/soul_panel.gd:28"
   ],
   "soul_panel.007": [
-    "ui/soul_panel.gd:26"
+    "ui/soul_panel.gd:28"
   ],
   "soul_panel.008": [
-    "ui/soul_panel.gd:27"
+    "ui/soul_panel.gd:29"
   ],
   "soul_panel.009": [
-    "ui/soul_panel.gd:30"
-  ],
-  "soul_panel.010": [
     "ui/soul_panel.gd:32"
   ],
+  "soul_panel.010": [
+    "ui/soul_panel.gd:40"
+  ],
   "soul_panel.011": [
-    "ui/soul_panel.gd:33"
-  ],
-  "soul_panel.012": [
-    "ui/soul_panel.gd:36"
-  ],
-  "soul_panel.013": [
-    "ui/soul_panel.gd:36"
-  ],
-  "soul_panel.014": [
     "ui/soul_panel.gd:41"
   ],
+  "soul_panel.012": [
+    "ui/soul_panel.gd:44"
+  ],
+  "soul_panel.013": [
+    "ui/soul_panel.gd:44"
+  ],
+  "soul_panel.014": [
+    "ui/soul_panel.gd:49"
+  ],
   "soul_panel.015": [
-    "ui/soul_panel.gd:42"
+    "ui/soul_panel.gd:50"
   ],
   "item_slot.001": [
     "ui/widgets/item_slot.gd:39"
@@ -1970,6 +1970,9 @@
     "ui/menu/menu_screen.gd:164"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:197"
+    "features/base/base_model.gd:198"
+  ],
+  "soul_roaming.controls": [
+    "ui/soul_panel.gd:38"
   ]
 }

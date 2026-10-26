@@ -7,6 +7,7 @@ const FieldItems=preload("res://features/exploration/field_items.gd")
 var field_effects:Array=[]
 var roof_cutaway:=false
 var enabled:=false
+var omniscient:=false
 var observer:=Vector3.ZERO
 var aim:=Vector2.UP
 var space: PhysicsDirectSpaceState3D
@@ -17,7 +18,8 @@ var _world_id:=0
 
 func update(ctx, delta: float) -> void:
 	var observer_id: int = ctx.session.model.Souls.observer_id(ctx.session.model.state.players,ctx.session.local_id)
-	var active: bool=ctx.in_game and not ctx.world_loading and ctx.world_id!="bunker"
+	omniscient=ctx.in_game and not ctx.world_loading and ctx.session.model.Souls.free_soul(ctx.session.model.state.players.get(ctx.session.local_id,{}))
+	var active: bool=ctx.in_game and not ctx.world_loading and ctx.world_id!="bunker" and not omniscient
 	var current_world: int=ctx.world.get_instance_id()
 	if current_world!=_world_id:
 		_world_id=current_world;_clock=1.0
@@ -30,10 +32,13 @@ func update(ctx, delta: float) -> void:
 		observer=Vector3(Vector2(p.get("pos",Vector2.ZERO)).x,float(p.get("height",0)),Vector2(p.get("pos",Vector2.ZERO)).y)
 		if ctx.actors.has(observer_id):observer=ctx.actors[observer_id].position
 		if ctx.in_game and not ctx.world_loading:
-			for id in ctx.actors:ctx.actors[id].visible=id==observer_id or can_see(ctx.actors[id].position+Vector3.UP)
+			for id in ctx.actors:ctx.actors[id].visible=ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})) and (id==observer_id or can_see(ctx.actors[id].position+Vector3.UP))
 			for uid in ctx.drops:ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
 			for label in ctx.target_labels:label.visible=can_see(label.position)
-		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{})
+		if omniscient and ctx.world.has_method("vision_targets"):
+			for target in ctx.world.vision_targets():
+				for node in target.nodes:node.visible=true
+		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{"vision_roof_cutaway":omniscient})
 		if ctx.world_loading:
 			for actor in ctx.actors.values():actor.visible=false
 			for drop in ctx.drops.values():drop.visible=false
@@ -70,7 +75,7 @@ func update(ctx, delta: float) -> void:
 		for key in parameters:ctx.tracer_node.material_override.set_shader_parameter(key,parameters[key])
 	for id in ctx.actors:
 		var actor: Node3D=ctx.actors[id]
-		actor.visible=id==observer_id or can_see(actor.position+Vector3(0,.45,0)) or can_see(actor.position+Vector3(0,1.3,0))
+		actor.visible=ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})) and (id==observer_id or can_see(actor.position+Vector3(0,.45,0)) or can_see(actor.position+Vector3(0,1.3,0)))
 	for uid in ctx.drops:
 		ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
 	if ctx.world.has_method("vision_targets"):
@@ -83,6 +88,7 @@ func update(ctx, delta: float) -> void:
 		ctx.target_labels[i].visible=can_see(ctx.target_labels[i].position-Vector3(0,1.4,0))
 
 func can_see(point: Vector3, exclude: Array[RID]=[], ignore_smoke:bool=false) -> bool:
+	if omniscient:return true
 	if not enabled:return ignore_smoke or not FieldItems.blocks_sight(field_effects,observer+Vector3.UP,point)
 	if not Rules.contains(observer,aim,point):return false
 	if space==null:return false

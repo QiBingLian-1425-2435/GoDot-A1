@@ -64,6 +64,19 @@ func run():
 			for i in range(3):session.send_voice(PackedByteArray(),310+i);await create_timer(.035).timeout
 		await create_timer(.3).timeout
 		if role=="far":check(heard.any(func(entry):return entry[1]==0),"stop packet routed to listener")
+		write_report(role+"_three")
+		check(await wait_for(func():return int(session.model.state.get("voice_test_phase",0))==4),"private possession phase arrived")
+		heard.clear();await send_burst(4 if role=="near" else 5,400)
+		await create_timer(.4).timeout
+		check(heard.any(func(entry):return entry[1]==6),"both clients hear living host in their allowed channel")
+		if role=="near":check(not heard.any(func(entry):return entry[1]==5),"attached ghost cannot hear third living teammate over real RPC")
+		else:check(not heard.any(func(entry):return entry[1]==4),"third living teammate cannot hear ghost over real RPC")
+		write_report(role+"_four")
+		check(await wait_for(func():return int(session.model.state.get("voice_test_phase",0))==5),"detach phase arrived")
+		heard.clear();await send_burst(8 if role=="near" else 9,500)
+		await create_timer(.4).timeout
+		if role=="near":check(heard.is_empty(),"detached ghost receives no living voice")
+		else:check(heard.any(func(entry):return entry[1]==7) and not heard.any(func(entry):return entry[1]==8),"living voice continues while detached ghost stays silent")
 		await finish();return
 	check(session.host(PORT)==OK,"host starts")
 	for who in ["near","far"]:
@@ -84,7 +97,17 @@ func run():
 	check(heard.any(func(entry):return entry[0]==far_id),"walking into range enables host audio")
 	check(int(read_report("near_two").failures)==0 and int(read_report("far_two").failures)==0,"client-to-client relay verified")
 	phase(3)
-	check(await wait_for(func():return FileAccess.file_exists(path("near_done")) and FileAccess.file_exists(path("far_done"))),"clients finish")
+	check(await wait_for(func():return FileAccess.file_exists(path("near_three")) and FileAccess.file_exists(path("far_three"))),"clients complete stale-packet phase")
 	check(not heard.any(func(entry):return entry[1]==9),"stale token and world packets rejected over RPC")
+	var ghost: Dictionary=session.model.state.players[near_id]
+	ghost.pos=Vector2(1,0);ghost.hp=0;session.model.tick(.01)
+	check(session.model.command(near_id,"possess",{"target":1}),"nearby ghost attaches to real host")
+	heard.clear();phase(4);await send_burst(6,400)
+	check(await wait_for(func():return FileAccess.file_exists(path("near_four")) and FileAccess.file_exists(path("far_four"))),"clients complete private-channel phase")
+	check(heard.any(func(entry):return entry[1]==4),"possessed host hears ghost over transport")
+	check(session.model.command(1,"release_soul"),"host detaches ghost")
+	heard.clear();phase(5);await send_burst(7,500)
+	check(await wait_for(func():return FileAccess.file_exists(path("near_done")) and FileAccess.file_exists(path("far_done"))),"clients finish detach phase")
+	check(not heard.any(func(entry):return entry[1]==8),"host cannot hear detached ghost over transport")
 	check(int(read_report("near_done").failures)==0 and int(read_report("far_done").failures)==0,"stop/no-echo client assertions pass")
 	await finish()

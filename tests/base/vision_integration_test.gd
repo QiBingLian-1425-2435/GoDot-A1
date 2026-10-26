@@ -10,6 +10,7 @@ func check(ok: bool, message: String) -> void:
 func settle() -> void:
 	game._update_actors(.016);game._update_drops();game.vision.update(game,.06);game._update_camera(.016);game._update_interaction()
 	game._refresh_ui()
+	game.soul_view.update(game)
 func capture(name: String) -> void:
 	if DisplayServer.get_name()=="headless":return
 	for i in range(8):
@@ -78,8 +79,13 @@ func run() -> void:
 	var before: Dictionary=model.state.duplicate(true)
 	settle()
 	check(model.state==before,"view evaluation does not change shared actors, inventory or world state")
-	p.hp=0;model.tick(.01);model.command(1,"possess",{"target":2});settle()
+	p.hp=0;model.tick(.01);settle()
+	check(game.vision.omniscient and not game.vision.enabled and game.vision.can_see(Vector3(spawn.x,100,spawn.y+1000)),"free soul sees panoramic exploration without distance, height, smoke or cone restriction")
+	check(not game.world._terrain_material.get_shader_parameter("vision_enabled") and game.soul_view._environment.ambient_light_energy>=1,"real terrain fog is disabled and ambient lighting brightened for roaming soul")
+	await capture("soul_roaming_fullbright")
+	p.pos=model.state.players[2].pos;model.command(1,"possess",{"target":2});settle()
 	check(game.vision.observer.distance_to(game.actors[2].position)<.01,"possessed soul uses teammate observer in real exploration vision")
+	check(game.vision.enabled and not game.soul_view.ghost.visible and game.soul_view._environment.ambient_light_energy<1,"attachment restores real teammate fog and normal illumination")
 	model.Souls.revive(model,p);p.pos=spawn;p.aim=forward;settle()
 	check(game.world._terrain_material.get_shader_parameter("vision_enabled"),"the real terrain receives the local fog parameters")
 	await capture("forward")
@@ -134,8 +140,8 @@ func run() -> void:
 	settle()
 	check(game.world_id=="surface" and game.vision.enabled,"cave exit rebuilds source container visibility on the surface")
 	p.pos=spawn;p.height=-1.13
-	for id in [2,3]:
-		model.state.players[id].pos=spawn;model.state.players[id].height=-1.13
+	for member in model.state.players.values():
+		if model.Souls.alive(member):member.pos=p.pos;member.height=p.height
 	game.session.send("travel",{"route":"surface_to_bunker"});await process_frame;settle()
 	check(game.world_id=="bunker" and not game.vision.enabled and game.actors[2].visible and game.actors[3].visible,"returning to base restores every party character")
 	game._return_menu();check(not game.in_game,"leaving the session still cleans up normally")

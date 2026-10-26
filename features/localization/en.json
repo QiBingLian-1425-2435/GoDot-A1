@@ -510,8 +510,8 @@
   "soul_panel.003": "End Life & Become a Soul",
   "soul_panel.004": "Soul State",
   "soul_panel.005": "Possessing: ",
-  "soul_panel.006": " · Voice available",
-  "soul_panel.007": "Awaiting rescue · Your body keeps your backpack and gear",
+  "soul_panel.006": " · Private voice with this teammate",
+  "soul_panel.007": "Free soul · Bright vision · Visible only to you",
   "soul_panel.008": "Wait for Rescue / Release",
   "soul_panel.009": "Possess ",
   "soul_panel.010": "The entire team is incapacitated.\nReturn to camp to recover; abandoned gear stays here.",
@@ -631,5 +631,6 @@
   "keys.action.voice": "Push to talk (default Q)",
   "settings.infinite_credits": "Unlimited Credits",
   "settings.infinite_credits_hint": "Host controls this for the team: purchases and camp upgrades cost no credits. Materials are still consumed.",
-  "settings.infinite_credits_host_only": "Only the host can toggle unlimited credits"
+  "settings.infinite_credits_host_only": "Only the host can toggle unlimited credits",
+  "soul_roaming.controls": "Float with movement keys · 2/4/6/8× speed\nWithin 2.4 m of a living teammate: possess"
 }

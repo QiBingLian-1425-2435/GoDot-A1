@@ -1,7 +1,27 @@
 extends RefCounted
 ## Only BaseModel invokes these transitions on the authority.
 const RESCUE_SECONDS := 3.0
+const POSSESSION_RANGE := 2.4
+const SOUL_SPEEDS := [2,4,6,8]
 const ZOMBIE_KILL_RANGE := 0.9
+
+static func free_soul(p: Dictionary) -> bool:
+	return p.get("life","")=="soul" and int(p.get("possessing",0))==0
+
+static func can_possess(players: Dictionary, id: int, target: int) -> bool:
+	var p: Dictionary = players.get(id,{})
+	var host: Dictionary = players.get(target,{})
+	if id==target or not free_soul(p) or not alive(host): return false
+	var offset := Vector2(p.pos)-Vector2(host.pos)
+	var height := float(p.get("height",0))-float(host.get("height",0))
+	return offset.length_squared()+height*height <= POSSESSION_RANGE*POSSESSION_RANGE+.00001
+
+static func detach(ctx, p: Dictionary) -> void:
+	var host: Dictionary = ctx.state.players.get(int(p.get("possessing",0)),{})
+	if not host.is_empty(): p.pos=host.pos;p.height=host.get("height",0)
+	p.possessing=0
+	p.relocation_seq=int(p.get("relocation_seq",0))+1
+	ctx.reset_transients(int(p.id))
 
 static func zombie(p: Dictionary) -> bool:
 	return p.get("life", "alive") == "zombie"
@@ -48,6 +68,8 @@ static func die(ctx, p: Dictionary) -> void:
 	if p.get("life","alive") == "soul": return
 	ctx.reset_transients(int(p.id))
 	p.life = "soul"; p.hp = 0.0; p.possessing = 0; p.rescue = {}
+	p.soul_speed = 2
+	p.soul_bounds = ctx.bounds
 	p.relocation_seq = int(p.get("relocation_seq",0))+1
 	var uid := "corpse_%d" % ctx._next_uid
 	ctx._next_uid += 1
@@ -87,19 +109,28 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 		die(ctx,p)
 		return true
 	match action:
+		"soul_speed":
+			var speed: Variant = payload.get("speed")
+			if p.get("life","")!="soul" or not speed is int or speed not in SOUL_SPEEDS: return false
+			p.soul_speed=speed
+			p.relocation_seq=int(p.get("relocation_seq",0))+1
+			return true
 		"soul_wait":
 			if alive(p): return false
-			p.possessing = 0
+			detach(ctx,p)
 			return true
 		"possess":
 			var target: Variant = payload.get("target")
-			if alive(p) or not target is int or target == p.id or not alive(ctx.state.players.get(target,{})): return false
+			if not target is int or not can_possess(ctx.state.players,int(p.id),target): return false
+			ctx.reset_transients(int(p.id))
 			p.possessing = target
+			p.pos = ctx.state.players[target].pos;p.height=ctx.state.players[target].get("height",0)
+			p.relocation_seq=int(p.get("relocation_seq",0))+1
 			return true
 		"release_soul":
 			if not alive(p): return false
 			for ghost in ctx.state.players.values():
-				if int(ghost.get("possessing",0)) == int(p.id): ghost.possessing = 0
+				if int(ghost.get("possessing",0)) == int(p.id): detach(ctx,ghost)
 			return true
 		"rescue":
 			var target: Variant = payload.get("target")
@@ -124,6 +155,9 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 	return false
 
 static func revive(ctx, p: Dictionary) -> void:
+	if p.get("life","")=="soul":
+		var body: Dictionary=ctx.state.corpses.get(p.get("corpse_uid",""),{})
+		if not body.is_empty() and body.world==ctx.state.world:p.pos=body.pos;p.height=body.height
 	p.life = "alive"; p.hp = minf(30,float(p.get("max_hp",100))); p.possessing = 0; p.rescue = {}
 	p.san = 30.0
 	p.relocation_seq = int(p.get("relocation_seq",0))+1
@@ -144,7 +178,10 @@ static func tick(ctx, delta: float) -> void:
 	for target in victims.values(): die(ctx,target)
 	for p in ctx.state.players.values():
 		if not alive(p):
-			if not alive(ctx.state.players.get(int(p.get("possessing",0)),{})): p.possessing = 0
+			if int(p.get("possessing",0))>0:
+				var host: Dictionary = ctx.state.players.get(int(p.possessing),{})
+				if not alive(host): detach(ctx,p)
+				else: p.pos=host.pos;p.height=host.get("height",0);p.velocity=Vector2.ZERO
 			continue
 		var rescue: Dictionary = p.get("rescue",{})
 		if rescue.is_empty(): continue

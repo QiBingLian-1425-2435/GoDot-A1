@@ -38,17 +38,23 @@ func run():
 	check(int(p.magazines.get(stored_gun.uid,0))==7 and p.stash[47].uid==stored_gun.uid,"death preserves stash weapon and its loaded ammunition")
 	advance(m,1);check(m.state.corpses.size()==1,"death is idempotent")
 	var old: Vector2 = p.pos
-	for action in ["move","fire","reload","rest","unstuck","buy","use","transfer","search","travel"]:
+	for action in ["fire","reload","rest","unstuck","buy","use","transfer","search","travel"]:
 		check(not m.command(1,action,{"direction":Vector2.RIGHT}),"soul rejects "+action)
-	advance(m,1);check(p.pos==old,"soul body stays at death position")
+	check(m.command(1,"move",{"direction":Vector2.RIGHT}),"free soul accepts movement intent")
+	m.tick(.1);check(p.pos!=old and body.pos==old,"soul roams while corpse remains at death position")
+	m.command(1,"move",{"direction":Vector2.ZERO});p.pos=old
 	check(not m.command(2,"possess",{"target":3}) and not m.command(1,"possess",{"target":1}) and not m.command(1,"possess",{"target":99}),"only souls can possess living teammates")
 	r.pos=Vector2(100,100)
 	check(Voice.gain(m.state.players,1,2)==0,"waiting soul cannot use living voice")
-	check(m.command(1,"possess",{"target":2}) and Voice.gain(m.state.players,1,2)==1,"possession places voice with host, independent of corpse distance")
+	check(not m.command(1,"possess",{"target":2}),"distant possession rejected")
+	r.pos=p.pos+Vector2(.5,0)
+	check(m.command(1,"possess",{"target":2}) and Voice.gain(m.state.players,1,2)==1,"nearby possession connects private voice")
 	check(Voice.gain(m.state.players,2,1)==1,"possessed soul hears host")
 	check(m.command(2,"release_soul") and p.possessing==0,"living host can release attached soul")
+	p.pos=m.state.players[3].pos
 	m.command(1,"possess",{"target":3});m.remove_player(3);m.tick(.1)
 	check(p.possessing==0,"disconnect clears possession")
+	r.pos=Vector2(100,100)
 	check(not m.command(2,"rescue",{"target":1}),"distant rescue rejected")
 	r.pos=body.pos+Vector2(.5,0);r.height=3
 	check(not m.command(2,"rescue",{"target":1}),"other floor rescue rejected")

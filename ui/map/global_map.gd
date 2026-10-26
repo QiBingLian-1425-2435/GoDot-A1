@@ -173,6 +173,7 @@ func draw_markers(canvas: Control) -> void:
 	else:Texts.bind(_status, "", "text")
 	for id in _players:
 		var player:Dictionary=_players[id]
+		if player.get("life","")=="soul" and int(id)!=_local_id:continue
 		var point:=map_to_view(world_to_map(Vector2(player.get("pos",Vector2.ZERO)),map_rect))
 		if not view_rect.has_point(point):continue
 		var local:=int(id)==_local_id
