@@ -28,7 +28,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -192,6 +192,11 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			if id != 1: return _reject("⟦base_model.012⟧")
 			if not payload.get("enabled") is bool: return false
 			state.infinite_stamina = payload.enabled
+			return true
+		"set_infinite_credits":
+			if id != 1: return _reject("⟦settings.infinite_credits_host_only⟧")
+			if not payload.get("enabled") is bool: return false
+			state.infinite_credits = payload.enabled
 			return true
 		"reload": return _reload(p)
 		"fire": return _fire(p)

@@ -38,9 +38,10 @@ static func resupply_ammo(ctx, p: Dictionary) -> bool:
 
 static func _buy_ammo(ctx, p: Dictionary) -> bool:
 	if not ctx._near(p,"trader"): return ctx._reject("⟦facility_system.009⟧")
-	if p.credits < 60: return ctx._reject("⟦facility_system.010⟧")
+	if not ctx.state.get("infinite_credits",false) and p.credits < 60: return ctx._reject("⟦facility_system.010⟧")
 	if not ctx._insert(p.bag,ctx._item("ammo",30)): return ctx._reject("⟦facility_system.003⟧")
-	p.credits -= 60; ctx._update_weight(p)
+	if not ctx.state.get("infinite_credits",false):p.credits -= 60
+	ctx._update_weight(p)
 	ctx.last_notice = "⟦facility_system.011⟧"
 	ctx._animate(p,"interact",0.8)
 	return true

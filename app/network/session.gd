@@ -15,7 +15,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","train","reset_targets","travel","door","unstuck","buy","sell","search","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -150,7 +150,9 @@ func offline() -> void:
 	if not room_store.path.is_empty():save_room()
 	if mode!="client" and room_store.path.is_empty():_local_camp=model.state.camp.duplicate()
 	room_store.clear();peer_identity_provider=Callable()
-	if mode == "client": model.state.infinite_reserve = false
+	if mode == "client":
+		model.state.infinite_reserve = false
+		model.state.infinite_credits = false
 	if mode != "client" and model.state.players.has(local_id):
 		_local_profile = model.state.players[local_id].duplicate(true)
 	if is_inside_tree(): multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
@@ -298,7 +300,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("world_revision") is int:clean.world_revision=payload.world_revision
 		"set_infinite_reserve":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
-		"set_infinite_stamina":
+		"set_infinite_stamina", "set_infinite_credits":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"travel":
 			if payload.get("route") is String: clean.route = str(payload.route).left(64)

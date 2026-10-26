@@ -35,7 +35,7 @@ static func reason(ctx,p:Dictionary,facility:String,expected:Variant) -> String:
 	if not expected is int or expected!=level:return "⟦camp_upgrades.010⟧"
 	if level>=3:return "⟦camp_upgrades.011⟧"
 	var cost:Dictionary=DEFS[facility].costs[level]
-	if p.credits<int(cost.credits):return Texts.format("⟦camp_upgrades.012⟧", cost.credits)
+	if not ctx.state.get("infinite_credits",false) and p.credits<int(cost.credits):return Texts.format("⟦camp_upgrades.012⟧", cost.credits)
 	for kind in cost.items:
 		if ctx._count(p.bag,kind)<int(cost.items[kind]):return Texts.format("⟦camp_upgrades.013⟧", [ctx.Items.definition(kind).name,int(cost.items[kind])-ctx._count(p.bag,kind)])
 	return ""
@@ -47,7 +47,8 @@ static func upgrade(ctx,p:Dictionary,payload:Dictionary) -> bool:
 	var cost:Dictionary=DEFS[facility].costs[level]
 	var bag:Array=p.bag.duplicate(true)
 	for kind in cost.items:ctx._consume(bag,kind,int(cost.items[kind]))
-	p.bag=bag;p.credits-=int(cost.credits)
+	p.bag=bag
+	if not ctx.state.get("infinite_credits",false):p.credits-=int(cost.credits)
 	ctx.state.camp[facility]=level+1
 	refresh_all(ctx)
 	ctx.last_notice=Texts.format("⟦camp_upgrades.014⟧", [DEFS[facility].name,level+1,DEFS[facility].stat,(level+1)*int(DEFS[facility].step),"⟦format.camp_panel.002⟧" if facility=="logistics" else ""])
