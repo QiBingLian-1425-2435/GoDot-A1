@@ -104,20 +104,26 @@ func _step_height(next: Vector2, travel: Vector2, floor_hit: Dictionary) -> floa
 	# A single probe at the far edge skips narrow door sills and short stair
 	# treads. Sample the capsule's whole forward reach so their top is seen before
 	# the capsule side reaches the vertical face.
+	var side := Vector2(-direction.y,direction.x)
+	var needs_shoulder_clearance := not is_clear(Vector3(next.x,current,next.y))
 	for distance: float in PackedFloat32Array([.08, .16, .24, .32, STEP_REACH]):
-		var ahead: Vector2 = next+direction*distance
-		var hit := _support(ahead,position.y)
-		if hit.is_empty() or Vector3(hit.normal).y<.55: continue
-		var height := _feet_height(hit)
-		# Bound the lift against the floor as well as the current pose. Otherwise
-		# successive forward probes can ratchet the capsule up above an empty floor.
-		if height-position.y > MAX_STEP or height-current > MAX_STEP or height<=current+.02: continue
-		# Do not hover ahead of a continuous slope: only pre-lift when the forward
-		# surface rises above the plane under the capsule (a ledge or a slope seam).
-		var normal:Vector3=floor_hit.normal
-		var offset: Vector2=ahead-Vector2(floor_hit.position.x,floor_hit.position.z)
-		var expected:float=floor_hit.position.y-(normal.x*offset.x+normal.z*offset.y)/maxf(.55,normal.y)
-		if float(hit.position.y)>expected+.055: step_height=maxf(step_height,height)
+		# Cover the leading capsule footprint, not only its center line. A diagonal
+		# lip can hit the shoulder before any center probe reaches its top.
+		var width := sqrt(maxf(0.0,STEP_REACH*STEP_REACH-distance*distance))*.85
+		for lateral: float in ([0.0,-width,width] if needs_shoulder_clearance else [0.0]):
+			var ahead: Vector2 = next+direction*distance+side*lateral
+			var hit := _support(ahead,position.y)
+			if hit.is_empty() or Vector3(hit.normal).y<.55: continue
+			# Shoulder-only support must be a tread, not the flank of a curved rock.
+			if lateral!=0.0 and Vector3(hit.normal).y<.95: continue
+			var height := _feet_height(hit)
+			# Bound against direct support too: repeated probes must not ratchet
+			# the capsule upward while its center remains over the lower floor.
+			if height-position.y > MAX_STEP or height-current > MAX_STEP or height<=current+.02: continue
+			var normal:Vector3=floor_hit.normal
+			var offset: Vector2=ahead-Vector2(floor_hit.position.x,floor_hit.position.z)
+			var expected:float=floor_hit.position.y-(normal.x*offset.x+normal.z*offset.y)/maxf(.55,normal.y)
+			if float(hit.position.y)>expected+.055: step_height=maxf(step_height,height)
 	return step_height
 
 func _descending_support(next: Vector2, travel: Vector2) -> Dictionary:

@@ -24,6 +24,9 @@ func run():
 	box(world,Vector3(0,.08,12),Vector3(.12,.16,1.5))
 	box(world,Vector3(0,1.0,10.9),Vector3(.25,2.0,.35))
 	box(world,Vector3(0,1.0,13.1),Vector3(.25,2.0,.35))
+	# A diagonal ledge touches the capsule shoulder before its center-line ray.
+	box(world,Vector3(1.41421356,.22,-9+1.41421356),Vector3(4,.44,6))
+	world.get_child(world.get_child_count()-1).rotation.y=-PI/4
 	var body=Body.instantiate();world.add_child(body)
 	await physics_frame;await physics_frame
 	for lane in range(3):
@@ -46,5 +49,13 @@ func run():
 		for i in range(55):at=body.move_spatial(at,travel)
 		check(at.x>.8,"narrow door sill is crossed at direction "+str(travel.normalized()))
 		check(body.is_clear(at),"door-sill crossing leaves the capsule clear")
+	for speed in [.018,.0616667,.10175]:
+		at=Vector3(-1,.04,-9)
+		for i in range(ceili(2.4/speed)):at=body.move_spatial(at,Vector2(speed,0))
+		print("DIAGONAL_STEP speed=",speed," end=",at)
+		check(at.x>1.1 and at.y>.4,"diagonal low ledge climbs at travel %.3f"%speed)
+		check(body.is_clear(at),"diagonal ledge leaves capsule clear")
+		for i in range(ceili(2.4/speed)):at=body.move_spatial(at,Vector2(-speed,0))
+		check(at.x<-.8 and at.y<.1,"diagonal ledge can be descended without getting stuck")
 	world.queue_free();await process_frame
 	print("STEP_UP checks=",checks," failures=",failures);quit(1 if failures else 0)
