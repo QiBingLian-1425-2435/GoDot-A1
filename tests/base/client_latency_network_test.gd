@@ -22,6 +22,7 @@ var remote_seen := false
 var previous_shown := Vector2.ZERO
 var previous_remote := Vector2.ZERO
 var control_clock := 0.0
+var rendered_shots:Dictionary={}
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
@@ -128,6 +129,7 @@ func run() -> void:
 		finish()
 		return
 	await wait(.8)
+	await command({"hunger":25.0})
 	await place(Vector2(0, 3))
 	var inventory_before := protected_state()
 	await measure_start_stop()
@@ -139,6 +141,7 @@ func run() -> void:
 	await measure_correction()
 	await measure_remote()
 	check(protected_state() == inventory_before, "movement and prediction never mutate authoritative inventory, equipment, ammo, credits or hp")
+	await measure_shots()
 	active_case = "leave"
 	release_keys()
 	game._return_menu()
@@ -319,6 +322,19 @@ func measure_remote() -> void:
 	await command({"host_walk": false})
 	await wait(.8)
 
+func measure_shots() -> void:
+	active_case="shots"
+	release_keys()
+	rendered_shots.clear()
+	for i in range(3):
+		await command({"fire":true})
+		await wait(.3)
+		game.session.send("fire")
+		await wait(.8)
+	await wait(1.0)
+	metrics.rendered_shots=rendered_shots.size()
+	check(rendered_shots.size()==6,"all host and client confirmed shots produce visible tracer geometry through impaired RPC")
+
 func _process(delta: float) -> bool:
 	if game == null or done: return false
 	if now() > 90:
@@ -340,6 +356,9 @@ func _process(delta: float) -> bool:
 							game.session.model.reset_transients(id)
 				if control.has("host_position"):
 					game.session.model.state.players[1].pos = Vector2(control.host_position[0], control.host_position[1])
+				if control.has("hunger"):
+					for p in game.session.model.state.players.values():p.hunger=float(control.hunger)
+				if control.has("fire"):game.session.send("fire")
 				if control.has("host_walk"): key(KEY_W, control.host_walk)
 				game.session._broadcast_snapshot(true)
 				write_json("control_ack.json", {"serial": last_control})
@@ -350,6 +369,8 @@ func _process(delta: float) -> bool:
 		return false
 	if game.in_game and game.actors.has(game.session.local_id):
 		var p: Dictionary = game.session.model.state.players[game.session.local_id]
+		if game.tracer_mesh.get_surface_count()>0:
+			for shot in game.session.visual_shots():rendered_shots["%s:%s"%[shot.player_id,shot.sequence]]=true
 		var at := shown()
 		var predicted_velocity := local_velocity()
 		samples.append({"time": now(), "case": active_case, "shown": [at.x, at.y],

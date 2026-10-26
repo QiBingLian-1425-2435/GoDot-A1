@@ -35,6 +35,9 @@ var _received_motion_serial := -1
 var _received_enemy_serial := -1
 var _enemy_serials: Dictionary = {}
 var _snapshot_received_usec := 0
+# Presentation events survive snapshot replacement; age starts at first receipt.
+var _shot_visuals: Array[Dictionary] = []
+var _shot_seen: Dictionary = {}
 var motion_buffer = MotionBuffer.new()
 var local_movement = LocalMovement.new()
 var _last_sent_move: Dictionary = {}
@@ -185,6 +188,7 @@ func offline() -> void:
 	model.reset_transients(1)
 	if not model.Souls.alive(model.state.players[1]): model.Souls.revive(model,model.state.players[1])
 	_voice_limits.clear(); _voice_sequences.clear()
+	_shot_visuals.clear(); _shot_seen.clear()
 	_last_movement.clear(); _last_intent.clear(); _rate_limits.clear(); _move_pending.clear()
 	_snapshot_clock = 0.0; _snapshot_serial = 0; _received_serial = -1; _session_token = 0
 	_motion_clock = 0.0; _move_clock = 0.0; _received_motion_serial = -1
@@ -399,8 +403,14 @@ func _receive_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float)
 	_apply_snapshot(snapshot,token,seq,stamp)
 
 func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -> void:
-	if mode != "client" or token == 0 or seq <= _received_serial: return
+	if mode != "client" or token == 0: return
 	if _session_token != 0 and token != _session_token: return
+	if seq <= _received_serial:
+		# An inventory snapshot on another reliable channel may overtake a fire
+		# snapshot. Keep its unseen shot events without rewinding shared state.
+		if int(snapshot.get("world_revision",0))==int(model.state.get("world_revision",0)) and snapshot.get("world","bunker")==model.state.get("world","bunker"):
+			_capture_shot_visuals(snapshot.get("shots",[]))
+		return
 	_session_token = token; _received_serial = seq
 	var changed_world: bool = int(snapshot.get("world_revision",0))!=int(model.state.get("world_revision",0)) or snapshot.get("world","bunker")!=model.state.get("world","bunker")
 	if changed_world:
@@ -419,6 +429,7 @@ func _apply_snapshot(snapshot: Dictionary, token: int, seq: int, stamp: float) -
 			for key in MOTION_FIELDS:
 				snapshot.players[id][key] = model.state.players[id][key]
 	model.state = snapshot
+	_capture_shot_visuals(snapshot.get("shots",[]))
 	_snapshot_received_usec = Time.get_ticks_usec()
 	motion_buffer.retain(model.state.players.keys())
 	if seq > _received_motion_serial:
@@ -461,6 +472,7 @@ func _confirm_local_motion() -> void:
 	if model.state.players.has(local_id): local_movement.confirm(model.state.players[local_id])
 
 func reset_world_motion() -> void:
+	_shot_visuals.clear(); _shot_seen.clear()
 	_received_enemy_serial=-1
 	_enemy_serials.clear()
 	_roll_capture=false
@@ -492,6 +504,34 @@ func _motion_rows() -> Array:
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
 		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p),p.get("sprint_exhausted",false),p.get("input_sprint_exhausted",false)])
 	return rows
+
+func _capture_shot_visuals(shots: Array) -> void:
+	for shot in shots:
+		var id:=int(shot.get("player_id",0))
+		var sequence:=int(shot.get("sequence",0))
+		var seen:Dictionary=_shot_seen.get(id,{"latest":0,"sequences":{}})
+		if sequence<=0 or sequence<int(seen.latest)-64 or seen.sequences.has(sequence) or float(shot.get("ttl",0))<=0: continue
+		seen.latest=maxi(seen.latest,sequence)
+		seen.sequences[sequence]=true
+		for previous in seen.sequences.keys():
+			if int(previous)<int(seen.latest)-64:seen.sequences.erase(previous)
+		_shot_seen[id]=seen
+		_shot_visuals.append({"shot":shot.duplicate(true),"received":Time.get_ticks_usec()})
+		while _shot_visuals.size()>64:_shot_visuals.pop_front()
+
+func visual_shots() -> Array:
+	if mode!="client":return model.state.get("shots",[])
+	var result:Array=[]
+	var now:=Time.get_ticks_usec()
+	for i in range(_shot_visuals.size()-1,-1,-1):
+		var event:Dictionary=_shot_visuals[i]
+		var age:float=(now-int(event.received))/1000000.0
+		if age>=.16:
+			_shot_visuals.remove_at(i);continue
+		var shot:Dictionary=event.shot.duplicate(true)
+		shot.ttl=.16-age
+		result.push_front(shot)
+	return result
 
 func snapshot_age() -> float:
 	return (Time.get_ticks_usec() - _snapshot_received_usec) / 1000000.0 if mode == "client" else 0.0

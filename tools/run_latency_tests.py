@@ -102,7 +102,7 @@ def prepare(project, native_source, output):
     stage = output / 'project'
     stage.mkdir()
     # Include uncommitted runtime files while excluding caches and external media.
-    allowed = {'.gd', '.uid', '.tscn', '.tres', '.cfg', '.gdshader', '.godot'}
+    allowed = {'.gd', '.uid', '.tscn', '.tres', '.cfg', '.gdshader', '.gdshaderinc', '.godot', '.json'}
     for top in ['app', 'features', 'worlds', 'ui', 'tests']:
         for source in (project / top).rglob('*'):
             if source.is_file() and source.suffix in allowed:

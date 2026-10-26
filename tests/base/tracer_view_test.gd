@@ -69,6 +69,36 @@ func run() -> void:
 	game.session._snapshot_received_usec = Time.get_ticks_usec() - 300000
 	game._update_tracers()
 	check(vertices(game).is_empty(),"old client snapshot cannot leave a stationary tracer")
+	# Reliable state on another channel overtakes a near-expired fire snapshot.
+	var late:Dictionary=state.duplicate(true)
+	late.shots[0].sequence=200;late.shots[0].ttl=.001
+	var newer:Dictionary=late.duplicate(true);newer.shots=[]
+	game.session._session_token=55
+	game.session._apply_snapshot(newer,55,21,1.1)
+	game.session._apply_snapshot(late,56,20,1.0)
+	check(game.session.visual_shots().is_empty(),"wrong-room shots never enter presentation")
+	var old_world:Dictionary=late.duplicate(true);old_world.world_revision=-1
+	game.session._apply_snapshot(old_world,55,20,1.0)
+	check(game.session.visual_shots().is_empty(),"old-world shots never enter presentation")
+	game.session._apply_snapshot(late,55,20,1.0)
+	game._update_tracers()
+	check(vertices(game).size()==6,"late confirmed shot renders even after newer state overtook its snapshot")
+	check(game.session.model.state.shots.is_empty(),"late shot does not rewind authoritative state")
+	game.session._apply_snapshot(late,55,20,1.0)
+	check(game.session._shot_visuals.size()==1,"repeated snapshots cannot restart a tracer")
+	game.session._shot_visuals[0].received-=300000
+	game._update_tracers()
+	check(vertices(game).is_empty(),"received tracer expires by local time even without new snapshots")
+	game.session._apply_snapshot(late,55,20,1.0)
+	check(game.session.visual_shots().is_empty(),"expired shot cannot be replayed by delayed duplicate")
+	var next_shot:Dictionary=late.shots[0].duplicate(true);next_shot.sequence=202
+	game.session._capture_shot_visuals([next_shot])
+	next_shot.sequence=201;game.session._capture_shot_visuals([next_shot])
+	check(game.session.visual_shots().size()==2,"out-of-order unseen shots are retained rather than discarded by a highest-sequence check")
+	game.session.reset_world_motion()
+	check(game.session._shot_visuals.is_empty() and game.session._shot_seen.is_empty(),"world transition clears visual events and identities")
+	game.session.model.state=state
+	shot=state.shots[0]
 	game.session.mode = "offline"
 	shot.to = shot.from
 	game._update_tracers()
@@ -77,7 +107,7 @@ func run() -> void:
 	check(feedback.impacts.is_empty(),"impact sparks, dust and point lights are reclaimed")
 	check(feedback.kick == 0.0,"camera recoil settles back to zero")
 	var before_hp: int = game.session.model.state.targets[0].hp
-	feedback.observe({"from":Vector2(8,8),"to":Vector2(8,8.8),"player_id":1,"sequence":100,"weapon":"rifle","impact":"target","target_id":0},0.0)
+	feedback.observe({"from":Vector2(8,8),"to":Vector2(8,8.8),"player_id":1,"sequence":300,"weapon":"rifle","impact":"target","target_id":0},0.0)
 	await create_timer(.03).timeout
 	check(absf(game.world.target_nodes[0].rotation.z) > .001,"confirmed target feedback visibly rocks its board")
 	check(game.session.model.state.targets[0].hp == before_hp,"target feedback never changes damage")

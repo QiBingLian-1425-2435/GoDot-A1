@@ -140,13 +140,13 @@ static func _update_tracers(ctx)->void:
 		feedback = ShotFeedback.new()
 		feedback.name = "ShotFeedback"; feedback.context = ctx
 		ctx.add_child(feedback)
-	var shots:Array=ctx.session.model.state.get("shots",[])
+	var shots:Array=ctx.session.visual_shots()
 	if shots.is_empty():return
 	var started:=false
 	for shot in shots:
 		# Draw a moving streak, never a full ray frozen at the old firing position.
 		# The hit point stays authoritative; actor motion cannot drag it through walls.
-		var age:float=maxf(0.0,0.16-float(shot.ttl)+ctx.session.snapshot_age())
+		var age:float=maxf(0.0,0.16-float(shot.ttl))
 		feedback.observe(shot,age)
 		var rifle:bool=shot.get("weapon","rifle")!="pistol"
 		var length:float=3.8 if rifle else 2.6
