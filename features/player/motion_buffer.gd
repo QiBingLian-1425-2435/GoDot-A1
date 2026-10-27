@@ -74,5 +74,5 @@ func sample_player(id: int, authoritative: Dictionary) -> Dictionary:
 	result.roll=a.roll.duplicate(true)
 	if not a.roll.is_empty() and not b.roll.is_empty() and a.roll.seen==b.roll.seen:
 		result.roll.time=lerpf(float(a.roll.time),float(b.roll.time),weight)
-		result.roll.active=(a.roll.active or b.roll.active) and result.roll.time<.65
+		result.roll.active=(a.roll.active or b.roll.active) and (a.roll.active if weight<1.0 else b.roll.active)
 	return result

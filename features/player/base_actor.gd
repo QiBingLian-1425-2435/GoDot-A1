@@ -358,26 +358,17 @@ func _apply_roll(data: Dictionary) -> void:
 	pivot.transform = Transform3D.IDENTITY
 	var roll: Dictionary = data.get("roll",{})
 	if not roll.get("active",false): return
-	animation_state = "roll"
-	var u := clampf(float(roll.time)/.65,0,1)
-	var tuck := smoothstep(0.0,.18,u)*(1.0-smoothstep(.78,1.0,u))
-	var hip := skeleton.find_bone("Hips")
-	skeleton.set_bone_pose_position(hip,skeleton.get_bone_pose_position(hip)+Vector3(0,-.28*tuck,-.05*tuck))
-	_rotate("Spine",Vector3(-.45*tuck,0,0))
-	_rotate("Head",Vector3(.3*tuck,0,0))
+	animation_state = "jump"
+	var u:=clampf(float(roll.time)/.56,0,1)
+	var tuck:=sin(PI*u)
+	_rotate("Spine",Vector3(-.15*tuck,0,0))
+	_rotate("Head",Vector3(.10*tuck,0,0))
 	for bone in ["FootL","FootR"]:
-		var index := skeleton.find_bone(bone)
-		skeleton.set_bone_pose_position(index,skeleton.get_bone_pose_position(index)+Vector3(0,.18*tuck,-.2*tuck))
-		_rotate(bone,Vector3(-.8*tuck,0,0))
-	_rotate("WingL",Vector3(.5*tuck,0,-.45*tuck))
-	_rotate("WingR",Vector3(.5*tuck,0,.45*tuck))
-	var direction: Vector2 = roll.direction
-	var local_direction := Vector3(direction.x,0,direction.y).rotated(Vector3.UP,-rotation.y)
-	var axis := Vector3.UP.cross(local_direction).normalized()
-	var turn := smoothstep(.12,.86,u)*TAU
-	var basis := Basis(axis,turn)
-	var center := Vector3(0,.68,0)
-	pivot.transform = Transform3D(basis,center-basis*center+Vector3(0,.06*sin(PI*u),0))
+		var index:=skeleton.find_bone(bone)
+		skeleton.set_bone_pose_position(index,skeleton.get_bone_pose_position(index)+Vector3(0,.18*tuck,-.1*tuck))
+		_rotate(bone,Vector3(-.45*tuck,0,0))
+	_rotate("WingL",Vector3(.25*tuck,0,-.45*tuck))
+	_rotate("WingR",Vector3(.25*tuck,0,.45*tuck))
 	flash.visible = false; flash_light.visible = false
 
 func _update_action(data: Dictionary, delta: float) -> void:

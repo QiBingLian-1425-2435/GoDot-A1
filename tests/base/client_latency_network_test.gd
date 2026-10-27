@@ -142,6 +142,7 @@ func run() -> void:
 	await measure_remote()
 	check(protected_state() == inventory_before, "movement and prediction never mutate authoritative inventory, equipment, ammo, credits or hp")
 	await measure_shots()
+	await measure_jump()
 	active_case = "leave"
 	release_keys()
 	game._return_menu()
@@ -321,6 +322,24 @@ func measure_remote() -> void:
 	check(backwards == 0 and biggest < .23, "remote interpolation avoids rewinds and whole-packet jumps")
 	await command({"host_walk": false})
 	await wait(.8)
+
+func measure_jump() -> void:
+	active_case="jump"
+	await place(Vector2(0,3))
+	key(KEY_SPACE,true)
+	await process_frame
+	key(KEY_SPACE,false)
+	var peak:=0.0
+	var saw_authority:=false
+	var until:=now()+2.0
+	while now()<until:
+		var p:Dictionary=game.session.model.state.players[game.session.local_id]
+		peak=maxf(peak,game.actors[game.session.local_id].position.y)
+		saw_authority=saw_authority or p.roll.active
+		await process_frame
+	var p:Dictionary=game.session.model.state.players[game.session.local_id]
+	check(peak>.5 and saw_authority and not p.roll.active and absf(game.actors[game.session.local_id].position.y)<.05,"jump predicts altitude and converges to authoritative landing under delay")
+	metrics.jump_peak_m=peak
 
 func measure_shots() -> void:
 	active_case="shots"

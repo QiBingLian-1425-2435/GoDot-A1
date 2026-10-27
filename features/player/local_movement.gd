@@ -136,11 +136,15 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		_offset = _offset.move_toward(Vector2.ZERO,correction)
 	if _offset.length() < .001: _offset = Vector2.ZERO; _settling = false
 	# Apply the display correction through the same static-world collision shape.
-	var corrected_position: Variant = _solve(_state.pos,_offset,_state)
+	var display_pose:Dictionary=_state.duplicate(true)
+	display_pose.roll.vertical_delta=0.0
+	var corrected_position: Variant = _solve(_state.pos,_offset,display_pose)
 	if corrected_position is Vector3:
 		_display_pos = Vector2(corrected_position.x,corrected_position.z)
 		_display_height = corrected_position.y
-	else: _display_pos = corrected_position
+	else:
+		_display_pos = corrected_position
+		_display_height=float(_state.get("height",0))
 	_offset = _display_pos-Vector2(_state.pos)
 
 func sample_player(authoritative: Dictionary) -> Dictionary:
@@ -150,7 +154,7 @@ func sample_player(authoritative: Dictionary) -> Dictionary:
 	for key in ["velocity","aim","sprint","crouch","ads"]: display[key] = _state[key]
 	display.roll = _state.get("roll",Movement.empty_roll()).duplicate(true)
 	display.pos = _display_pos
-	if spatial_solver.is_valid(): display.height = _display_height
+	display.height = _display_height
 	return display
 
 func _solve(from: Vector2, offset: Vector2, pose: Dictionary) -> Variant:
@@ -159,7 +163,7 @@ func _solve(from: Vector2, offset: Vector2, pose: Dictionary) -> Variant:
 		var point: Vector2=(from+offset).clamp(bounds.position,bounds.end)
 		return Vector3(point.x,float(pose.get("height",0)),point.y)
 	if spatial_solver.is_valid():
-		return spatial_solver.call(Vector3(from.x,float(pose.get("height",0)),from.y),offset)
+		return spatial_solver.call(Vector3(from.x,float(pose.get("height",0)),from.y),offset,pose.get("roll",{}))
 	return solver.call(from,offset)
 
 func _copy_motion(p: Dictionary) -> Dictionary:

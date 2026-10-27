@@ -164,6 +164,26 @@ func _support(at: Vector2, reference: float) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(Vector3(at.x,reference+.45,at.y),Vector3(at.x,reference-1.25,at.y),1)
 	return get_world_3d().direct_space_state.intersect_ray(query)
 
+func move_airborne(from: Vector3, offset: Vector2, vertical: float) -> Vector3:
+	position=from
+	if vertical>0:move_and_collide(Vector3(0,vertical,0))
+	var remaining:=Vector3(offset.x,0,offset.y)
+	for i in range(3):
+		var hit:=move_and_collide(remaining)
+		if hit==null:break
+		var normal:=hit.get_normal()
+		normal=Vector3(normal.x,0,normal.z).normalized()
+		remaining=hit.get_remainder().slide(normal)
+		if remaining.length_squared()<.000001:break
+	if vertical<0:
+		var landing:=move_and_collide(Vector3(0,vertical,0))
+		if landing!=null and landing.get_normal().y>=.55:
+			# Keep the same skin as grounded slope motion. A raw physics contact
+			# is inside the stricter clearance margin and can wedge a landing.
+			move_and_collide(Vector3.UP*.04)
+
+	return position
+
 func simulate(delta: float) -> void:
 	velocity = Vector3(direction.x, 0.0, direction.y) * (3.5 if active else 0.0)
 	move_offset(Vector2(position.x, position.z), Vector2(velocity.x, velocity.z) * delta)

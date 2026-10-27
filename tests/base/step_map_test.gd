@@ -42,6 +42,15 @@ func run() -> void:
 			check(body.is_clear(at), "uphill capsule remains outside map collision")
 			endpoints.append(at)
 		check(endpoints[0].distance_to(endpoints[2]) < .25, "walking and sprint reach the same slope surface")
+		var model=preload("res://features/base/base_model.gd").new();model.add_player(1,"jump map")
+		var player:Dictionary=model.state.players[1]
+		player.pos=point;player.height=start.y
+		var peak:=start.y
+		for frame in range(90):
+			model.Movement.step(player,{"direction":direction if frame<25 else Vector2.ZERO,"roll_seq":1},1.0/60.0,func(from,offset):return body.move_airborne(Vector3(from.x,player.height,from.y),offset,player.roll.get("vertical_delta",0)) if player.roll.active else body.move_spatial(Vector3(from.x,player.height,from.y),offset))
+			peak=maxf(peak,player.height)
+		check(peak>start.y+.45 and not player.roll.active,"jump rises and lands on real entrance terrain")
+		check(body.is_clear(Vector3(player.pos.x,player.height,player.pos.y)),"jump landing leaves real terrain capsule clear")
 	map.queue_free()
 	await process_frame
 	# These rocks/fences exposed repeated pre-lift above the floor during audit.

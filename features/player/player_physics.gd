@@ -32,6 +32,9 @@ func solve(id: int, from: Vector2, offset: Vector2) -> Variant:
 		body.name = "Actor_%d" % id
 		add_child(body)
 		bodies[id] = body
+	var jump:Dictionary=model.state.players.get(id,{}).get("roll",{})
+	if jump.get("active",false):
+		return _jump_solve(bodies[id],Vector3(from.x,float(model.state.players[id].get("height",0)),from.y),offset,jump)
 	if spatial_enabled:
 		var result: Vector3=bodies[id].move_spatial(Vector3(from.x,float(model.state.players.get(id,{}).get("height",0)),from.y),offset)
 		_remember_safe(id,result)
@@ -42,12 +45,19 @@ func predict(from: Vector2, offset: Vector2) -> Vector2:
 	_ensure_prediction_body()
 	return prediction_body.move_offset(from,offset)
 
-func predict_spatial(from: Vector3, offset: Vector2) -> Vector3:
+func predict_spatial(from: Vector3, offset: Vector2, jump: Dictionary = {}) -> Vector3:
 	if not world_ready: return from
 	_ensure_prediction_body()
+	if jump.get("active",false):return _jump_solve(prediction_body,from,offset,jump)
 	if spatial_enabled: return prediction_body.move_spatial(from,offset)
 	var result: Vector2 = prediction_body.move_offset(Vector2(from.x,from.z),offset)
 	return Vector3(result.x,0,result.y)
+
+func _jump_solve(body: CharacterBody3D, from: Vector3, offset: Vector2, jump: Dictionary) -> Vector3:
+	var result:Vector3=body.move_airborne(from,offset,float(jump.get("vertical_delta",0)))
+	# Bunker's existing floor is planar gameplay geometry, not a physics mesh.
+	if not spatial_enabled:result.y=maxf(0.0,result.y)
+	return result
 
 func reset_world() -> void:
 	_safe_history.clear()
