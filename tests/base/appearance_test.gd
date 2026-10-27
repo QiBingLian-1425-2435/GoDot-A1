@@ -32,9 +32,20 @@ func run():
 		check(game.actors[1].human_visual.materials[part][0].albedo_color.is_equal_approx(Color(selected[part])),"material color matches "+part)
 
 	check(game.actors[1].human_visual.materials.has("hair") and game.actors[1].human_visual.materials.has("shirt"),"separate editable materials imported")
-	game.ui._open_appearance()
+	var escape:=InputEventKey.new();escape.physical_keycode=KEY_ESCAPE;escape.pressed=true
+	game._unhandled_input(escape)
+	check(game.ui._pause_panel.visible,"Escape opens the actual pause menu")
+	var appearance_button:Button
+	for button in game.ui._pause_panel.find_children("*","Button",true,false):
+		if button.text==Texts.resolve("⟦appearance.title⟧"):appearance_button=button;break
+	check(appearance_button!=null,"pause menu contains appearance option")
+	if appearance_button!=null:appearance_button.pressed.emit()
 	var panel=game.ui._dialog.get_node("AppearancePanel")
 	check(panel.draft==selected,"Esc appearance editor starts from confirmed selection")
+	panel.get_node("Gender").item_selected.emit(0)
+	check(panel.draft==Rules.defaults("male"),"new male selection uses A palette")
+	panel.get_node("Gender").item_selected.emit(1)
+	check(panel.draft==selected,"switching gender restores its edited draft")
 	panel.get_node("pants").color_changed.emit(Color("#3366cc"))
 	check(panel.draft.pants=="#3366cc" and panel.draft.hair==selected.hair,"color picker changes only its selected body part")
 	await process_frame;await process_frame
@@ -114,4 +125,3 @@ func run():
 	check(m.state.corpses[p.corpse_uid].appearance==applied and game.soul_view.bodies[p.corpse_uid].human_visual.gender=="female","corpse retains the selected human appearance")
 	game.queue_free();await process_frame;await process_frame
 	print("APPEARANCE failures=",failures);quit(1 if failures else 0)
-

@@ -5,6 +5,8 @@ const LABELS=["⟦appearance.hair⟧","⟦appearance.skin⟧","⟦appearance.shi
 const Actor=preload("res://features/player/base_actor.gd")
 var ctx
 var draft:Dictionary={}
+var drafts:Dictionary={}
+var pickers:Dictionary={}
 var actor:Node3D
 var preview_data:Dictionary={}
 
@@ -37,16 +39,22 @@ func build(hud) -> void:
 	var gender:=OptionButton.new();gender.name="Gender";gender.position=Vector2(485,150);gender.size=Vector2(340,44)
 	Texts.add_item(gender,"⟦appearance.male⟧");Texts.add_item(gender,"⟦appearance.female⟧")
 	gender.select(0 if draft.gender=="male" else 1);add_child(gender)
-	gender.item_selected.connect(func(index:int):draft.gender="male" if index==0 else "female")
+	gender.item_selected.connect(_select_gender)
 	for i in range(Rules.PARTS.size()):
 		var part:String=Rules.PARTS[i]
 		ctx._label(self,LABELS[i],Rect2(485,224+i*77,180,32),21,ctx.INK)
 		var picker:=ColorPickerButton.new();picker.name=part;picker.position=Vector2(680,220+i*77);picker.size=Vector2(145,46)
-		picker.edit_alpha=false;picker.color=Color(draft[part]);add_child(picker)
+		picker.edit_alpha=false;picker.color=Color(draft[part]);add_child(picker);pickers[part]=picker
 		picker.color_changed.connect(func(color:Color):draft[part]="#"+color.to_html(false))
 	ctx._button(self,"⟦appearance.cancel⟧",Rect2(485,610,160,48),ctx._close_dialog,ctx.TEAL,22)
 	var apply_button=ctx._button(self,"⟦appearance.apply⟧",Rect2(665,610,160,48),func():ctx.action_requested.emit("appearance",draft.duplicate(true));ctx._close_dialog(),ctx.GREEN,22)
 	apply_button.name="ApplyAppearance"
+
+func _select_gender(index:int) -> void:
+	drafts[draft.gender]=draft.duplicate(true)
+	var gender:String="male" if index==0 else "female"
+	draft=drafts.get(gender,Rules.defaults(gender)).duplicate(true)
+	for part in pickers:pickers[part].color=Color(draft[part])
 
 func _process(delta:float) -> void:
 	if is_instance_valid(actor):
