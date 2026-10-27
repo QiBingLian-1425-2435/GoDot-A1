@@ -15,14 +15,14 @@ func run():
 	while game.world_loading:await process_frame
 	for i in range(3):await physics_frame
 	game.enemy_director.update(game,.016)
-	check(m.state.enemies.size()==16,"real Ground Zero seeds sixteen hostiles on safe ground")
+	check(m.state.enemies.size()==12,"real Ground Zero seeds twelve hostiles on safe ground")
 	var near:=0;var visible_near:=0;var aware:=0
 	for e in m.state.enemies.values():
 		if Vector2(e.pos).distance_to(p.pos)<=18.1:
 			near+=1
 			if game.enemy_director.clear_sight(m.Enemies.at(e)+Vector3.UP,m.Enemies.at(p)+Vector3.UP):visible_near+=1
 		if m.Enemies.visible(m,e,p):aware+=1
-	check(near>=6 and visible_near>=1,"entrance has six nearby hostiles including unobstructed encounters")
+	check(near==2 and visible_near>=1,"entrance has two nearby hostiles including unobstructed encounters")
 	check(aware>=1,"at least one entrance hostile can actually detect the arriving player")
 	if m.state.enemies.is_empty():game.queue_free();quit(1);return
 	var probe=game.enemy_director.body_for(-1)
@@ -88,8 +88,8 @@ func run():
 		while game.world_loading:await process_frame
 		for i in range(3):await physics_frame
 		game.enemy_director.update(game,.016)
-		var fresh:bool=m.state.enemies.size()==16
+		var fresh:bool=m.state.enemies.size()==12
 		for e in m.state.enemies.values():fresh=fresh and e.hp==100
-		check(fresh,"re-entering actual Ground Zero respawns sixteen living hostiles")
+		check(fresh,"re-entering actual Ground Zero respawns twelve living hostiles")
 	game._return_menu();game.queue_free();await process_frame;await process_frame
 	print("ENEMY_WORLD checks=",checks," failures=",failures);quit(1 if failures else 0)
