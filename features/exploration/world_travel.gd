@@ -33,7 +33,9 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 		if ctx.Souls.zombie(member): return ctx._reject("⟦world_travel.004⟧")
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
-	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"corpses":ctx.state.get("corpses",{}),"containers":ctx.state.containers}
+	var containers:Dictionary=ctx.state.containers.duplicate()
+	for uid in ctx.state.get("corpses",{}):containers.erase(uid)
+	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"containers":containers}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})
 	ctx.state.drops = saved.drops
 	ctx.state.targets = saved.targets
@@ -42,9 +44,10 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 	ctx.state.containers=saved.get("containers",{})
 	ctx.state.enemies={}
 	ctx.state.enemies_seeded=false
-	ctx.state.corpses=saved.get("corpses",{})
-	for uid in ctx.state.corpses:
-		if saved.get("containers",{}).has(uid):ctx.state.containers[uid]=saved.containers[uid]
+	# Corpses and their unclaimed loot belong only to the visit that created them.
+	ctx.state.corpses={}
+	for uid in saved.get("corpses",{}):ctx.state.containers.erase(uid)
+	saved.erase("corpses")
 	ctx.state.field_effects=[]
 	ctx.state.shots.clear()
 	ctx.state.world = destination
@@ -58,9 +61,7 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 		player.height = spawn.y
 		player.possessing = 0; player.rescue = {}
 		if destination=="bunker" and not ctx.Souls.alive(player): ctx.Souls.revive(ctx,player)
-		elif not ctx.Souls.alive(player):
-			var body: Dictionary = ctx.state.corpses.get(player.get("corpse_uid",""),{})
-			if not body.is_empty(): player.pos=body.pos; player.height=body.height
+		player.corpse_uid=""
 		ctx.reset_transients(player_id)
 		index += 1
 	ctx.last_notice = "⟦world_travel.005⟧"+{"bunker":"⟦world_travel.006⟧","surface":"⟦world_flow.002⟧","cave":"⟦world_flow.003⟧"}[destination]

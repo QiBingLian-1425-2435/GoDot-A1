@@ -84,14 +84,14 @@ func run():
 	m.command(1,"possess",{"target":2});r.hp=0;m.tick(.1)
 	check(p.possessing==0 and Voice.gain(m.state.players,1,2)==0,"possessed teammate death clears voice and attachment")
 	check(m.command(1,"return_camp") and p.hp==30 and r.hp==30 and p.life=="alive","all-dead party can recover in camp")
-	# Map cache owns bodies; travel must not restore carried gear or attachments.
+	# A new visit discards bodies and never restores carried gear or attachments.
 	m.state.world="surface";p.hp=0;m.tick(.1)
 	var field_uid: String = p.corpse_uid
 	m.command(1,"possess",{"target":2})
 	m.WorldTravel.enter_world(m,"cave",Vector3.ZERO)
-	check(p.possessing==0 and p.life=="soul" and m.world_cache.surface.corpses.has(field_uid),"travel detaches soul and keeps corpse in original map")
+	check(p.possessing==0 and p.life=="soul" and not m.world_cache.surface.has("corpses"),"travel detaches soul and discards corpse cache")
 	m.WorldTravel.enter_world(m,"surface",Vector3.ZERO)
-	check(m.state.corpses.has(field_uid) and p.pos==m.state.corpses[field_uid].pos,"returning to map restores original corpse and waiting position")
+	check(not m.state.corpses.has(field_uid) and p.corpse_uid=="","returning to map cannot restore old corpse")
 	m.WorldTravel.enter_world(m,"bunker",Vector3.ZERO)
 	check(p.life=="alive" and p.hp==30,"party return to camp recovers remaining souls")
 

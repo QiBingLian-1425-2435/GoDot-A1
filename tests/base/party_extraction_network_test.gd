@@ -48,7 +48,7 @@ func run():
 		m.stations=[{"kind":"travel","uid":"extract","world":"surface","destination":"bunker","pos":Vector2.ZERO,"height":0,"spawn":Vector3.ZERO}]
 		m.state.extraction_ready=true;session._broadcast_snapshot(true)
 		check(await wait_for(func():return FileAccess.file_exists(result_path)),"remote flow finishes")
-		check(m.state.world=="bunker" and m.world_cache.surface.corpses.size()==1,"authority preserves corpse and completes party return")
+		check(m.state.world=="bunker" and not m.world_cache.surface.has("corpses"),"authority discards old corpse and completes party return")
 		if FileAccess.file_exists(result_path):check(int(JSON.parse_string(FileAccess.get_file_as_string(result_path)).failures)==0,"client assertions pass")
 		if child>0 and OS.is_process_running(child):OS.kill(child)
 	session.offline();session.queue_free();await process_frame

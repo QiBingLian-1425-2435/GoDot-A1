@@ -25,7 +25,7 @@ func run():
 	check(m.command(1,"fire") and p.life=="soul" and p.hp==0,"exploration gunfire can kill a refusing teammate")
 	var uid: String=p.corpse_uid
 	check(m.state.corpses.has(uid) and not m.state.containers[uid].items.is_empty() and p.equipment.weapon.is_empty(),"friendly kill uses corpse and equipment transfer")
-	check(m.command(1,"travel",{"route":"extract"}) and m.world_cache.surface.corpses.has(uid),"distant soul no longer blocks extraction and corpse remains on original map")
+	check(m.command(1,"travel",{"route":"extract"}) and not m.world_cache.surface.has("corpses"),"distant soul no longer blocks extraction and old corpse is discarded")
 	m=fixture();p=m.state.players[2];m.obstacles.assign([Rect2(2,-1,.3,2)])
 	m.command(1,"fire");check(p.hp==100,"wall blocks friendly fire")
 	m=fixture();p=m.state.players[2];p.height=2

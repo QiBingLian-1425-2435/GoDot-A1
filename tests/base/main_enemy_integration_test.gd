@@ -22,8 +22,11 @@ func run():
 	check(q.life=="soul" and q.hp==0,"waiting does not apply retired automatic revive")
 	m.state.containers.test_box={"items":[],"revealed":0,"progress":0.0,"searcher":0}
 	m.state.enemies[1]=e;e.hp=0;m.state.enemies_seeded=true
+	var bag_before:Array=p.bag.duplicate(true)
 	m.WorldTravel.enter_world(m,"bunker",Vector3.ZERO)
 	m.WorldTravel.enter_world(m,"surface",Vector3.ZERO)
-	check(m.state.corpses.has(uid) and m.state.containers[uid].items==original,"re-entering map retains corpse items without duplication")
-	check(m.state.containers.has("test_box") and m.state.enemies.is_empty() and not m.state.enemies_seeded,"searched containers persist while monsters refresh independently")
+	check(not m.state.corpses.has(uid) and not m.state.containers.has(uid) and q.corpse_uid=="","reentry removes old corpse and ownership")
+	check(m.state.containers.has("test_box") and m.state.enemies.is_empty() and not m.state.enemies_seeded,"normal containers persist while enemies refresh")
+	check(p.bag==bag_before,"refresh preserves inventory")
+	check(not m.world_cache.surface.has("corpses") and not m.world_cache.surface.containers.has(uid),"cache excludes corpse loot")
 	print("MAIN_INTEGRATION failures=",failures);quit(1 if failures else 0)
