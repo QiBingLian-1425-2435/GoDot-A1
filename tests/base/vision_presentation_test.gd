@@ -50,17 +50,17 @@ func run():
 		var roof_mat:=material(Color(.3,.4,.65));roof_mat.set_shader_parameter("roof_surface",true);var roof:=mesh(Vector3(20,.2,22),Vector3(0,4,0),roof_mat)
 		var gable:=mesh(Vector3(20,3,.15),Vector3(0,3,-4),roof_mat)
 		mesh(Vector3(2,.8,2),Vector3(0,.4,-7),material(Color(1,.65,.05)))
-		# Offscreen colored wall outside the cone provides a stable material/color probe.
+		# Off-cone scenery stays readable; actors and interactables are hidden separately.
 		var probe:=mesh(Vector3(2,.4,2),Vector3(-6,.2,4),material(Color(.9,.2,.08)))
 		roof.visible=false;gable.visible=false
 		for m in materials:m.set_shader_parameter("vision_enabled",false)
 		var lit:=await render("vision_texture_lit")
 		for m in materials:m.set_shader_parameter("vision_enabled",true)
-		var dark:=await render("vision_texture_dark")
-		var a:=sample(lit,probe.position+Vector3(0,.2,0));var b:=sample(dark,probe.position+Vector3(0,.2,0))
-		print("FOG_PIXEL lit=",a," dark=",b)
-		check(b.get_luminance()<a.get_luminance()*.5,"unseen textured material becomes dark")
-		check(b.r>b.g*1.3 and b.r>b.b*1.3,"unseen material retains its original hue instead of gray/white")
+		var vision_enabled:=await render("vision_texture_vision_enabled")
+		var a:=sample(lit,probe.position+Vector3(0,.2,0));var b:=sample(vision_enabled,probe.position+Vector3(0,.2,0))
+		print("SCENERY_PIXEL normal=",a," vision_enabled=",b)
+		check(absf(b.get_luminance()-a.get_luminance())<.03,"off-cone scenery stays daylight-readable")
+		check(absf(b.r-a.r)<.03 and absf(b.g-a.g)<.03 and absf(b.b-a.b)<.03,"vision does not tint or darken scenery")
 		roof.visible=true;gable.visible=true
 		var covered:=await render("vision_roof_covered")
 		for m in materials:m.set_shader_parameter("vision_roof_cutaway",true)

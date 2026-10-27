@@ -7,6 +7,8 @@ var elapsed := 0.0
 var target := Vector3(455.72,0,-103.62)
 var overview := false
 var topdown := false
+var overview_size := 760.0
+var overview_center := Vector2(390.0,-205.0)
 
 func _ready() -> void:
 	set_process(false)
@@ -16,6 +18,10 @@ func _ready() -> void:
 		if arg.begins_with("--capture="):capture_path=arg.trim_prefix("--capture=")
 		if arg=="--overview":overview=true
 		if arg=="--topdown":topdown=true
+		if arg.begins_with("--overview-size="):overview_size=float(arg.trim_prefix("--overview-size="))
+		if arg.begins_with("--overview-center="):
+			var center_parts := arg.trim_prefix("--overview-center=").split(",")
+			overview_center=Vector2(float(center_parts[0]),float(center_parts[1]))
 		if arg.begins_with("--point="):
 			var parts := arg.trim_prefix("--point=").split(",")
 			target=Vector3(float(parts[0]),float(parts[1]),float(parts[2]))
@@ -25,7 +31,7 @@ func _ready() -> void:
 	var world_env := WorldEnvironment.new()
 	var env := Environment.new()
 	env.background_mode=Environment.BG_COLOR
-	env.background_color=Color("a3b1b1")
+	env.background_color=Color("91aa5e")
 	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color=Color("d6d9ce")
 	env.ambient_light_energy=.3
@@ -36,11 +42,11 @@ func _ready() -> void:
 	sun.shadow_enabled=true; sun.directional_shadow_max_distance=100
 	add_child(sun)
 	camera=Camera3D.new();camera.projection=Camera3D.PROJECTION_ORTHOGONAL
-	camera.size=34 if not overview else (760 if topdown else 520)
+	camera.size=34 if not overview else (overview_size if topdown else 520)
 	camera.far=1800
 	add_child(camera)
 	if zone=="cave" and target.x==455.72:target=Vector3(582,0,-550)
-	if overview: target=Vector3(390,0,-205)
+	if overview: target=Vector3(overview_center.x,0,overview_center.y)
 	target.y=map.terrain_height(Vector2(target.x,target.z))
 	if topdown:
 		camera.position=target+Vector3(0,700,0)

@@ -628,5 +628,8 @@
   "enemy.dead": "狂化鸭 · 已击倒",
   "enemy.health": "狂化鸭  %d / 100%s",
   "settings.voice_always_on": "语音常开（无需按住讲话键）",
-  "keys.action.voice": "按住讲话（默认 Q）"
+  "keys.action.voice": "按住讲话（默认 Q）",
+  "settings.infinite_credits": "无限金币",
+  "settings.infinite_credits_hint": "房主开关，全队生效：购买与营地升级不扣金币，材料仍正常消耗。",
+  "settings.infinite_credits_host_only": "只有房主可以设置无限金币"
 }

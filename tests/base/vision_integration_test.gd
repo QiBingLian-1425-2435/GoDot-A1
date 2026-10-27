@@ -134,6 +134,8 @@ func run() -> void:
 	settle()
 	check(game.world_id=="surface" and game.vision.enabled,"cave exit rebuilds source container visibility on the surface")
 	p.pos=spawn;p.height=-1.13
+	for id in [2,3]:
+		model.state.players[id].pos=spawn;model.state.players[id].height=-1.13
 	game.session.send("travel",{"route":"surface_to_bunker"});await process_frame;settle()
 	check(game.world_id=="bunker" and not game.vision.enabled and game.actors[2].visible and game.actors[3].visible,"returning to base restores every party character")
 	game._return_menu();check(not game.in_game,"leaving the session still cleans up normally")

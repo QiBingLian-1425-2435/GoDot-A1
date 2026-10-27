@@ -38,6 +38,7 @@ func run():
 		var joined:=await wait_for(func():return session.model.state.players.size()==2)
 		check(joined,"guest admitted")
 		if joined:
+			session.model.state.world="ground_zero"
 			for id in session.model.state.players:
 				if id==1:continue
 				var p:Dictionary=session.model.state.players[id]

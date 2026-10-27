@@ -13,6 +13,7 @@ func run():
 	var m = Model.new()
 	m.add_player(1,"owner")
 	var p: Dictionary = m.state.players[1]
+	m.state.world = "ground_zero"
 	var backpack: Dictionary = p.equipment.backpack.duplicate(true)
 	for equipped in [false,true]:
 		p.equipment.backpack = backpack if equipped else {}

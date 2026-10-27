@@ -628,5 +628,8 @@
   "enemy.dead": "Feral Duck · Defeated",
   "enemy.health": "Feral Duck  %d / 100%s",
   "settings.voice_always_on": "Open microphone (no key required)",
-  "keys.action.voice": "Push to talk (default Q)"
+  "keys.action.voice": "Push to talk (default Q)",
+  "settings.infinite_credits": "Unlimited Credits",
+  "settings.infinite_credits_hint": "Host controls this for the team: purchases and camp upgrades cost no credits. Materials are still consumed.",
+  "settings.infinite_credits_host_only": "Only the host can toggle unlimited credits"
 }

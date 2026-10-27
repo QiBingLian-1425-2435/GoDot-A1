@@ -14,7 +14,7 @@ func check(condition: bool, description: String) -> void:
 		push_error("ANIMATION MODEL FAIL: " + description)
 
 func run() -> void:
-	var model = Model.new(); model.add_player(1,"动画鸭")
+	var model = Model.new(); model.state.world="ground_zero"; model.add_player(1,"动画鸭")
 	var p: Dictionary = model.state.players[1]
 	check(p.velocity == Vector2.ZERO and p.anim_seq == 0 and p.anim_action == "","fresh player has neutral animation state")
 	p.pos = Vector2.ZERO

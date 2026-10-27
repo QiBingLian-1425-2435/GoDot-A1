@@ -25,10 +25,12 @@ static func trade(ctx, p: Dictionary, action: String, payload: Dictionary) -> bo
 	var kind:=str(payload.get("kind",""));var count:Variant=payload.get("count",1)
 	if not available(kind) or not count is int or count<1 or count>int(Items.definition(kind).stack):return false
 	var price:int=int(Items.definition(kind).buy_price)*count
-	if p.credits<price:return ctx._reject(Texts.format("⟦item_trade.007⟧", price))
+	if not ctx.state.get("infinite_credits",false) and p.credits<price:return ctx._reject(Texts.format("⟦item_trade.007⟧", price))
 	var bag:Array=p.bag.duplicate(true)
 	if not ctx._insert(bag,ctx._item(kind,count)):return ctx._reject("⟦facility_system.003⟧")
-	p.bag=bag;p.credits-=price;ctx._update_weight(p);ctx.last_notice="⟦item_trade.008⟧"+str(Items.definition(kind).name);return true
+	p.bag=bag
+	if not ctx.state.get("infinite_credits",false):p.credits-=price
+	ctx._update_weight(p);ctx.last_notice="⟦item_trade.008⟧"+str(Items.definition(kind).name);return true
 static func craft(ctx, p: Dictionary, kind: String) -> bool:
 	if ctx.state.world!="bunker" or not ctx._near(p,"workbench"):return ctx._reject("⟦item_trade.009⟧")
 	if not RECIPES.has(kind):return false

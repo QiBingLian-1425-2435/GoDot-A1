@@ -38,9 +38,10 @@ static func refresh(ctx) -> void:
 	else:
 		var cost:Dictionary=definition.costs[level]
 		var cash:int=p.get("credits",0)
+		var free:bool=ctx._state.get("infinite_credits",false)
 		var holdings:Dictionary={}
-		var reason:="⟦camp_panel.007⟧" if cash<int(cost.credits) else ""
-		text+=Texts.format("⟦camp_panel.008⟧", [definition.stat,(level+1)*int(definition.step),"⟦format.camp_panel.002⟧" if key=="logistics" else "",cash,cost.credits,maxi(0,cash-int(cost.credits))])
+		var reason:="⟦camp_panel.007⟧" if not free and cash<int(cost.credits) else ""
+		text+=Texts.format("⟦camp_panel.008⟧", [definition.stat,(level+1)*int(definition.step),"⟦format.camp_panel.002⟧" if key=="logistics" else "",cash,cost.credits,cash if free else maxi(0,cash-int(cost.credits))])
 		for kind in cost.items:
 			var count:=0
 			for item in p.get("bag",[]):
@@ -48,7 +49,7 @@ static func refresh(ctx) -> void:
 			holdings[kind]=count
 			text+=Texts.format("⟦format.camp_panel.003⟧", [Items.definition(kind).name,count,cost.items[kind]])
 			if count<int(cost.items[kind]):reason="⟦camp_panel.009⟧"
-		var stamp:Array=[key,level,cash,holdings]
+		var stamp:Array=[key,level,cash,holdings,free]
 		if stamp!=ctx._dialog.get_meta("stamp",[]):ctx._dialog.set_meta("confirmed",false)
 		ctx._dialog.set_meta("stamp",stamp)
 		button.disabled=not reason.is_empty()

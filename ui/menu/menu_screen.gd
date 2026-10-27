@@ -69,7 +69,7 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
-	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,790))
+	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,890))
 	ctx._label(ctx._dialog,"⟦menu_screen.011⟧",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
 	volume.position = Vector2(250,111)
@@ -148,6 +148,20 @@ static func _open_settings(ctx) -> void:
 	ctx._dialog.add_child(language)
 	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,660,570,42),ctx._open_key_bindings,ctx.TEAL,21)
 	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,719,300,44),ctx._close_dialog,ctx.GREEN,23)
+	for child in ctx._dialog.get_children():
+		if child is Control and child.position.y >= 485:
+			child.position.y += 100
+	var credits := CheckButton.new()
+	credits.name = "InfiniteCredits"
+	Texts.bind(credits, "⟦settings.infinite_credits⟧", "text")
+	credits.position = Vector2(34,485)
+	credits.size = Vector2(570,42)
+	credits.button_pressed = ctx._state.get("infinite_credits",false)
+	credits.disabled = ctx._mode in ["client","join"]
+	credits.toggled.connect(func(value: bool) -> void:
+		ctx.action_requested.emit("set_infinite_credits",{"enabled":value}))
+	ctx._dialog.add_child(credits)
+	ctx._label(ctx._dialog,"⟦settings.infinite_credits_hint⟧",Rect2(34,535,570,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()

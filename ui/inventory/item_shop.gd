@@ -135,18 +135,19 @@ static func refresh(ctx) -> void:
 	selection=rows[selected]
 	var info:=Items.definition(selection.kind)
 	var cash:int=p.get("credits",0)
+	var free:bool=ctx._state.get("infinite_credits",false)
 	var held:=0
 	for item in bag:
 		if item.get("kind")==selection.kind:held+=int(item.count)
 	var price:int=info.value if ctx._shop_mode=="sell" else info.buy_price
-	var maximum:int=selection.count if ctx._shop_mode=="sell" else mini(capacity(bag,selection.kind),int(cash/price))
+	var maximum:int=selection.count if ctx._shop_mode=="sell" else mini(capacity(bag,selection.kind),int(info.stack) if free else int(cash/price))
 	ctx._dialog.set_meta("maximum",maximum)
 	quantity.max_value=maxi(1,maximum);quantity.editable=maximum>0
 	var count:=int(quantity.value)
 	var total:=price*count
-	var after:int=cash+total if ctx._shop_mode=="sell" else cash-total
+	var after:int=cash+total if ctx._shop_mode=="sell" else cash if free else cash-total
 	var reason:=""
-	if ctx._shop_mode=="buy" and maximum==0:reason="⟦item_shop.021⟧" if cash<price else "⟦facility_system.003⟧"
+	if ctx._shop_mode=="buy" and maximum==0:reason="⟦item_shop.021⟧" if not free and cash<price else "⟦facility_system.003⟧"
 	if ctx._shop_mode=="sell" and after>999999:reason="⟦item_trade.005⟧"
 	confirm.disabled=maximum==0 or not reason.is_empty()
 	Texts.bind(confirm, Texts.format(("⟦item_shop.022⟧" if ctx._shop_mode=="sell" else "⟦item_shop.023⟧"), count), "text")
