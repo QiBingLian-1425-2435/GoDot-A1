@@ -1,0 +1,24 @@
+{
+  "source": "Original Blender models based on user-selected A/C concept",
+  "blender": "5.2.2 LTS",
+  "generator": "tools/build_human_characters.py",
+  "destination": "assets/characters/humans",
+  "files": {
+    "male.glb": {
+      "bytes": 246832,
+      "sha256": "4c2dcf87dffd9a16e715d919c6eeb1022875c520d6b0ea76ce7514af18ee7138"
+    },
+    "female.glb": {
+      "bytes": 221724,
+      "sha256": "e732793d3e8c30453bee40739993f2c8d9c82661cf7865a06257bbdf72c8a582"
+    },
+    "source/male.blend": {
+      "bytes": 174794,
+      "sha256": "4c195337bac0f9c6b47976d3b177ed1d32b33978212e1e6c5b26bc1813b60e9f"
+    },
+    "source/female.blend": {
+      "bytes": 180682,
+      "sha256": "6193b1e1af9ca44eebbe03cba769d0b6756993da5cfc9b4e993bea79c80f88ed"
+    }
+  }
+}
