@@ -23,6 +23,7 @@ func capture(game, name: String):
 	check(game.get_viewport().get_texture().get_image().save_png("res://artifacts/base_tests/soul_"+name+".png")==OK,"save "+name+" screenshot")
 func run():
 	var m = Model.new();m.add_player(1,"ghost");m.add_player(2,"rescuer");m.add_player(3,"other")
+	m.state.world="surface" # Exploration rescue retains 30 HP; camp now restores living members.
 	var p: Dictionary = m.state.players[1];var r: Dictionary = m.state.players[2]
 	var stored_gun: Dictionary = m._item("pistol",1)
 	p.stash[47]=stored_gun;p.magazines[stored_gun.uid]=7
@@ -131,6 +132,6 @@ func run():
 	game._unhandled_input(event)
 	check(not game.session.model.state.players[2].rescue.is_empty(),"F starts rescue through actual input adapter")
 	advance(game.session.model,3.1);game._refresh_ui()
-	check(gp.life=="alive" and gp.hp==30,"actual physics reachability allows rescue in scene")
+	check(gp.life=="alive" and gp.hp==float(gp.get("max_hp",100)),"actual scene rescue is followed by mainline camp recovery")
 	game.queue_free();await process_frame;await process_frame
 	print("SOUL checks=",checks," failures=",failures);quit(1 if failures else 0)

@@ -58,6 +58,7 @@ func run():
 			check(false,"client connects");quit(1);return
 		var id: int = session.model.state.players.keys()[1]
 		var p: Dictionary = session.model.state.players[id]
+		session.model.state.world="surface" # Isolate rescue HP from automatic camp recovery.
 		p.pos=Vector2.ZERO;p.bag=session.model._empty_slots(24);p.bag[0]=session.model._item("poison_capsule",1)
 		var host: Dictionary = session.model.state.players[1];host.pos=Vector2(.5,0)
 		var heard: Array = [];session.voice_received.connect(func(speaker,bytes):heard.append([speaker,bytes]))
