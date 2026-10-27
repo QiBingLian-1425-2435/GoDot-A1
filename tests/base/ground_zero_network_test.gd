@@ -16,6 +16,7 @@ var shot_requested := false
 var door_requested := false
 var door_verified := false
 var saw_rejection := false
+var rejection_retry_after := 0.0
 var finished := false
 var diagnostic_second := -1
 var vision_test:=false
@@ -71,7 +72,7 @@ func host_step() -> void:
 	for id in model.state.players:
 		if id!=1:remote_id=int(id)
 	var p: Dictionary=model.state.players[remote_id]
-	if phase==0 and elapsed>2:
+	if phase==0 and elapsed>4:
 		p.pos=Vector2(0,-8.2);p.height=0
 		model.reset_transients(remote_id)
 		model.state.qa_stage=1;game.session._broadcast_snapshot(true)
@@ -127,9 +128,11 @@ func client_step() -> void:
 	var model=game.session.model
 	var p: Dictionary=model.state.players[game.session.local_id]
 	var stage:=int(model.state.get("qa_stage",0))
-	if stage==0 and phase==0:
-		game.session.send("travel",{"route":"bunker_to_surface"});phase=1
+	if stage==0 and elapsed>=rejection_retry_after:
+		game.session.send("travel",{"route":"bunker_to_surface"})
+		rejection_retry_after=elapsed+.25
 	if stage==1 and phase<2 and game.world_id=="bunker" and Vector2(p.pos).distance_to(Vector2(0,-8.2))<.2:
+		if not saw_rejection:return
 		check(saw_rejection,"a remote client cannot travel from outside the entrance")
 		game._update_interaction();game._interact();phase=2
 	elif stage==8 and not vision_checked:
