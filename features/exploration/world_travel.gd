@@ -33,17 +33,13 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 		if ctx.Souls.zombie(member): return ctx._reject("⟦world_travel.004⟧")
 	for member in ctx.state.players.values(): ctx.Loot.close(ctx,member)
 	var current: String = str(ctx.state.get("world","bunker"))
-	var corpse_loot:Dictionary={}
-	for uid in ctx.state.get("corpses",{}):
-		if ctx.state.containers.has(uid):corpse_loot[uid]=ctx.state.containers[uid]
-	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"corpses":ctx.state.get("corpses",{}),"containers":corpse_loot}
+	ctx.world_cache[current] = {"drops":ctx.state.drops,"targets":ctx.state.targets,"doors":ctx.state.doors,"corpses":ctx.state.get("corpses",{}),"containers":ctx.state.containers}
 	var saved: Dictionary = ctx.world_cache.get(destination,{"drops":{},"targets":[],"doors":{}})
 	ctx.state.drops = saved.drops
 	ctx.state.targets = saved.targets
 	ctx.state.doors = saved.get("doors",{})
-	# Every region entry starts a fresh encounter/search round. Inventory and
-	# player drops remain owned separately; same-map teleporters returned above.
-	ctx.state.containers={}
+	# Encounters refresh, but opened containers retain their unique remaining loot.
+	ctx.state.containers=saved.get("containers",{})
 	ctx.state.enemies={}
 	ctx.state.enemies_seeded=false
 	ctx.state.corpses=saved.get("corpses",{})

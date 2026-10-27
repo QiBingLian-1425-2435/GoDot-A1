@@ -3,78 +3,78 @@
     "features/exploration/world_travel.gd:27"
   ],
   "main.001": [
-    "app/main.gd:105"
+    "app/main.gd:108"
   ],
   "main.002": [
-    "app/main.gd:107"
+    "app/main.gd:110"
   ],
   "main.003": [
-    "app/main.gd:163"
+    "app/main.gd:166"
   ],
   "main.004": [
-    "app/main.gd:178"
+    "app/main.gd:181"
   ],
   "main.005": [
-    "app/main.gd:193"
+    "app/main.gd:196"
   ],
   "main.006": [
-    "app/main.gd:269"
+    "app/main.gd:273"
   ],
   "main.007": [
-    "app/main.gd:272"
+    "app/main.gd:276"
   ],
   "main.008": [
-    "app/main.gd:272"
+    "app/main.gd:276"
   ],
   "main.009": [
-    "app/main.gd:367"
+    "app/main.gd:372"
   ],
   "main.010": [
-    "app/main.gd:387"
+    "app/main.gd:393"
   ],
   "main.011": [
-    "app/main.gd:387"
+    "app/main.gd:393"
   ],
   "main.012": [
-    "app/main.gd:392"
+    "app/main.gd:398"
   ],
   "main.013": [
-    "app/main.gd:392"
+    "app/main.gd:398"
   ],
   "main.014": [
-    "app/main.gd:392"
+    "app/main.gd:398"
   ],
   "main.015": [
-    "app/main.gd:393",
+    "app/main.gd:399",
     "ui/inventory/container_panel.gd:28",
     "ui/inventory/container_panel.gd:37",
     "worlds/ground_zero/ground_zero.gd:353"
   ],
   "main.016": [
-    "app/main.gd:394",
+    "app/main.gd:400",
     "ui/inventory/container_panel.gd:28",
     "worlds/ground_zero/ground_zero.gd:360"
   ],
   "main.017": [
-    "app/main.gd:394"
+    "app/main.gd:400"
   ],
   "main.018": [
-    "app/main.gd:394"
+    "app/main.gd:400"
   ],
   "main.019": [
-    "app/main.gd:396"
+    "app/main.gd:405"
   ],
   "main.020": [
-    "app/main.gd:396"
+    "app/main.gd:405"
   ],
   "main.021": [
-    "app/main.gd:410"
+    "app/main.gd:419"
   ],
   "main.022": [
-    "app/main.gd:446"
+    "app/main.gd:456"
   ],
   "main.023": [
-    "app/main.gd:456"
+    "app/main.gd:466"
   ],
   "session.001": [
     "app/network/session.gd:25",
@@ -306,28 +306,28 @@
     "features/base/base_model.gd:147"
   ],
   "base_model.009": [
-    "features/base/base_model.gd:177"
+    "features/base/base_model.gd:178"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:184"
+    "features/base/base_model.gd:185"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:188"
+    "features/base/base_model.gd:189"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:193"
+    "features/base/base_model.gd:194"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:210"
+    "features/base/base_model.gd:211"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:213"
+    "features/base/base_model.gd:214"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:220"
+    "features/base/base_model.gd:221"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:222"
+    "features/base/base_model.gd:223"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -416,33 +416,33 @@
     "features/combat/combat_system.gd:8"
   ],
   "container_loot.001": [
-    "features/exploration/container_loot.gd:29"
+    "features/exploration/container_loot.gd:39"
   ],
   "container_loot.002": [
-    "features/exploration/container_loot.gd:34"
+    "features/exploration/container_loot.gd:47"
   ],
   "container_loot.003": [
-    "features/exploration/container_loot.gd:40",
-    "features/exploration/container_loot.gd:51",
+    "features/exploration/container_loot.gd:53",
+    "features/exploration/container_loot.gd:64",
     "worlds/ground_zero/ground_zero.gd:360"
   ],
   "container_loot.004": [
-    "features/exploration/container_loot.gd:51"
+    "features/exploration/container_loot.gd:64"
   ],
   "container_loot.005": [
-    "features/exploration/container_loot.gd:93"
+    "features/exploration/container_loot.gd:106"
   ],
   "container_loot.006": [
-    "features/exploration/container_loot.gd:99"
+    "features/exploration/container_loot.gd:112"
   ],
   "container_loot.007": [
-    "features/exploration/container_loot.gd:101"
+    "features/exploration/container_loot.gd:114"
   ],
   "container_loot.008": [
-    "features/exploration/container_loot.gd:115"
+    "features/exploration/container_loot.gd:128"
   ],
   "container_loot.009": [
-    "features/exploration/container_loot.gd:117"
+    "features/exploration/container_loot.gd:130"
   ],
   "field_item_view.001": [
     "features/exploration/field_item_view.gd:22"
@@ -478,11 +478,11 @@
   ],
   "world_flow.002": [
     "features/exploration/world_flow.gd:51",
-    "features/exploration/world_travel.gd:70"
+    "features/exploration/world_travel.gd:66"
   ],
   "world_flow.003": [
     "features/exploration/world_flow.gd:51",
-    "features/exploration/world_travel.gd:70"
+    "features/exploration/world_travel.gd:66"
   ],
   "world_flow.004": [
     "features/exploration/world_flow.gd:86"
@@ -500,19 +500,19 @@
     "features/exploration/world_travel.gd:33"
   ],
   "world_travel.005": [
-    "features/exploration/world_travel.gd:70"
+    "features/exploration/world_travel.gd:66"
   ],
   "world_travel.006": [
-    "features/exploration/world_travel.gd:70"
+    "features/exploration/world_travel.gd:66"
   ],
   "world_travel.007": [
-    "features/exploration/world_travel.gd:78"
+    "features/exploration/world_travel.gd:74"
   ],
   "world_travel.008": [
-    "features/exploration/world_travel.gd:79"
+    "features/exploration/world_travel.gd:75"
   ],
   "world_travel.009": [
-    "features/exploration/world_travel.gd:81"
+    "features/exploration/world_travel.gd:77"
   ],
   "base_inventory_system.001": [
     "features/inventory/base_inventory_system.gd:26"
@@ -1740,7 +1740,7 @@
     "worlds/ground_zero/ground_zero.gd:360"
   ],
   "application.title": [
-    "app/main.gd:61",
+    "app/main.gd:64",
     "features/localization/game_text.gd:15"
   ],
   "settings.language": [
@@ -1825,7 +1825,7 @@
     "worlds/bunker/base_view.gd:124"
   ],
   "interaction.prompt": [
-    "app/main.gd:411"
+    "app/main.gd:420"
   ],
   "keys.title": [
     "ui/base_hud.gd:490",
@@ -1970,9 +1970,28 @@
     "ui/menu/menu_screen.gd:164"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:198"
+    "features/base/base_model.gd:199"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:38"
+  ],
+  "loot_marks.no_repeat": [
+    "features/exploration/container_loot.gd:43"
+  ],
+  "loot_marks.view_remaining": [
+    "app/main.gd:403"
+  ],
+  "loot_marks.searching": [
+    "features/exploration/container_marks.gd:5"
+  ],
+  "loot_marks.partial": [
+    "features/exploration/container_marks.gd:5"
+  ],
+  "loot_marks.searched": [
+    "features/exploration/container_marks.gd:5"
+  ],
+  "loot_marks.empty": [
+    "app/main.gd:403",
+    "features/exploration/container_marks.gd:5"
   ]
 }

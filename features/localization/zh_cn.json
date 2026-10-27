@@ -632,5 +632,11 @@
   "settings.infinite_credits": "无限金币",
   "settings.infinite_credits_hint": "房主开关，全队生效：购买与营地升级不扣金币，材料仍正常消耗。",
   "settings.infinite_credits_host_only": "只有房主可以设置无限金币",
-  "soul_roaming.controls": "移动键漂浮 · 2/4/6/8 倍移速\n靠近存活队友 2.4 米内可附身"
+  "soul_roaming.controls": "移动键漂浮 · 2/4/6/8 倍移速\n靠近存活队友 2.4 米内可附身",
+  "loot_marks.no_repeat": "这个箱子已搜索过，请查看剩余物品，不能重新搜索。",
+  "loot_marks.view_remaining": "已搜索 · 查看剩余物品",
+  "loot_marks.searching": "搜索中…",
+  "loot_marks.partial": "已搜索 · 未完成",
+  "loot_marks.searched": "✓ 已搜索",
+  "loot_marks.empty": "✓ 已搜空"
 }

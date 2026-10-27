@@ -91,6 +91,7 @@ func run():
 	check(m.command(1,"use",{"index":0}) and p.hunger==75 and p.stamina==50,"energy bar restores hunger and stamina")
 	fill(m,p,"water");p.thirst=100
 	check(not m.command(1,"use",{"index":0}) and not p.bag[0].is_empty(),"full stat refuses consumable without losing it")
+	m.state.world="surface" # Isolate timed healing from automatic camp regeneration.
 	fill(m,p,"medical_box");p.hp=10
 	check(m.command(1,"use",{"index":0}) and p.hp==10 and not p.pending_use.is_empty(),"professional medical box starts a timed heal")
 	for i in range(41):m.tick(.1)
@@ -118,7 +119,7 @@ func run():
 	p.height=0
 	check(m.command(1,"use",{"index":0}) and p.bag[0].count==1 and m.state.containers.has("loot_test") and p.loot_uid=="loot_test","using lockpick opens reachable locked container for timed search")
 	var guest:Dictionary=m.state.players[2];guest.pos=Vector2.ZERO;guest.bag[0]=m._item("lockpick",1)
-	check(m.command(2,"search",{"uid":"loot_test"}) and guest.bag[0].count==1 and m.state.drops.is_empty(),"second player shares existing contents without spending another lockpick")
+	check(m.command(2,"loot_view",{"uid":"loot_test"}) and guest.bag[0].count==1 and m.state.drops.is_empty(),"second player shares existing contents without spending another lockpick")
 	m.state.world="bunker";m.state.field_effects=[];fill(m,p,"gold_statue");p.bag[1]=m._item("encrypted_core",1);p.bag[2]=m._item("energy_bar",2)
 	var inventory_value:=0
 	for item in p.bag:

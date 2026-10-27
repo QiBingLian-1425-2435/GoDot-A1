@@ -69,7 +69,7 @@ func run():
 		check(box.items[0].is_empty() and model._count(p.bag, original[0].kind) == original[0].count, "revealed food enters inventory exactly once")
 		game.ui._close_dialog()
 		var remaining: Array = box.items.duplicate(true)
-		game.session.send("search", {"uid":station.uid}); settle()
+		game.session.send("loot_view", {"uid":station.uid}); settle()
 		check(box.items == remaining and p.loot_uid == station.uid, "reopening toilet preserves remaining food")
 	game.ui._close_dialog(); game.queue_free()
 	await process_frame; await process_frame

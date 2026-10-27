@@ -8,6 +8,16 @@ const BLUE = ["energy_bar", "medical_box", "lockpick", "smoke_grenade", "circuit
 const FOOD = ["canned_food", "biscuits", "energy_bar"]
 const SEARCH_SECONDS := 1.4
 
+static func status(state: Dictionary, uid: String) -> String:
+	if not state.get("containers",{}).has(uid): return "unsearched"
+	var box: Variant=state.containers[uid]
+	if not box is Dictionary:return "empty"
+	if int(box.get("revealed",0))<box.get("items",[]).size():
+		return "searching" if int(box.get("searcher",0))>0 else "partial"
+	for item in box.get("items",[]):
+		if not item.is_empty():return "searched"
+	return "empty"
+
 static func station(ctx, uid: String) -> Dictionary:
 	if ctx.state.get("corpses",{}).has(uid): return ctx.state.corpses[uid]
 	for target in ctx.stations:
@@ -24,10 +34,13 @@ static func reachable(ctx, p: Dictionary, target: Dictionary) -> bool:
 		return false
 	return ctx.loot_reachable.is_valid() and ctx.loot_reachable.call(target.uid, Vector3(p.pos.x, float(p.get("height", 0)), p.pos.y))
 
-static func open(ctx, p: Dictionary, target: Dictionary) -> bool:
+static func open(ctx, p: Dictionary, target: Dictionary, viewing: bool = false) -> bool:
 	if not reachable(ctx, p, target):
 		return ctx._reject("⟦container_loot.001⟧")
 	var uid: String = target.uid
+	if viewing and not ctx.state.containers.has(uid):return false
+	if target.get("kind","")!="corpse":
+		if not viewing and ctx.state.containers.has(uid):return ctx._reject("⟦loot_marks.no_repeat⟧")
 	if not ctx.state.containers.has(uid):
 		if target.get("locked", false):
 			if ctx._count(p.bag, "lockpick") < 1:

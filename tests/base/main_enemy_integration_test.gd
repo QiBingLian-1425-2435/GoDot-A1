@@ -25,5 +25,5 @@ func run():
 	m.WorldTravel.enter_world(m,"bunker",Vector3.ZERO)
 	m.WorldTravel.enter_world(m,"surface",Vector3.ZERO)
 	check(m.state.corpses.has(uid) and m.state.containers[uid].items==original,"re-entering map retains corpse items without duplication")
-	check(not m.state.containers.has("test_box") and m.state.enemies.is_empty() and not m.state.enemies_seeded,"ordinary containers and monsters still reset independently")
+	check(m.state.containers.has("test_box") and m.state.enemies.is_empty() and not m.state.enemies_seeded,"searched containers persist while monsters refresh independently")
 	print("MAIN_INTEGRATION failures=",failures);quit(1 if failures else 0)

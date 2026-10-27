@@ -632,5 +632,11 @@
   "settings.infinite_credits": "Unlimited Credits",
   "settings.infinite_credits_hint": "Host controls this for the team: purchases and camp upgrades cost no credits. Materials are still consumed.",
   "settings.infinite_credits_host_only": "Only the host can toggle unlimited credits",
-  "soul_roaming.controls": "Float with movement keys · 2/4/6/8× speed\nWithin 2.4 m of a living teammate: possess"
+  "soul_roaming.controls": "Float with movement keys · 2/4/6/8× speed\nWithin 2.4 m of a living teammate: possess",
+  "loot_marks.no_repeat": "This container has already been searched. View its remaining items instead.",
+  "loot_marks.view_remaining": "Searched · View remaining items",
+  "loot_marks.searching": "Searching…",
+  "loot_marks.partial": "Searched · Incomplete",
+  "loot_marks.searched": "✓ Searched",
+  "loot_marks.empty": "✓ Searched · Empty"
 }

@@ -75,6 +75,8 @@ func run():
 		session._intent.rpc_id(1,"use",{"index":0,"world_revision":int(session.model.state.world_revision)-1},session._session_token,session._intent_seq)
 		session.send("search",{"uid":"loot_one"})
 		check(await wait_for(func():return session.model.state.containers.has("loot_one")),"shared locked container opens")
+		session.send("loot_view",{"uid":"loot_one"})
+		check(await wait_for(func():return player().get("loot_uid","")=="loot_one"),"both clients view the same one-time search")
 		check(await wait_for(func():return int(session.model.state.containers["loot_one"].revealed)>=1),"host timer reveals first item")
 		var box:Dictionary=session.model.state.containers["loot_one"]
 		check(box.items[0].has("kind") and (int(box.revealed)>=box.items.size() or box.items[int(box.revealed)].is_empty()),"unsearched content is hidden from client snapshots")
@@ -95,14 +97,15 @@ func run():
 		check(player().credits==cash and session.model._count(player().bag,"scrap")==materials,"distant sale/buy and stale map intent preserve assets")
 		report(role+"_four")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==5),"new visit delivered")
-		check(session.model.state.containers.is_empty() and player().loot_uid.is_empty(),"both guests see search reset on re-entry")
+		check(session.model.state.containers.has("loot_one") and session.model.state.containers.loot_one.items[0].is_empty() and player().loot_uid.is_empty(),"both guests retain searched box and removed item on re-entry")
 		session._intent_seq+=1
 		session._intent.rpc_id(1,"loot_take",{"uid":"loot_one","index":0,"item_uid":item_uid,"world_revision":old_revision},session._session_token,session._intent_seq)
 		report(role+"_five")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==6),"new search phase")
 		session.send("search",{"uid":"loot_one"})
-		check(await wait_for(func():return session.model.state.containers.has("loot_one") and int(session.model.state.containers.loot_one.revealed)>=1),"previously emptied container can be searched again remotely")
-		check(session.model.state.containers.loot_one.items[0].uid!=item_uid,"refreshed item has a new identity")
+		session.send("loot_view",{"uid":"loot_one"})
+		check(await wait_for(func():return player().get("loot_uid","")=="loot_one"),"searched container can only be viewed remotely")
+		check(session.model.state.containers.loot_one.items[0].is_empty() and session.model.Loot.status(session.model.state,"loot_one")!="unsearched","removed item cannot refresh and searched status stays synchronized")
 		await finish();return
 	check(session.host(PORT)==OK,"host starts")
 	check(session.configure_room("user://material_trade_"+run_id+"/room.json","owner",func(id):return "guest_"+str(id))==OK,"isolated room save configured")
@@ -145,7 +148,7 @@ func run():
 	var after_count:int=session.model._count(session.model.state.players[a].bag,first_item.kind)+session.model._count(session.model.state.players[b].bag,first_item.kind)
 	check(box.items[0].is_empty() and after_count-int(initial_counts[first_item.kind])==int(first_item.count),"racing remote take grants original stack exactly once")
 	check(session.model.state.field_effects.is_empty(),"stale world use packet cannot recreate smoke")
-	session.model.state.world="bunker";session.model.state.world_revision+=1;session.model.stations=[{"kind":"trader","pos":Vector2.ZERO}]
+	session.model.WorldTravel.enter_world(session.model,"bunker",Vector3.ZERO);session.model.stations=[{"kind":"trader","pos":Vector2.ZERO}]
 	for id in [a,b]:session.model.state.players[id].pos=Vector2(10,0)
 	phase(4)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_four")) and FileAccess.file_exists(path("b_four"))),"fourth phase reports")
@@ -155,10 +158,10 @@ func run():
 	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true,"loot_pool":"food"}]
 	phase(5)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_five")) and FileAccess.file_exists(path("b_five"))),"guests observe reset")
-	check(session.model.state.containers.is_empty(),"stale previous-visit intents cannot revive old loot")
+	check(session.model.state.containers.loot_one.items[0].is_empty(),"stale previous-visit intents cannot restore taken loot")
 	phase(6)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_done")) and FileAccess.file_exists(path("b_done"))),"client completion reports")
 	var remaining_picks:int=int(read_report("a_done").lockpicks)+int(read_report("b_done").lockpicks)
-	check(remaining_picks==2,"new round competing searches consume exactly one additional lockpick")
+	check(remaining_picks==3,"returning to searched container consumes no additional lockpick")
 	check(int(read_report("a_done").failures)==0 and int(read_report("b_done").failures)==0,"all remote assertions pass")
 	await finish()

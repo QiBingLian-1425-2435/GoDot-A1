@@ -119,7 +119,7 @@ func _animate(p: Dictionary, action: String, duration: float) -> void:
 
 func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	last_notice = ""
-	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","craft_item","loot_take"]: return false
+	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","loot_view","craft_item","loot_take"]: return false
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
@@ -153,6 +153,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			var uid := str(payload.get("uid",""))
 			if state.corpses.has(uid): return Loot.open(self,p,state.corpses[uid])
 			return FieldItems.search(self,p,uid)
+		"loot_view":return Loot.open(self,p,Loot.station(self,str(payload.get("uid",""))),true)
 		"loot_take":return Loot.take(self,p,payload)
 		"loot_close":return Loot.close(self,p,str(payload.get("uid","")))
 		"door": return WorldTravel.toggle_door(self,id,payload)

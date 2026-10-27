@@ -54,10 +54,13 @@ var vision = Vision.new()
 var field_item_view:Node3D
 var global_map:Control
 var soul_view: Node3D
+var container_marks: Node3D
 
 var enemy_director:Node3D
 
 func _ready()->void:
+	container_marks=preload("res://features/exploration/container_marks.gd").new()
+	add_child(container_marks)
 	Texts.set_window_title("⟦application.title⟧")
 	soul_view = preload("res://features/rescue/soul_view.gd").new()
 	add_child(soul_view)
@@ -248,6 +251,7 @@ func _return_menu()->void:
 	_save(false)
 	joining=false
 	in_game=false
+	container_marks.clear()
 	session.offline()
 	soul_view.update(self)
 	field_item_view.update(self)
@@ -312,6 +316,7 @@ func _process(delta:float)->void:
 		_update_camera(delta)
 		_update_drops()
 		vision.update(self,delta)
+		container_marks.update(self)
 		soul_view.update(self)
 		enemy_director.update(self,delta)
 		field_item_view.update(self)
@@ -383,7 +388,8 @@ func _update_interaction()->void:
 		distance=d
 		nearest=station.duplicate()
 		if station.get("kind")=="loot":
-			var box:Variant=session.model.state.containers.get(station.uid,{})
+			var raw_box:Variant=session.model.state.containers.get(station.uid,{})
+			var box:Dictionary=raw_box if raw_box is Dictionary else {}
 			nearest.title="⟦main.010⟧" if not station.get("locked",false) else "⟦main.011⟧"
 			if box is Dictionary and not box.is_empty():
 				var remaining:=false
@@ -392,6 +398,9 @@ func _update_interaction()->void:
 				nearest.title="⟦main.012⟧" if int(box.revealed)<box.items.size() else "⟦main.013⟧" if remaining else "⟦main.014⟧"
 			if station.get("container_name", "") == "⟦main.015⟧":
 				nearest.title="⟦main.016⟧" if box.is_empty() else "⟦main.017⟧" if int(box.revealed)<box.items.size() else "⟦main.018⟧"
+			if session.model.state.containers.has(station.uid):
+				nearest.kind="loot_view"
+				nearest.title="⟦loot_marks.view_remaining⟧" if session.model.Loot.status(session.model.state,station.uid)!="empty" else "⟦loot_marks.empty⟧"
 		if station.get("kind")=="door":
 			nearest.title="⟦main.019⟧" if session.model.state.doors.get(station.uid,station.get("initial_open",false)) else "⟦main.020⟧"
 	for uid in session.model.state.get("corpses",{}):
@@ -414,6 +423,7 @@ func _interact()->void:
 	if world_loading:return
 	if nearest.is_empty():return
 	match str(nearest.kind):
+		"loot_view":session.send("loot_view",{"uid":nearest.uid})
 		"corpse": session.send("search",{"uid":nearest.uid})
 		"loot":session.send("search",{"uid":nearest.uid})
 		"door":session.send("door",{"uid":nearest.uid})

@@ -154,7 +154,9 @@
     "features/enemies/enemy_director.gd",
     "features/enemies/enemy_director.gd.uid",
     "features/enemies/enemy_view.gd",
-    "features/enemies/enemy_view.gd.uid"
+    "features/enemies/enemy_view.gd.uid",
+    "features/exploration/container_marks.gd",
+    "features/exploration/container_marks.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json"

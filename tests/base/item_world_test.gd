@@ -7,7 +7,7 @@ func _initialize():call_deferred("run")
 func check(ok:bool,label:String):
 	checks+=1;print("PASS: " if ok else "FAIL: ",label)
 	if not ok:failures+=1
-func settle():game._update_actors(1);game._update_camera(1);game._update_drops();game.vision.update(game,.06);game.field_item_view.update(game);game._update_interaction();game._refresh_ui()
+func settle():game._update_actors(1);game._update_camera(1);game._update_drops();game.vision.update(game,.06);game.field_item_view.update(game);game.container_marks.update(game);game._update_interaction();game._refresh_ui()
 func capture(name:String):
 	if DisplayServer.get_name()=="headless":return
 	for i in range(4):await process_frame;settle()
@@ -43,7 +43,7 @@ func run():
 	check(model.state.containers.has(chosen.uid) and model.state.drops.is_empty() and game.ui._loot_uid==chosen.uid,"actual E opens container panel without spawning floor loot")
 	var box:Dictionary=model.state.containers[chosen.uid]
 	var original:Array=box.items.duplicate(true)
-	check(model.command(1,"search",{"uid":chosen.uid}) and box.items==original,"reopening original source container never rerolls contents")
+	check(model.command(1,"loot_view",{"uid":chosen.uid}) and box.items==original,"reopening original source container never rerolls contents")
 	for i in range(150):model.tick(.01)
 	settle()
 	await capture("container_search")
@@ -53,6 +53,8 @@ func run():
 	check(box.items[0].is_empty() and model.Items.weight(p.bag)>before_weight,"panel takes revealed real item directly into bag")
 	game.ui._close_dialog();settle()
 	check(p.loot_uid.is_empty(),"closing real container stops active search")
+	check(game.container_marks.markers.has(chosen.uid),"real source box carries a persistent search marker")
+	await capture("container_marked")
 	model.add_player(2,"烟雾后的队友")
 	var origin:=Vector3(p.pos.x,float(p.height),p.pos.y);var direction:=Vector2.ZERO
 	for angle in range(16):
