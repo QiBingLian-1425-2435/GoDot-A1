@@ -224,6 +224,9 @@ func _on_action(action:String,payload:Dictionary)->void:
 			steam_service.copy_lobby()
 			ui.toast(steam_service.status)
 		"menu","leave": _return_menu()
+		"appearance":
+			session.send("appearance",payload)
+			if session.mode!="client":_save(false)
 		"save": _save(true)
 		"quit":
 			_save(false)

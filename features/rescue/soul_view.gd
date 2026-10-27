@@ -62,11 +62,12 @@ func update(ctx) -> void:
 		var body: Dictionary = corpses[uid]
 		if not bodies.has(uid):
 			var actor = Actor.new()
+			actor.human_enabled=true
 			add_child(actor)
 			actor.setup(Color("879398"),str(body.container_name))
 			bodies[uid] = actor
 		var actor = bodies[uid]
-		actor.update_actor({"pos":body.pos,"height":body.height,"equipment":{},"aim":Vector2.UP},0)
+		actor.update_actor({"appearance":body.get("appearance",{}),"pos":body.pos,"height":body.height,"equipment":{},"aim":Vector2.UP},0)
 		actor.pivot.rotation.z = PI*.5
 		actor.pivot.position.y = .38
 		Texts.bind(actor.nameplate, str(body.container_name)+"⟦soul_view.001⟧", "text")

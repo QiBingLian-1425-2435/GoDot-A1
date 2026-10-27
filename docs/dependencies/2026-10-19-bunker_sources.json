@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v19",
+  "protocol": "a1_bunker_v20",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -156,9 +156,16 @@
     "features/enemies/enemy_view.gd",
     "features/enemies/enemy_view.gd.uid",
     "features/exploration/container_marks.gd",
-    "features/exploration/container_marks.gd.uid"
+    "features/exploration/container_marks.gd.uid",
+    "features/player/appearance_rules.gd",
+    "features/player/appearance_rules.gd.uid",
+    "features/player/human_visual.gd",
+    "features/player/human_visual.gd.uid",
+    "ui/menu/appearance_panel.gd",
+    "ui/menu/appearance_panel.gd.uid"
   ],
   "external_asset_manifests": [
-    "assets/worlds/ground_zero/asset_manifest.json"
+    "assets/worlds/ground_zero/asset_manifest.json",
+    "assets/characters/humans/asset_manifest.json"
   ]
 }

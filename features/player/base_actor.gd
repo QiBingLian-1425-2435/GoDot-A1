@@ -11,6 +11,8 @@ const BONES := [
 	["WingR", 2, Vector3(.37,.03,-.07)], ["Gun", 2, Vector3(.30,-.07,-.38)],
 	["Pack", 2, Vector3(0,-.02,.34)]
 ]
+var human_enabled:=false
+var human_visual:RefCounted
 var skeleton: Skeleton3D
 var motion: RefCounted
 var animation_state := "idle"
@@ -149,6 +151,9 @@ func setup(tint: Color, title: String) -> void:
 	motion = Motion.new()
 	motion.build(self)
 	motion.advance(.001, 0, 0, 0, 0, 1, "", 0, 0)
+	if human_enabled:
+		human_visual=preload("res://features/player/human_visual.gd").new()
+		human_visual.configure(self)
 	set_process(false)
 
 func _build_skeleton() -> void:
@@ -308,6 +313,9 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 		armor.visible = not equipment.get("armor", {}).is_empty()
 		kind = str(equipment.get("weapon", {}).get("kind", ""))
 		weapon.visible = not kind.is_empty()
+	if human_visual!=null:
+		human_visual.update(data.get("appearance",{}))
+		human_visual.set_helmet(helmet.visible)
 	rifle_mesh.visible = kind == "rifle"
 	pistol_mesh.visible = kind == "pistol"
 	flash.position.z = -.37 if kind == "pistol" else -.86

@@ -638,5 +638,15 @@
   "loot_marks.searching": "Searching…",
   "loot_marks.partial": "Searched · Incomplete",
   "loot_marks.searched": "✓ Searched",
-  "loot_marks.empty": "✓ Searched · Empty"
+  "loot_marks.empty": "✓ Searched · Empty",
+  "appearance.title": "Appearance",
+  "appearance.gender": "Gender",
+  "appearance.male": "Male (A)",
+  "appearance.female": "Female (C)",
+  "appearance.hair": "Hair",
+  "appearance.skin": "Skin",
+  "appearance.shirt": "Shirt",
+  "appearance.pants": "Trousers",
+  "appearance.cancel": "Cancel",
+  "appearance.apply": "Apply"
 }

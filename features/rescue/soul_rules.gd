@@ -82,7 +82,7 @@ static func die(ctx, p: Dictionary) -> void:
 			copy.magazine = int(p.magazines.get(copy.uid,0))
 			p.magazines.erase(copy.uid)
 		items.append(copy)
-	ctx.state.corpses[uid] = {"uid":uid,"kind":"corpse","owner":p.id,"pos":p.pos,"height":p.get("height",0),"world":ctx.state.world,"container_name":str(p.name)+"⟦soul_rules.002⟧"}
+	ctx.state.corpses[uid] = {"uid":uid,"kind":"corpse","appearance":ctx.Appearance.normalized(p.get("appearance",{})),"owner":p.id,"pos":p.pos,"height":p.get("height",0),"world":ctx.state.world,"container_name":str(p.name)+"⟦soul_rules.002⟧"}
 	ctx.state.containers[uid] = {"items":items,"revealed":0,"progress":0.0,"searcher":0,"title":str(p.name)+"⟦soul_rules.002⟧"}
 	p.bag = ctx._empty_slots(24)
 	for slot in ctx.EQUIPMENT: p.equipment[slot] = {}

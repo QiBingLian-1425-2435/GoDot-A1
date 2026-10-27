@@ -410,10 +410,11 @@ func _build_pause() -> void:
 	_button(_pause_panel,"⟦base_hud.038⟧",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
 	_button(_pause_panel,"⟦base_hud.039⟧",Rect2(65,250,390,48),_open_help,TEAL,21)
 	_button(_pause_panel,"⟦base_hud.040⟧",Rect2(65,310,390,48),_open_settings,TEAL,21)
-	_steam_room_label = _label(_pause_panel,"⟦base_hud.041⟧",Rect2(30,376,460,58),17,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
+	_button(_pause_panel,"⟦appearance.title⟧",Rect2(65,370,390,48),_open_appearance,TEAL,21)
+	_steam_room_label = _label(_pause_panel,"⟦base_hud.041⟧",Rect2(30,424,460,34),17,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	_steam_room_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_steam_invite_button = _button(_pause_panel,"⟦base_hud.042⟧",Rect2(65,444,390,48),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
-	_steam_copy_button = _button(_pause_panel,"⟦base_hud.043⟧",Rect2(65,504,390,48),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
+	_steam_invite_button = _button(_pause_panel,"⟦base_hud.042⟧",Rect2(65,466,390,42),func() -> void: action_requested.emit("steam_invite",{}),TEAL,21)
+	_steam_copy_button = _button(_pause_panel,"⟦base_hud.043⟧",Rect2(65,516,390,42),func() -> void: action_requested.emit("steam_copy_lobby",{}),TEAL,21)
 	_button(_pause_panel,"⟦base_hud.044⟧",Rect2(65,572,390,48),func() -> void: action_requested.emit("unstuck",{}),TEAL,21)
 	_label(_pause_panel,"⟦base_hud.045⟧",Rect2(30,627,460,24),15,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	_button(_pause_panel,"⟦base_hud.046⟧",Rect2(65,660,390,48),func() -> void: action_requested.emit("menu",{}),Color("64716f"),21)
@@ -482,6 +483,10 @@ func _connect_action(action: String) -> void:
 func _cancel_connection() -> void:
 	action_requested.emit("menu",{})
 	show_menu()
+
+func _open_appearance() -> void:
+	_dialog_panel("⟦appearance.title⟧",Vector2(880,710))
+	preload("res://ui/menu/appearance_panel.gd").new().build(self)
 
 func _open_settings() -> void:
 	MenuScreen._open_settings(self)

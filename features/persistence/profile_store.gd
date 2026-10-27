@@ -27,11 +27,12 @@ static func load_profile(ctx, path: String, id: int = 1) -> Error:
 
 static func capture(ctx, id: int) -> Dictionary:
 	var p: Dictionary=ctx.state.players[id]
-	return {"version":1,"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"san":p.get("san",100),"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
+	return {"version":1,"appearance":ctx.Appearance.normalized(p.get("appearance",{})),"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"san":p.get("san",100),"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
 
 static func valid(ctx, data: Variant) -> bool:
 	if not data is Dictionary or int(data.get("version",0)) != 1: return false
 	if not data.get("bag") is Array or data.bag.size() != 24 or not data.get("stash") is Array or data.stash.size() != 48 or not data.get("equipment") is Dictionary: return false
+	if data.has("appearance") and not ctx.Appearance.valid(data.appearance):return false
 	var seen: Dictionary = {}
 	for container in [data.bag,data.stash,data.equipment.values()]:
 		for item in container:
@@ -63,6 +64,7 @@ static func apply(ctx, value: Variant, id: int) -> Error:
 			var replacement = ctx._item(item.kind,int(item.count))
 			item.uid = replacement.uid; item.count = replacement.count
 			if ctx.Items.definition(item.kind).category == "weapon": magazines[item.uid] = clampi(int(old_magazines.get(old_uid,0)),0,int(ctx.Items.definition(item.kind).magazine))
+	p.appearance=ctx.Appearance.normalized(data.get("appearance",{}))
 	p.bag = data.bag; p.stash = data.stash; p.equipment = data.equipment; p.magazines = magazines
 	p.credits = clampi(int(data.get("credits",500)),0,999999)
 	ctx.Camp.refresh_player(ctx,p)

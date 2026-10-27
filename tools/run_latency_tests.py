@@ -109,6 +109,13 @@ def prepare(project, native_source, output):
                 target = stage / source.relative_to(project)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
+    # Player visuals are now external Blender assets, required by real Main.
+    human_source = project / 'assets/characters/humans'
+    if human_source.is_dir():
+        human_target = stage / 'assets/characters/humans'
+        human_target.mkdir(parents=True, exist_ok=True)
+        for source in human_source.glob('*.glb'):
+            shutil.copy2(source, human_target / source.name)
     # This runner can measure an older checkout using the current test harness.
     test = ROOT / 'tests/base/client_latency_network_test.gd'
     shutil.copy2(test, stage / 'tests/base' / test.name)

@@ -15,7 +15,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -296,6 +296,8 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 	match action:
 		"soul_speed":
 			if payload.get("speed") is int:clean.speed=payload.speed
+		"appearance":
+			if Model.Appearance.valid(payload):return Model.Appearance.normalized(payload)
 		"possess","rescue":
 			if payload.get("target") is int: clean.target = payload.target
 			if action=="rescue" and payload.get("uid") is String: clean.uid=str(payload.uid).left(64)

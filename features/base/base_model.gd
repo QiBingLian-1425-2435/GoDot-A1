@@ -1,4 +1,5 @@
 extends RefCounted
+const Appearance=preload("res://features/player/appearance_rules.gd")
 const Texts = preload("res://features/localization/game_text.gd")
 
 const InventoryRules = preload("res://features/inventory/base_inventory_rules.gd")
@@ -62,6 +63,7 @@ func add_player(id: int, player_name: String) -> void:
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:
 		_insert(p.stash, _item(spec[0], spec[1]))
 	state.players[id] = p
+	p.appearance=Appearance.defaults()
 	p.height = 0.0
 	p.life = "alive"; p.possessing = 0; p.rescue = {}; p.corpse_uid = ""
 	p.san = 100.0
@@ -133,6 +135,10 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		return _reject("⟦base_model.002⟧")
 	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("⟦base_model.003⟧")
 	match action:
+		"appearance":
+			if not Appearance.valid(payload):return false
+			p.appearance=Appearance.normalized(payload)
+			return true
 		"unstuck":
 			if not world_ready:return _reject("⟦base_model.004⟧")
 			if _clock<float(_recovery_after.get(id,0)):return _reject("⟦base_model.005⟧")

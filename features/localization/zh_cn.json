@@ -638,5 +638,15 @@
   "loot_marks.searching": "搜索中…",
   "loot_marks.partial": "已搜索 · 未完成",
   "loot_marks.searched": "✓ 已搜索",
-  "loot_marks.empty": "✓ 已搜空"
+  "loot_marks.empty": "✓ 已搜空",
+  "appearance.title": "更改形象",
+  "appearance.gender": "性别",
+  "appearance.male": "男（A）",
+  "appearance.female": "女（C）",
+  "appearance.hair": "头发颜色",
+  "appearance.skin": "皮肤颜色",
+  "appearance.shirt": "上衣颜色",
+  "appearance.pants": "裤子颜色",
+  "appearance.cancel": "取消",
+  "appearance.apply": "应用"
 }

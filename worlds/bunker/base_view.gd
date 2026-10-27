@@ -67,6 +67,7 @@ static func _update_actors(ctx, delta:float)->void:
 	for id in players:
 		if not ctx.actors.has(id):
 			var actor =ctx.Actor.new()
+			actor.human_enabled=true
 			ctx.add_child(actor)
 			actor.setup(Color("87c9db") if id!=ctx.session.local_id else Color("d7c583"),str(players[id].name))
 			ctx.actors[id]=actor
