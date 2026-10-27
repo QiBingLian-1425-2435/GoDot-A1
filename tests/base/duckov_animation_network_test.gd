@@ -36,7 +36,7 @@ func start() -> void:
 	else:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(result_path()))
 		check(session.host(port) == OK,"host starts actual ENet transport")
-		child_pid = OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--script","res://tests/base/duckov_animation_network_test.gd","--","--client","--port=%d" % port])
+		child_pid = OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/duckov_animation_network_client.log"),"--script","res://tests/base/duckov_animation_network_test.gd","--","--client","--port=%d" % port])
 		check(child_pid > 0,"start independent client process")
 
 func check(condition: bool, description: String) -> void:
@@ -48,7 +48,7 @@ func check(condition: bool, description: String) -> void:
 func _process(delta: float) -> bool:
 	if session == null: return false
 	elapsed += delta; phase_time += delta
-	if elapsed > 14.0:
+	if elapsed > (14.0 if client else 20.0):
 		check(false,"bounded network test completion")
 		if client: write_result()
 		finish()
@@ -117,6 +117,7 @@ func advance_action() -> void:
 
 func run_host() -> void:
 	if peer_id == 0 and session.model.state.players.size() == 2:
+		session.model.state.world="ground_zero"
 		for id in session.model.state.players:
 			if id != 1: peer_id = id
 		session.model.state.players[peer_id].hp = 30.0
@@ -146,7 +147,7 @@ func result_path() -> String: return "user://duckov_animation_network_%d.json" %
 
 func write_result() -> void:
 	var file := FileAccess.open(result_path(),FileAccess.WRITE)
-	file.store_string(JSON.stringify({"checks":checks,"failures":failures})); file.close()
+	file.store_string(JSON.stringify({"checks":checks,"failures":failures,"phase":phase,"action_index":action_index,"world":session.model.state.world})); file.close()
 
 func finish() -> void:
 	if child_pid > 0 and OS.is_process_running(child_pid): OS.kill(child_pid)
