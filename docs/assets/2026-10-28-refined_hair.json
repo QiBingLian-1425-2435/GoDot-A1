@@ -7,16 +7,16 @@
       "sha256": "bddd3daec5297681c2c127250dfa8988b3b0a2002f8766cd33b48a0f24db1209"
     },
     "female.glb": {
-      "bytes": 994180,
-      "sha256": "597d878c475ad8b7b82fce08d020396694f5533b07a747dbf926627ff0ccad1c"
+      "bytes": 9915880,
+      "sha256": "3f82afc587e2795c6f9008e380f2e8fd0f1c8f0f187afaf659e05278b3134bdb"
     },
     "source/male.blend": {
-      "bytes": 672161,
-      "sha256": "e8a65581b0ead03ea074564d850a3732198138d02b8bb82beca246e9bc1519b7"
+      "bytes": 672157,
+      "sha256": "77f671b991f39e5fc1900f3336d015b02b3939589ef8331f3fff763c80d0d468"
     },
     "source/female.blend": {
-      "bytes": 535349,
-      "sha256": "802516d97125c746b65bcd90d174efeca2666d51fb13bf4164227a544f992a11"
+      "bytes": 9156802,
+      "sha256": "97462ccbe791b44d10acdb8dec3e5cad5c5f970a3a672d2bb9791b6cd98da7fc"
     }
   }
 }

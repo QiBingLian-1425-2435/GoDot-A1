@@ -64,6 +64,10 @@ def swept(name, phi, end, width, mat, female=False, start=.10, sweep=.45, lift=.
         theta=start+(end-start)*t
         angle=phi+sweep*(1-t)**1.4
         p=scalp(theta,angle,lift)
+        # Bury roots below the continuous scalp instead of stacking a visible
+        # circular plug at the crown. The lock emerges smoothly from the part.
+        if female and t<.18:
+            p.y-=.010*(1-t/.18)**2
         if female and end>1.7:
             # Full bob sides stay almost vertical below the temple, then tuck in.
             if theta>1.35:
@@ -91,7 +95,8 @@ def shell(mat, female):
             front=max(0,min(1,(-math.sin(phi)-.30)/.45))
             end=(2.02 if female else 1.65)-front*(.98 if female else .60)
             theta=.001+(end-.001)*j/rings
-            p=scalp(theta,phi,-.006)
+            crown_fill=.045*math.exp(-(theta/.45)**2) if female else 0
+            p=scalp(theta,phi,-.006+crown_fill)
             vertices.append(xyz(p))
     for j in range(rings):
         for i in range(segments):
@@ -152,7 +157,6 @@ def build(gender):
     if female:
         for i,(phi,end,width) in enumerate([(-2.53,2.13,.070),(-2.24,1.35,.073),(-1.91,1.20,.066),(-1.57,1.20,.062),(-1.24,1.24,.061),(-.91,1.31,.060),(-.63,2.13,.068)]):
             swept('fringe_%02d'%i,phi,end,width,mat,True,sweep=-.22,lift=.027)
-        swept('crown_part',1.4,.50,.055,mat,True,start=-.23,sweep=.25,lift=.014)
     else:
         for i,(phi,end,width) in enumerate([(-2.73,1.76,.075),(-2.42,1.61,.087),(-2.09,1.46,.095),(-1.76,1.34,.092),(-1.42,1.26,.084),(-1.09,1.30,.076),(-.72,1.52,.066)]):
             swept('fringe_%02d'%i,phi,end,width,mat,sweep=-.82,lift=.032)
@@ -170,6 +174,24 @@ def build(gender):
                 t=j/48;points.append((1-t)**2*a+2*t*(1-t)*b+t*t*c)
                 widths.append(.045*max(.002,math.sin(math.pi*t)**.55))
             lock('crest_%02d'%i,points,widths,.025,mat)
+    if female:
+        # Fuse intersecting roots into one continuous sculpted surface. This
+        # removes the artificial crown seam while retaining the large grooves.
+        bpy.ops.object.select_all(action='DESELECT')
+        hair_objects=[o for o in bpy.context.scene.objects if '__hair_' in o.name]
+        for o in hair_objects:
+            bpy.context.view_layer.objects.active=o
+            for modifier in list(o.modifiers):bpy.ops.object.modifier_apply(modifier=modifier.name)
+            o.select_set(True)
+        bpy.context.view_layer.objects.active=hair_objects[0]
+        bpy.ops.object.join();sculpt=bpy.context.object;sculpt.name='Head__hair_sculpt'
+        mod=sculpt.modifiers.new('Continuous sculpt union','REMESH');mod.mode='VOXEL';mod.voxel_size=.003
+        mod.use_smooth_shade=True;bpy.ops.object.modifier_apply(modifier=mod.name)
+        mod=sculpt.modifiers.new('Soft root transitions','SMOOTH');mod.factor=.5;mod.iterations=4
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        mod=sculpt.modifiers.new('Runtime surface budget','DECIMATE');mod.ratio=.40
+        bpy.ops.object.modifier_apply(modifier=mod.name)
+        for p in sculpt.data.polygons:p.use_smooth=True
     # Save editable source and export only runtime meshes, never studio objects.
     bpy.ops.object.select_all(action='DESELECT')
     for o in bpy.context.scene.objects:
