@@ -10,6 +10,7 @@ SUITES = {
     "container_marks": [("container_marks_test", True, []), ("item_network_test", True, []), ("container_marks_test", False, [])],
     "infinite_credits": [("infinite_credits_test", True, []), ("infinite_credits_test", False, []), ("infinite_credits_network_test", True, [])],
     "camp_recovery": [("camp_recovery_test", True, [])],
+    "knockback": [("knockback_test", True, []), ("enemy_rules_test", True, []), ("enemy_network_test", True, []), ("enemy_visual_test", False, [])],
     "appearance": [("appearance_test", True, []), ("appearance_test", False, []), ("appearance_network_test", True, [])],
     "integration": [("main_enemy_integration_test", True, []), ("key_bindings_test", True, [])],
     "refresh": [("exploration_refresh_test", True, []), ("enemy_world_test", True, []), ("enemy_world_test", False, []), ("container_search_test", True, []), ("item_network_test", True, []), ("ground_zero_network_test", True, [])],

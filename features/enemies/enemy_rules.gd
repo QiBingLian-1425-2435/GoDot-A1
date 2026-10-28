@@ -6,6 +6,26 @@ const REACH := 1.35
 const DAMAGE := 18.0
 const WINDUP := .45
 const RECOVERY := .85
+const HIT_SPEED := 5.5
+const HIT_DECELERATION := 22.0
+const HIT_DURATION := .25
+
+static func hit(enemy:Dictionary,direction:Vector2) -> void:
+	if enemy.hp<=0:return
+	enemy.knockback=direction.normalized()*HIT_SPEED
+	enemy.mode="stagger";enemy.timer=HIT_DURATION
+
+static func _push(ctx,enemy:Dictionary,delta:float) -> void:
+	var velocity:Vector2=enemy.get("knockback",Vector2.ZERO)
+	var duration:float=minf(delta,velocity.length()/HIT_DECELERATION)
+	var next:Vector2=velocity.move_toward(Vector2.ZERO,HIT_DECELERATION*duration)
+	var offset:Vector2=(velocity+next)*.5*duration
+	enemy.knockback=next
+	if not ctx.enemy_push.is_valid():return
+	var before:=at(enemy)
+	var moved:Vector3=ctx.enemy_push.call(int(enemy.id),before,offset)
+	enemy.pos=Vector2(moved.x,moved.z);enemy.height=moved.y
+	enemy.velocity=(Vector2(enemy.pos)-Vector2(before.x,before.z))/maxf(delta,.001)
 
 static func create(id: int, at: Vector3, facing: Vector2) -> Dictionary:
 	return {"id":id,"pos":Vector2(at.x,at.z),"height":at.y,"home":at,"aim":facing.normalized(),"velocity":Vector2.ZERO,"hp":100,"max_hp":100,"mode":"idle","target":0,"last_seen":at,"memory":0.0,"timer":0.0,"attack_seq":0}
@@ -29,7 +49,12 @@ static func tick(ctx, delta: float) -> void:
 	if not ctx.world_ready or ctx.state.get("world","bunker")=="bunker":return
 	for enemy in ctx.state.get("enemies",{}).values():
 		enemy.velocity=Vector2.ZERO
-		if enemy.hp<=0:enemy.mode="dead";enemy.target=0;continue
+		if enemy.hp<=0:enemy.mode="dead";enemy.target=0;enemy.knockback=Vector2.ZERO;continue
+		if enemy.mode=="stagger":
+			_push(ctx,enemy,delta)
+			enemy.timer=maxf(0,float(enemy.timer)-delta)
+			if enemy.timer<=0:enemy.mode="idle";enemy.knockback=Vector2.ZERO
+			continue
 		enemy.timer=maxf(0,float(enemy.timer)-delta)
 		if enemy.mode=="windup":
 			if enemy.timer<=0:

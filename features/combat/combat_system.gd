@@ -63,6 +63,8 @@ static func _fire(ctx, p: Dictionary) -> bool:
 	elif not chosen.is_empty():
 		chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
 		chosen.hits = int(chosen.get("hits",0)) + 1
+		if ctx.state.get("enemies",{}).get(chosen.get("id",-1),{})==chosen:
+			ctx.Enemies.hit(chosen,direction)
 	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1) if teammate.is_empty() else -1,"hit_player_id":teammate.get("id",0),"ttl":0.16})
 	return true
 

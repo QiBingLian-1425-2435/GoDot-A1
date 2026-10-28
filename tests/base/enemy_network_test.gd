@@ -30,6 +30,11 @@ func run():
 				session.send("move",{"direction":Vector2.ZERO,"aim":direction})
 				await create_timer(.12).timeout
 				session.send("fire",{"enemy_hp":0,"damage":9999})
+				if i==0:
+					check(await wait_for(func():
+						var e:Dictionary=session.model.state.enemies[1]
+						return e.mode=="stagger" and Vector2(e.velocity).dot(Vector2(e.pos)-Vector2(player().pos))>0
+					),"host confirms knockback away from shooter over real transport")
 				await create_timer(.18).timeout
 			check(await wait_for(func():return session.model.state.enemies[1].hp==0),"remote shots kill hostile on host and synchronize death")
 			check(player().ammo==17,"exactly three real rifle rounds consumed")
@@ -43,6 +48,7 @@ func run():
 		if joined:
 			var m=session.model;m.enemy_sight=func(_a,_b):return true
 			m.enemy_move=func(_id,at,offset):return at+Vector3(offset.x,0,offset.y)
+			m.enemy_push=m.enemy_move
 			m.state.world="surface";m.state.world_revision+=1;m.state.players[1].pos=Vector2(20,20)
 			for id in m.state.players:
 				if id!=1:m.state.players[id].pos=Vector2(0,-4);m.state.players[id].height=0

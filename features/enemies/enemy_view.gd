@@ -37,6 +37,8 @@ func update_enemy(data:Dictionary,delta:float):
 	var aim:Vector2=data.aim
 	if aim.length_squared()>.01:rotation.y=lerp_angle(rotation.y,atan2(-aim.x,-aim.y),1-exp(-delta*18))
 	var moving:float=minf(1,Vector2(data.velocity).length()/4.6)
+	var stagger:bool=data.mode=="stagger"
+	if stagger:moving=0.0
 	if data.hp<=0:
 		rig.rotation.z=lerp_angle(rig.rotation.z,1.5,1-exp(-delta*9));rig.position.y=lerpf(rig.position.y,.55,1-exp(-delta*9))
 		Texts.bind(title,"⟦enemy.dead⟧");return
@@ -44,6 +46,11 @@ func update_enemy(data:Dictionary,delta:float):
 	swing=maxf(0,swing-delta)
 	var charge:float=1.0-float(data.timer)/.45 if data.mode=="windup" else 0.0
 	rig.rotation.x=-.18*moving-.3*charge+.55*sin(swing/.3*PI)
+	if stagger:
+		var recoil:Vector3=global_basis.inverse()*Vector3(data.velocity.x,0,data.velocity.y)
+		rig.rotation.x=clampf(recoil.z*.055,-.28,.28)
+		rig.rotation.z=clampf(-recoil.x*.055,-.28,.28)
+	else:rig.rotation.z=lerp_angle(rig.rotation.z,0,1-exp(-delta*18))
 	rig.position.y=absf(sin(clock*13))*.055*moving
 	for i in feet.size():feet[i].rotation.x=sin(clock*13+i*PI)*.65*moving
 	for i in wings.size():wings[i].rotation.x=-.6*charge-1.5*sin(swing/.3*PI)+sin(clock*13+i*PI)*.25*moving

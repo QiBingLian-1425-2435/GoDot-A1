@@ -12,6 +12,10 @@ func clear():
 func bind_world(ctx):
 	ctx.session.model.enemy_sight=clear_sight
 	ctx.session.model.enemy_move=move_enemy
+	ctx.session.model.enemy_push=push_enemy
+func push_enemy(id:int,from:Vector3,offset:Vector2)->Vector3:
+	# Impact follows the shot direction; unlike AI pursuit, never steer around cover.
+	return body_for(id).move_spatial(from,offset)
 func clear_sight(from:Vector3,to:Vector3)->bool:
 	return get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(from,to,1|16)).is_empty()
 func body_for(id:int):

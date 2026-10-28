@@ -6,6 +6,7 @@ const InventoryRules = preload("res://features/inventory/base_inventory_rules.gd
 const Enemies = preload("res://features/enemies/enemy_rules.gd")
 var enemy_sight: Callable
 var enemy_move: Callable
+var enemy_push: Callable
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
