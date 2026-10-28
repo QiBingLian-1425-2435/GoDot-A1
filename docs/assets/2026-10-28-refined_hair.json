@@ -1,6 +1,6 @@
 {
   "generator": "tools/refine_human_hair.py",
-  "status": "strand_detail_refined_visual_review_pending",
+  "status": "accepted_current_version_integrated",
   "files": {
     "male.glb": {
       "bytes": 1285820,
