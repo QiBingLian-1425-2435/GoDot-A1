@@ -1,22 +1,22 @@
 {
   "generator": "tools/refine_human_hair.py",
-  "status": "visual_fidelity_review_pending",
+  "status": "strand_detail_refined_visual_review_pending",
   "files": {
     "male.glb": {
-      "bytes": 1285816,
-      "sha256": "bddd3daec5297681c2c127250dfa8988b3b0a2002f8766cd33b48a0f24db1209"
+      "bytes": 1285820,
+      "sha256": "8011c2e03cfe7017e1a6fde93b1d5e8c697f1f2a0776305a2e85e3ecc32696a2"
     },
     "female.glb": {
-      "bytes": 9915880,
-      "sha256": "3f82afc587e2795c6f9008e380f2e8fd0f1c8f0f187afaf659e05278b3134bdb"
+      "bytes": 10127400,
+      "sha256": "b523807b45547aa17352da863585ec366d174c57f515cbc2b6489ec8c19d8fc8"
     },
     "source/male.blend": {
-      "bytes": 672157,
-      "sha256": "77f671b991f39e5fc1900f3336d015b02b3939589ef8331f3fff763c80d0d468"
+      "bytes": 672284,
+      "sha256": "5acbe3fba7b4a50e5795cf0a820c7865713c67f09905d73351efda0a2941d7df"
     },
     "source/female.blend": {
-      "bytes": 9156802,
-      "sha256": "97462ccbe791b44d10acdb8dec3e5cad5c5f970a3a672d2bb9791b6cd98da7fc"
+      "bytes": 9315046,
+      "sha256": "693ebc2fe320b5e73c287916327e3d00e2761033bd1800c5a9788f3073d33c23"
     }
   }
 }

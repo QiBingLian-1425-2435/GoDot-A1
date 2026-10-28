@@ -37,7 +37,10 @@ def lock(name, centers, widths, thickness, mat):
         if normal.dot(radial)<0:normal=-normal
         for j in range(sides):
             a=j*math.tau/sides
-            p=center+across*(math.cos(a)*widths[i])+normal*(math.sin(a)*thickness*min(1,widths[i]/.025))
+            # Slightly off-centre convex ridge, rather than a uniform tube.
+            cross=math.cos(a)
+            ridge=math.sin(a)*(1+.12*cross)
+            p=center+across*(cross*widths[i])+normal*(ridge*thickness*min(1,widths[i]/.025))
             verts.append(xyz(p))
     for i in range(len(centers)-1):
         for j in range(sides):
@@ -59,11 +62,18 @@ def lock(name, centers, widths, thickness, mat):
 
 def swept(name, phi, end, width, mat, female=False, start=.10, sweep=.45, lift=.012):
     points=[];widths=[]
+    index=int(name.rsplit('_',1)[-1]) if name.rsplit('_',1)[-1].isdigit() else 0
+    # Alternating broad/secondary locks have independent silhouette controls.
+    width_scale=[1.05,.86,1.12,.94,1.0][index%5]
+    bend=[.055,-.035,.080,-.065,.025][index%5]
+    tip_height=[.012,-.008,.004,-.014,.009][index%5]
+    elevation=[.004,.011,.002,.008,.0][index%5]
     for i in range(49):
         t=i/48
         theta=start+(end-start)*t
-        angle=phi+sweep*(1-t)**1.4
-        p=scalp(theta,angle,lift)
+        angle=phi+sweep*(1-t)**1.4+bend*math.sin(math.pi*t)*t
+        effective_lift=lift+elevation*math.sin(math.pi*t)
+        p=scalp(theta,angle,effective_lift)
         # Bury roots below the continuous scalp instead of stacking a visible
         # circular plug at the crown. The lock emerges smoothly from the part.
         if female and t<.18:
@@ -73,18 +83,19 @@ def swept(name, phi, end, width, mat, female=False, start=.10, sweep=.45, lift=.
             if theta>1.35:
                 u=(theta-1.35)/(end-1.35)
                 radius=math.sin(1.35)+.12*math.sin(u*math.pi)-.09*u**5
-                p.x=(.352+lift)*math.cos(angle)*radius
-                p.z=-.03+(.304+lift)*math.sin(angle)*radius
-                p.y=1.394-.32*u
+                p.x=(.352+effective_lift)*math.cos(angle)*radius
+                p.z=-.03+(.304+effective_lift)*math.sin(angle)*radius
+                p.y=1.315+(.36+effective_lift)*math.cos(1.35)-.32*u+tip_height*u**3
         if female:
             profile=min(1,math.sqrt(max(.000004,t/.10)))
-            if t>.80:profile*=math.sqrt(max(.000004,1-((t-.80)/.20)**2))
+            taper_start=.70+.025*(index%4)
+            if t>taper_start:profile*=math.sqrt(max(.000004,1-((t-taper_start)/(1-taper_start))**2))
         else:
             profile=max(.002,math.sin(math.pi*t)**.55)
         # Broad roots merge into crown, asymmetric pointed terminal end.
-        widths.append(width*profile*(1-.08*t if female else 1-.15*t))
+        widths.append(width*width_scale*profile*(1-.08*t if female else 1-.15*t))
         points.append(p)
-    return lock(name,points,widths,.021 if female else .027,mat)
+    return lock(name,points,widths,(.028 if female else .029)+elevation*.45,mat)
 
 
 def shell(mat, female):
@@ -187,7 +198,7 @@ def build(gender):
         bpy.ops.object.join();sculpt=bpy.context.object;sculpt.name='Head__hair_sculpt'
         mod=sculpt.modifiers.new('Continuous sculpt union','REMESH');mod.mode='VOXEL';mod.voxel_size=.003
         mod.use_smooth_shade=True;bpy.ops.object.modifier_apply(modifier=mod.name)
-        mod=sculpt.modifiers.new('Soft root transitions','SMOOTH');mod.factor=.5;mod.iterations=4
+        mod=sculpt.modifiers.new('Soft root transitions','SMOOTH');mod.factor=.3;mod.iterations=2
         bpy.ops.object.modifier_apply(modifier=mod.name)
         mod=sculpt.modifiers.new('Runtime surface budget','DECIMATE');mod.ratio=.40
         bpy.ops.object.modifier_apply(modifier=mod.name)
