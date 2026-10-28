@@ -30,6 +30,9 @@ var _display_height := 0.0
 var _settling := false
 var _relocation_seq:=0
 var infinite_stamina := false
+var _hit_seq:=0
+var _recoiling:=false
+var _hit_settling:=false
 
 func clear() -> void:
 	_state.clear(); _input.clear(); _history.clear(); _sent.clear(); _pending.clear()
@@ -37,11 +40,13 @@ func clear() -> void:
 	_has_authority = false; _offset = Vector2.ZERO; _display_pos = Vector2.ZERO
 	_settling = false
 	infinite_stamina = false
+	_hit_seq=0;_recoiling=false
+	_hit_settling=false
 
 func set_input(input: Dictionary) -> void:
 	# A new release takes priority over the small tail of a correction that began
 	# while walking. Corrections received while already idle still settle normally.
-	if not Vector2(_input.get("direction",Vector2.ZERO)).is_zero_approx() and Vector2(input.get("direction",Vector2.ZERO)).is_zero_approx() and _offset.length() <= REST_ERROR_LIMIT:
+	if not _hit_settling and not Vector2(_input.get("direction",Vector2.ZERO)).is_zero_approx() and Vector2(input.get("direction",Vector2.ZERO)).is_zero_approx() and _offset.length() <= REST_ERROR_LIMIT:
 		_settling = false
 	_input = input.duplicate()
 	_input_stamp = _clock
@@ -63,6 +68,19 @@ func confirm(p: Dictionary) -> void:
 		_state.weight=p.weight
 		_state.max_weight=p.max_weight
 	var pose := _copy_motion(p)
+	# A hit invalidates pre-impact input anchors. Resume ordinary replay only
+	# after the host confirms recoil ended; never replay walking through a hit.
+	var hit_seq:int=int(p.get("hit_seq",0))
+	var recoiling:bool=not Vector2(p.get("knockback",Vector2.ZERO)).is_zero_approx()
+	if hit_seq!=_hit_seq or recoiling or _recoiling:
+		_offset=_display_pos-Vector2(p.pos) if not _state.is_empty() else Vector2.ZERO
+		if _offset.length()>SNAP_DISTANCE:_offset=Vector2.ZERO
+		_settling=true;_hit_settling=true;_state=pose
+		_history.clear();_sent.clear();_pending.clear()
+		_last_ack=int(p.get("input_seq",0));_observed_ack=_last_ack;_barrier=_last_ack
+		_last_ack_clock=_clock;_last_authority=p.pos;_has_authority=true
+		_hit_seq=hit_seq;_recoiling=recoiling
+		return
 	if _state.is_empty() or (_has_authority and _last_authority.distance_to(p.pos) > SNAP_DISTANCE):
 		_state = pose
 		_display_pos = p.pos
@@ -134,7 +152,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 		# Releasing a held offset must not overpower a slow crouched step or a wall.
 		var correction := minf(_offset.length()*(1.0-exp(-delta*25.0)),Vector2(_state.velocity).length()*delta*.5)
 		_offset = _offset.move_toward(Vector2.ZERO,correction)
-	if _offset.length() < .001: _offset = Vector2.ZERO; _settling = false
+	if _offset.length() < .001: _offset = Vector2.ZERO; _settling = false;_hit_settling=false
 	# Apply the display correction through the same static-world collision shape.
 	var display_pose:Dictionary=_state.duplicate(true)
 	display_pose.roll.vertical_delta=0.0
@@ -173,6 +191,8 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
 	result.infinite_stamina = infinite_stamina
+	result.knockback=p.get("knockback",Vector2.ZERO)
+	result.hit_seq=p.get("hit_seq",0)
 	for key in ["reloading","pending_use","loot_uid","hp","life","soul_speed","soul_bounds","possessing"]:
 		if p.has(key):result[key]=p[key]
 	return result

@@ -39,5 +39,23 @@ func run():
 	e.hp=100;e.pos=Vector2.ZERO
 	m.Enemies.hit(e,Vector2.RIGHT);m.Enemies.hit(e,Vector2.LEFT)
 	check(e.knockback==Vector2.LEFT*m.Enemies.HIT_SPEED,"successive hits replace impulse instead of stacking unlimited speed")
+	e.hp=0;m.add_player(2,"teammate")
+	var victim:Dictionary=m.state.players[2];victim.pos=Vector2.ZERO;victim.height=0
+	m.motion_solver=func(id,from,offset):return director.push_enemy(100+id,Vector3(from.x,0,from.y),offset)
+	var prediction=preload("res://features/player/local_movement.gd").new()
+	prediction.solver=func(from,offset):return from+offset
+	prediction.confirm(victim)
+	prediction.set_input({"direction":Vector2.LEFT})
+	prediction.note_sent(1,true)
+	p.fire_timer=0;m.command(1,"fire")
+	check(victim.hp<100 and victim.get("hit_seq",0)==1,"nonlethal friendly fire starts authoritative player recoil")
+	prediction.confirm(victim)
+	for i in range(16):
+		m.tick(1.0/60);prediction.advance(1.0/60,victim)
+	check(victim.pos.x>.60 and victim.pos.x<.76,"teammate uses collision solver for decaying displacement")
+	prediction.confirm(victim);prediction.set_input({"direction":Vector2.ZERO})
+	for i in range(20):prediction.advance(1.0/60,victim)
+	print("RECOIL_POSE authority=",victim.pos," predicted=",prediction.sample_player(victim).pos," offset=",prediction._offset)
+	check(prediction.sample_player(victim).pos.distance_to(victim.pos)<.03,"old predicted input cannot pull teammate back after recoil ends")
 	director.queue_free();floor_body.queue_free();await process_frame
 	print("KNOCKBACK failures=",failures);quit(1 if failures else 0)

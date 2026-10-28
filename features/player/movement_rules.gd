@@ -5,6 +5,20 @@ const JUMP_SPEED := 5.0
 const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0
 const JUMP_COOLDOWN := .7
+const HIT_SPEED := 5.5
+const HIT_DECELERATION := 22.0
+
+static func hit(p:Dictionary,direction:Vector2) -> void:
+	if float(p.get("hp",0))<=0:return
+	p.knockback=direction.normalized()*HIT_SPEED
+	p.hit_seq=(int(p.get("hit_seq",0))+1)%65536
+
+static func _recoil(p:Dictionary,delta:float)->Vector2:
+	var speed:Vector2=p.get("knockback",Vector2.ZERO)
+	var duration:float=minf(delta,speed.length()/HIT_DECELERATION)
+	var next:Vector2=speed.move_toward(Vector2.ZERO,HIT_DECELERATION*duration)
+	p.knockback=next
+	return (speed+next)*.5*duration
 
 static func empty_roll() -> Dictionary:
 	return {"active":false,"time":0.0,"direction":Vector2.ZERO,"cooldown":0.0,"seen":0}
@@ -31,15 +45,19 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	if float(p.get("hp",100))<=0 and p.get("life","alive")!="zombie":
 		p.velocity = Vector2.ZERO; p.sprint = false; p.crouch = false; p.ads = false
 		p.roll = empty_roll()
+		p.knockback=Vector2.ZERO
 		return
 	var direction: Vector2 = input.get("direction",Vector2.ZERO)
+	var recoiling:bool=not Vector2(p.get("knockback",Vector2.ZERO)).is_zero_approx()
+	var recoil:Vector2=_recoil(p,delta)
+	if recoiling:direction=Vector2.ZERO
 	if not p.has("roll"): p.roll = empty_roll()
 	var roll: Dictionary = p.roll
 	roll.cooldown = maxf(0, float(roll.cooldown)-delta)
 	var requested := int(input.get("roll_seq",0))
 	if requested > int(roll.seen):
 		roll.seen = requested
-		if not roll.active and roll.cooldown <= 0 and (p.stamina >= JUMP_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
+		if not recoiling and not roll.active and roll.cooldown <= 0 and (p.stamina >= JUMP_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
 			roll.active = true; roll.time = 0.0; roll.cooldown = JUMP_COOLDOWN
 			roll.direction=direction
 			if not p.get("infinite_stamina",false): p.stamina -= JUMP_COST
@@ -53,7 +71,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 		roll.direction=direction
 		var speed:=3.7
 		if p.weight>p.max_weight:speed*=clampf(p.max_weight/p.weight,.3,1.0)
-		var solved:Variant=solver.call(previous,direction*speed*delta)
+		var solved:Variant=solver.call(previous,direction*speed*delta+recoil)
 		if solved is Vector3:
 			p.pos=Vector2(solved.x,solved.z);p.height=solved.y
 		else:
@@ -98,7 +116,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	if p.ads: speed *= .62
 	if p.weight > p.max_weight: speed *= clampf(p.max_weight/p.weight,.3,1.0)
 	var previous: Vector2 = p.pos
-	var solved: Variant = solver.call(previous,direction*speed*delta)
+	var solved: Variant = solver.call(previous,direction*speed*delta+recoil)
 	if solved is Vector3:
 		p.pos = Vector2(solved.x,solved.z)
 		p.height = solved.y

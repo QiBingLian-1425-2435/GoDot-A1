@@ -108,6 +108,7 @@ func reset_transients(id: int) -> void:
 	p.input_roll=p.roll.duplicate(true)
 	p.pending_use={}
 	p.velocity = Vector2.ZERO
+	p.knockback=Vector2.ZERO
 	p.sprint = false; p.sprint_exhausted = false; p.crouch = false; p.ads = false
 	p.anim_seq = 0; p.anim_action = ""; p.anim_time = 0.0; p.anim_duration = 0.0
 	p.reloading = false; p.reload_progress = 0.0; p.reload_timer = 0.0; p.fire_timer = 0.0

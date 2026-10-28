@@ -13,7 +13,7 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
@@ -465,8 +465,10 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		p.relocation_seq=int(row[18]) if row.size()>18 else 0
 		p.roll=_unpack_roll(row[19],0) if row.size()>19 else Model.Movement.empty_roll()
 		p.input_roll=_unpack_roll(row[19],10) if row.size()>19 else p.roll.duplicate(true)
-		p.sprint_exhausted=bool(row[20]) if row.size()>20 else false
-		p.input_sprint_exhausted=bool(row[21]) if row.size()>21 else false
+		p.sprint_exhausted=bool(int(row[4]) & 16)
+		p.input_sprint_exhausted=bool(int(row[4]) & 32)
+		p.knockback=Vector2(int(row[19][20])-128,int(row[19][21])-128)/20.0 if row[19].size()>=24 else Vector2.ZERO
+		p.hit_seq=row[19].decode_u16(22) if row[19].size()>=24 else 0
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -484,7 +486,7 @@ func reset_world_motion() -> void:
 
 func _pack_roll(p: Dictionary) -> PackedByteArray:
 	# Millisecond timers and quantized angle keep the five-player motion packet below MTU.
-	var bytes := PackedByteArray(); bytes.resize(20)
+	var bytes := PackedByteArray(); bytes.resize(24)
 	for index in range(2):
 		var roll: Dictionary = p.get("roll" if index==0 else "input_roll",Model.Movement.empty_roll())
 		var offset := index*10
@@ -492,10 +494,14 @@ func _pack_roll(p: Dictionary) -> PackedByteArray:
 		bytes.encode_u16(offset+4,roundi(float(roll.time)*1000) | (32768 if roll.active else 0))
 		bytes.encode_u16(offset+6,roundi(float(roll.cooldown)*1000))
 		bytes.encode_u16(offset+8,roundi(fposmod(Vector2(roll.direction).angle(),TAU)/TAU*65535))
+	var recoil:Vector2=p.get("knockback",Vector2.ZERO)
+	bytes[20]=clampi(roundi(recoil.x*20)+128,0,255)
+	bytes[21]=clampi(roundi(recoil.y*20)+128,0,255)
+	bytes.encode_u16(22,int(p.get("hit_seq",0))%65536)
 	return bytes
 
 func _unpack_roll(bytes: PackedByteArray, offset: int) -> Dictionary:
-	if bytes.size()!=20:return Model.Movement.empty_roll()
+	if bytes.size() not in [20,24]:return Model.Movement.empty_roll()
 	var time_and_flag := bytes.decode_u16(offset+4)
 	return {"seen":bytes.decode_u32(offset),"active":bool(time_and_flag & 32768),"time":float(time_and_flag & 32767)/1000.0,"cooldown":float(bytes.decode_u16(offset+6))/1000.0,"direction":Vector2.from_angle(float(bytes.decode_u16(offset+8))/65535.0*TAU)}
 
@@ -503,8 +509,8 @@ func _motion_rows() -> Array:
 	var rows: Array = []
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
-		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3)
-		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p),p.get("sprint_exhausted",false),p.get("input_sprint_exhausted",false)])
+		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3) | (int(p.get("sprint_exhausted",false)) << 4) | (int(p.get("input_sprint_exhausted",false)) << 5)
+		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p)])
 	return rows
 
 func _capture_shot_visuals(shots: Array) -> void:

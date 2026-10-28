@@ -23,6 +23,10 @@ func run():
 		if not await wait_for(func():return session.local_id>1 and session.model.state.get("extraction_ready",false)):
 			check(false,"receive fixture");quit(1);return
 		var notices: Array=[];session.notice.connect(func(msg):notices.append(msg))
+		check(await wait_for(func():return int(session.model.state.players[session.local_id].get("hit_seq",0))>0),"host shot confirms recoil on local guest")
+		await create_timer(.45).timeout
+		var victim:Dictionary=session.model.state.players[session.local_id]
+		check(victim.pos.x<-.5 and session.local_movement.sample_player(victim).pos.x<-.45,"guest prediction follows host knockback without pulling back")
 		session.send("travel",{"route":"extract"})
 		check(await wait_for(func():return not notices.is_empty()),"host sends extraction rejection to client")
 		check(session.model.state.world=="surface","remote request cannot drag distant living host into camp")
@@ -47,6 +51,8 @@ func run():
 			if id!=1:m.state.players[id].pos=Vector2.ZERO
 		m.stations=[{"kind":"travel","uid":"extract","world":"surface","destination":"bunker","pos":Vector2.ZERO,"height":0,"spawn":Vector3.ZERO}]
 		m.state.extraction_ready=true;session._broadcast_snapshot(true)
+		m.state.players[1].aim=Vector2.LEFT
+		check(m.command(1,"fire"),"host fires nonlethal friendly shot at guest")
 		check(await wait_for(func():return FileAccess.file_exists(result_path)),"remote flow finishes")
 		check(m.state.world=="bunker" and not m.world_cache.surface.has("corpses"),"authority discards old corpse and completes party return")
 		if FileAccess.file_exists(result_path):check(int(JSON.parse_string(FileAccess.get_file_as_string(result_path)).failures)==0,"client assertions pass")
