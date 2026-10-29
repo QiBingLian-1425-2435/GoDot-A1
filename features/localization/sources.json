@@ -18,140 +18,140 @@
     "app/main.gd:196"
   ],
   "main.006": [
-    "app/main.gd:273"
+    "app/main.gd:276"
   ],
   "main.007": [
-    "app/main.gd:276"
+    "app/main.gd:279"
   ],
   "main.008": [
-    "app/main.gd:276"
+    "app/main.gd:279"
   ],
   "main.009": [
-    "app/main.gd:372"
+    "app/main.gd:375"
   ],
   "main.010": [
-    "app/main.gd:393"
+    "app/main.gd:396"
   ],
   "main.011": [
-    "app/main.gd:393"
+    "app/main.gd:396"
   ],
   "main.012": [
-    "app/main.gd:398"
+    "app/main.gd:401"
   ],
   "main.013": [
-    "app/main.gd:398"
+    "app/main.gd:401"
   ],
   "main.014": [
-    "app/main.gd:398"
+    "app/main.gd:401"
   ],
   "main.015": [
-    "app/main.gd:399",
+    "app/main.gd:402",
     "ui/inventory/container_panel.gd:28",
     "ui/inventory/container_panel.gd:37",
     "worlds/ground_zero/ground_zero.gd:353"
   ],
   "main.016": [
-    "app/main.gd:400",
+    "app/main.gd:403",
     "ui/inventory/container_panel.gd:28",
     "worlds/ground_zero/ground_zero.gd:360"
   ],
   "main.017": [
-    "app/main.gd:400"
+    "app/main.gd:403"
   ],
   "main.018": [
-    "app/main.gd:400"
+    "app/main.gd:403"
   ],
   "main.019": [
-    "app/main.gd:405"
+    "app/main.gd:408"
   ],
   "main.020": [
-    "app/main.gd:405"
+    "app/main.gd:408"
   ],
   "main.021": [
-    "app/main.gd:419"
+    "app/main.gd:422"
   ],
   "main.022": [
-    "app/main.gd:456"
+    "app/main.gd:459"
   ],
   "main.023": [
-    "app/main.gd:466"
+    "app/main.gd:469"
   ],
   "session.001": [
     "app/network/session.gd:25",
-    "app/network/session.gd:160"
+    "app/network/session.gd:163"
   ],
   "session.002": [
-    "app/network/session.gd:59",
-    "app/network/session.gd:176",
+    "app/network/session.gd:62",
+    "app/network/session.gd:179",
     "app/network/steam_service.gd:205",
     "app/network/steam_service.gd:207"
   ],
   "session.003": [
-    "app/network/session.gd:73"
+    "app/network/session.gd:76"
   ],
   "session.004": [
-    "app/network/session.gd:80"
+    "app/network/session.gd:83"
   ],
   "session.005": [
-    "app/network/session.gd:86"
+    "app/network/session.gd:89"
   ],
   "session.006": [
-    "app/network/session.gd:94"
+    "app/network/session.gd:97"
   ],
   "session.007": [
-    "app/network/session.gd:101"
+    "app/network/session.gd:104"
   ],
   "session.008": [
-    "app/network/session.gd:106",
-    "ui/base_hud.gd:477"
+    "app/network/session.gd:109",
+    "ui/base_hud.gd:478"
   ],
   "session.009": [
-    "app/network/session.gd:129"
+    "app/network/session.gd:132"
   ],
   "session.010": [
-    "app/network/session.gd:129"
+    "app/network/session.gd:132"
   ],
   "session.011": [
-    "app/network/session.gd:145"
+    "app/network/session.gd:148"
   ],
   "session.012": [
-    "app/network/session.gd:145"
+    "app/network/session.gd:148"
   ],
   "session.013": [
-    "app/network/session.gd:199"
+    "app/network/session.gd:203"
   ],
   "session.014": [
-    "app/network/session.gd:565"
+    "app/network/session.gd:613"
   ],
   "session.015": [
-    "app/network/session.gd:574"
+    "app/network/session.gd:622"
   ],
   "session.016": [
-    "app/network/session.gd:581"
+    "app/network/session.gd:629"
   ],
   "session.017": [
-    "app/network/session.gd:586"
+    "app/network/session.gd:634"
   ],
   "session.018": [
-    "app/network/session.gd:592"
+    "app/network/session.gd:640"
   ],
   "session.019": [
-    "app/network/session.gd:592"
+    "app/network/session.gd:640"
   ],
   "session.020": [
-    "app/network/session.gd:599"
+    "app/network/session.gd:647"
   ],
   "session.021": [
-    "app/network/session.gd:599"
+    "app/network/session.gd:647"
   ],
   "session.022": [
-    "app/network/session.gd:607"
+    "app/network/session.gd:655"
   ],
   "session.023": [
-    "app/network/session.gd:607"
+    "app/network/session.gd:655"
   ],
   "session.024": [
-    "app/network/session.gd:657"
+    "app/network/session.gd:705"
   ],
   "steam_service.001": [
     "app/network/steam_service.gd:20",
@@ -282,52 +282,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:130"
-  ],
-  "base_model.002": [
-    "features/base/base_model.gd:133"
-  ],
-  "base_model.003": [
     "features/base/base_model.gd:134"
   ],
-  "base_model.004": [
+  "base_model.002": [
     "features/base/base_model.gd:137"
   ],
-  "base_model.005": [
+  "base_model.003": [
     "features/base/base_model.gd:138"
   ],
+  "base_model.004": [
+    "features/base/base_model.gd:145"
+  ],
+  "base_model.005": [
+    "features/base/base_model.gd:146"
+  ],
   "base_model.006": [
-    "features/base/base_model.gd:139"
-  ],
-  "base_model.007": [
-    "features/base/base_model.gd:141"
-  ],
-  "base_model.008": [
     "features/base/base_model.gd:147"
   ],
+  "base_model.007": [
+    "features/base/base_model.gd:149"
+  ],
+  "base_model.008": [
+    "features/base/base_model.gd:155"
+  ],
   "base_model.009": [
-    "features/base/base_model.gd:178"
+    "features/base/base_model.gd:186"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:185"
+    "features/base/base_model.gd:193"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:189"
+    "features/base/base_model.gd:197"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:194"
+    "features/base/base_model.gd:202"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:211"
+    "features/base/base_model.gd:219"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:214"
+    "features/base/base_model.gd:222"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:221"
+    "features/base/base_model.gd:229"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:223"
+    "features/base/base_model.gd:231"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -478,11 +478,11 @@
   ],
   "world_flow.002": [
     "features/exploration/world_flow.gd:51",
-    "features/exploration/world_travel.gd:66"
+    "features/exploration/world_travel.gd:67"
   ],
   "world_flow.003": [
     "features/exploration/world_flow.gd:51",
-    "features/exploration/world_travel.gd:66"
+    "features/exploration/world_travel.gd:67"
   ],
   "world_flow.004": [
     "features/exploration/world_flow.gd:86"
@@ -500,19 +500,19 @@
     "features/exploration/world_travel.gd:33"
   ],
   "world_travel.005": [
-    "features/exploration/world_travel.gd:66"
+    "features/exploration/world_travel.gd:67"
   ],
   "world_travel.006": [
-    "features/exploration/world_travel.gd:66"
+    "features/exploration/world_travel.gd:67"
   ],
   "world_travel.007": [
-    "features/exploration/world_travel.gd:74"
-  ],
-  "world_travel.008": [
     "features/exploration/world_travel.gd:75"
   ],
+  "world_travel.008": [
+    "features/exploration/world_travel.gd:76"
+  ],
   "world_travel.009": [
-    "features/exploration/world_travel.gd:77"
+    "features/exploration/world_travel.gd:78"
   ],
   "base_inventory_system.001": [
     "features/inventory/base_inventory_system.gd:26"
@@ -895,7 +895,7 @@
     "features/rescue/soul_rules.gd:153"
   ],
   "soul_view.001": [
-    "features/rescue/soul_view.gd:72"
+    "features/rescue/soul_view.gd:73"
   ],
   "proximity_voice.001": [
     "features/voice/proximity_voice.gd:10",
@@ -1053,65 +1053,65 @@
     "ui/menu/menu_screen.gd:72"
   ],
   "base_hud.041": [
-    "ui/base_hud.gd:413",
+    "ui/base_hud.gd:414",
     "ui/network/steam_panel.gd:149"
   ],
   "base_hud.042": [
-    "ui/base_hud.gd:415"
-  ],
-  "base_hud.043": [
     "ui/base_hud.gd:416"
   ],
-  "base_hud.044": [
+  "base_hud.043": [
     "ui/base_hud.gd:417"
   ],
-  "base_hud.045": [
+  "base_hud.044": [
     "ui/base_hud.gd:418"
   ],
-  "base_hud.046": [
+  "base_hud.045": [
     "ui/base_hud.gd:419"
   ],
-  "base_hud.047": [
-    "ui/base_hud.gd:450"
+  "base_hud.046": [
+    "ui/base_hud.gd:420"
   ],
-  "base_hud.048": [
+  "base_hud.047": [
     "ui/base_hud.gd:451"
   ],
-  "base_hud.049": [
+  "base_hud.048": [
     "ui/base_hud.gd:452"
   ],
-  "base_hud.050": [
-    "ui/base_hud.gd:454"
+  "base_hud.049": [
+    "ui/base_hud.gd:453"
   ],
-  "base_hud.051": [
+  "base_hud.050": [
     "ui/base_hud.gd:455"
   ],
-  "base_hud.052": [
-    "ui/base_hud.gd:457"
+  "base_hud.051": [
+    "ui/base_hud.gd:456"
   ],
-  "base_hud.053": [
+  "base_hud.052": [
     "ui/base_hud.gd:458"
   ],
-  "base_hud.054": [
+  "base_hud.053": [
     "ui/base_hud.gd:459"
   ],
-  "base_hud.055": [
+  "base_hud.054": [
     "ui/base_hud.gd:460"
   ],
+  "base_hud.055": [
+    "ui/base_hud.gd:461"
+  ],
   "base_hud.056": [
-    "ui/base_hud.gd:465"
+    "ui/base_hud.gd:466"
   ],
   "base_hud.057": [
-    "ui/base_hud.gd:469"
+    "ui/base_hud.gd:470"
   ],
   "base_hud.058": [
-    "ui/base_hud.gd:474"
+    "ui/base_hud.gd:475"
   ],
   "base_hud.059": [
-    "ui/base_hud.gd:477"
+    "ui/base_hud.gd:478"
   ],
   "base_hud.060": [
-    "ui/base_hud.gd:479",
+    "ui/base_hud.gd:480",
     "ui/network/steam_panel.gd:69"
   ],
   "camp_panel.001": [
@@ -1650,10 +1650,10 @@
     "ui/widgets/item_slot.gd:92"
   ],
   "base_view.001": [
-    "worlds/bunker/base_view.gd:78"
+    "worlds/bunker/base_view.gd:79"
   ],
   "base_view.002": [
-    "worlds/bunker/base_view.gd:101"
+    "worlds/bunker/base_view.gd:102"
   ],
   "bunker.001": [
     "worlds/bunker/bunker.gd:13"
@@ -1822,13 +1822,13 @@
     "ui/map/global_map.gd:157"
   ],
   "format.base_view.001": [
-    "worlds/bunker/base_view.gd:124"
+    "worlds/bunker/base_view.gd:125"
   ],
   "interaction.prompt": [
-    "app/main.gd:420"
+    "app/main.gd:423"
   ],
   "keys.title": [
-    "ui/base_hud.gd:490",
+    "ui/base_hud.gd:495",
     "ui/menu/menu_screen.gd:149"
   ],
   "keys.instructions": [
@@ -1952,10 +1952,10 @@
     "features/enemies/enemy_view.gd:29"
   ],
   "enemy.dead": [
-    "features/enemies/enemy_view.gd:42"
+    "features/enemies/enemy_view.gd:44"
   ],
   "enemy.health": [
-    "features/enemies/enemy_view.gd:50"
+    "features/enemies/enemy_view.gd:57"
   ],
   "settings.voice_always_on": [
     "ui/menu/menu_screen.gd:128"
@@ -1970,7 +1970,7 @@
     "ui/menu/menu_screen.gd:164"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:199"
+    "features/base/base_model.gd:207"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:38"
@@ -1979,7 +1979,7 @@
     "features/exploration/container_loot.gd:43"
   ],
   "loot_marks.view_remaining": [
-    "app/main.gd:403"
+    "app/main.gd:406"
   ],
   "loot_marks.searching": [
     "features/exploration/container_marks.gd:5"
@@ -1991,7 +1991,38 @@
     "features/exploration/container_marks.gd:5"
   ],
   "loot_marks.empty": [
-    "app/main.gd:403",
+    "app/main.gd:406",
     "features/exploration/container_marks.gd:5"
+  ],
+  "appearance.title": [
+    "ui/base_hud.gd:413",
+    "ui/base_hud.gd:488"
+  ],
+  "appearance.gender": [
+    "ui/menu/appearance_panel.gd:38"
+  ],
+  "appearance.male": [
+    "ui/menu/appearance_panel.gd:40"
+  ],
+  "appearance.female": [
+    "ui/menu/appearance_panel.gd:40"
+  ],
+  "appearance.hair": [
+    "ui/menu/appearance_panel.gd:4"
+  ],
+  "appearance.skin": [
+    "ui/menu/appearance_panel.gd:4"
+  ],
+  "appearance.shirt": [
+    "ui/menu/appearance_panel.gd:4"
+  ],
+  "appearance.pants": [
+    "ui/menu/appearance_panel.gd:4"
+  ],
+  "appearance.cancel": [
+    "ui/menu/appearance_panel.gd:49"
+  ],
+  "appearance.apply": [
+    "ui/menu/appearance_panel.gd:50"
   ]
 }

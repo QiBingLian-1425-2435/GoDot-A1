@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v21",
+  "protocol": "a1_bunker_v22",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,

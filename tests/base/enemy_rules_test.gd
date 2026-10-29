@@ -45,8 +45,8 @@ func run():
 	for i in range(7):m.tick(.1)
 	check(p.hp==0 and p.life=="soul" and m.state.corpses.has(p.corpse_uid),"lethal hit uses mainline soul and corpse flow")
 	var down_at:Vector2=p.pos
-	check(not m.command(1,"fire") and not m.command(1,"move",{"direction":Vector2.RIGHT}),"knocked out player cannot attack or move")
-	m.tick(.1);check(p.pos==down_at,"old movement does not move knocked out body")
+	check(not m.command(1,"fire") and m.command(1,"move",{"direction":Vector2.RIGHT}),"soul cannot fire but can roam")
+	m.tick(.1);check(m.state.corpses[p.corpse_uid].pos==down_at,"roaming soul does not move its corpse")
 	for i in range(55):m.tick(.1)
 	check(p.hp==0 and p.life=="soul","monster integration does not auto-revive souls")
 	m=fixture();p=m.state.players[1];e=m.state.enemies[1]
