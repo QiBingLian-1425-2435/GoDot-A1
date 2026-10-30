@@ -15,6 +15,7 @@ var ray_texture: ImageTexture
 var _ray_image: Image
 var _clock:=1.0
 var _world_id:=0
+var _omniscient_applied:=false
 
 func update(ctx, delta: float) -> void:
 	var observer_id: int = ctx.session.model.Souls.observer_id(ctx.session.model.state.players,ctx.session.local_id)
@@ -22,7 +23,7 @@ func update(ctx, delta: float) -> void:
 	var active: bool=ctx.in_game and not ctx.world_loading and ctx.world_id!="bunker" and not omniscient
 	var current_world: int=ctx.world.get_instance_id()
 	if current_world!=_world_id:
-		_world_id=current_world;_clock=1.0
+		_world_id=current_world;_clock=1.0;_omniscient_applied=false
 	field_effects=ctx.session.model.state.get("field_effects",[])
 	enabled=active
 	if is_instance_valid(ctx.tracer_node):ctx.tracer_node.material_override.set_shader_parameter("vision_enabled",enabled)
@@ -35,15 +36,20 @@ func update(ctx, delta: float) -> void:
 			for id in ctx.actors:ctx.actors[id].visible=ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})) and (id==observer_id or can_see(ctx.actors[id].position+Vector3.UP))
 			for uid in ctx.drops:ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
 			for label in ctx.target_labels:label.visible=can_see(label.position)
-		if omniscient and ctx.world.has_method("vision_targets"):
+		# Restoring every static world node is only needed once on entering the
+		# free-soul view. Dynamic actors, drops and labels still update every frame.
+		if omniscient and not _omniscient_applied and ctx.world.has_method("vision_targets"):
 			for target in ctx.world.vision_targets():
 				for node in target.nodes:node.visible=true
+			_omniscient_applied=true
+		elif not omniscient:_omniscient_applied=false
 		if ctx.world.has_method("set_vision"):ctx.world.set_vision(false,{"vision_roof_cutaway":omniscient})
 		if ctx.world_loading:
 			for actor in ctx.actors.values():actor.visible=false
 			for drop in ctx.drops.values():drop.visible=false
 			for label in ctx.target_labels:label.visible=false
 		return
+	_omniscient_applied=false
 	var player: Dictionary=ctx.session.model.state.players.get(observer_id,{})
 	if player.is_empty():enabled=false;return
 	var local: Dictionary=ctx.session.local_movement.sample_player(player) if ctx.session.mode=="client" else player

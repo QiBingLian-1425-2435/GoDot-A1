@@ -10,10 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path(r"G:\.Installed\Godot_v4.5.2-stable_win64.exe\Godot_v4.5.2-stable_win64_console.exe")
 MAP_CENTER = (390.0, -250.0)
-MAP_VERTICAL_SIZE = 600.0
-MAP_ASPECT = 16.0 / 9.0
+MAP_WORLD_SIZE = (525.0 * 16.0 / 9.0, 525.0)
 TILE_COLUMNS = 2
 TILE_ROWS = 2
+OVERVIEW_RESOLUTION = (1600, 900)
 TILE_RESOLUTION = (2048, 1152)
 
 
@@ -23,13 +23,14 @@ def main() -> int:
     args = parser.parse_args()
     output_dir = ROOT / "assets" / "worlds" / "ground_zero"
     output_dir.mkdir(parents=True, exist_ok=True)
-    tile_width = MAP_VERTICAL_SIZE * MAP_ASPECT / TILE_COLUMNS
-    tile_height = MAP_VERTICAL_SIZE / TILE_ROWS
+    tile_width = MAP_WORLD_SIZE[0] / TILE_COLUMNS
+    tile_height = MAP_WORLD_SIZE[1] / TILE_ROWS
     overview_output = output_dir / "map_overview.png"
     overview_command = [
-        str(args.godot), "--path", str(ROOT), "--resolution", "1600x900",
+        str(args.godot), "--path", str(ROOT),
+        "--resolution", f"{OVERVIEW_RESOLUTION[0]}x{OVERVIEW_RESOLUTION[1]}",
         "res://worlds/ground_zero/map_preview.tscn", "--", "--zone=surface",
-        "--overview", "--topdown", f"--overview-size={MAP_VERTICAL_SIZE}",
+        "--overview", "--topdown", f"--overview-size={MAP_WORLD_SIZE[1]}",
         f"--overview-center={MAP_CENTER[0]},{MAP_CENTER[1]}", f"--capture={overview_output}",
     ]
     subprocess.run(overview_command, check=True, cwd=ROOT)

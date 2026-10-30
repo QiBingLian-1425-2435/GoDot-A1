@@ -3,8 +3,7 @@ const Texts = preload("res://features/localization/game_text.gd")
 ## Local-only overview. It reads replicated player positions and never writes game state.
 
 const MAP_CENTER := Vector2(390.0, -250.0)
-const MAP_VERTICAL_SIZE := 600.0
-const MAP_ASPECT := 16.0 / 9.0
+const MAP_WORLD_SIZE := Vector2(933.333, 525.0)
 const MAP_TILE_COLUMNS := 2
 const MAP_TILE_ROWS := 2
 const MAP_TILE_PATTERN := "res://assets/worlds/ground_zero/map_overview_%d_%d.png"
@@ -100,8 +99,8 @@ func is_open() -> bool:
 
 func world_to_map(pos: Vector2, rect: Rect2) -> Vector2:
 	var normalized := Vector2(
-		(pos.x-MAP_CENTER.x)/(MAP_VERTICAL_SIZE*MAP_ASPECT)+0.5,
-		(pos.y-MAP_CENTER.y)/MAP_VERTICAL_SIZE+0.5)
+		(pos.x-MAP_CENTER.x)/MAP_WORLD_SIZE.x+0.5,
+		(pos.y-MAP_CENTER.y)/MAP_WORLD_SIZE.y+0.5)
 	return rect.position+normalized*rect.size
 
 func map_to_view(point: Vector2) -> Vector2:
@@ -150,6 +149,9 @@ func _zoom_out() -> void:
 
 func _apply_view() -> void:
 	if not is_instance_valid(_map_content):return
+	var use_tiles:=_zoom>MIN_ZOOM and not _map_tiles.is_empty()
+	_map_rect.visible=not use_tiles
+	for tile in _map_tiles:tile.visible=use_tiles
 	var limit:=_map_content.size*(_zoom-1.0)*.5
 	_pan.x=clampf(_pan.x,-limit.x,limit.x);_pan.y=clampf(_pan.y,-limit.y,limit.y)
 	_map_content.scale=Vector2.ONE*_zoom
@@ -194,7 +196,6 @@ func _load_map_texture() -> void:
 func _ensure_tiles_loaded() -> void:
 	if not _map_tiles.is_empty() or not _map_tiles_available:return
 	var tile_size:=Vector2(_map_rect.size.x/MAP_TILE_COLUMNS,_map_rect.size.y/MAP_TILE_ROWS)
-	_map_rect.visible=false
 	for row in range(MAP_TILE_ROWS):
 		for column in range(MAP_TILE_COLUMNS):
 			var tile:=TextureRect.new()
