@@ -44,7 +44,10 @@ var _shop_mode:=""
 var _shop_details:Label
 var voice_muted:=false
 var voice_always_on:=false
+var show_movement_speed:=false
+var display_preferences_path:="user://display_preferences.cfg"
 var _voice_label:Label
+var _movement_speed_label:Label
 var _root: Control
 var _menu: Control
 var _menu_buttons: Control
@@ -116,6 +119,7 @@ var _steam_invite_button: Button
 var _steam_copy_button: Button
 
 func _ready() -> void:
+	_load_display_preferences()
 	layer = 20
 	_font = SystemFont.new()
 	_font.font_names = PackedStringArray(["Microsoft YaHei", "Noto Sans CJK SC", "Arial"])
@@ -307,6 +311,24 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	if is_instance_valid(_dialog) and _dialog_kind=="⟦base_hud.022⟧":preload("res://ui/inventory/camp_panel.gd").refresh(self)
 	if is_instance_valid(_dialog) and _dialog_kind in ["⟦base_hud.023⟧","⟦base_hud.024⟧"]:preload("res://ui/inventory/item_shop.gd").refresh(self)
 
+func update_movement_speed(speed:float) -> void:
+	if not is_instance_valid(_movement_speed_label):return
+	_movement_speed_label.visible=show_movement_speed and _in_game
+	Texts.bind(_movement_speed_label,Texts.format("⟦settings.movement_speed_value⟧",speed),"text")
+
+func set_show_movement_speed(value:bool) -> void:
+	show_movement_speed=value
+	if is_instance_valid(_movement_speed_label):_movement_speed_label.visible=value and _in_game
+	var config:=ConfigFile.new()
+	config.load(display_preferences_path)
+	config.set_value("more","show_movement_speed",value)
+	if config.save(display_preferences_path)!=OK:toast("⟦settings.more_save_failed⟧")
+
+func _load_display_preferences() -> void:
+	var config:=ConfigFile.new()
+	if config.load(display_preferences_path)==OK:
+		show_movement_speed=bool(config.get_value("more","show_movement_speed",false))
+
 func set_interaction(text: String) -> void:
 	if _interaction:
 		Texts.bind(_interaction, text, "text")
@@ -343,6 +365,10 @@ func _build_hud() -> void:
 	_world_label = _label(top, "⟦base_hud.007⟧", Rect2(18,7,210,29), 24, Color("f0e8c6"))
 	_world_note = _label(top, "⟦base_hud.011⟧", Rect2(18,39,440,21), 14, Color("b2c7c2"))
 	_network_label = _label(_hud, "⟦base_hud.013⟧", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
+	_movement_speed_label=_label(_hud,"",Rect2(28,102,260,32),18,Color("a8e6d0"))
+	_movement_speed_label.add_theme_constant_override("outline_size",4)
+	_movement_speed_label.add_theme_color_override("font_outline_color",Color(0.03,0.08,0.10,0.9))
+	_movement_speed_label.visible=false
 	var hp_panel := _panel(_hud, Rect2(26,686,350,178), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
 	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label(hp_panel, "⟦base_hud.025⟧", Rect2(18,10,100,25), 21, INK)

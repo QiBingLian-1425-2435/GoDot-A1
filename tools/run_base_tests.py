@@ -24,6 +24,7 @@ SUITES = {
     "camp": [("camp_upgrade_test", True, []), ("camp_upgrade_network_test", True, []), ("camp_upgrade_test", False, [])],
     "steps": [("step_up_test", True, []), ("step_map_test", True, [])],
     "jump": [("roll_test", True, []), ("roll_test", False, []), ("roll_network_test", True, [])],
+    "more_settings": [("more_settings_test", True, []), ("more_settings_test", False, [])],
     "roll": [("roll_test", True, []), ("roll_test", False, []), ("roll_network_test", True, [])],
     "auto_reload": [("auto_reload_test", True, []), ("auto_reload_test", False, []), ("ammo_supply_network_test", True, [])],
     "toilet": [("toilet_search_test", True, []), ("toilet_search_test", False, []), ("item_network_test", True, [])],

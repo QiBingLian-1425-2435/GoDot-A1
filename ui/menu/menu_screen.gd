@@ -146,7 +146,8 @@ static func _open_settings(ctx) -> void:
 		if Texts.set_locale(str(language.get_item_metadata(index))) != OK:
 			ctx.toast("⟦settings.language_save_failed⟧"))
 	ctx._dialog.add_child(language)
-	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,660,570,42),ctx._open_key_bindings,ctx.TEAL,21)
+	ctx._button(ctx._dialog,"⟦keys.title⟧",Rect2(34,660,276,42),ctx._open_key_bindings,ctx.TEAL,21)
+	ctx._button(ctx._dialog,"⟦settings.more⟧",Rect2(328,660,276,42),func() -> void:_open_more_settings(ctx),ctx.TEAL,21)
 	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,719,300,44),ctx._close_dialog,ctx.GREEN,23)
 	for child in ctx._dialog.get_children():
 		if child is Control and child.position.y >= 485:
@@ -162,6 +163,19 @@ static func _open_settings(ctx) -> void:
 		ctx.action_requested.emit("set_infinite_credits",{"enabled":value}))
 	ctx._dialog.add_child(credits)
 	ctx._label(ctx._dialog,"⟦settings.infinite_credits_hint⟧",Rect2(34,535,570,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+static func _open_more_settings(ctx) -> void:
+	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,420))
+	ctx._label(ctx._dialog,"⟦settings.more_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var speed:=CheckButton.new()
+	speed.name="ShowMovementSpeed"
+	Texts.bind(speed,"⟦settings.show_movement_speed⟧","text")
+	speed.position=Vector2(34,168);speed.size=Vector2(570,44)
+	speed.button_pressed=ctx.show_movement_speed
+	speed.toggled.connect(ctx.set_show_movement_speed)
+	ctx._dialog.add_child(speed)
+	ctx._label(ctx._dialog,"⟦settings.show_movement_speed_hint⟧",Rect2(34,218,570,58),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,324,300,48),ctx._open_settings,ctx.GREEN,22)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()
