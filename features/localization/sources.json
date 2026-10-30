@@ -383,7 +383,7 @@
     "features/base/facility_system.gd:42",
     "features/inventory/item_trade.gd:30",
     "features/inventory/item_trade.gd:41",
-    "ui/inventory/item_shop.gd:164"
+    "ui/inventory/item_shop.gd:170"
   ],
   "facility_system.004": [
     "features/base/facility_system.gd:18"
@@ -785,7 +785,7 @@
   ],
   "item_trade.005": [
     "features/inventory/item_trade.gd:18",
-    "ui/inventory/item_shop.gd:168"
+    "ui/inventory/item_shop.gd:174"
   ],
   "item_trade.006": [
     "features/inventory/item_trade.gd:24"
@@ -1352,7 +1352,7 @@
   ],
   "item_shop.012": [
     "ui/inventory/item_shop.gd:51",
-    "ui/inventory/item_shop.gd:172"
+    "ui/inventory/item_shop.gd:178"
   ],
   "item_shop.013": [
     "ui/inventory/item_shop.gd:51"
@@ -1368,32 +1368,32 @@
   ],
   "item_shop.017": [
     "ui/inventory/item_shop.gd:61",
-    "ui/inventory/item_shop.gd:142",
-    "ui/inventory/item_shop.gd:169"
+    "ui/inventory/item_shop.gd:148",
+    "ui/inventory/item_shop.gd:175"
   ],
   "item_shop.018": [
-    "ui/inventory/item_shop.gd:133"
+    "ui/inventory/item_shop.gd:136"
   ],
   "item_shop.019": [
-    "ui/inventory/item_shop.gd:146"
+    "ui/inventory/item_shop.gd:152"
   ],
   "item_shop.020": [
-    "ui/inventory/item_shop.gd:146"
+    "ui/inventory/item_shop.gd:152"
   ],
   "item_shop.021": [
-    "ui/inventory/item_shop.gd:167"
+    "ui/inventory/item_shop.gd:173"
   ],
   "item_shop.022": [
-    "ui/inventory/item_shop.gd:171"
+    "ui/inventory/item_shop.gd:177"
   ],
   "item_shop.023": [
-    "ui/inventory/item_shop.gd:171"
+    "ui/inventory/item_shop.gd:177"
   ],
   "item_shop.024": [
-    "ui/inventory/item_shop.gd:172"
+    "ui/inventory/item_shop.gd:178"
   ],
   "item_shop.025": [
-    "ui/inventory/item_shop.gd:172"
+    "ui/inventory/item_shop.gd:178"
   ],
   "global_map.001": [
     "ui/map/global_map.gd:54",
@@ -1815,7 +1815,7 @@
     "ui/inventory/item_shop.gd:36"
   ],
   "format.item_shop.003": [
-    "ui/inventory/item_shop.gd:133"
+    "ui/inventory/item_shop.gd:136"
   ],
   "format.global_map.001": [
     "ui/map/global_map.gd:77"
@@ -2031,9 +2031,10 @@
     "ui/inventory/item_shop.gd:44"
   ],
   "shop.bag_empty": [
-    "ui/inventory/item_shop.gd:111"
+    "ui/inventory/item_shop.gd:112",
+    "ui/inventory/item_shop.gd:193"
   ],
   "shop.bag_item": [
-    "ui/inventory/item_shop.gd:111"
+    "ui/inventory/item_shop.gd:112"
   ]
 }

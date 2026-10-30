@@ -151,6 +151,11 @@ func run():
 	var shop=game.ui._dialog.find_child("ShopItems",true,false)
 	for i in range(shop.item_count):
 		if shop.get_item_metadata(i).kind=="glowstick":shop.select(i);shop.item_selected.emit(i)
+	var product_grid:GridContainer=game.ui._dialog.get_node("ProductGrid/Grid")
+	check(product_grid.columns==4 and product_grid.get_child_count()==shop.item_count,"shop products use four column icon grid")
+	for i in range(shop.item_count):
+		if shop.get_item_metadata(i).kind=="glowstick":product_grid.get_child(i).pressed.emit()
+	check(game.ui._shop_kind=="glowstick","icon cell selects purchase details")
 	var existing:int=game.session.model._count(player.bag,"glowstick")
 	check(press_text(game.ui._dialog,"购买1件") and game.session.model._count(player.bag,"glowstick")==existing+1,"shop button buys real item through session")
 	game._refresh_ui();check(game.ui._shop_details.text.contains("9550"),"shop funds update after host confirmation")
