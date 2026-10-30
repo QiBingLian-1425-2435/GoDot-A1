@@ -648,5 +648,8 @@
   "appearance.shirt": "上衣颜色",
   "appearance.pants": "裤子颜色",
   "appearance.cancel": "取消",
-  "appearance.apply": "应用"
+  "appearance.apply": "应用",
+  "shop.backpack": "随身背包",
+  "shop.bag_empty": "%d · 空位",
+  "shop.bag_item": "%d · %s ×%d"
 }

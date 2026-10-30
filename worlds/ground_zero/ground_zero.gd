@@ -28,6 +28,7 @@ var _roof_bounds: Array[AABB]=[]
 var _vision_groups: Dictionary = {}
 var _terrain_material: ShaderMaterial
 var _vision_materials: Array[ShaderMaterial]=[]
+var _disabled_vision_roof: Variant
 
 func _ready() -> void:
 	if library == null: library = Library.new()
@@ -456,6 +457,11 @@ func vision_targets() -> Array:
 	return result
 
 func set_vision(active: bool, parameters: Dictionary) -> void:
+	if not active:
+		var roof:=bool(parameters.get("vision_roof_cutaway",false))
+		if _disabled_vision_roof!=null and bool(_disabled_vision_roof)==roof:return
+		_disabled_vision_roof=roof
+	else:_disabled_vision_roof=null
 	library.set_vision(active,parameters)
 	if _terrain_material!=null:
 		_terrain_material.set_shader_parameter("vision_enabled",active)

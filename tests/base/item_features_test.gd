@@ -151,6 +151,11 @@ func run():
 	var shop=game.ui._dialog.find_child("ShopItems",true,false)
 	for i in range(shop.item_count):
 		if shop.get_item_metadata(i).kind=="glowstick":shop.select(i);shop.item_selected.emit(i)
+	var product_grid:GridContainer=game.ui._dialog.get_node("ProductGrid/Grid")
+	check(product_grid.columns==4 and product_grid.get_child_count()==shop.item_count,"shop products use four column icon grid")
+	for i in range(shop.item_count):
+		if shop.get_item_metadata(i).kind=="glowstick":product_grid.get_child(i).pressed.emit()
+	check(game.ui._shop_kind=="glowstick","icon cell selects purchase details")
 	var existing:int=game.session.model._count(player.bag,"glowstick")
 	check(press_text(game.ui._dialog,"购买1件") and game.session.model._count(player.bag,"glowstick")==existing+1,"shop button buys real item through session")
 	game._refresh_ui();check(game.ui._shop_details.text.contains("9550"),"shop funds update after host confirmation")
@@ -199,6 +204,33 @@ func run():
 	player.credits=10000
 	for i in range(24):player.bag[i]=game.session.model._item("gold_statue",1)
 	game._refresh_ui();check(confirm.disabled and game.ui._shop_details.text.contains("背包空间不足"),"full bag disables purchase")
+	shop_filter.select(0);shop_filter.item_selected.emit(0)
+	game.session.model.state.infinite_credits=true;player.credits=0
+	for i in range(shop.item_count):
+		if shop.get_item_metadata(i).kind=="rifle":shop.select(i);shop.item_selected.emit(i)
+	var status:Label=game.ui._dialog.get_node("ShopStatus")
+	check(confirm.disabled and status.text.contains("背包空间不足") and not status.text.contains("资金不足"),"free gun full bag has visible capacity feedback")
+	Texts.set_locale("en",false)
+	check(status.text==Texts.resolve("⟦facility_system.003⟧"),"capacity feedback switches language immediately")
+	Texts.set_locale("zh_CN",false)
+	player.bag[0]={};game._refresh_ui()
+	check(not confirm.disabled,"free gun allowed with empty slot and zero credits")
+	await process_frame
+	var click_at:Vector2=confirm.get_global_rect().get_center()
+	var down:=InputEventMouseButton.new();down.button_index=MOUSE_BUTTON_LEFT;down.pressed=true;down.position=click_at
+	root.push_input(down,true)
+	await process_frame
+	game._refresh_ui()
+	await process_frame
+	var up:=InputEventMouseButton.new();up.button_index=MOUSE_BUTTON_LEFT;up.pressed=false;up.position=click_at
+	root.push_input(up,true)
+	await process_frame
+	check(game.session.model._count(player.bag,"rifle")==1 and player.credits==0,"free gun purchase fills slot without debit")
+	var backpack:ItemList=game.ui._dialog.get_node("ShopBackpack")
+	check(backpack.item_count==24 and backpack.get_item_text(0).contains(Texts.resolve(Items.definition("rifle").name)),"shop backpack refreshes after confirmed purchase")
+	check(game.ui._toast_label.visible and game.ui._toast_label.z_index>0 and game.ui._toast_label.text.contains("购买完成"),"purchase success notification appears above dialog")
+	game.session.model.state.infinite_credits=false;game._refresh_ui()
+	check(status.text.contains("背包空间不足") and status.text.contains("资金不足"),"both purchase blockers have visible feedback")
 	player.bag=game.session.model._empty_slots(24);player.bag[kinds.find("glowstick")]=game.session.model._item("glowstick",1)
 	game.session.model.state.world_revision+=1;game._refresh_ui()
 	check(not is_instance_valid(game.ui._dialog),"map revision closes shop")
