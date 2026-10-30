@@ -56,7 +56,7 @@ static func open(ctx,mode:String) -> void:
 	ctx._button(ctx._dialog,"1",Rect2(720,450,75,44),func():quantity.value=1,ctx.TEAL,19)
 	ctx._button(ctx._dialog,"⟦item_shop.016⟧",Rect2(810,450,120,44),func():quantity.value=maxi(1,int(ctx._dialog.get_meta("maximum",0))),ctx.TEAL,19)
 	var confirm=ctx._button(ctx._dialog,"⟦item_shop.003⟧",Rect2(510,515,420,50),func():submit(ctx),ctx.GREEN,21);confirm.name="ShopConfirm"
-	ctx._label(ctx._dialog,"⟦item_shop.017⟧",Rect2(30,590,935,38),16,ctx.MUTED)
+	var status:Label=ctx._label(ctx._dialog,"⟦item_shop.017⟧",Rect2(30,578,935,58),18,ctx.INK);status.name="ShopStatus";status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	ctx._button(ctx._dialog,"⟦item_shop.007⟧",Rect2(350,643,300,45),ctx._close_dialog,ctx.TEAL,20)
 	tabs.item_selected.connect(func(index:int):
 		ctx._shop_mode="buy" if index==0 else "sell";filter.visible=index==0;clear_selection(ctx);refresh(ctx))
@@ -128,6 +128,8 @@ static func refresh(ctx) -> void:
 	var quantity:SpinBox=ctx._dialog.get_node("ShopQuantity")
 	var confirm:Button=ctx._dialog.get_node("ShopConfirm")
 	confirm.disabled=true
+	var status:Label=ctx._dialog.get_node("ShopStatus")
+	Texts.bind(status,"⟦item_shop.017⟧","text")
 	if selected<0:
 		ctx._dialog.set_meta("maximum",0);quantity.editable=false
 		Texts.bind(ctx._shop_details, "⟦item_shop.019⟧" if ctx._shop_mode=="sell" else "⟦item_shop.020⟧", "text")
@@ -147,8 +149,13 @@ static func refresh(ctx) -> void:
 	var total:=price*count
 	var after:int=cash+total if ctx._shop_mode=="sell" else cash if free else cash-total
 	var reason:=""
-	if ctx._shop_mode=="buy" and maximum==0:reason="⟦item_shop.021⟧" if not free and cash<price else "⟦facility_system.003⟧"
+	if ctx._shop_mode=="buy":
+		if capacity(bag,selection.kind)==0:reason="⟦facility_system.003⟧"
+		if not free and cash<price:
+			if not reason.is_empty():reason+=" · "
+			reason+="⟦item_shop.021⟧"
 	if ctx._shop_mode=="sell" and after>999999:reason="⟦item_trade.005⟧"
+	Texts.bind(status,reason if not reason.is_empty() else "⟦item_shop.017⟧","text")
 	confirm.disabled=maximum==0 or not reason.is_empty()
 	Texts.bind(confirm, Texts.format(("⟦item_shop.022⟧" if ctx._shop_mode=="sell" else "⟦item_shop.023⟧"), count), "text")
 	Texts.bind(ctx._shop_details, Texts.format("⟦item_shop.024⟧", [info.name,info.rarity_name,info.type_name,info.description,held,info.weight,"⟦item_shop.025⟧" if ctx._shop_mode=="sell" else "⟦item_shop.012⟧",price,total,cash,after,reason]), "text")
