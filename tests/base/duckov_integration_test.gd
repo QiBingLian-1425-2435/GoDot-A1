@@ -86,6 +86,12 @@ func run() -> void:
 	await tap(KEY_TAB)
 	check(game.ui.inventory_is_open() and game.ui.is_blocking(),"TAB opens and blocks through actual input routing")
 	check(game.ui._bag_slots.size() == 24 and game.ui._stash_slots.size() == 48,"inventory widgets have correct dimensions")
+	await process_frame
+	check(game.ui._portrait.actor.human_visual.gender == p.get("appearance",{}).get("gender","male"),"inventory preview uses current human model")
+	if DisplayServer.get_name()!="headless":
+		await RenderingServer.frame_post_draw
+		root.get_texture().get_image().save_png("res://artifacts/inventory_human_preview.png")
+
 	var before_bandage_uid:String=p.bag[1].uid
 	game.ui._slot_action("context",{"from":"bag","index":1,"item":p.bag[1],"position":Vector2(600,300)})
 	check(game.ui._popup.get_item_index(5)>=0,"stack context menu offers split")

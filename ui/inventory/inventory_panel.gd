@@ -170,8 +170,7 @@ static func _update_inventory(ctx) -> void:
 	for key in ctx._equip_slots:
 		var item: Dictionary = equipment.get(key,{})
 		ctx._equip_slots[key].set_item(item,ctx._definition(item))
-	ctx._portrait.equipment = equipment
-	ctx._portrait.queue_redraw()
+	ctx._portrait.set_player(p)
 	for key in ctx._inventory_stats:
 		Texts.bind(ctx._inventory_stats[key], Texts.format("⟦format.inventory_panel.003⟧", int(p.get(key,100))), "text")
 	Texts.bind(ctx._inventory_weight, Texts.format("⟦format.inventory_panel.004⟧", [float(p.get("weight",ctx.Items.weight(bag))),float(p.get("max_weight",28.0))]), "text")
