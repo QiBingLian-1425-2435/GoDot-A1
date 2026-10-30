@@ -1312,7 +1312,7 @@
     "ui/inventory/inventory_panel.gd:158"
   ],
   "inventory_panel.032": [
-    "ui/inventory/inventory_panel.gd:184"
+    "ui/inventory/inventory_panel.gd:183"
   ],
   "item_shop.001": [
     "ui/inventory/item_shop.gd:14",
@@ -1803,10 +1803,10 @@
     "ui/inventory/inventory_panel.gd:156"
   ],
   "format.inventory_panel.003": [
-    "ui/inventory/inventory_panel.gd:176"
+    "ui/inventory/inventory_panel.gd:175"
   ],
   "format.inventory_panel.004": [
-    "ui/inventory/inventory_panel.gd:177"
+    "ui/inventory/inventory_panel.gd:176"
   ],
   "format.item_shop.001": [
     "ui/inventory/item_shop.gd:12"
@@ -1944,11 +1944,11 @@
     "ui/base_hud.gd:367"
   ],
   "satiety.weight": [
-    "ui/inventory/inventory_panel.gd:180"
+    "ui/inventory/inventory_panel.gd:179"
   ],
   "satiety.tip": [
-    "ui/inventory/inventory_panel.gd:181",
-    "ui/inventory/inventory_panel.gd:182"
+    "ui/inventory/inventory_panel.gd:180",
+    "ui/inventory/inventory_panel.gd:181"
   ],
   "enemy.name": [
     "features/enemies/enemy_view.gd:29"
