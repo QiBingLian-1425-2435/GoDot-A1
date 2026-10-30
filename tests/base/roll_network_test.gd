@@ -25,6 +25,7 @@ func run():
 	if client:
 		check(session.join("127.0.0.1",29987)==OK,"join real ENet host")
 		check(await wait_for(func():return session.local_id>1 and session.model.state.get("roll_ready",false)),"receive jump fixture")
+		check(int(session.model.state.get("jump_chain_bonus",0))==200,"client receives host chained-jump reward")
 		var id:int=session.local_id
 		session.request_roll();session.send("move",{"direction":Vector2.RIGHT,"aim":Vector2.UP})
 		session.local_movement.advance(.01,session.model.state.players[id])
@@ -45,10 +46,11 @@ func run():
 		var f:=FileAccess.open(result_path,FileAccess.WRITE);f.store_string(JSON.stringify({"failures":failures}));f.close()
 	else:
 		check(session.host(29987)==OK,"host starts")
-		child=OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--script","res://tests/base/roll_network_test.gd","--",run_id])
+		child=OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/base_tests/roll_network_child.log"),"--script","res://tests/base/roll_network_test.gd","--",run_id])
 		check(await wait_for(func():return session.model.state.players.size()==2),"independent client connects")
 		for id in session.model.state.players:
 			if id!=1:session.model.state.players[id].pos=Vector2.ZERO
+		check(session.model.command(1,"set_jump_chain_bonus",{"value":200}),"host configures shared chained-jump reward")
 		session.model.state.roll_ready=true;session._broadcast_snapshot(true)
 		check(await wait_for(func():return FileAccess.file_exists(result_path)),"client finishes movement verification")
 		if FileAccess.file_exists(result_path):check(int(JSON.parse_string(FileAccess.get_file_as_string(result_path)).failures)==0,"all remote jump checks pass")

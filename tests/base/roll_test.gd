@@ -37,21 +37,40 @@ func run():
 		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":2});m.tick(.01);first_peak=maxf(first_peak,p.height)
 	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
 	check(p.roll.active and p.roll.chain==1 and p.roll.takeoff_speed>first_jump_speed,"timed sprint re-jump earns distance and planned-speed bonus")
+	var enhanced_chain_speed:float=p.roll.takeoff_speed
 	var chain_peak:=0.0
 	while p.roll.active:
 		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01);chain_peak=maxf(chain_peak,p.height)
 	check(chain_peak>first_peak+.05,"timed sprint re-jump earns extra height")
+	# A fresh press during the final descent remains buffered briefly and starts
+	# the next jump on the landing frame, removing the one-frame grounded hitch.
+	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=10
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":11});m.tick(.01)
+	for i in range(45):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":11});m.tick(.01)
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
+	var buffered:bool=bool(p.roll.buffered)
+	while p.roll.active and p.roll.time>.1:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
+	check(buffered and p.roll.active and p.roll.chain==1 and p.roll.time<=.1,"late airborne input chains immediately on landing")
+	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
+	check(not m.command(2,"set_jump_chain_bonus",{"value":200}) and not m.command(1,"set_jump_chain_bonus",{"value":175}),"only host and exact reward presets are accepted")
+	check(m.command(1,"set_jump_chain_bonus",{"value":200}),"host selects stronger chained-jump reward")
+	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=20
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":21});m.tick(.01)
+	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":21});m.tick(.01)
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":22});m.tick(.01)
+	check(p.roll.takeoff_speed>enhanced_chain_speed,"200 percent preset increases reward beyond default 150 percent")
+	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":22});m.tick(.01)
 	for i in range(20):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
 	check(p.roll.chain==0,"missing the landing window restores normal sprint speed")
-	p.stamina=15;m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
-	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
-	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
+	p.stamina=15;m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":23});m.tick(.01)
+	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":23});m.tick(.01)
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":23});m.tick(.01)
 	check(p.sprint_exhausted and not p.sprint and p.roll.chain==0,"exhausted stamina restores walking speed and clears jump reward")
-	p.stamina=14;m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":5});m.tick(.01)
+	p.stamina=14;m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":24});m.tick(.01)
 	check(not p.roll.active,"low stamina rejects jump")
-	p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=5
+	p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=24
 	var predictor=Local.new();predictor.solver=m.solve_motion.bind(0);predictor.confirm(p)
-	predictor.set_input({"direction":Vector2.RIGHT,"roll_seq":6});predictor.advance(.02,p)
+	predictor.set_input({"direction":Vector2.RIGHT,"roll_seq":25});predictor.advance(.02,p)
 	var display:Dictionary=predictor.sample_player(p)
 	check(display.height>0 and display.pos.x>0 and p.height==0 and not p.roll.active,"client predicts jump height without mutating authority")
 	var world:=Node3D.new();root.add_child(world)

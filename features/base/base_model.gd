@@ -31,7 +31,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "jump_chain_bonus":150, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -65,6 +65,7 @@ func add_player(id: int, player_name: String) -> void:
 		_insert(p.stash, _item(spec[0], spec[1]))
 	state.players[id] = p
 	p.appearance=Appearance.defaults()
+	p.jump_chain_bonus=int(state.get("jump_chain_bonus",150))
 	p.height = 0.0
 	p.life = "alive"; p.possessing = 0; p.rescue = {}; p.corpse_uid = ""
 	p.san = 100.0
@@ -208,6 +209,11 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			if not payload.get("enabled") is bool: return false
 			state.infinite_credits = payload.enabled
 			return true
+		"set_jump_chain_bonus":
+			if id!=1:return _reject("⟦settings.jump_chain_bonus_host_only⟧")
+			if not payload.get("value") is int or int(payload.value) not in [100,150,200]:return false
+			state.jump_chain_bonus=int(payload.value)
+			return true
 		"reload": return _reload(p)
 		"fire": return _fire(p)
 		"select_weapon":
@@ -270,6 +276,7 @@ func tick(delta: float) -> void:
 			p.hunger = maxf(0, p.hunger - delta * 0.012)
 		_update_weight(p)
 		p.infinite_stamina = bool(state.get("infinite_stamina",false))
+		p.jump_chain_bonus = int(state.get("jump_chain_bonus",150))
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
 		if in_camp:

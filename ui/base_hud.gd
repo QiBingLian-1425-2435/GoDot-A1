@@ -263,6 +263,11 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		if credits != null:
 			credits.set_pressed_no_signal(state.get("infinite_credits",false))
 			credits.disabled = mode in ["client","join"]
+		var chain_bonus:OptionButton=_dialog.get_node_or_null("JumpChainBonus")
+		if chain_bonus!=null:
+			for index in range(chain_bonus.item_count):
+				if int(chain_bonus.get_item_metadata(index))==int(state.get("jump_chain_bonus",150)):chain_bonus.select(index)
+			chain_bonus.disabled=mode in ["client","join"]
 	if not is_instance_valid(_root):
 		return
 	var p := _player()

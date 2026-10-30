@@ -165,7 +165,7 @@ static func _open_settings(ctx) -> void:
 	ctx._label(ctx._dialog,"⟦settings.infinite_credits_hint⟧",Rect2(34,535,570,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 static func _open_more_settings(ctx) -> void:
-	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,420))
+	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,570))
 	ctx._label(ctx._dialog,"⟦settings.more_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var speed:=CheckButton.new()
 	speed.name="ShowMovementSpeed"
@@ -175,7 +175,19 @@ static func _open_more_settings(ctx) -> void:
 	speed.toggled.connect(ctx.set_show_movement_speed)
 	ctx._dialog.add_child(speed)
 	ctx._label(ctx._dialog,"⟦settings.show_movement_speed_hint⟧",Rect2(34,218,570,58),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,324,300,48),ctx._open_settings,ctx.GREEN,22)
+	ctx._label(ctx._dialog,"⟦settings.jump_chain_bonus⟧",Rect2(34,300,230,32),20,ctx.INK)
+	var bonus:=OptionButton.new()
+	bonus.name="JumpChainBonus";bonus.position=Vector2(300,294);bonus.size=Vector2(304,42)
+	bonus.add_theme_font_size_override("font_size",20)
+	for value in [100,150,200]:
+		var index:=Texts.add_item(bonus,Texts.format("⟦settings.jump_chain_bonus_option⟧",value))
+		bonus.set_item_metadata(index,value)
+		if value==int(ctx._state.get("jump_chain_bonus",150)):bonus.select(index)
+	bonus.disabled=ctx._mode in ["client","join"]
+	bonus.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_chain_bonus",{"value":int(bonus.get_item_metadata(index))}))
+	ctx._dialog.add_child(bonus)
+	ctx._label(ctx._dialog,"⟦settings.jump_chain_bonus_hint⟧",Rect2(34,350,570,76),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,474,300,48),ctx._open_settings,ctx.GREEN,22)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()

@@ -13,9 +13,9 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -310,6 +310,8 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"set_infinite_stamina", "set_infinite_credits":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
+		"set_jump_chain_bonus":
+			if payload.get("value") is int:clean.value=payload.value
 		"travel":
 			if payload.get("route") is String: clean.route = str(payload.route).left(64)
 		"move":

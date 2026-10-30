@@ -140,6 +140,7 @@ func advance(delta: float, authoritative: Dictionary) -> void:
 	_state.weight=authoritative.get("weight",_state.weight)
 	_state.max_weight=authoritative.get("max_weight",_state.max_weight)
 	_state.hp=authoritative.get("hp",100.0)
+	_state.jump_chain_bonus=authoritative.get("jump_chain_bonus",150)
 	Movement.step(_state,input,delta,_solve.bind(_state))
 	_history.append({"start":_clock,"end":_clock+delta,"input":input.duplicate()})
 	_clock += delta
@@ -188,6 +189,7 @@ func _copy_motion(p: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for key in FIELDS: result[key] = p[key]
 	result.max_stamina = p.get("max_stamina",100.0)
+	result.jump_chain_bonus=p.get("jump_chain_bonus",150)
 	result.height = p.get("height",0.0)
 	result.roll=p.get("roll",Movement.empty_roll()).duplicate(true)
 	result.infinite_stamina = infinite_stamina
