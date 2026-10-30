@@ -7,7 +7,7 @@ func _init() -> void:
 	root.add_child(map)
 	await process_frame
 	assert(map._map_rect.texture!=null and map._map_tiles.is_empty())
-	var rect:=Rect2(30,68,1220,686.25)
+	var rect:=Rect2(Vector2.ZERO,map._map_view.size)
 	var center:=map.world_to_map(Vector2(390,-250),rect)
 	assert(center.distance_to(rect.get_center())<0.01)
 	map.set_state({1:{"name":"房主","pos":Vector2(390,-250)},2:{"name":"队友","pos":Vector2(420,-180)}},1,"surface")
