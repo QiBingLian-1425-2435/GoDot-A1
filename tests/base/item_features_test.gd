@@ -221,6 +221,9 @@ func run():
 	root.push_input(up,true)
 	await process_frame
 	check(game.session.model._count(player.bag,"rifle")==1 and player.credits==0,"free gun purchase fills slot without debit")
+	var backpack:ItemList=game.ui._dialog.get_node("ShopBackpack")
+	check(backpack.item_count==24 and backpack.get_item_text(0).contains(Texts.resolve(Items.definition("rifle").name)),"shop backpack refreshes after confirmed purchase")
+	check(game.ui._toast_label.visible and game.ui._toast_label.z_index>0 and game.ui._toast_label.text.contains("购买完成"),"purchase success notification appears above dialog")
 	game.session.model.state.infinite_credits=false;game._refresh_ui()
 	check(status.text.contains("背包空间不足") and status.text.contains("资金不足"),"both purchase blockers have visible feedback")
 	player.bag=game.session.model._empty_slots(24);player.bag[kinds.find("glowstick")]=game.session.model._item("glowstick",1)

@@ -138,6 +138,7 @@ func _ready() -> void:
 	_build_pause()
 	_toast_label = _label(_root, "", Rect2(350, 125, 900, 46), 20, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
 	_toast_label.add_theme_stylebox_override("normal", _style(Color(0.07, 0.12, 0.14, 0.92), Color("667d78"), 8, 1))
+	_toast_label.z_index = 100
 	_toast_label.visible = false
 	show_menu()
 
@@ -321,6 +322,7 @@ func toast(text: String) -> void:
 	if _toast_label:
 		_toast_label.position = Vector2(490,52) if _inventory.visible else Vector2(350,125)
 		_toast_label.size = Vector2(760,44) if _inventory.visible else Vector2(900,46)
+		if is_instance_valid(_dialog):_toast_label.position=Vector2(350,42)
 		Texts.bind(_toast_label, text, "text")
 		_toast_label.visible = true
 		_toast_timer = 3.8

@@ -648,5 +648,8 @@
   "appearance.shirt": "Shirt",
   "appearance.pants": "Trousers",
   "appearance.cancel": "Cancel",
-  "appearance.apply": "Apply"
+  "appearance.apply": "Apply",
+  "shop.backpack": "Backpack",
+  "shop.bag_empty": "%d · Empty",
+  "shop.bag_item": "%d · %s ×%d"
 }

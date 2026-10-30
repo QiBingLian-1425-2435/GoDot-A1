@@ -40,7 +40,9 @@ static func refresh_craft(ctx) -> void:
 # Shop controls only preview confirmed inventory and submit intents.
 static func open(ctx,mode:String) -> void:
 	if mode=="craft":open_craft(ctx,mode);return
-	ctx._dialog_panel("⟦base_hud.023⟧",Vector2(1000,710))
+	ctx._dialog_panel("⟦base_hud.023⟧",Vector2(1480,710))
+	ctx._label(ctx._dialog,"⟦shop.backpack⟧",Rect2(1000,88,450,44),24,ctx.INK)
+	var bag_list:=ItemList.new();bag_list.name="ShopBackpack";bag_list.position=Vector2(1000,145);bag_list.size=Vector2(450,430);bag_list.add_theme_font_size_override("font_size",19);ctx._dialog.add_child(bag_list)
 	ctx._shop_mode="buy";ctx._shop_kind=""
 	ctx._dialog.set_meta("revision",int(ctx._state.get("world_revision",0)))
 	ctx._dialog.set_meta("selection",{})
@@ -101,6 +103,15 @@ static func refresh(ctx) -> void:
 		ctx._close_dialog();return
 	var p:Dictionary=ctx._player()
 	var bag:Array=p.get("bag",[])
+	var bag_list:ItemList=ctx._dialog.get_node("ShopBackpack")
+	if bag!=ctx._dialog.get_meta("bag_preview",[]):
+		bag_list.clear()
+		for index in range(bag.size()):
+			var item:Dictionary=bag[index]
+			var line=Texts.format("⟦shop.bag_empty⟧",index+1) if item.is_empty() else Texts.format("⟦shop.bag_item⟧",[index+1,Items.definition(item.kind).name,int(item.count)])
+			var row:=Texts.add_item(bag_list,line)
+			if not item.is_empty():bag_list.set_item_custom_fg_color(row,Items.definition(item.kind).rarity_color)
+		ctx._dialog.set_meta("bag_preview",bag.duplicate(true))
 	var list:ItemList=ctx._dialog.get_node("ShopItems")
 	var filter:OptionButton=ctx._dialog.get_node("ShopFilter")
 	var rows:Array=[]
