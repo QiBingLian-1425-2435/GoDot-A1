@@ -210,7 +210,16 @@ func run():
 	Texts.set_locale("zh_CN",false)
 	player.bag[0]={};game._refresh_ui()
 	check(not confirm.disabled,"free gun allowed with empty slot and zero credits")
-	confirm.pressed.emit()
+	await process_frame
+	var click_at:Vector2=confirm.get_global_rect().get_center()
+	var down:=InputEventMouseButton.new();down.button_index=MOUSE_BUTTON_LEFT;down.pressed=true;down.position=click_at
+	root.push_input(down,true)
+	await process_frame
+	game._refresh_ui()
+	await process_frame
+	var up:=InputEventMouseButton.new();up.button_index=MOUSE_BUTTON_LEFT;up.pressed=false;up.position=click_at
+	root.push_input(up,true)
+	await process_frame
 	check(game.session.model._count(player.bag,"rifle")==1 and player.credits==0,"free gun purchase fills slot without debit")
 	game.session.model.state.infinite_credits=false;game._refresh_ui()
 	check(status.text.contains("背包空间不足") and status.text.contains("资金不足"),"both purchase blockers have visible feedback")

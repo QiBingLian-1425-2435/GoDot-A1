@@ -127,10 +127,10 @@ static func refresh(ctx) -> void:
 	else:ctx._dialog.set_meta("selection",rows[selected])
 	var quantity:SpinBox=ctx._dialog.get_node("ShopQuantity")
 	var confirm:Button=ctx._dialog.get_node("ShopConfirm")
-	confirm.disabled=true
 	var status:Label=ctx._dialog.get_node("ShopStatus")
 	Texts.bind(status,"⟦item_shop.017⟧","text")
 	if selected<0:
+		confirm.disabled=true
 		ctx._dialog.set_meta("maximum",0);quantity.editable=false
 		Texts.bind(ctx._shop_details, "⟦item_shop.019⟧" if ctx._shop_mode=="sell" else "⟦item_shop.020⟧", "text")
 		return
