@@ -5,6 +5,10 @@ const JUMP_SPEED := 5.0
 const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0
 const JUMP_COOLDOWN := .7
+const JUMP_CHAIN_WINDOW := .18
+const JUMP_CHAIN_MAX := 4
+const JUMP_CHAIN_SPEED_BONUS := .08
+const JUMP_CHAIN_HEIGHT_BONUS := .045
 const HIT_SPEED := 5.5
 const HIT_DECELERATION := 22.0
 
@@ -21,7 +25,13 @@ static func _recoil(p:Dictionary,delta:float)->Vector2:
 	return (speed+next)*.5*duration
 
 static func empty_roll() -> Dictionary:
-	return {"active":false,"time":0.0,"direction":Vector2.ZERO,"cooldown":0.0,"seen":0}
+	return {"active":false,"time":0.0,"direction":Vector2.ZERO,"cooldown":0.0,"seen":0,"chain":0,"chain_window":0.0,"takeoff_speed":3.7,"jump_speed":JUMP_SPEED,"chain_eligible":false}
+
+static func _weight_factor(p:Dictionary)->float:
+	return clampf(float(p.max_weight)/float(p.weight),.3,1.0) if p.weight>p.max_weight else 1.0
+
+static func _can_sprint_jump(p:Dictionary,input:Dictionary,direction:Vector2)->bool:
+	return bool(input.get("sprint",false)) and not bool(p.get("sprint_exhausted",false)) and not bool(input.get("crouch",false)) and not bool(input.get("ads",false)) and not direction.is_zero_approx() and (float(p.stamina)>JUMP_COST or p.get("infinite_stamina",false))
 
 ## Shared movement math only. The supplied solver owns collision; no inventory/actions here.
 static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callable) -> void:
@@ -54,23 +64,36 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 	if not p.has("roll"): p.roll = empty_roll()
 	var roll: Dictionary = p.roll
 	roll.cooldown = maxf(0, float(roll.cooldown)-delta)
+	roll.chain_window=maxf(0.0,float(roll.get("chain_window",0.0))-delta)
+	if not roll.active and int(roll.get("chain",0))>0 and (roll.chain_window<=0.0 or not _can_sprint_jump(p,input,direction)):
+		roll.chain=0
+		roll.chain_eligible=false
 	var requested := int(input.get("roll_seq",0))
 	if requested > int(roll.seen):
 		roll.seen = requested
-		if not recoiling and not roll.active and roll.cooldown <= 0 and (p.stamina >= JUMP_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
+		var in_chain_window:=bool(roll.get("chain_eligible",false)) and float(roll.get("chain_window",0.0))>0.0
+		if not recoiling and not roll.active and (roll.cooldown <= 0 or in_chain_window) and (p.stamina >= JUMP_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
+			var sprint_jump:=_can_sprint_jump(p,input,direction)
+			var chained:=sprint_jump and in_chain_window
+			roll.chain=mini(int(roll.get("chain",0))+1,JUMP_CHAIN_MAX) if chained else 0
 			roll.active = true; roll.time = 0.0; roll.cooldown = JUMP_COOLDOWN
 			roll.direction=direction
+			roll.chain_window=0.0
+			roll.chain_eligible=sprint_jump
+			var chain_scale:=1.0+float(roll.chain)*JUMP_CHAIN_SPEED_BONUS
+			roll.takeoff_speed=3.7*(1.65 if sprint_jump else 1.0)*_weight_factor(p)*chain_scale
+			roll.jump_speed=JUMP_SPEED*(1.0+float(roll.chain)*JUMP_CHAIN_HEIGHT_BONUS)
 			if not p.get("infinite_stamina",false): p.stamina -= JUMP_COST
 	if roll.active:
 		var previous:Vector2=p.pos
 		var old_height:=float(p.get("height",0))
 		var old_time:=float(roll.time)
 		roll.time=minf(30.0,old_time+delta)
-		var vertical:float=JUMP_SPEED*delta-JUMP_GRAVITY*(old_time*delta+.5*delta*delta)
+		var jump_speed:float=float(roll.get("jump_speed",JUMP_SPEED))
+		var vertical:float=jump_speed*delta-JUMP_GRAVITY*(old_time*delta+.5*delta*delta)
 		roll.vertical_delta=vertical
 		roll.direction=direction
-		var speed:=3.7
-		if p.weight>p.max_weight:speed*=clampf(p.max_weight/p.weight,.3,1.0)
+		var speed:float=float(roll.get("takeoff_speed",3.7))
 		var solved:Variant=solver.call(previous,direction*speed*delta+recoil)
 		if solved is Vector3:
 			p.pos=Vector2(solved.x,solved.z);p.height=solved.y
@@ -78,9 +101,10 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 			p.pos=solved;p.height=maxf(0.0,old_height+vertical)
 		if vertical<0 and float(p.height)>old_height+vertical+.001:
 			roll.active=false
+			roll.chain_window=JUMP_CHAIN_WINDOW if bool(roll.get("chain_eligible",false)) else 0.0
 		elif vertical>0 and float(p.height)<old_height+vertical-.001:
 			# A ceiling cancels upward velocity immediately.
-			roll.time=maxf(roll.time,JUMP_SPEED/JUMP_GRAVITY)
+			roll.time=maxf(roll.time,jump_speed/JUMP_GRAVITY)
 		p.velocity=(Vector2(p.pos)-previous)/delta
 		p.aim=input.get("aim",p.aim);p.sprint=false;p.crouch=false;p.ads=false
 		return

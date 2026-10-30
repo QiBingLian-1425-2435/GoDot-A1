@@ -15,6 +15,7 @@ func box(parent,at:Vector3,size:Vector3):
 	s.size=size;c.shape=s;b.position=at;b.add_child(c);parent.add_child(b)
 func run():
 	var m=Model.new();m.add_player(1,"jump");var p:Dictionary=m.state.players[1]
+	m.state.world="ground_zero"
 	p.pos=Vector2.ZERO
 	m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":1});m.tick(.01)
 	check(p.roll.active and p.height>0 and p.pos==Vector2.ZERO and p.stamina==85,"standing jump rises without a forward dash and costs 15 stamina")
@@ -26,11 +27,31 @@ func run():
 	check(peak>.65 and peak<.72 and p.height==0 and not p.roll.active,"jump follows gravity and lands once")
 	m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":1});m.tick(.01)
 	check(not p.roll.active,"holding the same request cannot bunny-hop")
-	p.stamina=14;m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":2});m.tick(.01)
+	# Horizontal distance follows the actual takeoff speed. Sprint chaining rewards
+	# precise re-jumps inside the landing window and resets after a miss.
+	p.pos=Vector2.ZERO;p.stamina=100;p.roll=m.Movement.empty_roll()
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":2});m.tick(.01)
+	var first_jump_speed:float=p.roll.takeoff_speed
+	var first_peak:=0.0
+	while p.roll.active:
+		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":2});m.tick(.01);first_peak=maxf(first_peak,p.height)
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
+	check(p.roll.active and p.roll.chain==1 and p.roll.takeoff_speed>first_jump_speed,"timed sprint re-jump earns distance and planned-speed bonus")
+	var chain_peak:=0.0
+	while p.roll.active:
+		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01);chain_peak=maxf(chain_peak,p.height)
+	check(chain_peak>first_peak+.05,"timed sprint re-jump earns extra height")
+	for i in range(20):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
+	check(p.roll.chain==0,"missing the landing window restores normal sprint speed")
+	p.stamina=15;m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
+	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
+	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":4});m.tick(.01)
+	check(p.sprint_exhausted and not p.sprint and p.roll.chain==0,"exhausted stamina restores walking speed and clears jump reward")
+	p.stamina=14;m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":5});m.tick(.01)
 	check(not p.roll.active,"low stamina rejects jump")
-	p.stamina=100
+	p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=5
 	var predictor=Local.new();predictor.solver=m.solve_motion.bind(0);predictor.confirm(p)
-	predictor.set_input({"direction":Vector2.RIGHT,"roll_seq":3});predictor.advance(.02,p)
+	predictor.set_input({"direction":Vector2.RIGHT,"roll_seq":6});predictor.advance(.02,p)
 	var display:Dictionary=predictor.sample_player(p)
 	check(display.height>0 and display.pos.x>0 and p.height==0 and not p.roll.active,"client predicts jump height without mutating authority")
 	var world:=Node3D.new();root.add_child(world)
