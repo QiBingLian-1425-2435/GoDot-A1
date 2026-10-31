@@ -35,7 +35,14 @@ static func _can_sprint_jump(p:Dictionary,input:Dictionary,direction:Vector2)->b
 
 static func _start_jump(p:Dictionary,roll:Dictionary,input:Dictionary,direction:Vector2,continue_chain:bool,chain_delta:int=0)->void:
 	var sprint_jump:=_can_sprint_jump(p,input,direction)
-	roll.chain=clampi(int(roll.get("chain",0))+chain_delta,0,JUMP_CHAIN_MAX) if continue_chain and sprint_jump else 0
+	if continue_chain and sprint_jump:
+		if chain_delta < 0:
+			roll.chain = 0
+		elif chain_delta > 0:
+			roll.chain = clampi(int(roll.get("chain",0))+chain_delta,0,JUMP_CHAIN_MAX)
+		# chain_delta == 0 preserves the current tier for forgiving late input.
+	else:
+		roll.chain = 0
 	roll.active=true;roll.time=0.0;roll.cooldown=JUMP_COOLDOWN
 	roll.direction=direction;roll.chain_window=0.0;roll.chain_eligible=sprint_jump
 	roll.buffered=false;roll.buffer_time=0.0;roll.buffer_reward=false

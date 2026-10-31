@@ -203,7 +203,7 @@ static func _open_more_settings(ctx) -> void:
 	var reward_window:=OptionButton.new()
 	reward_window.name="JumpRewardWindow";reward_window.position=Vector2(300,564);reward_window.size=Vector2(304,42)
 	reward_window.add_theme_font_size_override("font_size",20)
-	for value in [40,70,100,130]:
+	for value in [70,130,250,350,500]:
 		var index:=Texts.add_item(reward_window,Texts.format("⟦settings.jump_reward_window_option⟧",value))
 		reward_window.set_item_metadata(index,value)
 		if value==int(ctx._state.get("jump_reward_window_ms",70)):reward_window.select(index)

@@ -223,7 +223,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			return true
 		"set_jump_reward_window":
 			if id!=1:return _reject("⟦settings.jump_chain_host_only⟧")
-			if not payload.get("value") is int or int(payload.value) not in [40,70,100,130]:return false
+			if not payload.get("value") is int or int(payload.value) not in [70,130,250,350,500]:return false
 			state.jump_reward_window_ms=int(payload.value)
 			return true
 		"reload": return _reload(p)

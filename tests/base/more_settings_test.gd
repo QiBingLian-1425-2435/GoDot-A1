@@ -36,8 +36,8 @@ func run():
 		if action.begins_with("set_jump_"):model.command(1,action,payload))
 	bonus.item_selected.emit(2)
 	max_speed.item_selected.emit(3)
-	reward_window.item_selected.emit(2)
-	check(int(model.state.jump_chain_bonus)==200 and int(model.state.jump_chain_max_speed)==30 and int(model.state.jump_reward_window_ms)==100,"More selections reach host-authoritative rules")
+	reward_window.item_selected.emit(4)
+	check(int(model.state.jump_chain_bonus)==200 and int(model.state.jump_chain_max_speed)==30 and int(model.state.jump_reward_window_ms)==500,"More selections reach host-authoritative rules")
 	toggle.button_pressed=true
 	ui.update_movement_speed(6.5934)
 	check(ui._movement_speed_label.visible and ui._movement_speed_label.text.contains("6.59"),"enabled HUD shows precise movement speed")

@@ -57,7 +57,7 @@ func run():
 	check(not m.command(2,"set_jump_chain_bonus",{"value":200}) and not m.command(1,"set_jump_chain_bonus",{"value":175}),"only host and exact reward presets are accepted")
 	check(m.command(1,"set_jump_chain_bonus",{"value":200}),"host selects stronger chained-jump reward")
 	check(not m.command(1,"set_jump_chain_max_speed",{"value":20}) and m.command(1,"set_jump_chain_max_speed",{"value":30}),"host selects an exact higher speed cap")
-	check(not m.command(1,"set_jump_reward_window",{"value":80}) and m.command(1,"set_jump_reward_window",{"value":100}),"host selects an exact precision window")
+	check(not m.command(1,"set_jump_reward_window",{"value":80}) and m.command(1,"set_jump_reward_window",{"value":500}),"host selects an exact precision window")
 	p.jump_chain_bonus=m.state.jump_chain_bonus;p.jump_chain_max_speed=m.state.jump_chain_max_speed;p.jump_reward_window_ms=m.state.jump_reward_window_ms
 	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.chain=4
 	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
