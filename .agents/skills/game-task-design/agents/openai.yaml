@@ -1,0 +1,4 @@
+interface:
+  display_name: "任务与接口设计"
+  short_description: "把真实游戏需求拆成有文件边界、依赖顺序和验收标准的小任务"
+  default_prompt: "使用 $game-task-design，依据当前采用的设计和真实工程，把这项需求整理为可交付任务与必要接口约定。"

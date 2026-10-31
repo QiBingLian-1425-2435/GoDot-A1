@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot 模块开发"
+  short_description: "按当前工程、任务与模块边界完成局部实现，留下可运行的验证与交接证据"
+  default_prompt: "使用 $godot-module-dev，按这张真实任务卡和采用中的接口完成局部实现，并记录实际验证与交接材料。"

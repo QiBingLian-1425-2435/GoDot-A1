@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot 架构与模块设计"
+  short_description: "划分游戏规则、表现与系统模块，明确接口、权威状态、并行边界和最小验收入口"
+  default_prompt: "请使用 $godot-architecture-design，依据当前需求与真实工程设计最小模块边界、接口、状态归属和依赖顺序，避免过度架构。"

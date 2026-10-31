@@ -1,0 +1,4 @@
+interface:
+  display_name: "Godot 代码审核"
+  short_description: "固定指定提交预审 Godot 差异，交付问题证据与人工复核步骤"
+  default_prompt: "请使用 $godot-code-review 只读审核指定 PR 或提交，固定版本并报告问题、验证证据和未测项。"

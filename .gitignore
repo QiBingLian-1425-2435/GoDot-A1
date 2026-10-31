@@ -18,7 +18,12 @@ addons/
 .codex/
 articles/
 artifacts/
-.agents/
+# Keep project-scoped Codex skills in Git; ignore other local agent state.
+.agents/*
+!.agents/skills/
+!.agents/skills/**
+.agents/skills/**/__pycache__/
+.agents/skills/**/*.pyc
 .trae/
 .lingma/
 .references_code/

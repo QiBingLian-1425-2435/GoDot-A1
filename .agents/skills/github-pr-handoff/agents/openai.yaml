@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub 交付与交接"
+  short_description: "按任务分支开发、同步 main、rebase 和验证的流程交付，所有成员均可合并主线"
+  default_prompt: "请使用 $github-pr-handoff 交付本任务：检查提交范围与素材排除，同步远端 main 并 rebase，验证后快进合入 main，报告实际结果。"
