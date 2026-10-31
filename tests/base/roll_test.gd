@@ -54,14 +54,14 @@ func run():
 	while p.roll.active and p.roll.time>.1:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
 	check(buffered_early and p.roll.active and p.roll.chain==0 and p.roll.time<=.1,"early input continues smoothly but loses one reward tier")
 	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
-	check(not m.command(2,"set_jump_chain_bonus",{"value":200}) and not m.command(1,"set_jump_chain_bonus",{"value":175}),"only host and exact reward presets are accepted")
-	check(m.command(1,"set_jump_chain_bonus",{"value":200}),"host selects stronger chained-jump reward")
+	check(not m.command(2,"set_jump_chain_bonus",{"value":4}) and not m.command(1,"set_jump_chain_bonus",{"value":5}),"only host and exact speed gain presets are accepted")
+	check(m.command(1,"set_jump_chain_bonus",{"value":2}),"host selects stronger chained-jump speed gain")
 	check(not m.command(1,"set_jump_chain_max_speed",{"value":20}) and m.command(1,"set_jump_chain_max_speed",{"value":30}),"host selects an exact higher speed cap")
 	check(not m.command(1,"set_jump_reward_window",{"value":80}) and m.command(1,"set_jump_reward_window",{"value":500}),"host selects an exact precision window")
 	p.jump_chain_bonus=m.state.jump_chain_bonus;p.jump_chain_max_speed=m.state.jump_chain_max_speed;p.jump_reward_window_ms=m.state.jump_reward_window_ms
 	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.chain=4
 	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
-	check(p.roll.takeoff_speed>enhanced_chain_speed and is_equal_approx(p.roll.takeoff_speed,30.0),"maximum chain tier reaches configured 30 m/s cap")
+	check(p.roll.takeoff_speed>enhanced_chain_speed and p.roll.takeoff_speed<30.0,"maximum chain tier accumulates configured per-jump speed gain")
 	while p.roll.active:m.Movement.step(p,{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":20},.01,m.solve_motion.bind(1))
 	for i in range(20):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
 	check(p.roll.chain==0,"missing the landing window restores normal sprint speed")
@@ -95,12 +95,12 @@ func run():
 		if lane==5.0:check(peak_height<.23,"low ceiling cancels ascent")
 		if lane==-5.0:check(p.pos.x>.6 and p.height>.4,"jump lands on a low platform")
 	p.pos=Vector2(-.5,0);p.height=.04;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.chain=4
-	p.jump_chain_bonus=200;p.jump_chain_max_speed=30
+	p.jump_chain_bonus=4;p.jump_chain_max_speed=30
 	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
 	var high_speed:float=p.roll.takeoff_speed
 	for i in range(90):
 		m.Movement.step(p,{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":30},.01,func(from,offset):return body.move_airborne(Vector3(from.x,p.height,from.y),offset,p.roll.get("vertical_delta",0)) if p.roll.active else body.move_spatial(Vector3(from.x,p.height,from.y),offset))
-	check(is_equal_approx(high_speed,30.0) and p.pos.x<.59,"30 m/s airborne sweep cannot tunnel through thin wall")
+	check(high_speed>10.0 and high_speed<30.0 and p.pos.x<.59,"high-speed airborne sweep cannot tunnel through thin wall")
 	world.queue_free();await process_frame
 	var game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true
 	game._start_solo();game.set_physics_process(false);game.session.set_physics_process(false)

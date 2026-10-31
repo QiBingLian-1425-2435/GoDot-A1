@@ -71,10 +71,10 @@
     "app/main.gd:422"
   ],
   "main.022": [
-    "app/main.gd:463"
+    "app/main.gd:464"
   ],
   "main.023": [
-    "app/main.gd:473"
+    "app/main.gd:474"
   ],
   "session.001": [
     "app/network/session.gd:25",
@@ -103,7 +103,7 @@
   ],
   "session.008": [
     "app/network/session.gd:109",
-    "ui/base_hud.gd:517"
+    "ui/base_hud.gd:532"
   ],
   "session.009": [
     "app/network/session.gd:132"
@@ -282,52 +282,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:137"
+    "features/base/base_model.gd:139"
   ],
   "base_model.002": [
-    "features/base/base_model.gd:140"
+    "features/base/base_model.gd:142"
   ],
   "base_model.003": [
-    "features/base/base_model.gd:141"
+    "features/base/base_model.gd:143"
   ],
   "base_model.004": [
-    "features/base/base_model.gd:148"
-  ],
-  "base_model.005": [
-    "features/base/base_model.gd:149"
-  ],
-  "base_model.006": [
     "features/base/base_model.gd:150"
   ],
-  "base_model.007": [
+  "base_model.005": [
+    "features/base/base_model.gd:151"
+  ],
+  "base_model.006": [
     "features/base/base_model.gd:152"
   ],
+  "base_model.007": [
+    "features/base/base_model.gd:154"
+  ],
   "base_model.008": [
-    "features/base/base_model.gd:158"
+    "features/base/base_model.gd:160"
   ],
   "base_model.009": [
-    "features/base/base_model.gd:189"
+    "features/base/base_model.gd:191"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:196"
+    "features/base/base_model.gd:198"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:200"
+    "features/base/base_model.gd:202"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:205"
+    "features/base/base_model.gd:207"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:237"
+    "features/base/base_model.gd:239"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:240"
+    "features/base/base_model.gd:242"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:247"
+    "features/base/base_model.gd:249"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:249"
+    "features/base/base_model.gd:251"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -917,201 +917,201 @@
     "features/voice/proximity_voice.gd:111"
   ],
   "base_hud.001": [
-    "ui/base_hud.gd:103"
+    "ui/base_hud.gd:105"
   ],
   "base_hud.002": [
-    "ui/base_hud.gd:233",
+    "ui/base_hud.gd:235",
     "ui/inventory/inventory_panel.gd:68"
   ],
   "base_hud.003": [
-    "ui/base_hud.gd:233"
+    "ui/base_hud.gd:235"
   ],
   "base_hud.004": [
-    "ui/base_hud.gd:244"
+    "ui/base_hud.gd:246"
   ],
   "base_hud.005": [
-    "ui/base_hud.gd:245"
+    "ui/base_hud.gd:247"
   ],
   "base_hud.006": [
-    "ui/base_hud.gd:245"
+    "ui/base_hud.gd:247"
   ],
   "base_hud.007": [
-    "ui/base_hud.gd:283",
-    "ui/base_hud.gd:376"
+    "ui/base_hud.gd:285",
+    "ui/base_hud.gd:390"
   ],
   "base_hud.008": [
-    "ui/base_hud.gd:283"
+    "ui/base_hud.gd:285"
   ],
   "base_hud.009": [
-    "ui/base_hud.gd:283"
+    "ui/base_hud.gd:285"
   ],
   "base_hud.010": [
-    "ui/base_hud.gd:283"
+    "ui/base_hud.gd:285"
   ],
   "base_hud.011": [
-    "ui/base_hud.gd:284",
-    "ui/base_hud.gd:377"
+    "ui/base_hud.gd:286",
+    "ui/base_hud.gd:391"
   ],
   "base_hud.012": [
-    "ui/base_hud.gd:284"
-  ],
-  "base_hud.013": [
-    "ui/base_hud.gd:286",
-    "ui/base_hud.gd:378"
-  ],
-  "base_hud.014": [
     "ui/base_hud.gd:286"
   ],
-  "base_hud.015": [
+  "base_hud.013": [
+    "ui/base_hud.gd:288",
+    "ui/base_hud.gd:392"
+  ],
+  "base_hud.014": [
     "ui/base_hud.gd:288"
   ],
-  "base_hud.016": [
+  "base_hud.015": [
     "ui/base_hud.gd:290"
   ],
+  "base_hud.016": [
+    "ui/base_hud.gd:292"
+  ],
   "base_hud.017": [
-    "ui/base_hud.gd:293",
+    "ui/base_hud.gd:295",
     "ui/network/steam_panel.gd:60"
   ],
   "base_hud.018": [
-    "ui/base_hud.gd:306"
+    "ui/base_hud.gd:308"
   ],
   "base_hud.019": [
-    "ui/base_hud.gd:306"
+    "ui/base_hud.gd:308"
   ],
   "base_hud.020": [
-    "ui/base_hud.gd:306"
+    "ui/base_hud.gd:308"
   ],
   "base_hud.021": [
-    "ui/base_hud.gd:307"
+    "ui/base_hud.gd:309"
   ],
   "base_hud.022": [
-    "ui/base_hud.gd:322",
+    "ui/base_hud.gd:324",
     "ui/inventory/camp_panel.gd:6",
     "ui/inventory/camp_panel.gd:20"
   ],
   "base_hud.023": [
-    "ui/base_hud.gd:323",
+    "ui/base_hud.gd:325",
     "ui/inventory/item_shop.gd:6",
     "ui/inventory/item_shop.gd:43"
   ],
   "base_hud.024": [
-    "ui/base_hud.gd:323",
+    "ui/base_hud.gd:325",
     "ui/inventory/item_shop.gd:6"
   ],
   "base_hud.025": [
-    "ui/base_hud.gd:385",
+    "ui/base_hud.gd:400",
     "ui/inventory/inventory_panel.gd:14",
     "ui/inventory/inventory_panel.gd:164"
   ],
   "base_hud.026": [
-    "ui/base_hud.gd:386"
+    "ui/base_hud.gd:401"
   ],
   "base_hud.027": [
-    "ui/base_hud.gd:388",
+    "ui/base_hud.gd:403",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.028": [
-    "ui/base_hud.gd:388",
+    "ui/base_hud.gd:403",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.029": [
-    "ui/base_hud.gd:388",
+    "ui/base_hud.gd:403",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.030": [
-    "ui/base_hud.gd:388",
+    "ui/base_hud.gd:403",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.031": [
-    "ui/base_hud.gd:405"
+    "ui/base_hud.gd:420"
   ],
   "base_hud.032": [
-    "ui/base_hud.gd:408"
+    "ui/base_hud.gd:423"
   ],
   "base_hud.033": [
-    "ui/base_hud.gd:410"
+    "ui/base_hud.gd:425"
   ],
   "base_hud.035": [
-    "ui/base_hud.gd:446"
+    "ui/base_hud.gd:461"
   ],
   "base_hud.036": [
-    "ui/base_hud.gd:447"
+    "ui/base_hud.gd:462"
   ],
   "base_hud.037": [
-    "ui/base_hud.gd:448",
+    "ui/base_hud.gd:463",
     "ui/menu/menu_screen.gd:39"
   ],
   "base_hud.038": [
-    "ui/base_hud.gd:449"
+    "ui/base_hud.gd:464"
   ],
   "base_hud.039": [
-    "ui/base_hud.gd:450",
+    "ui/base_hud.gd:465",
     "ui/menu/menu_screen.gd:42"
   ],
   "base_hud.040": [
-    "ui/base_hud.gd:451",
+    "ui/base_hud.gd:466",
     "ui/menu/menu_screen.gd:72"
   ],
   "base_hud.041": [
-    "ui/base_hud.gd:453",
+    "ui/base_hud.gd:468",
     "ui/network/steam_panel.gd:149"
   ],
   "base_hud.042": [
-    "ui/base_hud.gd:455"
+    "ui/base_hud.gd:470"
   ],
   "base_hud.043": [
-    "ui/base_hud.gd:456"
+    "ui/base_hud.gd:471"
   ],
   "base_hud.044": [
-    "ui/base_hud.gd:457"
+    "ui/base_hud.gd:472"
   ],
   "base_hud.045": [
-    "ui/base_hud.gd:458"
+    "ui/base_hud.gd:473"
   ],
   "base_hud.046": [
-    "ui/base_hud.gd:459"
+    "ui/base_hud.gd:474"
   ],
   "base_hud.047": [
-    "ui/base_hud.gd:490"
-  ],
-  "base_hud.048": [
-    "ui/base_hud.gd:491"
-  ],
-  "base_hud.049": [
-    "ui/base_hud.gd:492"
-  ],
-  "base_hud.050": [
-    "ui/base_hud.gd:494"
-  ],
-  "base_hud.051": [
-    "ui/base_hud.gd:495"
-  ],
-  "base_hud.052": [
-    "ui/base_hud.gd:497"
-  ],
-  "base_hud.053": [
-    "ui/base_hud.gd:498"
-  ],
-  "base_hud.054": [
-    "ui/base_hud.gd:499"
-  ],
-  "base_hud.055": [
-    "ui/base_hud.gd:500"
-  ],
-  "base_hud.056": [
     "ui/base_hud.gd:505"
   ],
-  "base_hud.057": [
+  "base_hud.048": [
+    "ui/base_hud.gd:506"
+  ],
+  "base_hud.049": [
+    "ui/base_hud.gd:507"
+  ],
+  "base_hud.050": [
     "ui/base_hud.gd:509"
   ],
-  "base_hud.058": [
+  "base_hud.051": [
+    "ui/base_hud.gd:510"
+  ],
+  "base_hud.052": [
+    "ui/base_hud.gd:512"
+  ],
+  "base_hud.053": [
+    "ui/base_hud.gd:513"
+  ],
+  "base_hud.054": [
     "ui/base_hud.gd:514"
   ],
+  "base_hud.055": [
+    "ui/base_hud.gd:515"
+  ],
+  "base_hud.056": [
+    "ui/base_hud.gd:520"
+  ],
+  "base_hud.057": [
+    "ui/base_hud.gd:524"
+  ],
+  "base_hud.058": [
+    "ui/base_hud.gd:529"
+  ],
   "base_hud.059": [
-    "ui/base_hud.gd:517"
+    "ui/base_hud.gd:532"
   ],
   "base_hud.060": [
-    "ui/base_hud.gd:519",
+    "ui/base_hud.gd:534",
     "ui/network/steam_panel.gd:69"
   ],
   "camp_panel.001": [
@@ -1765,10 +1765,17 @@
     "ui/menu/menu_screen.gd:177"
   ],
   "settings.movement_speed_value": [
-    "ui/base_hud.gd:328"
+    "ui/base_hud.gd:330"
+  ],
+  "settings.show_jump_chain": [
+    "ui/menu/menu_screen.gd:214"
+  ],
+  "settings.jump_chain_value": [
+    "ui/base_hud.gd:335"
   ],
   "settings.more_save_failed": [
-    "ui/base_hud.gd:336"
+    "ui/base_hud.gd:343",
+    "ui/base_hud.gd:349"
   ],
   "settings.jump_chain_bonus": [
     "ui/menu/menu_screen.gd:178"
@@ -1780,11 +1787,11 @@
     "ui/menu/menu_screen.gd:189"
   ],
   "settings.jump_chain_bonus_host_only": [
-    "features/base/base_model.gd:215"
+    "features/base/base_model.gd:217"
   ],
   "settings.jump_chain_host_only": [
-    "features/base/base_model.gd:220",
-    "features/base/base_model.gd:225"
+    "features/base/base_model.gd:222",
+    "features/base/base_model.gd:227"
   ],
   "settings.jump_chain_max_speed": [
     "ui/menu/menu_screen.gd:190"
@@ -1826,14 +1833,14 @@
     "worlds/bunker/bunker.gd:302"
   ],
   "base_hud.san": [
-    "ui/base_hud.gd:388"
+    "ui/base_hud.gd:403"
   ],
   "format.base_hud.001": [
-    "ui/base_hud.gd:300"
+    "ui/base_hud.gd:302"
   ],
   "format.base_hud.002": [
     "features/player/animation/animation_preview.gd:64",
-    "ui/base_hud.gd:301"
+    "ui/base_hud.gd:303"
   ],
   "format.camp_panel.001": [
     "ui/inventory/camp_panel.gd:31"
@@ -1883,7 +1890,7 @@
     "app/main.gd:423"
   ],
   "keys.title": [
-    "ui/base_hud.gd:534",
+    "ui/base_hud.gd:549",
     "ui/menu/menu_screen.gd:149"
   ],
   "keys.instructions": [
@@ -1914,10 +1921,10 @@
   ],
   "keys.back": [
     "ui/menu/key_bindings_panel.gd:37",
-    "ui/menu/menu_screen.gd:214"
+    "ui/menu/menu_screen.gd:215"
   ],
   "keys.hud_hint": [
-    "ui/base_hud.gd:413"
+    "ui/base_hud.gd:428"
   ],
   "keys.mouse_1": [
     "features/player/key_bindings.gd:24"
@@ -1995,7 +2002,7 @@
     "features/player/key_bindings.gd:22"
   ],
   "keys.single": [
-    "ui/base_hud.gd:404"
+    "ui/base_hud.gd:419"
   ],
   "satiety.weight": [
     "ui/inventory/inventory_panel.gd:179"
@@ -2026,7 +2033,7 @@
     "ui/menu/menu_screen.gd:165"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:210"
+    "features/base/base_model.gd:212"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:38"
@@ -2051,8 +2058,8 @@
     "features/exploration/container_marks.gd:5"
   ],
   "appearance.title": [
-    "ui/base_hud.gd:452",
-    "ui/base_hud.gd:527"
+    "ui/base_hud.gd:467",
+    "ui/base_hud.gd:542"
   ],
   "appearance.gender": [
     "ui/menu/appearance_panel.gd:38"

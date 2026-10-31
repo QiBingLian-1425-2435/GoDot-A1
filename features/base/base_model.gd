@@ -47,6 +47,7 @@ var recovery_solver: Callable
 var _recovery_after: Dictionary = {}
 
 func _init() -> void:
+	state.jump_chain_bonus=1
 	state.corpses = {}
 	state.enemies = {}; state.enemies_seeded = false
 	for i in range(3):
@@ -65,7 +66,7 @@ func add_player(id: int, player_name: String) -> void:
 		_insert(p.stash, _item(spec[0], spec[1]))
 	state.players[id] = p
 	p.appearance=Appearance.defaults()
-	p.jump_chain_bonus=int(state.get("jump_chain_bonus",150))
+	p.jump_chain_bonus=int(state.get("jump_chain_bonus",1))
 	p.jump_chain_max_speed=int(state.get("jump_chain_max_speed",18))
 	p.jump_reward_window_ms=int(state.get("jump_reward_window_ms",70))
 	p.height = 0.0
@@ -213,7 +214,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			return true
 		"set_jump_chain_bonus":
 			if id!=1:return _reject("⟦settings.jump_chain_bonus_host_only⟧")
-			if not payload.get("value") is int or int(payload.value) not in [100,150,200]:return false
+			if not payload.get("value") is int or int(payload.value) not in [1,2,3,4]:return false
 			state.jump_chain_bonus=int(payload.value)
 			return true
 		"set_jump_chain_max_speed":
@@ -288,7 +289,7 @@ func tick(delta: float) -> void:
 			p.hunger = maxf(0, p.hunger - delta * 0.012)
 		_update_weight(p)
 		p.infinite_stamina = bool(state.get("infinite_stamina",false))
-		p.jump_chain_bonus = int(state.get("jump_chain_bonus",150))
+		p.jump_chain_bonus = int(state.get("jump_chain_bonus",1))
 		p.jump_chain_max_speed=int(state.get("jump_chain_max_speed",18))
 		p.jump_reward_window_ms=int(state.get("jump_reward_window_ms",70))
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))

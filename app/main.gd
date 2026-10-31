@@ -450,6 +450,7 @@ func _refresh_ui()->void:
 		var player:Dictionary=session.model.state.players.get(session.local_id,{})
 		var displayed:Dictionary=session.local_movement.sample_player(player) if session.mode=="client" and not player.is_empty() else player
 		ui.update_movement_speed(Vector2(displayed.get("velocity",Vector2.ZERO)).length())
+		ui.update_jump_chain(int(Dictionary(displayed.get("roll",{})).get("chain",0)))
 	if is_instance_valid(global_map):global_map.set_state(session.model.state.players,session.local_id,world_id)
 	if is_instance_valid(ui) and is_instance_valid(steam_service):ui.update_steam(steam_service.info(session.transport))
 

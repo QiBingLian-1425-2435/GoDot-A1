@@ -45,9 +45,11 @@ var _shop_details:Label
 var voice_muted:=false
 var voice_always_on:=false
 var show_movement_speed:=false
+var show_jump_chain:=false
 var display_preferences_path:="user://display_preferences.cfg"
 var _voice_label:Label
 var _movement_speed_label:Label
+var _jump_chain_label:Label
 var _root: Control
 var _menu: Control
 var _menu_buttons: Control
@@ -266,7 +268,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		var chain_bonus:OptionButton=_dialog.get_node_or_null("JumpChainBonus")
 		if chain_bonus!=null:
 			for index in range(chain_bonus.item_count):
-				if int(chain_bonus.get_item_metadata(index))==int(state.get("jump_chain_bonus",150)):chain_bonus.select(index)
+				if int(chain_bonus.get_item_metadata(index))==int(state.get("jump_chain_bonus",1)):chain_bonus.select(index)
 			chain_bonus.disabled=mode in ["client","join"]
 		for spec in [["JumpChainMaxSpeed","jump_chain_max_speed",18],["JumpRewardWindow","jump_reward_window_ms",70]]:
 			var option:OptionButton=_dialog.get_node_or_null(spec[0])
@@ -327,6 +329,11 @@ func update_movement_speed(speed:float) -> void:
 	_movement_speed_label.visible=show_movement_speed and _in_game
 	Texts.bind(_movement_speed_label,Texts.format("⟦settings.movement_speed_value⟧",speed),"text")
 
+func update_jump_chain(chain:int) -> void:
+	if not is_instance_valid(_jump_chain_label):return
+	_jump_chain_label.visible=show_jump_chain and _in_game and chain>0
+	Texts.bind(_jump_chain_label,Texts.format("⟦settings.jump_chain_value⟧",chain),"text")
+
 func set_show_movement_speed(value:bool) -> void:
 	show_movement_speed=value
 	if is_instance_valid(_movement_speed_label):_movement_speed_label.visible=value and _in_game
@@ -335,10 +342,17 @@ func set_show_movement_speed(value:bool) -> void:
 	config.set_value("more","show_movement_speed",value)
 	if config.save(display_preferences_path)!=OK:toast("⟦settings.more_save_failed⟧")
 
+func set_show_jump_chain(value:bool) -> void:
+	show_jump_chain=value
+	if is_instance_valid(_jump_chain_label):_jump_chain_label.visible=value and _in_game
+	var config:=ConfigFile.new();config.load(display_preferences_path);config.set_value("more","show_jump_chain",value)
+	if config.save(display_preferences_path)!=OK:toast("⟦settings.more_save_failed⟧")
+
 func _load_display_preferences() -> void:
 	var config:=ConfigFile.new()
 	if config.load(display_preferences_path)==OK:
 		show_movement_speed=bool(config.get_value("more","show_movement_speed",false))
+		show_jump_chain=bool(config.get_value("more","show_jump_chain",false))
 
 func set_interaction(text: String) -> void:
 	if _interaction:
@@ -377,6 +391,7 @@ func _build_hud() -> void:
 	_world_note = _label(top, "⟦base_hud.011⟧", Rect2(18,39,440,21), 14, Color("b2c7c2"))
 	_network_label = _label(_hud, "⟦base_hud.013⟧", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
 	_movement_speed_label=_label(_hud,"",Rect2(28,102,260,32),18,Color("a8e6d0"))
+	_jump_chain_label=_label(_hud,"",Rect2(28,134,260,32),18,Color("f1d38b"))
 	_movement_speed_label.add_theme_constant_override("outline_size",4)
 	_movement_speed_label.add_theme_color_override("font_outline_color",Color(0.03,0.08,0.10,0.9))
 	_movement_speed_label.visible=false

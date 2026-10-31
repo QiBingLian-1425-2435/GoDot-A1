@@ -46,13 +46,13 @@ static func _start_jump(p:Dictionary,roll:Dictionary,input:Dictionary,direction:
 	roll.active=true;roll.time=0.0;roll.cooldown=JUMP_COOLDOWN
 	roll.direction=direction;roll.chain_window=0.0;roll.chain_eligible=sprint_jump
 	roll.buffered=false;roll.buffer_time=0.0;roll.buffer_reward=false
-	var bonus_scale:=clampf(float(p.get("jump_chain_bonus",150))/100.0,1.0,2.0)
+	var gain:=maxf(0.0,float(p.get("jump_chain_bonus",1)))
 	var weight_factor:=_weight_factor(p)
 	var base_speed:=3.7*(1.65 if sprint_jump else 1.0)*weight_factor
 	var max_speed:=maxf(base_speed,float(p.get("jump_chain_max_speed",18))*weight_factor)
-	var progress:=minf(1.0,float(roll.chain)/float(JUMP_CHAIN_MAX)*bonus_scale)
+	var progress:=minf(1.0,float(roll.chain)*gain/maxf(1.0,float(p.get("jump_chain_max_speed",18))-base_speed))
 	roll.takeoff_speed=lerpf(base_speed,max_speed,progress)
-	roll.jump_speed=JUMP_SPEED*(1.0+float(roll.chain)*JUMP_CHAIN_HEIGHT_BONUS*bonus_scale)
+	roll.jump_speed=JUMP_SPEED*(1.0+float(roll.chain)*JUMP_CHAIN_HEIGHT_BONUS*clampf(gain,1.0,4.0))
 	if not p.get("infinite_stamina",false):p.stamina-=JUMP_COST
 
 ## Shared movement math only. The supplied solver owns collision; no inventory/actions here.

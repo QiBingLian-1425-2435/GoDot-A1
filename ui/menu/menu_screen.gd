@@ -179,7 +179,7 @@ static func _open_more_settings(ctx) -> void:
 	var bonus:=OptionButton.new()
 	bonus.name="JumpChainBonus";bonus.position=Vector2(300,294);bonus.size=Vector2(304,42)
 	bonus.add_theme_font_size_override("font_size",20)
-	for value in [100,150,200]:
+	for value in [1,2,3,4]:
 		var index:=Texts.add_item(bonus,Texts.format("⟦settings.jump_chain_bonus_option⟧",value))
 		bonus.set_item_metadata(index,value)
 		if value==int(ctx._state.get("jump_chain_bonus",150)):bonus.select(index)
@@ -211,7 +211,8 @@ static func _open_more_settings(ctx) -> void:
 	reward_window.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_reward_window",{"value":int(reward_window.get_item_metadata(index))}))
 	ctx._dialog.add_child(reward_window)
 	ctx._label(ctx._dialog,"⟦settings.jump_reward_window_hint⟧",Rect2(34,616,570,86),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,752,300,48),ctx._open_settings,ctx.GREEN,22)
+	var chain_toggle:=CheckButton.new();chain_toggle.name="ShowJumpChain";chain_toggle.position=Vector2(34,704);chain_toggle.size=Vector2(570,42);Texts.bind(chain_toggle,"⟦settings.show_jump_chain⟧","text");chain_toggle.button_pressed=ctx.show_jump_chain;chain_toggle.toggled.connect(ctx.set_show_jump_chain);ctx._dialog.add_child(chain_toggle)
+	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,780,300,48),ctx._open_settings,ctx.GREEN,22)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()
