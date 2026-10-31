@@ -26,10 +26,16 @@ func run():
 		check(session.join("127.0.0.1",29987)==OK,"join real ENet host")
 		check(await wait_for(func():return session.local_id>1 and session.model.state.get("roll_ready",false)),"receive jump fixture")
 		check(int(session.model.state.get("jump_chain_bonus",0))==200,"client receives host chained-jump reward")
+		check(int(session.model.state.get("jump_chain_max_speed",0))==30 and int(session.model.state.get("jump_reward_window_ms",0))==100,"client receives host speed cap and reward window")
 		var id:int=session.local_id
-		session.request_roll();session.send("move",{"direction":Vector2.RIGHT,"aim":Vector2.UP})
+		var local_player:Dictionary=session.model.state.players[id]
+		local_player.jump_chain_bonus=200;local_player.jump_chain_max_speed=30;local_player.jump_reward_window_ms=100
+		local_player.roll=session.model.Movement.empty_roll();local_player.roll.chain=4;local_player.roll.chain_eligible=true;local_player.roll.chain_window=.5;local_player.input_roll=local_player.roll.duplicate(true)
+		session.local_movement.clear();session.local_movement.confirm(local_player)
+		session.request_roll();session.send("move",{"direction":Vector2.RIGHT,"aim":Vector2.UP,"sprint":true})
 		session.local_movement.advance(.01,session.model.state.players[id])
-		check(session.local_movement.sample_player(session.model.state.players[id]).roll.active,"local predicted jump starts before reply")
+		var predicted:Dictionary=session.local_movement.sample_player(session.model.state.players[id])
+		check(predicted.roll.active and float(predicted.roll.takeoff_speed)>25.0,"local prediction starts configured high-speed jump before reply")
 		var saw_jump:=false
 		var started:=Time.get_ticks_msec()
 		while Time.get_ticks_msec()-started<1800:
@@ -49,8 +55,13 @@ func run():
 		child=OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/base_tests/roll_network_child.log"),"--script","res://tests/base/roll_network_test.gd","--",run_id])
 		check(await wait_for(func():return session.model.state.players.size()==2),"independent client connects")
 		for id in session.model.state.players:
-			if id!=1:session.model.state.players[id].pos=Vector2.ZERO
+			if id!=1:
+				var remote:Dictionary=session.model.state.players[id]
+				remote.pos=Vector2.ZERO
 		check(session.model.command(1,"set_jump_chain_bonus",{"value":200}),"host configures shared chained-jump reward")
+		check(session.model.command(1,"set_jump_chain_max_speed",{"value":30}) and session.model.command(1,"set_jump_reward_window",{"value":100}),"host configures shared speed cap and reward window")
+		for id in session.model.state.players:
+			session.model.state.players[id].jump_chain_bonus=200;session.model.state.players[id].jump_chain_max_speed=30;session.model.state.players[id].jump_reward_window_ms=100
 		session.model.state.roll_ready=true;session._broadcast_snapshot(true)
 		check(await wait_for(func():return FileAccess.file_exists(result_path)),"client finishes movement verification")
 		if FileAccess.file_exists(result_path):check(int(JSON.parse_string(FileAccess.get_file_as_string(result_path)).failures)==0,"all remote jump checks pass")

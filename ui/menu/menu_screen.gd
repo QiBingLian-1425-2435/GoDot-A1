@@ -165,7 +165,7 @@ static func _open_settings(ctx) -> void:
 	ctx._label(ctx._dialog,"⟦settings.infinite_credits_hint⟧",Rect2(34,535,570,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 static func _open_more_settings(ctx) -> void:
-	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,570))
+	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,850))
 	ctx._label(ctx._dialog,"⟦settings.more_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	var speed:=CheckButton.new()
 	speed.name="ShowMovementSpeed"
@@ -187,7 +187,31 @@ static func _open_more_settings(ctx) -> void:
 	bonus.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_chain_bonus",{"value":int(bonus.get_item_metadata(index))}))
 	ctx._dialog.add_child(bonus)
 	ctx._label(ctx._dialog,"⟦settings.jump_chain_bonus_hint⟧",Rect2(34,350,570,76),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,474,300,48),ctx._open_settings,ctx.GREEN,22)
+	ctx._label(ctx._dialog,"⟦settings.jump_chain_max_speed⟧",Rect2(34,444,250,32),20,ctx.INK)
+	var max_speed:=OptionButton.new()
+	max_speed.name="JumpChainMaxSpeed";max_speed.position=Vector2(300,438);max_speed.size=Vector2(304,42)
+	max_speed.add_theme_font_size_override("font_size",20)
+	for value in [12,18,24,30]:
+		var index:=Texts.add_item(max_speed,Texts.format("⟦settings.jump_chain_max_speed_option⟧",value))
+		max_speed.set_item_metadata(index,value)
+		if value==int(ctx._state.get("jump_chain_max_speed",18)):max_speed.select(index)
+	max_speed.disabled=ctx._mode in ["client","join"]
+	max_speed.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_chain_max_speed",{"value":int(max_speed.get_item_metadata(index))}))
+	ctx._dialog.add_child(max_speed)
+	ctx._label(ctx._dialog,"⟦settings.jump_chain_max_speed_hint⟧",Rect2(34,490,570,58),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._label(ctx._dialog,"⟦settings.jump_reward_window⟧",Rect2(34,570,250,32),20,ctx.INK)
+	var reward_window:=OptionButton.new()
+	reward_window.name="JumpRewardWindow";reward_window.position=Vector2(300,564);reward_window.size=Vector2(304,42)
+	reward_window.add_theme_font_size_override("font_size",20)
+	for value in [40,70,100,130]:
+		var index:=Texts.add_item(reward_window,Texts.format("⟦settings.jump_reward_window_option⟧",value))
+		reward_window.set_item_metadata(index,value)
+		if value==int(ctx._state.get("jump_reward_window_ms",70)):reward_window.select(index)
+	reward_window.disabled=ctx._mode in ["client","join"]
+	reward_window.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_reward_window",{"value":int(reward_window.get_item_metadata(index))}))
+	ctx._dialog.add_child(reward_window)
+	ctx._label(ctx._dialog,"⟦settings.jump_reward_window_hint⟧",Rect2(34,616,570,86),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,752,300,48),ctx._open_settings,ctx.GREEN,22)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()

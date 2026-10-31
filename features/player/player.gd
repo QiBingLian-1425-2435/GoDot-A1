@@ -167,14 +167,19 @@ func _support(at: Vector2, reference: float) -> Dictionary:
 func move_airborne(from: Vector3, offset: Vector2, vertical: float) -> Vector3:
 	position=from
 	if vertical>0:move_and_collide(Vector3(0,vertical,0))
-	var remaining:=Vector3(offset.x,0,offset.y)
-	for i in range(3):
-		var hit:=move_and_collide(remaining)
-		if hit==null:break
-		var normal:=hit.get_normal()
-		normal=Vector3(normal.x,0,normal.z).normalized()
-		remaining=hit.get_remainder().slide(normal)
-		if remaining.length_squared()<.000001:break
+	# High chained-jump speeds can travel farther than a thin wall in one physics
+	# frame. Sweep the same short segments as grounded motion to keep collision
+	# stable and avoid visible correction snaps on the next authority update.
+	var steps:=maxi(1,ceili(offset.length()/MAX_SPATIAL_TRAVEL))
+	for step in range(steps):
+		var remaining:=Vector3(offset.x/steps,0,offset.y/steps)
+		for slide in range(3):
+			var hit:=move_and_collide(remaining)
+			if hit==null:break
+			var normal:=hit.get_normal()
+			normal=Vector3(normal.x,0,normal.z).normalized()
+			remaining=hit.get_remainder().slide(normal)
+			if remaining.length_squared()<.000001:break
 	if vertical<0:
 		var landing:=move_and_collide(Vector3(0,vertical,0))
 		if landing!=null and landing.get_normal().y>=.55:

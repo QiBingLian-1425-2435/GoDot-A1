@@ -6,9 +6,8 @@ const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0
 const JUMP_COOLDOWN := .7
 const JUMP_CHAIN_WINDOW := .18
-const JUMP_BUFFER_WINDOW := .20
+const JUMP_BUFFER_WINDOW := .28
 const JUMP_CHAIN_MAX := 4
-const JUMP_CHAIN_SPEED_BONUS := .08
 const JUMP_CHAIN_HEIGHT_BONUS := .045
 const HIT_SPEED := 5.5
 const HIT_DECELERATION := 22.0
@@ -26,7 +25,7 @@ static func _recoil(p:Dictionary,delta:float)->Vector2:
 	return (speed+next)*.5*duration
 
 static func empty_roll() -> Dictionary:
-	return {"active":false,"time":0.0,"direction":Vector2.ZERO,"cooldown":0.0,"seen":0,"chain":0,"chain_window":0.0,"takeoff_speed":3.7,"jump_speed":JUMP_SPEED,"chain_eligible":false,"buffered":false,"buffer_time":0.0}
+	return {"active":false,"time":0.0,"direction":Vector2.ZERO,"cooldown":0.0,"seen":0,"chain":0,"chain_window":0.0,"takeoff_speed":3.7,"jump_speed":JUMP_SPEED,"chain_eligible":false,"buffered":false,"buffer_time":0.0,"buffer_reward":false}
 
 static func _weight_factor(p:Dictionary)->float:
 	return clampf(float(p.max_weight)/float(p.weight),.3,1.0) if p.weight>p.max_weight else 1.0
@@ -34,15 +33,18 @@ static func _weight_factor(p:Dictionary)->float:
 static func _can_sprint_jump(p:Dictionary,input:Dictionary,direction:Vector2)->bool:
 	return bool(input.get("sprint",false)) and not bool(p.get("sprint_exhausted",false)) and not bool(input.get("crouch",false)) and not bool(input.get("ads",false)) and not direction.is_zero_approx() and (float(p.stamina)>JUMP_COST or p.get("infinite_stamina",false))
 
-static func _start_jump(p:Dictionary,roll:Dictionary,input:Dictionary,direction:Vector2,chained:bool)->void:
+static func _start_jump(p:Dictionary,roll:Dictionary,input:Dictionary,direction:Vector2,continue_chain:bool,chain_delta:int=0)->void:
 	var sprint_jump:=_can_sprint_jump(p,input,direction)
-	roll.chain=mini(int(roll.get("chain",0))+1,JUMP_CHAIN_MAX) if chained and sprint_jump else 0
+	roll.chain=clampi(int(roll.get("chain",0))+chain_delta,0,JUMP_CHAIN_MAX) if continue_chain and sprint_jump else 0
 	roll.active=true;roll.time=0.0;roll.cooldown=JUMP_COOLDOWN
 	roll.direction=direction;roll.chain_window=0.0;roll.chain_eligible=sprint_jump
-	roll.buffered=false;roll.buffer_time=0.0
+	roll.buffered=false;roll.buffer_time=0.0;roll.buffer_reward=false
 	var bonus_scale:=clampf(float(p.get("jump_chain_bonus",150))/100.0,1.0,2.0)
-	var chain_scale:=1.0+float(roll.chain)*JUMP_CHAIN_SPEED_BONUS*bonus_scale
-	roll.takeoff_speed=3.7*(1.65 if sprint_jump else 1.0)*_weight_factor(p)*chain_scale
+	var weight_factor:=_weight_factor(p)
+	var base_speed:=3.7*(1.65 if sprint_jump else 1.0)*weight_factor
+	var max_speed:=maxf(base_speed,float(p.get("jump_chain_max_speed",18))*weight_factor)
+	var progress:=minf(1.0,float(roll.chain)/float(JUMP_CHAIN_MAX)*bonus_scale)
+	roll.takeoff_speed=lerpf(base_speed,max_speed,progress)
 	roll.jump_speed=JUMP_SPEED*(1.0+float(roll.chain)*JUMP_CHAIN_HEIGHT_BONUS*bonus_scale)
 	if not p.get("infinite_stamina",false):p.stamina-=JUMP_COST
 
@@ -88,11 +90,15 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 		roll.seen = requested
 		var in_chain_window:=bool(roll.get("chain_eligible",false)) and float(roll.get("chain_window",0.0))>0.0
 		if not recoiling and not roll.active and (roll.cooldown <= 0 or in_chain_window) and (p.stamina >= JUMP_COST or p.get("infinite_stamina",false)) and not p.get("reloading",false) and p.get("pending_use",{}).is_empty() and str(p.get("loot_uid","")).is_empty() and float(p.get("hp",100)) > 0:
-			_start_jump(p,roll,input,direction,in_chain_window)
+			# A late grounded press keeps the current tier for forgiving continuity,
+			# but only a precise pre-landing press can increase it.
+			_start_jump(p,roll,input,direction,in_chain_window,0)
 		elif roll.active and float(roll.get("time",0.0))>=float(roll.get("jump_speed",JUMP_SPEED))/JUMP_GRAVITY and _can_sprint_jump(p,input,direction):
-			# Accept a fresh jump press shortly before landing. It expires if the
-			# player pressed too early, preserving the timing challenge.
+			# Any late descent press can buffer continuity. Only the configurable
+			# final timing window grants a tier; an earlier buffer drops one tier.
+			var remaining:=maxf(0.0,float(roll.get("jump_speed",JUMP_SPEED))*2.0/JUMP_GRAVITY-float(roll.time))
 			roll.buffered=true;roll.buffer_time=JUMP_BUFFER_WINDOW
+			roll.buffer_reward=remaining<=float(p.get("jump_reward_window_ms",70))/1000.0
 	if roll.active:
 		var previous:Vector2=p.pos
 		var old_height:=float(p.get("height",0))
@@ -112,7 +118,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 			roll.active=false
 			roll.chain_window=JUMP_CHAIN_WINDOW if bool(roll.get("chain_eligible",false)) else 0.0
 			if bool(roll.get("buffered",false)) and roll.buffer_time>0.0 and _can_sprint_jump(p,input,direction) and (p.stamina>=JUMP_COST or p.get("infinite_stamina",false)):
-				_start_jump(p,roll,input,direction,true)
+				_start_jump(p,roll,input,direction,true,1 if bool(roll.get("buffer_reward",false)) else -1)
 		elif vertical>0 and float(p.height)<old_height+vertical-.001:
 			# A ceiling cancels upward velocity immediately.
 			roll.time=maxf(roll.time,jump_speed/JUMP_GRAVITY)

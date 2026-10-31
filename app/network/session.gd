@@ -13,9 +13,9 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus"]
+const MOTION_FIELDS := ["pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus","jump_chain_max_speed","jump_reward_window_ms"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","set_jump_chain_max_speed","set_jump_reward_window","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -310,7 +310,7 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
 		"set_infinite_stamina", "set_infinite_credits":
 			if payload.get("enabled") is bool: clean.enabled = payload.enabled
-		"set_jump_chain_bonus":
+		"set_jump_chain_bonus", "set_jump_chain_max_speed", "set_jump_reward_window":
 			if payload.get("value") is int:clean.value=payload.value
 		"travel":
 			if payload.get("route") is String: clean.route = str(payload.route).left(64)
@@ -466,11 +466,12 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		p.height = row[16]; p.input_height = row[17]
 		p.relocation_seq=int(row[18]) if row.size()>18 else 0
 		p.roll=_unpack_roll(row[19],0) if row.size()>19 else Model.Movement.empty_roll()
-		p.input_roll=_unpack_roll(row[19],10) if row.size()>19 else p.roll.duplicate(true)
+		p.input_roll=_unpack_roll(row[19],16 if row[19].size()==36 else 20 if row[19].size()>=44 else 10) if row.size()>19 else p.roll.duplicate(true)
 		p.sprint_exhausted=bool(int(row[4]) & 16)
 		p.input_sprint_exhausted=bool(int(row[4]) & 32)
-		p.knockback=Vector2(int(row[19][20])-128,int(row[19][21])-128)/20.0 if row[19].size()>=24 else Vector2.ZERO
-		p.hit_seq=row[19].decode_u16(22) if row[19].size()>=24 else 0
+		var impact_offset:=32 if row[19].size()==36 else 40 if row[19].size()>=44 else 20
+		p.knockback=Vector2(int(row[19][impact_offset])-128,int(row[19][impact_offset+1])-128)/20.0 if row[19].size()>=impact_offset+4 else Vector2.ZERO
+		p.hit_seq=row[19].decode_u16(impact_offset+2) if row[19].size()>=impact_offset+4 else 0
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -488,21 +489,33 @@ func reset_world_motion() -> void:
 
 func _pack_roll(p: Dictionary) -> PackedByteArray:
 	# Millisecond timers and quantized angle keep the five-player motion packet below MTU.
-	var bytes := PackedByteArray(); bytes.resize(24)
+	var bytes := PackedByteArray(); bytes.resize(36)
 	for index in range(2):
 		var roll: Dictionary = p.get("roll" if index==0 else "input_roll",Model.Movement.empty_roll())
-		var offset := index*10
+		var offset := index*16
 		bytes.encode_u32(offset,int(roll.seen))
-		bytes.encode_u16(offset+4,roundi(float(roll.time)*1000) | (32768 if roll.active else 0))
-		bytes.encode_u16(offset+6,roundi(float(roll.cooldown)*1000))
-		bytes.encode_u16(offset+8,roundi(fposmod(Vector2(roll.direction).angle(),TAU)/TAU*65535))
+		bytes.encode_u16(offset+4,clampi(roundi(float(roll.time)*1000),0,32767) | (32768 if roll.get("active",false) else 0))
+		bytes[offset+6]=clampi(roundi(float(roll.cooldown)*100),0,255)
+		bytes.encode_u16(offset+7,roundi(fposmod(Vector2(roll.direction).angle(),TAU)/TAU*65535))
+		bytes[offset+9]=clampi(int(roll.get("chain",0)),0,7) | (int(roll.get("chain_eligible",false))<<3) | (int(roll.get("buffered",false))<<4) | (int(roll.get("buffer_reward",false))<<5)
+		bytes[offset+10]=clampi(roundi(float(roll.get("buffer_time",0))*500),0,255)
+		bytes.encode_u16(offset+11,clampi(roundi(float(roll.get("takeoff_speed",3.7))*100),0,65535))
+		bytes.encode_u16(offset+13,clampi(roundi(float(roll.get("jump_speed",Model.Movement.JUMP_SPEED))*100),0,65535))
+		bytes[offset+15]=clampi(roundi(float(roll.get("chain_window",0))*500),0,255)
 	var recoil:Vector2=p.get("knockback",Vector2.ZERO)
-	bytes[20]=clampi(roundi(recoil.x*20)+128,0,255)
-	bytes[21]=clampi(roundi(recoil.y*20)+128,0,255)
-	bytes.encode_u16(22,int(p.get("hit_seq",0))%65536)
+	bytes[32]=clampi(roundi(recoil.x*20)+128,0,255)
+	bytes[33]=clampi(roundi(recoil.y*20)+128,0,255)
+	bytes.encode_u16(34,int(p.get("hit_seq",0))%65536)
 	return bytes
 
 func _unpack_roll(bytes: PackedByteArray, offset: int) -> Dictionary:
+	if bytes.size()==36:
+		var time_and_active:=bytes.decode_u16(offset+4)
+		var flags:=int(bytes[offset+9])
+		return {"seen":bytes.decode_u32(offset),"active":bool(time_and_active&32768),"time":float(time_and_active&32767)/1000.0,"cooldown":float(bytes[offset+6])/100.0,"direction":Vector2.from_angle(float(bytes.decode_u16(offset+7))/65535.0*TAU),"chain":flags&7,"chain_eligible":bool(flags&8),"buffered":bool(flags&16),"buffer_reward":bool(flags&32),"buffer_time":float(bytes[offset+10])/500.0,"takeoff_speed":float(bytes.decode_u16(offset+11))/100.0,"jump_speed":float(bytes.decode_u16(offset+13))/100.0,"chain_window":float(bytes[offset+15])/500.0}
+	if bytes.size()>=44:
+		var flags:=int(bytes[offset+11])
+		return {"seen":bytes.decode_u32(offset),"active":bool(flags&1),"time":float(bytes.decode_u16(offset+4))/1000.0,"cooldown":float(bytes.decode_u16(offset+6))/1000.0,"direction":Vector2.from_angle(float(bytes.decode_u16(offset+8))/65535.0*TAU),"chain":int(bytes[offset+10]),"chain_eligible":bool(flags&2),"buffered":bool(flags&4),"buffer_reward":bool(flags&8),"buffer_time":float(bytes.decode_u16(offset+12))/1000.0,"takeoff_speed":float(bytes.decode_u16(offset+14))/100.0,"jump_speed":float(bytes.decode_u16(offset+16))/100.0,"chain_window":float(bytes.decode_u16(offset+18))/1000.0}
 	if bytes.size() not in [20,24]:return Model.Movement.empty_roll()
 	var time_and_flag := bytes.decode_u16(offset+4)
 	return {"seen":bytes.decode_u32(offset),"active":bool(time_and_flag & 32768),"time":float(time_and_flag & 32767)/1000.0,"cooldown":float(bytes.decode_u16(offset+6))/1000.0,"direction":Vector2.from_angle(float(bytes.decode_u16(offset+8))/65535.0*TAU)}

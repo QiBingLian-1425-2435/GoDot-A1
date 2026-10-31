@@ -18,10 +18,30 @@ func pose(x: float) -> Dictionary:
 func run() -> void:
 	test_continuity(false)
 	test_continuity(true)
+	test_high_speed_continuity()
 	test_lifecycle()
 	test_stream_order()
 	print("MOVEMENT_SMOOTHING ",checks," checks, ",failures," failures")
 	quit(0 if failures == 0 else 1)
+
+func test_high_speed_continuity() -> void:
+	var buffer=Buffer.new()
+	var current:=pose(0.0);current.velocity=Vector2(30,0)
+	var previous:=0.0
+	var moving_frames:=0
+	var backwards:=0
+	for frame in range(120):
+		if frame%3==0:
+			current=pose(float(frame)/60.0*30.0);current.velocity=Vector2(30,0)
+			buffer.push({1:current},float(frame)/60.0)
+		buffer.advance(1.0/60.0)
+		var shown:Dictionary=buffer.sample_player(1,current)
+		if frame>12:
+			var step:float=float(shown.pos.x)-previous
+			if step>.01:moving_frames+=1
+			if step<-.001:backwards+=1
+		previous=float(shown.pos.x)
+	check(moving_frames>95 and backwards==0,"30 m/s remote interpolation advances smoothly without rewinds")
 
 func test_continuity(jitter: bool) -> void:
 	var buffer = Buffer.new()
@@ -87,6 +107,10 @@ func test_lifecycle() -> void:
 func test_stream_order() -> void:
 	var host = Session.new()
 	for id in range(2,6): host.model.add_player(id,"fixture")
+	var host_player:Dictionary=host.model.state.players[1]
+	host_player.roll=host.model.Movement.empty_roll();host_player.roll.active=true;host_player.roll.time=.42;host_player.roll.chain=3
+	host_player.roll.buffered=true;host_player.roll.buffer_reward=true;host_player.roll.buffer_time=.08;host_player.roll.takeoff_speed=24.0;host_player.roll.jump_speed=6.2;host_player.roll.chain_window=.06
+	host_player.input_roll=host_player.roll.duplicate(true)
 	var full: Dictionary = host.model.state.duplicate(true)
 	var rows: Array = host._motion_rows()
 	for row in rows: row[6] = "interact" # Longest current action name: measure active animation too.
@@ -101,8 +125,11 @@ func test_stream_order() -> void:
 	client._apply_motion(rows,10,9,.05)
 	check(client._session_token == 0,"motion cannot establish a session before reliable admission")
 	client._apply_snapshot(full.duplicate(true),10,10,.1)
+	client.model.state.players[1].roll=host.model.Movement.empty_roll()
 	rows[0][1] = Vector2(2,4)
 	client._apply_motion(rows,10,12,.2)
+	var packed_roll:Dictionary=client.model.state.players[1].roll
+	check(packed_roll.active and packed_roll.chain==3 and packed_roll.buffered and packed_roll.buffer_reward and absf(float(packed_roll.takeoff_speed)-24.0)<.01,"compact motion preserves high-speed chained-jump prediction state")
 	var old_full := full.duplicate(true)
 	old_full.players[1].credits = 42
 	client._apply_snapshot(old_full,10,11,.15)

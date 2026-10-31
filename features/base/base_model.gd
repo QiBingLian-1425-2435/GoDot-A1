@@ -31,7 +31,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "jump_chain_bonus":150, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "jump_chain_bonus":150, "jump_chain_max_speed":18, "jump_reward_window_ms":70, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -66,6 +66,8 @@ func add_player(id: int, player_name: String) -> void:
 	state.players[id] = p
 	p.appearance=Appearance.defaults()
 	p.jump_chain_bonus=int(state.get("jump_chain_bonus",150))
+	p.jump_chain_max_speed=int(state.get("jump_chain_max_speed",18))
+	p.jump_reward_window_ms=int(state.get("jump_reward_window_ms",70))
 	p.height = 0.0
 	p.life = "alive"; p.possessing = 0; p.rescue = {}; p.corpse_uid = ""
 	p.san = 100.0
@@ -214,6 +216,16 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			if not payload.get("value") is int or int(payload.value) not in [100,150,200]:return false
 			state.jump_chain_bonus=int(payload.value)
 			return true
+		"set_jump_chain_max_speed":
+			if id!=1:return _reject("⟦settings.jump_chain_host_only⟧")
+			if not payload.get("value") is int or int(payload.value) not in [12,18,24,30]:return false
+			state.jump_chain_max_speed=int(payload.value)
+			return true
+		"set_jump_reward_window":
+			if id!=1:return _reject("⟦settings.jump_chain_host_only⟧")
+			if not payload.get("value") is int or int(payload.value) not in [40,70,100,130]:return false
+			state.jump_reward_window_ms=int(payload.value)
+			return true
 		"reload": return _reload(p)
 		"fire": return _fire(p)
 		"select_weapon":
@@ -277,6 +289,8 @@ func tick(delta: float) -> void:
 		_update_weight(p)
 		p.infinite_stamina = bool(state.get("infinite_stamina",false))
 		p.jump_chain_bonus = int(state.get("jump_chain_bonus",150))
+		p.jump_chain_max_speed=int(state.get("jump_chain_max_speed",18))
+		p.jump_reward_window_ms=int(state.get("jump_reward_window_ms",70))
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
 		if in_camp:

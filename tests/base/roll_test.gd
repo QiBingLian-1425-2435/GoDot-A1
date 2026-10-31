@@ -27,39 +27,42 @@ func run():
 	check(peak>.65 and peak<.72 and p.height==0 and not p.roll.active,"jump follows gravity and lands once")
 	m.command(1,"move",{"direction":Vector2.ZERO,"roll_seq":1});m.tick(.01)
 	check(not p.roll.active,"holding the same request cannot bunny-hop")
-	# Horizontal distance follows the actual takeoff speed. Sprint chaining rewards
-	# precise re-jumps inside the landing window and resets after a miss.
+	# Only a press in the final pre-landing reward window gains a tier.
 	p.pos=Vector2.ZERO;p.stamina=100;p.roll=m.Movement.empty_roll()
 	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":2});m.tick(.01)
 	var first_jump_speed:float=p.roll.takeoff_speed
 	var first_peak:=0.0
-	while p.roll.active:
+	while p.roll.active and p.roll.time<.49:
 		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":2});m.tick(.01);first_peak=maxf(first_peak,p.height)
 	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
-	check(p.roll.active and p.roll.chain==1 and p.roll.takeoff_speed>first_jump_speed,"timed sprint re-jump earns distance and planned-speed bonus")
+	check(p.roll.buffered and p.roll.buffer_reward,"final pre-landing press enters configured reward window")
+	while p.roll.active and p.roll.time>.1:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
+	check(p.roll.active and p.roll.chain==1 and p.roll.takeoff_speed>first_jump_speed,"precise buffered re-jump gains speed and starts on landing")
 	var enhanced_chain_speed:float=p.roll.takeoff_speed
 	var chain_peak:=0.0
 	while p.roll.active:
 		m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01);chain_peak=maxf(chain_peak,p.height)
 	check(chain_peak>first_peak+.05,"timed sprint re-jump earns extra height")
-	# A fresh press during the final descent remains buffered briefly and starts
-	# the next jump on the landing frame, removing the one-frame grounded hitch.
+	# An earlier press still removes the landing hitch, but is not rewarded and
+	# drops one existing tier as the configured negative outcome.
 	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=10
-	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":11});m.tick(.01)
-	for i in range(45):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":11});m.tick(.01)
+	p.roll.chain=1
+	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
+	for i in range(36):m.Movement.step(p,{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":10},.01,m.solve_motion.bind(1))
 	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
-	var buffered:bool=bool(p.roll.buffered)
+	var buffered_early:bool=bool(p.roll.buffered) and not bool(p.roll.buffer_reward)
 	while p.roll.active and p.roll.time>.1:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
-	check(buffered and p.roll.active and p.roll.chain==1 and p.roll.time<=.1,"late airborne input chains immediately on landing")
+	check(buffered_early and p.roll.active and p.roll.chain==0 and p.roll.time<=.1,"early input continues smoothly but loses one reward tier")
 	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":12});m.tick(.01)
 	check(not m.command(2,"set_jump_chain_bonus",{"value":200}) and not m.command(1,"set_jump_chain_bonus",{"value":175}),"only host and exact reward presets are accepted")
 	check(m.command(1,"set_jump_chain_bonus",{"value":200}),"host selects stronger chained-jump reward")
-	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.seen=20
-	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":21});m.tick(.01)
-	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":21});m.tick(.01)
-	m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":22});m.tick(.01)
-	check(p.roll.takeoff_speed>enhanced_chain_speed,"200 percent preset increases reward beyond default 150 percent")
-	while p.roll.active:m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":22});m.tick(.01)
+	check(not m.command(1,"set_jump_chain_max_speed",{"value":20}) and m.command(1,"set_jump_chain_max_speed",{"value":30}),"host selects an exact higher speed cap")
+	check(not m.command(1,"set_jump_reward_window",{"value":80}) and m.command(1,"set_jump_reward_window",{"value":100}),"host selects an exact precision window")
+	p.jump_chain_bonus=m.state.jump_chain_bonus;p.jump_chain_max_speed=m.state.jump_chain_max_speed;p.jump_reward_window_ms=m.state.jump_reward_window_ms
+	p.pos=Vector2.ZERO;p.height=0;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.chain=4
+	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
+	check(p.roll.takeoff_speed>enhanced_chain_speed and is_equal_approx(p.roll.takeoff_speed,30.0),"maximum chain tier reaches configured 30 m/s cap")
+	while p.roll.active:m.Movement.step(p,{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":20},.01,m.solve_motion.bind(1))
 	for i in range(20):m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":3});m.tick(.01)
 	check(p.roll.chain==0,"missing the landing window restores normal sprint speed")
 	p.stamina=15;m.command(1,"move",{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":23});m.tick(.01)
@@ -91,6 +94,13 @@ func run():
 		if lane==0.0:check(p.pos.x<.59 and peak_height>.65,"jump cannot pass through a tall wall")
 		if lane==5.0:check(peak_height<.23,"low ceiling cancels ascent")
 		if lane==-5.0:check(p.pos.x>.6 and p.height>.4,"jump lands on a low platform")
+	p.pos=Vector2(-.5,0);p.height=.04;p.stamina=100;p.roll=m.Movement.empty_roll();p.roll.chain=4
+	p.jump_chain_bonus=200;p.jump_chain_max_speed=30
+	m.Movement._start_jump(p,p.roll,{"direction":Vector2.RIGHT,"sprint":true},Vector2.RIGHT,true,0)
+	var high_speed:float=p.roll.takeoff_speed
+	for i in range(90):
+		m.Movement.step(p,{"direction":Vector2.RIGHT,"sprint":true,"roll_seq":30},.01,func(from,offset):return body.move_airborne(Vector3(from.x,p.height,from.y),offset,p.roll.get("vertical_delta",0)) if p.roll.active else body.move_spatial(Vector3(from.x,p.height,from.y),offset))
+	check(is_equal_approx(high_speed,30.0) and p.pos.x<.59,"30 m/s airborne sweep cannot tunnel through thin wall")
 	world.queue_free();await process_frame
 	var game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true
 	game._start_solo();game.set_physics_process(false);game.session.set_physics_process(false)

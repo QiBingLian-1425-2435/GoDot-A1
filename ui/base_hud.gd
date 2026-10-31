@@ -268,6 +268,12 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 			for index in range(chain_bonus.item_count):
 				if int(chain_bonus.get_item_metadata(index))==int(state.get("jump_chain_bonus",150)):chain_bonus.select(index)
 			chain_bonus.disabled=mode in ["client","join"]
+		for spec in [["JumpChainMaxSpeed","jump_chain_max_speed",18],["JumpRewardWindow","jump_reward_window_ms",70]]:
+			var option:OptionButton=_dialog.get_node_or_null(spec[0])
+			if option!=null:
+				for index in range(option.item_count):
+					if int(option.get_item_metadata(index))==int(state.get(spec[1],spec[2])):option.select(index)
+				option.disabled=mode in ["client","join"]
 	if not is_instance_valid(_root):
 		return
 	var p := _player()
