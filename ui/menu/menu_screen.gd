@@ -69,6 +69,49 @@ static func _menu_button(ctx, text: String, index: int, color: Color, callback: 
 	return button
 
 static func _open_settings(ctx) -> void:
+	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,650))
+	ctx._label(ctx._dialog,"⟦settings.category_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦settings.category_player⟧",Rect2(34,170,276,96),func()->void:_open_player_settings(ctx),ctx.TEAL,22)
+	ctx._button(ctx._dialog,"⟦settings.category_audio_display⟧",Rect2(328,170,276,96),func()->void:_open_audio_display_settings(ctx),ctx.TEAL,22)
+	ctx._button(ctx._dialog,"⟦settings.category_controls⟧",Rect2(34,286,276,96),ctx._open_key_bindings,ctx.TEAL,22)
+	ctx._button(ctx._dialog,"⟦settings.category_developer⟧",Rect2(328,286,276,96),func()->void:_open_developer_settings(ctx),ctx.GOLD,22)
+	ctx._label(ctx._dialog,"⟦settings.developer_warning⟧",Rect2(328,390,276,66),15,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦menu_screen.021⟧",Rect2(170,530,300,48),ctx._close_dialog,ctx.GREEN,23)
+
+static func _open_player_settings(ctx) -> void:
+	ctx._dialog_panel("⟦settings.category_player⟧",Vector2(640,600))
+	var speed:=CheckButton.new();speed.name="ShowMovementSpeed";speed.position=Vector2(34,115);speed.size=Vector2(570,44);Texts.bind(speed,"⟦settings.show_movement_speed⟧","text");speed.button_pressed=ctx.show_movement_speed;speed.toggled.connect(ctx.set_show_movement_speed);ctx._dialog.add_child(speed)
+	ctx._label(ctx._dialog,"⟦settings.show_movement_speed_hint⟧",Rect2(34,160,570,54),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var chain:=CheckButton.new();chain.name="ShowJumpChain";chain.position=Vector2(34,230);chain.size=Vector2(570,44);Texts.bind(chain,"⟦settings.show_jump_chain⟧","text");chain.button_pressed=ctx.show_jump_chain;chain.toggled.connect(ctx.set_show_jump_chain);ctx._dialog.add_child(chain)
+	ctx._label(ctx._dialog,"⟦settings.language⟧",Rect2(34,320,200,32),21,ctx.INK)
+	var language:=OptionButton.new();language.name="LanguageSelect";language.position=Vector2(250,314);language.size=Vector2(340,42);language.add_theme_font_size_override("font_size",21)
+	var locales:=Texts.available_locales()
+	for code in locales:
+		var index:=Texts.add_item(language,str(locales[code].name));language.set_item_metadata(index,code)
+		if code==Texts.locale():language.select(index)
+	language.item_selected.connect(func(index:int)->void:if Texts.set_locale(str(language.get_item_metadata(index)))!=OK:ctx.toast("⟦settings.language_save_failed⟧"));ctx._dialog.add_child(language)
+	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,475,300,48),ctx._open_settings,ctx.GREEN,22)
+
+static func _open_audio_display_settings(ctx) -> void:
+	ctx._dialog_panel("⟦settings.category_audio_display⟧",Vector2(640,650))
+	ctx._label(ctx._dialog,"⟦menu_screen.011⟧",Rect2(34,115,200,32),21,ctx.INK)
+	var volume:=HSlider.new();volume.position=Vector2(250,118);volume.size=Vector2(340,28);volume.min_value=0;volume.max_value=100;volume.value=db_to_linear(AudioServer.get_bus_volume_db(0))*100.0;volume.value_changed.connect(func(value:float)->void:AudioServer.set_bus_volume_db(0,linear_to_db(maxf(value/100.0,0.0001)));ctx.action_requested.emit("settings",{"volume":value/100.0}));ctx._dialog.add_child(volume)
+	var fullscreen:=CheckButton.new();fullscreen.position=Vector2(34,190);fullscreen.size=Vector2(570,42);Texts.bind(fullscreen,"⟦menu_screen.013⟧","text");fullscreen.button_pressed=DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN;fullscreen.toggled.connect(func(value:bool)->void:DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED);ctx.action_requested.emit("settings",{"fullscreen":value}));ctx._dialog.add_child(fullscreen)
+	var voice_mute:=CheckButton.new();voice_mute.name="VoiceMute";voice_mute.position=Vector2(34,270);voice_mute.size=Vector2(570,42);Texts.bind(voice_mute,"⟦menu_screen.020⟧","text");voice_mute.button_pressed=ctx.voice_muted;voice_mute.toggled.connect(func(value:bool)->void:ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}));ctx._dialog.add_child(voice_mute)
+	var always_on:=CheckButton.new();always_on.name="VoiceAlwaysOn";always_on.position=Vector2(34,330);always_on.size=Vector2(570,42);Texts.bind(always_on,"⟦settings.voice_always_on⟧","text");always_on.button_pressed=ctx.voice_always_on;always_on.toggled.connect(func(value:bool)->void:ctx.action_requested.emit("settings",{"voice_always_on":value}));ctx._dialog.add_child(always_on)
+	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,500,300,48),ctx._open_settings,ctx.GREEN,22)
+
+static func _open_developer_settings(ctx) -> void:
+	ctx._dialog_panel("⟦settings.category_developer⟧",Vector2(640,760))
+	ctx._label(ctx._dialog,"⟦settings.developer_warning⟧",Rect2(34,92,570,52),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var specs:=[ ["InfiniteReserve","⟦menu_screen.015⟧","set_infinite_reserve","infinite_reserve"], ["InfiniteStamina","⟦menu_screen.018⟧","set_infinite_stamina","infinite_stamina"], ["InfiniteCredits","⟦settings.infinite_credits⟧","set_infinite_credits","infinite_credits"] ]
+	for i in range(specs.size()):
+		var spec:Array=specs[i];var toggle:=CheckButton.new();toggle.name=spec[0];toggle.position=Vector2(34,170+i*72);toggle.size=Vector2(570,42);Texts.bind(toggle,spec[1],"text");toggle.button_pressed=ctx._state.get(spec[3],false);toggle.disabled=ctx._mode in ["client","join"];toggle.toggled.connect(func(value:bool)->void:ctx.action_requested.emit(spec[2],{"enabled":value}));ctx._dialog.add_child(toggle)
+	ctx._button(ctx._dialog,"⟦settings.jump_debug_settings⟧",Rect2(34,420,570,56),func()->void:_open_more_settings(ctx),ctx.GOLD,21)
+	ctx._label(ctx._dialog,"⟦settings.jump_debug_settings_hint⟧",Rect2(34,486,570,62),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,620,300,48),ctx._open_settings,ctx.GREEN,22)
+
+static func _open_legacy_settings(ctx) -> void:
 	ctx._dialog_panel("⟦base_hud.040⟧",Vector2(640,890))
 	ctx._label(ctx._dialog,"⟦menu_screen.011⟧",Rect2(34,105,240,32),21,ctx.INK)
 	var volume = HSlider.new()
@@ -166,18 +209,8 @@ static func _open_settings(ctx) -> void:
 	ctx._label(ctx._dialog,"⟦settings.infinite_credits_hint⟧",Rect2(34,535,570,48),16,ctx.MUTED).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 static func _open_more_settings(ctx) -> void:
-	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,850))
-	ctx._label(ctx._dialog,"⟦settings.more_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	ctx._label(ctx._dialog,"⟦settings.player_settings_section⟧",Rect2(34,148,570,28),19,ctx.GOLD)
-	var speed:=CheckButton.new()
-	speed.name="ShowMovementSpeed"
-	Texts.bind(speed,"⟦settings.show_movement_speed⟧","text")
-	speed.position=Vector2(34,168);speed.size=Vector2(570,44)
-	speed.button_pressed=ctx.show_movement_speed
-	speed.toggled.connect(ctx.set_show_movement_speed)
-	ctx._dialog.add_child(speed)
-	ctx._label(ctx._dialog,"⟦settings.show_movement_speed_hint⟧",Rect2(34,218,570,58),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	ctx._label(ctx._dialog,"⟦settings.developer_settings_section⟧",Rect2(34,278,570,28),19,ctx.GOLD)
+	ctx._dialog_panel("⟦settings.jump_debug_settings⟧",Vector2(640,850))
+	ctx._label(ctx._dialog,"⟦settings.jump_debug_settings_hint⟧",Rect2(34,92,570,72),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	ctx._label(ctx._dialog,"⟦settings.jump_chain_bonus⟧",Rect2(34,300,230,32),20,ctx.INK)
 	var bonus:=OptionButton.new()
 	bonus.name="JumpChainBonus";bonus.position=Vector2(300,294);bonus.size=Vector2(304,42)
@@ -214,8 +247,7 @@ static func _open_more_settings(ctx) -> void:
 	reward_window.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("set_jump_reward_window",{"value":int(reward_window.get_item_metadata(index))}))
 	ctx._dialog.add_child(reward_window)
 	ctx._label(ctx._dialog,"⟦settings.jump_reward_window_hint⟧",Rect2(34,616,570,86),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	var chain_toggle:=CheckButton.new();chain_toggle.name="ShowJumpChain";chain_toggle.position=Vector2(34,704);chain_toggle.size=Vector2(570,42);Texts.bind(chain_toggle,"⟦settings.show_jump_chain⟧","text");chain_toggle.button_pressed=ctx.show_jump_chain;chain_toggle.toggled.connect(ctx.set_show_jump_chain);ctx._dialog.add_child(chain_toggle)
-	ctx._button(ctx._dialog,"⟦keys.back⟧",Rect2(170,780,300,48),ctx._open_settings,ctx.GREEN,22)
+	ctx._button(ctx._dialog,"⟦settings.back_to_developer⟧",Rect2(170,752,300,48),func()->void:_open_developer_settings(ctx),ctx.GREEN,22)
 
 static func _open_help(ctx) -> void:
 	ctx._open_key_bindings()

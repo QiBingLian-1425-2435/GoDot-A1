@@ -2,6 +2,7 @@ extends SceneTree
 const Texts = preload("res://features/localization/game_text.gd")
 const Items = preload("res://features/inventory/item_catalog.gd")
 const Camp = preload("res://features/base/camp_upgrades.gd")
+const MenuScreen = preload("res://ui/menu/menu_screen.gd")
 var checks := 0
 var failures := 0
 
@@ -117,6 +118,7 @@ func run() -> void:
 	main.global_map.set_open(false)
 	Texts.set_locale("en", false)
 	ui._open_settings()
+	MenuScreen._open_player_settings(ui)
 	var language: OptionButton = ui._dialog.get_node("LanguageSelect")
 	check(language.item_count == 2 and language.get_item_metadata(language.selected) == "en", "settings lists installed locales and selects current language")
 	check(unresolved(main).is_empty(), "settings text resolves fully")

@@ -14,16 +14,26 @@ func run():
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	var ui=HUD.new();ui.display_preferences_path=path;root.add_child(ui)
 	ui.show_game();ui._open_settings()
-	var more:Button=null
+	var player_entry:Button=null;var developer_entry:Button=null
 	for child in ui._dialog.get_children():
-		if child is Button and child.text==Texts.resolve("⟦settings.more⟧"):more=child
-	check(more!=null,"settings exposes More entry")
-	more.pressed.emit()
+		if child is Button and child.text==Texts.resolve("⟦settings.category_player⟧"):player_entry=child
+		if child is Button and child.text==Texts.resolve("⟦settings.category_developer⟧"):developer_entry=child
+	check(player_entry!=null and developer_entry!=null,"settings exposes player and developer categories")
+	player_entry.pressed.emit()
 	var toggle:CheckButton=ui._dialog.get_node_or_null("ShowMovementSpeed")
+	check(toggle!=null and not toggle.button_pressed,"movement speed display defaults off")
+	ui._open_settings();developer_entry=null
+	for child in ui._dialog.get_children():
+		if child is Button and child.text==Texts.resolve("⟦settings.category_developer⟧"):developer_entry=child
+	developer_entry.pressed.emit()
+	var jump_entry:Button=null
+	for child in ui._dialog.get_children():
+		if child is Button and child.text==Texts.resolve("⟦settings.jump_debug_settings⟧"):jump_entry=child
+	check(jump_entry!=null,"developer category exposes chained-jump debug settings")
+	jump_entry.pressed.emit()
 	var bonus:OptionButton=ui._dialog.get_node_or_null("JumpChainBonus")
 	var max_speed:OptionButton=ui._dialog.get_node_or_null("JumpChainMaxSpeed")
 	var reward_window:OptionButton=ui._dialog.get_node_or_null("JumpRewardWindow")
-	check(toggle!=null and not toggle.button_pressed,"movement speed display defaults off")
 	check(bonus!=null and int(bonus.get_item_metadata(bonus.selected))==1,"More exposes +1 m/s chained-jump gain as default")
 	check(max_speed!=null and int(max_speed.get_item_metadata(max_speed.selected))==18,"More exposes 18 m/s default cap")
 	check(reward_window!=null and int(reward_window.get_item_metadata(reward_window.selected))==70,"More exposes 70 ms precision window")
@@ -38,6 +48,8 @@ func run():
 	max_speed.item_selected.emit(3)
 	reward_window.item_selected.emit(4)
 	check(int(model.state.jump_chain_bonus)==4 and int(model.state.jump_chain_max_speed)==30 and int(model.state.jump_reward_window_ms)==500,"More selections reach host-authoritative rules")
+	MenuScreen._open_player_settings(ui)
+	toggle=ui._dialog.get_node_or_null("ShowMovementSpeed")
 	toggle.button_pressed=true
 	ui.update_movement_speed(6.5934)
 	check(ui._movement_speed_label.visible and ui._movement_speed_label.text.contains("6.59"),"enabled HUD shows precise movement speed")
