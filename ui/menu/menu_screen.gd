@@ -91,6 +91,7 @@ static func _open_settings(ctx) -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
 		ctx.action_requested.emit("settings",{"fullscreen":value}))
 	ctx._dialog.add_child(fullscreen)
+	ctx._label(ctx._dialog,"⟦settings.developer_settings_section⟧",Rect2(34,225,570,28),19,ctx.GOLD)
 	ctx._label(ctx._dialog,"⟦menu_screen.014⟧",Rect2(34,263,200,32),21,ctx.INK)
 	var infinite = CheckButton.new()
 	infinite.name = "InfiniteReserve"
@@ -167,6 +168,7 @@ static func _open_settings(ctx) -> void:
 static func _open_more_settings(ctx) -> void:
 	ctx._dialog_panel("⟦settings.more⟧",Vector2(640,850))
 	ctx._label(ctx._dialog,"⟦settings.more_hint⟧",Rect2(34,92,570,52),17,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._label(ctx._dialog,"⟦settings.player_settings_section⟧",Rect2(34,148,570,28),19,ctx.GOLD)
 	var speed:=CheckButton.new()
 	speed.name="ShowMovementSpeed"
 	Texts.bind(speed,"⟦settings.show_movement_speed⟧","text")
@@ -175,6 +177,7 @@ static func _open_more_settings(ctx) -> void:
 	speed.toggled.connect(ctx.set_show_movement_speed)
 	ctx._dialog.add_child(speed)
 	ctx._label(ctx._dialog,"⟦settings.show_movement_speed_hint⟧",Rect2(34,218,570,58),16,ctx.MUTED).autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	ctx._label(ctx._dialog,"⟦settings.developer_settings_section⟧",Rect2(34,278,570,28),19,ctx.GOLD)
 	ctx._label(ctx._dialog,"⟦settings.jump_chain_bonus⟧",Rect2(34,300,230,32),20,ctx.INK)
 	var bonus:=OptionButton.new()
 	bonus.name="JumpChainBonus";bonus.position=Vector2(300,294);bonus.size=Vector2(304,42)
