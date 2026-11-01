@@ -47,7 +47,7 @@ func run() -> void:
 	hud._open_settings()
 	var entry: Button
 	for node in hud._dialog.get_children():
-		if node is Button and node.text == Texts.resolve("⟦keys.title⟧"): entry = node
+		if node is Button and node.text == Texts.resolve("⟦settings.category_controls⟧"): entry = node
 	check(entry != null,"settings entry")
 	entry.pressed.emit()
 	var panel = hud._key_bindings_panel
