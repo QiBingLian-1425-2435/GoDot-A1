@@ -5,7 +5,7 @@ const Texts = preload("res://features/localization/game_text.gd")
 static func _open_steam(ctx) -> void:
 	ctx._dialog_panel("⟦menu_screen.005⟧",Vector2(960,760))
 	ctx._dialog_kind = "steam"
-	var status_panel = ctx._panel(ctx._dialog,Rect2(34,86,892,92),Color("112b32"),Color("486e6d"),10)
+	var status_panel = ctx._panel(ctx._dialog,Rect2(34,86,892,92),Color(0.035,0.06,0.066,0.85),Color("3b5556"),10)
 	ctx._steam_persona = ctx._label(status_panel,"",Rect2(18,9,856,27),19,ctx.GOLD)
 	ctx._steam_status = ctx._label(status_panel,"",Rect2(18,39,856,44),17,ctx.MUTED)
 	ctx._steam_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -20,7 +20,7 @@ static func _open_steam(ctx) -> void:
 	ctx._steam_join_button = ctx._button(ctx._dialog,"⟦steam_panel.006⟧",Rect2(710,305,216,48),ctx._join_steam_input,ctx.TEAL,21)
 	ctx._label(ctx._dialog,"⟦steam_panel.007⟧",Rect2(34,380,630,34),21,ctx.INK)
 	ctx._steam_refresh_button = ctx._button(ctx._dialog,"⟦steam_panel.008⟧",Rect2(748,374,178,42),func() -> void: ctx._steam_action("steam_refresh"),ctx.TEAL,18)
-	var list_panel = ctx._panel(ctx._dialog,Rect2(34,431,892,184),Color("10272e"),Color("496966"),10)
+	var list_panel = ctx._panel(ctx._dialog,Rect2(34,431,892,184),Color(0.035,0.06,0.066,0.85),Color("33474a"),10)
 	var scroll = ScrollContainer.new()
 	scroll.position = Vector2(10,10)
 	scroll.size = Vector2(872,164)

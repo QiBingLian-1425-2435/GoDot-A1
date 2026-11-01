@@ -8,7 +8,7 @@ var container_name := "bag"
 var slot_index: Variant = 0
 var item: Dictionary = {}
 var definition: Dictionary = {}
-var accent := Color("8bc1b7")
+var accent := Color("f0c46a")
 var slot_label := ""
 var locked := false
 var selected := false
@@ -80,35 +80,52 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	action_requested.emit("transfer", {"from": data.from, "index": data.index, "to": container_name, "target": slot_index})
 
 func _draw() -> void:
-	var bg := Color("30383d")
-	if _hovered:
-		bg = Color("43575c")
-	if locked:
-		bg = Color("242b30")
-	draw_style_box(_box(bg, definition.get("rarity_color",Color("778589")) if not item.is_empty() else Color("596064"), 2 if not item.is_empty() else 1), Rect2(Vector2.ZERO, size))
-	if not item.is_empty():
+	var rect := Rect2(Vector2.ZERO, size)
+	var has_item := not item.is_empty()
+	var rarity_color: Color = definition.get("rarity_color", Color("778589")) if has_item else Color("596064")
+	var bg := Color("172226")
+	if _hovered and not locked: bg = Color("213238")
+	if locked: bg = Color("11191b")
+	draw_style_box(_box(bg, Color(1, 1, 1, .07), 1), rect)
+	if has_item:
+		# Rarity glow rising from the bottom edge.
+		for k in range(6):
+			var h := size.y * (.12 + k * .07)
+			var glow := _box(Color(rarity_color, .045), Color.TRANSPARENT, 0)
+			glow.corner_radius_top_left = 0; glow.corner_radius_top_right = 0
+			draw_style_box(glow, Rect2(0, size.y - h, size.x, h))
+		draw_style_box(_box(Color.TRANSPARENT, Color(rarity_color, .7 if not _hovered else 1.0), 1), rect)
 		var col: Color = definition.get("color", Color("b8c1bb"))
-		draw_rect(Rect2(4, size.y - 5, size.x - 8, 2), definition.get("rarity_color",col))
-		draw_string(_font, Vector2(5,17), Texts.resolve(["⟦item_slot.002⟧","⟦item_slot.003⟧","⟦item_slot.004⟧","⟦item_slot.005⟧","⟦item_slot.006⟧","⟦item_slot.007⟧"][int(definition.get("rarity",0))]), HORIZONTAL_ALIGNMENT_LEFT, -1, 13, definition.get("rarity_color",col))
-		_draw_icon(str(item.get("kind", "")), Rect2(Vector2(10, 8), size - Vector2(20, 21)), col)
+		draw_rect(Rect2(6, size.y - 4, size.x - 12, 2), Color(rarity_color, .9))
+		_draw_icon(str(item.get("kind", "")), Rect2(Vector2(10, 9), size - Vector2(20, 22)), col)
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		# Rarity chip (character keeps rarity readable without colour).
+		var tag := Texts.resolve(["⟦item_slot.002⟧","⟦item_slot.003⟧","⟦item_slot.004⟧","⟦item_slot.005⟧","⟦item_slot.006⟧","⟦item_slot.007⟧"][int(definition.get("rarity",0))])
+		var chip := _box(Color(rarity_color, .85), Color.TRANSPARENT, 0)
+		chip.set_corner_radius_all(4)
+		draw_style_box(chip, Rect2(3, 3, 16, 16))
+		draw_string(_font, Vector2(4, 16), tag, HORIZONTAL_ALIGNMENT_CENTER, 14, 12, Color("101618"))
 		var count := int(item.get("count", 1))
 		if count > 1:
-			var count_text := str(count)
-			var width := _font.get_string_size(Texts.resolve(count_text), HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
-			draw_rect(Rect2(size.x - width - 12, size.y - 25, width + 9, 21), Color(0.08, 0.11, 0.13, 0.88))
-			draw_string(_font, Vector2(size.x - width - 8, size.y - 9), Texts.resolve(count_text), HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("f4f2db"))
+			var count_text := Texts.resolve(str(count))
+			var width := _font.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
+			var pill := _box(Color(0.05, 0.07, 0.08, 0.92), Color(1, 1, 1, .12), 1)
+			pill.set_corner_radius_all(8)
+			draw_style_box(pill, Rect2(size.x - width - 14, size.y - 24, width + 10, 18))
+			draw_string(_font, Vector2(size.x - width - 9, size.y - 10), count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("f6efd8"))
 	elif not slot_label.is_empty():
-		var width := _font.get_string_size(Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-		draw_string(_font, Vector2((size.x - width) * 0.5, size.y * 0.57), Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("9da9a8"))
+		var width := _font.get_string_size(Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		draw_string(_font, Vector2((size.x - width) * 0.5, size.y * 0.56), Texts.resolve(slot_label), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("6f7f7c"))
 	if selected:
-		draw_style_box(_box(Color.TRANSPARENT, accent, 3), Rect2(Vector2.ZERO, size))
+		draw_style_box(_box(Color.TRANSPARENT, accent, 2), rect.grow(1))
 
 func _box(bg: Color, border: Color, width: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.border_color = border
 	style.set_border_width_all(width)
-	style.set_corner_radius_all(6)
+	style.set_corner_radius_all(8)
+	style.anti_aliasing = true
 	return style
 
 func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:

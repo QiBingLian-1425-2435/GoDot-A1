@@ -3,6 +3,7 @@ signal map_loaded()
 ## Original scene layout, static world physics, and source landmarks.
 const WalkabilityRepairs = preload("res://worlds/ground_zero/walkability_repairs.gd")
 const Library = preload("res://worlds/ground_zero/map_library.gd")
+const TerrainFlatten = preload("res://worlds/ground_zero/terrain_flatten.gd")
 const TERRAIN_SHADER = preload("res://worlds/ground_zero/terrain.gdshader")
 const WATER_DECAL_SHADER = preload("res://worlds/ground_zero/water_decal.gdshader")
 @export_enum("surface","cave") var zone := "surface"
@@ -34,6 +35,7 @@ func _ready() -> void:
 	if library == null: library = Library.new()
 	data = library.read_json(zone+".json")
 	if data.is_empty(): return
+	TerrainFlatten.apply(data,zone)
 	await _build_terrain()
 	if _cancelled: queue_free();return
 	await _build_geometry()
@@ -208,6 +210,8 @@ func _build_terrain() -> void:
 	_terrain_scale = Vector3(spec.scale[0],spec.scale[1],spec.scale[2])
 	var file := FileAccess.open(Library.ROOT+str(spec.heights),FileAccess.READ)
 	_heights = file.get_buffer(file.get_length()).to_float32_array()
+	var flatten := TerrainFlatten.enabled(zone)
+	if flatten: _heights = TerrainFlatten.flatten_heights(_heights,_terrain_origin.y)
 	var material := ShaderMaterial.new()
 	material.shader = TERRAIN_SHADER
 	_terrain_material=material
@@ -220,6 +224,7 @@ func _build_terrain() -> void:
 		material.set_shader_parameter(names[i]+"_size",Vector2(layer.tile_size[0],layer.tile_size[1]))
 	for key in spec.chunks:
 		var mesh: ArrayMesh = library.geometry(str(key))
+		if flatten: mesh = TerrainFlatten.flatten_chunk(mesh,_terrain_origin.y)
 		var node := MeshInstance3D.new()
 		node.name = str(key)
 		node.mesh = mesh
@@ -302,7 +307,7 @@ func _build_landmarks() -> void:
 		if scene.sceneID!=scene_id: continue
 		for item in scene.cachedLocations:
 			var source: Dictionary = item.position
-			landmarks.append({"path":str(item.path),"pos":Vector3(source.x,source.y,-float(source.z))})
+			landmarks.append({"path":str(item.path),"pos":TerrainFlatten.lower(zone,Vector3(source.x,source.y,-float(source.z)))})
 	if zone=="surface":
 		var entry := Library.source_location("surface","Special/BunkerEntry")
 		_interactions.append({"kind":"travel","uid":"surface_to_bunker","world":zone,"title":"⟦ground_zero.001⟧","pos":Vector2(entry.x,entry.z),"height":entry.y,"destination":"bunker","spawn":Vector3(-1,0,4)})

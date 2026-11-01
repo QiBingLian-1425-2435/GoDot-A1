@@ -75,7 +75,7 @@ func update(ctx, delta: float) -> void:
 			var center:Vector3=effect.pos+Vector3.UP
 			spheres.append(Vector4(center.x,center.y,center.z,3.0))
 	var smoke_count:=spheres.size();spheres.resize(8)
-	var parameters: Dictionary={"vision_smoke_count":smoke_count,"vision_smoke_spheres":spheres,"vision_roof_cutaway":roof_cutaway,"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
+	var parameters: Dictionary={"vision_smoke_count":smoke_count,"vision_smoke_spheres":spheres,"vision_roof_cutaway":roof_cutaway,"vision_origin":observer,"vision_aim":aim,"vision_rays":ray_texture,"vision_range":Rules.VIEW_DISTANCE,"vision_sense":Rules.SENSE_RADIUS,"vision_cos_inner":cos(deg_to_rad(Rules.VIEW_ANGLE*.5-5)),"vision_cos_outer":cos(deg_to_rad(Rules.VIEW_ANGLE*.5+2))}
 	if ctx.world.has_method("set_vision"):ctx.world.set_vision(true,parameters)
 	if is_instance_valid(ctx.tracer_node):
 		for key in parameters:ctx.tracer_node.material_override.set_shader_parameter(key,parameters[key])
@@ -84,12 +84,11 @@ func update(ctx, delta: float) -> void:
 		actor.visible=ctx.session.model.Souls.mobile(ctx.session.model.state.players.get(id,{})) and (id==observer_id or can_see(actor.position+Vector3(0,.45,0)) or can_see(actor.position+Vector3(0,1.3,0)))
 	for uid in ctx.drops:
 		ctx.drops[uid].visible=can_see(ctx.drops[uid].position+Vector3(0,.2,0))
+	# Searchable containers are part of the scenery: always drawn (the vision
+	# shadow darkens them when unseen). Only loose ground drops and actors hide.
 	if ctx.world.has_method("vision_targets"):
 		for target in ctx.world.vision_targets():
-			var visible:=false
-			for point in target.points:
-				if can_see(point,target.exclude):visible=true;break
-			for node in target.nodes:node.visible=visible
+			for node in target.nodes:node.visible=true
 	for i in ctx.target_labels.size():
 		ctx.target_labels[i].visible=can_see(ctx.target_labels[i].position-Vector3(0,1.4,0))
 

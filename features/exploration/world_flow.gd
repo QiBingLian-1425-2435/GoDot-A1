@@ -2,8 +2,12 @@ extends RefCounted
 ## Main composition adapter for authoritative world changes.
 const Map = preload("res://worlds/ground_zero/ground_zero.gd")
 const Library = preload("res://worlds/ground_zero/map_library.gd")
+const SurfaceLook = preload("res://worlds/ground_zero/surface_look.gd")
+const TerrainFlatten = preload("res://worlds/ground_zero/terrain_flatten.gd")
+const City = preload("res://worlds/city/city.gd")
 
 static func available(zone: String) -> bool:
+	if zone=="city": return FileAccess.file_exists(City.ROOT+"city_layout.json") and FileAccess.file_exists(City.ROOT+"city.glb")
 	return zone=="bunker" or (zone in ["surface","cave"] and FileAccess.file_exists(Library.ROOT+zone+".json") and FileAccess.file_exists(Library.ROOT+"library.json"))
 
 static func configure(ctx) -> void:
@@ -11,7 +15,12 @@ static func configure(ctx) -> void:
 	var manifest := FileAccess.open(Library.ROOT+"asset_manifest.json",FileAccess.READ)
 	if manifest!=null:
 		var data: Dictionary = JSON.parse_string(manifest.get_as_text())
-		ctx.session.model.map_revision = str(data.get("revision",""))
+		# Levelled terrain changes shared physics; mixed builds must not share a room.
+		ctx.session.model.map_revision = str(data.get("revision",""))+TerrainFlatten.REVISION_TAG
+	# The generated city is part of the same shared-map contract.
+	var city_manifest := FileAccess.open(City.ROOT+"asset_manifest.json",FileAccess.READ)
+	var city_data: Variant = JSON.parse_string(city_manifest.get_as_text()) if city_manifest!=null else null
+	ctx.session.model.map_revision += "+city:"+(str(city_data.get("revision","")) if city_data is Dictionary else "none")
 	_apply_rules(ctx)
 
 static func sync(ctx) -> void:
@@ -48,13 +57,16 @@ static func sync(ctx) -> void:
 	ctx.world_loading = desired!="bunker"
 	ctx.session.model.world_ready = not ctx.world_loading
 	ctx.player_physics.world_ready = not ctx.world_loading
-	ctx.ui.set_world_loading(ctx.world_loading,"⟦world_flow.002⟧" if desired=="surface" else "⟦world_flow.003⟧")
+	ctx.ui.set_world_loading(ctx.world_loading,{"surface":"⟦world_flow.002⟧","city":"⟦city.name⟧"}.get(desired,"⟦world_flow.003⟧"))
 	if desired=="bunker": ctx.world = load("res://worlds/bunker/bunker.gd").new()
+	elif desired=="city":
+		ctx.world = City.new()
+		ctx.world.map_loaded.connect(_finish_loading.bind(ctx,ctx.world))
 	else:
 		ctx.world = Map.new()
 		ctx.world.zone = desired
 		ctx.world.map_loaded.connect(_finish_loading.bind(ctx,ctx.world))
-	ctx.world.name = "Bunker" if desired=="bunker" else "GroundZero"
+	ctx.world.name = {"bunker":"Bunker","city":"City"}.get(desired,"GroundZero")
 	ctx.add_child(ctx.world)
 	ctx.world.visible = ctx.in_game and not ctx.world_loading
 	_apply_rules(ctx)
@@ -63,14 +75,20 @@ static func sync(ctx) -> void:
 	ctx.camera_focus = Vector3(pos.x,float(player.get("height",0)),pos.y)
 	ctx.camera.far = 220
 	ctx.ui.close_inventory()
+	var sun: DirectionalLight3D = null
+	var environment: Environment = null
 	for child in ctx.get_children():
 		if child is DirectionalLight3D:
+			sun = child
 			child.light_color = Color("c3d9e8") if desired=="bunker" else Color("fff0d9")
 			child.light_energy = .05 if desired=="cave" else .42
 		if child is WorldEnvironment:
+			environment = child.environment
 			child.environment.ambient_light_energy = .14 if desired=="cave" else .3
 			child.environment.ambient_light_color = Color("91afc7") if desired=="bunker" else Color("d6d9ce")
 			child.environment.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	if desired in ["surface","city"]: SurfaceLook.apply_surface(environment,sun)
+	else: SurfaceLook.clear(environment,sun,Vector3(-58,-25,0),Color("07182a"))
 
 static func _finish_loading(ctx, map) -> void:
 	if not is_instance_valid(ctx) or ctx.world!=map: return
@@ -105,7 +123,7 @@ static func _apply_rules(ctx) -> void:
 	for station in model.stations:
 		if station.get("kind","")=="door" and not model.state.doors.has(station.uid):model.state.doors[station.uid]=station.initial_open
 	if ctx.world.has_method("update_doors"):ctx.world.update_doors(model.state.doors)
-	model.bounds = Rect2(-15,-11,30,22) if ctx.world_id=="bunker" else Rect2(0,-1024,1024,1024)
+	model.bounds = Rect2(-15,-11,30,22) if ctx.world_id=="bunker" else (ctx.world.play_bounds() if ctx.world.has_method("play_bounds") else Rect2(0,-1024,1024,1024))
 	model.shot_query = Callable() if ctx.world_id=="bunker" else ctx.player_physics.shot_hit
 	ctx.player_physics.spatial_enabled = ctx.world_id!="bunker"
 	if ctx.world_id=="bunker":
@@ -116,4 +134,10 @@ static func _apply_rules(ctx) -> void:
 				station.world = "bunker"
 				station.destination = "surface"
 				station.spawn = Library.source_location("surface","Special/BunkerEntry") if available("surface") else Vector3.ZERO
+			elif station.kind=="exit_city":
+				station.kind = "travel"
+				station.uid = "bunker_to_city"
+				station.world = "bunker"
+				station.destination = "city"
+				station.spawn = City.spawn_point() if available("city") else Vector3.ZERO
 	ctx.ui.set_stash_access(ctx.world_id=="bunker")

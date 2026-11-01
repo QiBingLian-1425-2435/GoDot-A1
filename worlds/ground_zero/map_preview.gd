@@ -1,5 +1,6 @@
 extends Node3D
 const Map = preload("res://worlds/ground_zero/ground_zero.gd")
+const SurfaceLook = preload("res://worlds/ground_zero/surface_look.gd")
 var map
 var camera: Camera3D
 var capture_path := ""
@@ -30,17 +31,20 @@ func _ready() -> void:
 	if not map.loaded: await map.map_loaded
 	var world_env := WorldEnvironment.new()
 	var env := Environment.new()
-	env.background_mode=Environment.BG_COLOR
-	env.background_color=Color("91aa5e")
-	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color=Color("d6d9ce")
-	env.ambient_light_energy=.3
-	env.tonemap_mode=Environment.TONE_MAPPER_LINEAR
 	world_env.environment=env; add_child(world_env)
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees=Vector3(-55,-30,0); sun.light_energy=.42
-	sun.shadow_enabled=true; sun.directional_shadow_max_distance=100
+	sun.directional_shadow_max_distance=100
 	add_child(sun)
+	if zone=="surface" and not "--legacy-look" in OS.get_cmdline_user_args():SurfaceLook.apply_surface(env,sun)
+	else:
+		env.background_mode=Environment.BG_COLOR
+		env.background_color=Color("91aa5e")
+		env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color=Color("d6d9ce")
+		env.ambient_light_energy=.3
+		env.tonemap_mode=Environment.TONE_MAPPER_LINEAR
+		sun.rotation_degrees=Vector3(-55,-30,0); sun.light_energy=.42
+		sun.shadow_enabled=true
 	camera=Camera3D.new();camera.projection=Camera3D.PROJECTION_ORTHOGONAL
 	camera.size=34 if not overview else (overview_size if topdown else 520)
 	camera.far=1800

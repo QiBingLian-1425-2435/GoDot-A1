@@ -1,6 +1,7 @@
 extends RefCounted
 ## Decodes generated external assets; no game rules or network state live here.
 const ROOT := "res://assets/worlds/ground_zero/"
+const TerrainFlatten = preload("res://worlds/ground_zero/terrain_flatten.gd")
 const SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface.gdshader")
 const DOUBLE_SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface_double.gdshader")
 const ALPHA_SURFACE_SHADER = preload("res://worlds/ground_zero/source_surface_alpha.gdshader")
@@ -152,5 +153,5 @@ static func source_location(zone: String, path: String) -> Vector3:
 		if scene.sceneID!=scene_id: continue
 		for item in scene.cachedLocations:
 			if item.path==path:
-				return Vector3(item.position.x,item.position.y,-float(item.position.z))
+				return TerrainFlatten.lower(zone,Vector3(item.position.x,item.position.y,-float(item.position.z)))
 	return Vector3.ZERO

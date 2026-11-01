@@ -13,6 +13,7 @@ const MIN_ZOOM := 1.0
 const MAX_ZOOM := 3.0
 const ZOOM_STEP := 0.25
 const MarkerLayer = preload("res://ui/map/global_map_markers.gd")
+const UiTheme = preload("res://ui/widgets/ui_theme.gd")
 
 var _players: Dictionary = {}
 var _local_id := 0
@@ -45,12 +46,17 @@ func _ready() -> void:
 	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-640,-410)
 	panel.size = Vector2(1280,820)
-	var box := StyleBoxFlat.new()
-	box.bg_color=Color("10191c");box.border_color=Color("658186")
-	box.set_border_width_all(2);box.set_corner_radius_all(12)
-	panel.add_theme_stylebox_override("panel",box)
+	panel.add_theme_stylebox_override("panel",UiTheme.panel(UiTheme.SLATE,UiTheme.LINE_LIGHT,14))
 	add_child(panel)
-	_title=_label(panel,"⟦global_map.001⟧",Rect2(30,18,1220,40),28,Color("e8ecdd"),HORIZONTAL_ALIGNMENT_CENTER)
+	var bold := SystemFont.new()
+	bold.font_names = _font.font_names; bold.font_weight = 700
+	_title=_label(panel,"⟦global_map.001⟧",Rect2(30,18,1220,40),28,UiTheme.GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_title.add_theme_font_override("font",bold)
+	var frame := Panel.new()
+	frame.position=Vector2(26,64);frame.size=Vector2(1228,694.25)
+	frame.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	frame.add_theme_stylebox_override("panel",UiTheme.box(Color(0.03,0.05,0.055,1),UiTheme.LINE_LIGHT,8,1,0))
+	panel.add_child(frame)
 	_map_view=Control.new()
 	_map_view.position=Vector2(30,68);_map_view.size=Vector2(1220,686.25)
 	_map_view.clip_contents=true;_map_view.mouse_filter=Control.MOUSE_FILTER_STOP
@@ -215,4 +221,5 @@ func _label(parent: Control, text: String, rect: Rect2, size: int, color: Color,
 func _button(parent: Control, text: String, rect: Rect2, callback: Callable) -> Button:
 	var button:=Button.new();Texts.bind(button, text, "text");button.position=rect.position;button.size=rect.size
 	button.add_theme_font_override("font",_font);button.add_theme_font_size_override("font_size",14)
+	UiTheme.apply_button(button,UiTheme.TEAL,8)
 	button.pressed.connect(callback);parent.add_child(button);return button

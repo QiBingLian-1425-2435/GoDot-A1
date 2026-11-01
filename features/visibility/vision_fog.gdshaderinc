@@ -16,11 +16,11 @@ float vision_visibility(vec3 world) {
 	float distance = length(offset);
 	vec2 direction = offset/max(distance,0.0001);
 	float cone = smoothstep(vision_cos_outer,vision_cos_inner,dot(direction,vision_aim));
-	float near = 1.0-smoothstep(vision_sense,vision_sense+0.3,distance);
-	float radius = 1.0-smoothstep(vision_range-0.5,vision_range,distance);
+	float near = 1.0-smoothstep(vision_sense,vision_sense+1.0,distance);
+	float radius = 1.0-smoothstep(vision_range-3.0,vision_range,distance);
 	float angle = atan(offset.y,offset.x)/6.28318530718;
 	float wall = texture(vision_rays,vec2(angle+0.5/float(textureSize(vision_rays,0).x),0.5)).r*vision_range;
-	float sight = 1.0-smoothstep(wall+0.08,wall+0.65,distance);
+	float sight = 1.0-smoothstep(wall+0.08,wall+1.2,distance);
 	vec3 eye=vision_origin+vec3(0.0,1.0,0.0);
 	vec3 segment=world-eye;
 	for(int i=0;i<8;i++) {
@@ -32,8 +32,16 @@ float vision_visibility(vec3 world) {
 	}
 	return max(near,cone*radius)*sight;
 }
+// Brightness and tint of ground the local observer cannot currently see.
+// Only presentation: gameplay visibility is decided by per-entity checks.
+uniform float vision_shadow_strength = 0.82;
+uniform vec3 vision_shadow_tint = vec3(0.4,0.44,0.54);
 vec3 apply_vision_fog(vec3 color, vec3 world) {
-	// Keep the environment readable in daylight. Gameplay information is limited by
-	// per-entity visibility checks; the cone still drives roof cutaway and smoke.
-	return color;
+	if (!vision_enabled) { return color; }
+	float seen = vision_visibility(world);
+	float luma = dot(color,vec3(0.299,0.587,0.114));
+	// Out of sight: darker, cooler and slightly desaturated, still readable.
+	vec3 hidden = mix(vec3(luma),color,0.6)*vision_shadow_tint;
+	hidden = mix(color,hidden,vision_shadow_strength);
+	return mix(hidden,color,seen);
 }

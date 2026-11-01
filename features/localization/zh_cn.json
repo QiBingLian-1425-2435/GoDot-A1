@@ -680,5 +680,10 @@
   "appearance.apply": "应用",
   "shop.backpack": "随身背包",
   "shop.bag_empty": "%d · 空位",
-  "shop.bag_item": "%d · %s ×%d"
+  "shop.bag_item": "%d · %s ×%d",
+  "city.name": "废弃城区",
+  "city.extraction": "撤离点 · 返回地下基地（全队）",
+  "bunker.city_exit": "城区出口 · 前往废弃城区",
+  "bunker.city_route": "CITY ROUTE",
+  "base_hud.city": "废 弃 城 区"
 }

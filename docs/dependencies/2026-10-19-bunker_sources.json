@@ -162,10 +162,25 @@
     "features/player/human_visual.gd",
     "features/player/human_visual.gd.uid",
     "ui/menu/appearance_panel.gd",
-    "ui/menu/appearance_panel.gd.uid"
+    "ui/menu/appearance_panel.gd.uid",
+    "worlds/ground_zero/terrain_flatten.gd",
+    "worlds/ground_zero/terrain_flatten.gd.uid",
+    "worlds/ground_zero/surface_look.gd",
+    "worlds/ground_zero/surface_look.gd.uid",
+    "worlds/city/city.gd",
+    "worlds/city/city.gd.uid",
+    "worlds/city/city_surface.gdshader",
+    "worlds/city/city_surface.gdshader.uid",
+    "ui/widgets/ui_theme.gd",
+    "ui/widgets/ui_theme.gd.uid",
+    "ui/widgets/stat_bar.gd",
+    "ui/widgets/stat_bar.gd.uid",
+    "ui/widgets/loading_dots.gd",
+    "ui/widgets/loading_dots.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
-    "assets/characters/humans/asset_manifest.json"
+    "assets/characters/humans/asset_manifest.json",
+    "assets/worlds/city/asset_manifest.json"
   ]
 }

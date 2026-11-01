@@ -15,6 +15,7 @@ var _points: Array = [
 	{"id":"workbench","title":"⟦bunker.003⟧","pos":Vector2(-9,2.2),"kind":"workbench"},
 	{"id":"medical","title":"⟦bunker.004⟧","pos":Vector2(-10,-5.2),"kind":"medical"},
 	{"id":"exit","title":"⟦bunker.005⟧","pos":Vector2(0,-8.2),"kind":"exit"},
+	{"id":"exit_city","title":"⟦bunker.city_exit⟧","pos":Vector2(3.4,-8.9),"kind":"exit_city"},
 	{"id":"range","title":"⟦bunker.006⟧","pos":Vector2(9,4.2),"kind":"range"},
 	{"id":"ammo_supply","title":"⟦bunker.007⟧","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
 	{"id":"trader","title":"⟦bunker.008⟧","pos":Vector2(-5,-2.6),"kind":"trader"}
@@ -387,6 +388,7 @@ func _build_exit() -> void:
 	G.box(self,Vector3(3.4,1.53,-10.20),Vector3(.36,.20,.018),Color("9bc5a6"),0,.4)
 	G.sphere(self,Vector3(3.4,1.20,-10.19),Vector3(.16,.16,.08),Color("c68c74"))
 	_floor_label("⟦bunker.021⟧",Vector2(0,-8.4),25,Color("b2bdab"))
+	_floor_label("⟦bunker.city_route⟧",Vector2(4.7,-7.3),20,Color("d6c48a"))
 
 func _build_clutter() -> void:
 	# Emergency equipment and utility supplies fill the cutaway edges without blocking paths.

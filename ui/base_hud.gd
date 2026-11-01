@@ -19,12 +19,15 @@ signal action_requested(action: String, payload: Dictionary)
 const Items = preload("res://features/inventory/item_catalog.gd")
 const Slot = preload("res://ui/widgets/item_slot.gd")
 const Portrait = preload("res://ui/widgets/base_portrait.gd")
-const INK := Color("e8ecdd")
-const MUTED := Color("a8b7b2")
-const GOLD := Color("f1d38b")
-const TEAL := Color("5d9ba4")
-const GREEN := Color("679b6e")
-const PANEL := Color(0.10, 0.15, 0.17, 0.97)
+const UiTheme = preload("res://ui/widgets/ui_theme.gd")
+const StatBar = preload("res://ui/widgets/stat_bar.gd")
+const INK := UiTheme.INK
+const MUTED := UiTheme.MUTED
+const GOLD := UiTheme.GOLD
+const TEAL := UiTheme.TEAL
+const GREEN := UiTheme.GREEN
+const PANEL := Color(0.063, 0.102, 0.114, 0.96)
+const FAINT_TEXT := UiTheme.FAINT
 
 var _loot_uid := ""
 var _loot_dismissed_uid := ""
@@ -132,18 +135,16 @@ func _ready() -> void:
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_root)
-	var theme := Theme.new()
-	theme.default_font = _font
-	theme.default_font_size = 20
-	theme.set_color("font_color", "Label", INK)
-	_root.theme = theme
+	_root.theme = UiTheme.build(_font, 20)
 	_build_menu()
 	_build_hud()
 	_build_inventory()
 	_build_popup()
 	_build_pause()
-	_toast_label = _label(_root, "", Rect2(350, 125, 900, 46), 20, GOLD, HORIZONTAL_ALIGNMENT_CENTER)
-	_toast_label.add_theme_stylebox_override("normal", _style(Color(0.07, 0.12, 0.14, 0.92), Color("667d78"), 8, 1))
+	_toast_label = _label(_root, "", Rect2(350, 160, 900, 46), 19, Color("f6e3b2"), HORIZONTAL_ALIGNMENT_CENTER)
+	var toast_style := UiTheme.box(Color(0.045, 0.075, 0.085, 0.94), Color(UiTheme.GOLD, .55), 23, 1, 12)
+	toast_style.border_width_left = 4
+	_toast_label.add_theme_stylebox_override("normal", toast_style)
 	_toast_label.z_index = 100
 	_toast_label.visible = false
 	show_menu()
@@ -240,10 +241,15 @@ func set_stash_access(value: bool) -> void:
 func set_world_loading(value: bool, title: String) -> void:
 	if not is_instance_valid(_loading_panel):
 		_loading_panel=_full_control(_root)
-		var shade:=ColorRect.new();shade.color=Color(.025,.045,.055,.94)
+		var shade:=ColorRect.new();shade.color=Color(.02,.035,.042,.96)
 		shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);_loading_panel.add_child(shade)
-		_loading_title=_label(_loading_panel,"",Rect2(400,350,800,100),28,INK,HORIZONTAL_ALIGNMENT_CENTER)
-		_button(_loading_panel,"⟦base_hud.004⟧",Rect2(650,500,300,64),func():action_requested.emit("menu",{}),TEAL,22)
+		var card:=_panel(_loading_panel,Rect2(500,330,600,250),UiTheme.SLATE,UiTheme.LINE,18)
+		card.add_theme_stylebox_override("panel",UiTheme.panel(Color(UiTheme.SLATE,.97),UiTheme.LINE,18,30))
+		_line(card,Vector2(40,38),Vector2(520,2),Color(UiTheme.AMBER,.8))
+		_loading_title=_label(card,"",Rect2(30,62,540,64),27,INK,HORIZONTAL_ALIGNMENT_CENTER)
+		var spinner:=preload("res://ui/widgets/loading_dots.gd").new()
+		spinner.position=Vector2(270,130);spinner.size=Vector2(60,20);card.add_child(spinner)
+		_button(card,"⟦base_hud.004⟧",Rect2(170,170,260,52),func():action_requested.emit("menu",{}),TEAL,20)
 	Texts.bind(_loading_title, "⟦base_hud.005⟧"+title+"⟦base_hud.006⟧", "text")
 	_loading_panel.visible=value
 
@@ -282,7 +288,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	SoulPanel.sync(self)
 	ContainerPanel.sync(self)
 	var world_name: String = str(state.get("world","bunker"))
-	Texts.bind(_world_label, {"bunker":"⟦base_hud.007⟧","surface":"⟦base_hud.008⟧","cave":"⟦base_hud.009⟧"}.get(world_name,"⟦base_hud.010⟧"), "text")
+	Texts.bind(_world_label, {"bunker":"⟦base_hud.007⟧","surface":"⟦base_hud.008⟧","cave":"⟦base_hud.009⟧","city":"⟦base_hud.city⟧"}.get(world_name,"⟦base_hud.010⟧"), "text")
 	Texts.bind(_world_note, "⟦base_hud.011⟧" if world_name=="bunker" else "⟦base_hud.012⟧", "text")
 	var player_count := _players().size()
 	var session_name := "⟦base_hud.013⟧" if world_name=="bunker" else "⟦base_hud.014⟧"
@@ -367,10 +373,16 @@ func update_steam(info: Dictionary) -> void:
 
 func toast(text: String) -> void:
 	if _toast_label:
-		_toast_label.position = Vector2(490,52) if _inventory.visible else Vector2(350,125)
+		_toast_label.position = Vector2(490,52) if _inventory.visible else Vector2(350,160)
 		_toast_label.size = Vector2(760,44) if _inventory.visible else Vector2(900,46)
 		if is_instance_valid(_dialog):_toast_label.position=Vector2(350,42)
 		Texts.bind(_toast_label, text, "text")
+		# Pill hugs its text, centred on the original slot.
+		var centre := _toast_label.position.x + _toast_label.size.x * 0.5
+		var limit := _toast_label.size.x
+		var text_width := _font.get_string_size(_toast_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x
+		_toast_label.size.x = clampf(text_width + 84.0, 260.0, limit)
+		_toast_label.position.x = centre - _toast_label.size.x * 0.5
 		_toast_label.visible = true
 		_toast_timer = 3.8
 
@@ -385,30 +397,40 @@ func _menu_button(text: String, index: int, color: Color, callback: Callable) ->
 
 func _build_hud() -> void:
 	_hud = _full_control(_root)
-	var top := _panel(_hud, Rect2(28,24,465,68), Color(0.05,0.11,0.14,0.76), Color(0.50,0.69,0.70,0.35), 10)
-	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_world_label = _label(top, "⟦base_hud.007⟧", Rect2(18,7,210,29), 24, Color("f0e8c6"))
-	_world_note = _label(top, "⟦base_hud.011⟧", Rect2(18,39,440,21), 14, Color("b2c7c2"))
-	_network_label = _label(_hud, "⟦base_hud.013⟧", Rect2(560,30,1006,28), 16, Color("d4e4df"), HORIZONTAL_ALIGNMENT_RIGHT)
+	# Location card: amber spine, big area name, small status line.
+	var top := _hud_card(_hud, Rect2(28,24,430,74))
+	_line(top,Vector2(0,14),Vector2(4,46),UiTheme.AMBER)
+	_world_label = _label(top, "⟦base_hud.007⟧", Rect2(22,8,300,32), 25, Color("f6e3b2"))
+	_world_label.add_theme_font_override("font", _bold_font)
+	_world_note = _label(top, "⟦base_hud.011⟧", Rect2(22,42,400,22), 14, MUTED)
+	_network_label = _label(_hud, "⟦base_hud.013⟧", Rect2(560,28,1012,26), 15, Color("d4e0dc"), HORIZONTAL_ALIGNMENT_RIGHT)
+	_network_label.add_theme_constant_override("outline_size",4)
+	_network_label.add_theme_color_override("font_outline_color",Color(0,0,0,.55))
+	# Vitals card.
+	var hp_panel := _hud_card(_hud, Rect2(26,694,362,178))
+	_label(hp_panel, "⟦base_hud.025⟧", Rect2(20,10,170,28), 20, INK).add_theme_font_override("font", _bold_font)
+	_label(hp_panel, "⟦base_hud.026⟧", Rect2(200,13,142,23), 13, FAINT_TEXT, HORIZONTAL_ALIGNMENT_RIGHT)
+	_line(hp_panel,Vector2(20,42),Vector2(322,1),Color(1,1,1,.07))
 	_movement_speed_label=_label(_hud,"",Rect2(28,102,260,32),18,Color("a8e6d0"))
-	_jump_chain_label=_label(_hud,"",Rect2(28,134,260,32),18,Color("f1d38b"))
 	_movement_speed_label.add_theme_constant_override("outline_size",4)
 	_movement_speed_label.add_theme_color_override("font_outline_color",Color(0.03,0.08,0.10,0.9))
 	_movement_speed_label.visible=false
-	var hp_panel := _panel(_hud, Rect2(26,686,350,178), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
-	hp_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label(hp_panel, "⟦base_hud.025⟧", Rect2(18,10,100,25), 21, INK)
-	_label(hp_panel, "⟦base_hud.026⟧", Rect2(202,13,130,23), 14, MUTED, HORIZONTAL_ALIGNMENT_RIGHT)
 	var keys := ["hp", "stamina", "hunger", "thirst", "san"]
 	var names := ["⟦base_hud.027⟧", "⟦base_hud.028⟧", "⟦base_hud.029⟧", "⟦base_hud.030⟧", "⟦base_hud.san⟧"]
-	var colors := [Color("cf8375"),Color("c3cb86"),Color("c9ab69"),Color("73b6c7"),Color("a577bf")]
+	var colors := [Color("e07a6b"),Color("c8d27e"),Color("e0b25e"),Color("68b9d0"),Color("ad7fd0")]
 	for i in range(keys.size()):
-		_label(hp_panel,names[i],Rect2(18,44+i*24,65,22),14,MUTED)
-		_bars[keys[i]] = _progress(hp_panel, Rect2(89,51+i*24,199,9), colors[i])
-		_stat_labels[keys[i]] = _label(hp_panel,"100",Rect2(295,43+i*24,38,22),14,INK,HORIZONTAL_ALIGNMENT_RIGHT)
+		var y := 52+i*24
+		var dot := Panel.new();dot.position=Vector2(20,y+7);dot.size=Vector2(8,8);dot.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		dot.add_theme_stylebox_override("panel",UiTheme.box(colors[i],Color.TRANSPARENT,4,0));hp_panel.add_child(dot)
+		_label(hp_panel,names[i],Rect2(34,y,62,22),14,MUTED)
+		var bar := StatBar.new();bar.color=colors[i];bar.position=Vector2(98,y+6);bar.size=Vector2(196,10)
+		hp_panel.add_child(bar);_bars[keys[i]] = bar
+		_stat_labels[keys[i]] = _label(hp_panel,"100",Rect2(298,y,44,22),15,INK,HORIZONTAL_ALIGNMENT_RIGHT)
+	# Quick slots with key-cap badges.
+	var tray := _hud_card(_hud, Rect2(602,770,316,104), 14)
 	for i in range(4):
 		var slot: Control = Slot.new()
-		slot.position = Vector2(620+i*75,791)
+		slot.position = Vector2(620+i*75,790)
 		slot.size = Vector2(65,65)
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot.container_name = "bag"
@@ -416,19 +438,37 @@ func _build_hud() -> void:
 		_hud.add_child(slot)
 		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_quick_slots.append(slot)
-		Keys.bind_hint(_label(_hud,"",Rect2(623+i*75,765,60,24),16,Color("d8dfc5"),HORIZONTAL_ALIGNMENT_CENTER), "⟦keys.single⟧", [["rifle", "pistol", "medkit", "water"][i]])
-	_label(_hud,"⟦base_hud.031⟧",Rect2(617,861,290,22),13,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
-	var ammo := _panel(_hud, Rect2(1300,760,268,103), Color(0.05,0.10,0.12,0.84), Color(0.5,0.65,0.63,0.35), 10)
-	ammo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_label(ammo,"⟦base_hud.032⟧",Rect2(17,10,240,24),15,MUTED)
-	_ammo_label = _label(ammo,"00",Rect2(16,35,75,54),42,INK)
-	_reload_label = _label(ammo,"⟦base_hud.033⟧",Rect2(92,54,164,28),15,Color("c5cbbb"))
-	var guide := _panel(_hud,Rect2(635,68,930,34),Color(0.03,0.07,0.10,0.72),Color(0.35,0.5,0.55,0.2),6)
-	guide.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	Keys.bind_hint(_label(guide,"",Rect2(8,4,914,26),14,Color("c7d7d5"),HORIZONTAL_ALIGNMENT_CENTER), "⟦keys.hud_hint⟧", ["interact","reload","inventory","map"])
-	_interaction = _label(_hud,"",Rect2(400,645,800,44),23,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
-	_interaction.add_theme_constant_override("outline_size",5)
-	_interaction.add_theme_color_override("font_outline_color",Color(0.06,0.1,0.12,0.9))
+		var cap := _label(_hud,"",Rect2(612+i*75,778,24,22),13,Color("1b1408"),HORIZONTAL_ALIGNMENT_CENTER)
+		var cap_style := UiTheme.box(Color("e9c779"),Color.TRANSPARENT,5,0)
+		cap_style.content_margin_left=2;cap_style.content_margin_right=2;cap_style.content_margin_top=0;cap_style.content_margin_bottom=0
+		cap.add_theme_stylebox_override("normal",cap_style)
+		cap.add_theme_font_override("font",_bold_font)
+		Keys.bind_hint(cap, "⟦keys.single⟧", [["rifle", "pistol", "medkit", "water"][i]])
+	tray.size.y = 104
+	_label(_hud,"⟦base_hud.031⟧",Rect2(602,854,316,18),12,FAINT_TEXT,HORIZONTAL_ALIGNMENT_CENTER)
+	# Weapon card: big magazine count.
+	var ammo := _hud_card(_hud, Rect2(1290,766,282,106))
+	_line(ammo,Vector2(0,16),Vector2(4,74),UiTheme.AMBER)
+	_label(ammo,"⟦base_hud.032⟧",Rect2(22,10,240,22),14,MUTED)
+	_ammo_label = _label(ammo,"00",Rect2(20,34,96,58),50,Color("fbf0d2"))
+	_ammo_label.add_theme_font_override("font", _bold_font)
+	_reload_label = _label(ammo,"⟦base_hud.033⟧",Rect2(110,52,160,28),15,Color("c9d2c4"))
+	# Control hints: a quiet pill under the status line.
+	var guide := _hud_card(_hud,Rect2(640,62,932,30),15)
+	guide.add_theme_stylebox_override("panel",UiTheme.box(Color(.03,.05,.06,.55),Color(1,1,1,.05),15,1))
+	Keys.bind_hint(_label(guide,"",Rect2(8,2,916,26),13,Color("b9c9c6"),HORIZONTAL_ALIGNMENT_CENTER), "⟦keys.hud_hint⟧", ["interact","reload","inventory","map"])
+	# Interaction prompt: floating pill above the player.
+	_interaction = _label(_hud,"",Rect2(500,640,600,48),21,Color("fbe6b0"),HORIZONTAL_ALIGNMENT_CENTER)
+	var prompt := UiTheme.box(Color(.04,.065,.075,.88),Color(UiTheme.GOLD,.6),24,1,10)
+	prompt.content_margin_left=22;prompt.content_margin_right=22
+	_interaction.add_theme_stylebox_override("normal",prompt)
+	_interaction.visible=false
+
+func _hud_card(parent: Node, rect: Rect2, radius: int = 12) -> Panel:
+	var card := _panel(parent, rect, Color.TRANSPARENT, Color.TRANSPARENT, radius)
+	card.add_theme_stylebox_override("panel", UiTheme.hud_card(radius))
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return card
 
 func _build_inventory() -> void:
 	InventoryPanel._build_inventory(self)
@@ -455,10 +495,11 @@ func _update_inventory() -> void:
 	InventoryPanel._update_inventory(self)
 
 func _build_pause() -> void:
-	_pause_shade = _shade(_root,Color(0.02,0.04,0.06,0.66))
+	_pause_shade = _shade(_root,Color(0.015,0.03,0.04,0.72))
 	_pause_shade.mouse_filter = Control.MOUSE_FILTER_STOP
-	_pause_panel = _panel(_root,Rect2(540,76,520,748),PANEL,Color("748f86"),16)
-	_label(_pause_panel,"⟦base_hud.035⟧",Rect2(30,24,460,50),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER)
+	_pause_panel = _panel(_root,Rect2(540,76,520,748),PANEL,UiTheme.LINE_LIGHT,18)
+	_line(_pause_panel,Vector2(200,20),Vector2(120,3),UiTheme.AMBER)
+	_label(_pause_panel,"⟦base_hud.035⟧",Rect2(30,28,460,48),30,GOLD,HORIZONTAL_ALIGNMENT_CENTER).add_theme_font_override("font",_bold_font)
 	_label(_pause_panel,"⟦base_hud.036⟧",Rect2(30,82,460,27),16,MUTED,HORIZONTAL_ALIGNMENT_CENTER)
 	_button(_pause_panel,"⟦base_hud.037⟧",Rect2(65,124,390,54),toggle_pause,GREEN,23)
 	_button(_pause_panel,"⟦base_hud.038⟧",Rect2(65,190,390,48),func() -> void: action_requested.emit("save",{}),TEAL,21)
@@ -557,11 +598,14 @@ func _dialog_panel(title: String, dialog_size: Vector2) -> void:
 	_close_dialog()
 	var overlay := _full_control(_root,Control.MOUSE_FILTER_STOP)
 	overlay.name = "DialogOverlay"
-	_shade(overlay,Color(0.025,0.055,0.075,0.77))
-	_dialog = _panel(overlay,Rect2((Vector2(1600,900)-dialog_size)*0.5,dialog_size),Color("193239"),Color("72978e"),18)
+	_shade(overlay,Color(0.015,0.03,0.04,0.74))
+	_dialog = _panel(overlay,Rect2((Vector2(1600,900)-dialog_size)*0.5,dialog_size),PANEL,UiTheme.LINE_LIGHT,18)
 	_dialog.set_meta("overlay",overlay)
-	_label(_dialog,title,Rect2(32,22,dialog_size.x-105,50),31,GOLD)
-	_button(_dialog,"×",Rect2(dialog_size.x-68,20,44,44),_dialog_close_pressed,Color("506d70"),28,10)
+	_line(_dialog,Vector2(32,30),Vector2(4,34),UiTheme.AMBER)
+	var heading := _label(_dialog,title,Rect2(46,22,dialog_size.x-120,50),29,Color("f6e3b2"))
+	heading.add_theme_font_override("font",_bold_font)
+	_line(_dialog,Vector2(32,76),Vector2(dialog_size.x-64,1),Color(1,1,1,.08))
+	_button(_dialog,"×",Rect2(dialog_size.x-64,24,40,40),_dialog_close_pressed,Color("5f7476"),26,20)
 	_dialog_kind = title
 
 func _dialog_close_pressed() -> void:
@@ -629,13 +673,7 @@ func _button(parent: Node, text: String, rect: Rect2, callback: Callable, color:
 	button.size = rect.size
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.add_theme_font_size_override("font_size",font_size)
-	button.add_theme_color_override("font_color",Color("f5f4e4"))
-	button.add_theme_color_override("font_hover_color",Color.WHITE)
-	button.add_theme_color_override("font_pressed_color",Color("f5efcf"))
-	button.add_theme_stylebox_override("normal",_style(color,color.lightened(0.22),radius,1))
-	button.add_theme_stylebox_override("hover",_style(color.lightened(0.13),Color("e7eac9"),radius,2))
-	button.add_theme_stylebox_override("pressed",_style(color.darkened(0.2),color.lightened(0.35),radius,1))
-	button.add_theme_stylebox_override("focus",_style(Color.TRANSPARENT,Color("f7dca0"),radius,2))
+	UiTheme.apply_button(button, color, mini(radius, int(rect.size.y*.5)))
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button
@@ -645,19 +683,14 @@ func _panel(parent: Node, rect: Rect2, bg: Color, border: Color, radius: int = 1
 	panel.position = rect.position
 	panel.size = rect.size
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	panel.add_theme_stylebox_override("panel",_style(bg,border,radius,1))
+	# Opaque panels become lifted slate cards; translucent ones keep their tint.
+	var lifted := bg.a > .9
+	panel.add_theme_stylebox_override("panel",UiTheme.panel(bg if not lifted else Color(bg,.97), border if border.a < .99 else Color(border.darkened(.3),.9), radius, 18 if lifted else 8))
 	parent.add_child(panel)
 	return panel
 
 func _style(bg: Color, border: Color, radius: int = 8, border_width: int = 1) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.border_color = border
-	style.set_border_width_all(border_width)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	return style
+	return UiTheme.box(bg, border, radius, border_width)
 
 func _shade(parent: Node, color: Color) -> ColorRect:
 	var shade := ColorRect.new()
@@ -675,15 +708,11 @@ func _line(parent: Node, pos: Vector2, line_size: Vector2, color: Color = Color(
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(line)
 
-func _progress(parent: Node, rect: Rect2, color: Color) -> ProgressBar:
-	var bar := ProgressBar.new()
+func _progress(parent: Node, rect: Rect2, color: Color) -> Control:
+	var bar := StatBar.new()
 	bar.position = rect.position
 	bar.size = rect.size
-	bar.show_percentage = false
-	bar.value = 100
-	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bar.add_theme_stylebox_override("background",_style(Color("283b3e"),Color.TRANSPARENT,3,0))
-	bar.add_theme_stylebox_override("fill",_style(color,Color.TRANSPARENT,3,0))
+	bar.color = color
 	parent.add_child(bar)
 	return bar
 
@@ -693,8 +722,6 @@ func _line_edit(parent: Node, text: String, rect: Rect2) -> LineEdit:
 	edit.position = rect.position
 	edit.size = rect.size
 	edit.add_theme_font_size_override("font_size",22)
-	edit.add_theme_stylebox_override("normal",_style(Color("0e262d"),Color("6a8981"),8,1))
-	edit.add_theme_stylebox_override("focus",_style(Color("132d32"),GOLD,8,2))
 	parent.add_child(edit)
 	return edit
 

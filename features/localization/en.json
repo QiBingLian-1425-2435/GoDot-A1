@@ -680,5 +680,10 @@
   "appearance.apply": "Apply",
   "shop.backpack": "Backpack",
   "shop.bag_empty": "%d · Empty",
-  "shop.bag_item": "%d · %s ×%d"
+  "shop.bag_item": "%d · %s ×%d",
+  "city.name": "Abandoned City",
+  "city.extraction": "Extract to Base (Team)",
+  "bunker.city_exit": "City Exit · Head to the Abandoned City",
+  "bunker.city_route": "CITY ROUTE",
+  "base_hud.city": "ABANDONED CITY"
 }

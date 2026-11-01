@@ -1,5 +1,6 @@
 extends RefCounted
 const Texts = preload("res://features/localization/game_text.gd")
+const UiTheme = preload("res://ui/widgets/ui_theme.gd")
 
 static func sync(ctx) -> void:
 	var p: Dictionary = ctx._player()
@@ -17,7 +18,7 @@ static func sync(ctx) -> void:
 	if signature != ctx._soul_signature:
 		ctx._soul_signature = signature
 		if is_instance_valid(ctx._soul_panel): ctx._soul_panel.hide();ctx._soul_panel.queue_free()
-		ctx._soul_panel = ctx._panel(ctx._root,Rect2(1080,190,480,510) if soul or undead else Rect2(1120,190,440,130),ctx.PANEL,ctx.TEAL)
+		ctx._soul_panel = ctx._panel(ctx._root,Rect2(1080,190,480,510) if soul or undead else Rect2(1120,190,440,130),ctx.PANEL,UiTheme.LINE_LIGHT)
 		if undead:
 			ctx._label(ctx._soul_panel,"⟦soul_panel.001⟧",Rect2(24,16,420,40),28,ctx.GOLD)
 			ctx._label(ctx._soul_panel,"⟦soul_panel.002⟧",Rect2(24,68,430,110),19,ctx.INK)

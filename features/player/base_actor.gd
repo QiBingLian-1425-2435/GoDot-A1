@@ -218,12 +218,13 @@ func _build_gear() -> void:
 	backpack = Node3D.new()
 	backpack.position = Vector3(0,.90,.38)
 	pivot.add_child(backpack)
-	G.box(backpack,Vector3.ZERO,Vector3(.52,.58,.28),base_tint.darkened(.10))
-	G.box(backpack,Vector3(0,.22,.025),Vector3(.55,.15,.31),base_tint)
-	G.box(backpack,Vector3(0,-.07,.17),Vector3(.41,.28,.095),base_tint.lightened(.08))
+	# Soft canvas rucksack: rounded body, domed top flap and a front pouch.
+	G.rounded_box(backpack,Vector3.ZERO,Vector3(.52,.58,.28),base_tint.darkened(.10),.45)
+	G.rounded_box(backpack,Vector3(0,.2,.035),Vector3(.55,.2,.31),base_tint,.55)
+	G.rounded_box(backpack,Vector3(0,-.08,.16),Vector3(.4,.27,.11),base_tint.lightened(.08),.5)
 	for side in [-1,1]:
-		G.box(backpack,Vector3(side*.16,0,.23),Vector3(.055,.45,.025),Color("3c4431"))
-		G.box(backpack,Vector3(side*.16,.04,.25),Vector3(.08,.065,.025),Color("aba178"),.5)
+		G.rounded_box(backpack,Vector3(side*.15,.0,.215),Vector3(.055,.4,.03),Color("3c4431"),.3)
+		G.box(backpack,Vector3(side*.15,.0,.232),Vector3(.075,.06,.02),Color("aba178"),.5)
 	G.cylinder(backpack,Vector3(.32,-.05,.02),.085,.35,Color("708079"),-1,.3)
 
 func _build_weapon() -> void:

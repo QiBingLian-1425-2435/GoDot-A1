@@ -65,3 +65,36 @@ static func text(parent: Node3D, label: String, at: Vector3, size: int = 32, col
 	result.position = at
 	parent.add_child(result)
 	return result
+
+static var rounded_meshes: Dictionary = {}
+
+## Soft-cornered box (superellipsoid) for clay-style props; size is the full extent.
+static func rounded_box(parent: Node3D, at: Vector3, size: Vector3, color: Color, softness: float = 0.3) -> MeshInstance3D:
+	var key := str(size) + ":" + str(softness)
+	if not rounded_meshes.has(key):
+		rounded_meshes[key] = _superellipsoid(size * .5, lerpf(12.0, 2.2, clampf(softness, 0, 1)))
+	return mesh(parent, rounded_meshes[key], at, color)
+
+static func _signed_pow(value: float, exponent: float) -> float:
+	return signf(value) * pow(absf(value), exponent)
+
+static func _superellipsoid(half: Vector3, exponent: float) -> ArrayMesh:
+	var rings := 14
+	var segments := 28
+	var power := 2.0 / exponent
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for ring in range(rings + 1):
+		var theta := PI * ring / rings
+		for segment in range(segments + 1):
+			var phi := TAU * segment / segments
+			var s := _signed_pow(sin(theta), power)
+			tool.add_vertex(Vector3(half.x * s * _signed_pow(cos(phi), power), half.y * _signed_pow(cos(theta), power), half.z * s * _signed_pow(sin(phi), power)))
+	for ring in range(rings):
+		for segment in range(segments):
+			var a := ring * (segments + 1) + segment
+			var b := a + segments + 1
+			tool.add_index(a); tool.add_index(a + 1); tool.add_index(b)
+			tool.add_index(a + 1); tool.add_index(b + 1); tool.add_index(b)
+	tool.generate_normals()
+	return tool.commit()

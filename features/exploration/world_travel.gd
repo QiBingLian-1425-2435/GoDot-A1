@@ -11,7 +11,7 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 	if Vector2(p.pos).distance_to(chosen.pos)>2.4001: return ctx._reject("⟦world_travel.001⟧")
 	if absf(float(p.get("height",0))-float(chosen.get("height",p.get("height",0))))>3: return false
 	var destination: String = str(chosen.destination)
-	if not destination in ["bunker","surface","cave"]: return false
+	if not destination in ["bunker","surface","cave","city"]: return false
 	if ctx.travel_validator.is_valid() and not ctx.travel_validator.call(destination):
 		return ctx._reject("⟦world_travel.002⟧")
 	if chosen.get("scope","")=="player" and destination==ctx.state.get("world",""):
@@ -64,7 +64,7 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 		player.corpse_uid=""
 		ctx.reset_transients(player_id)
 		index += 1
-	ctx.last_notice = "⟦world_travel.005⟧"+{"bunker":"⟦world_travel.006⟧","surface":"⟦world_flow.002⟧","cave":"⟦world_flow.003⟧"}[destination]
+	ctx.last_notice = "⟦world_travel.005⟧"+{"bunker":"⟦world_travel.006⟧","surface":"⟦world_flow.002⟧","cave":"⟦world_flow.003⟧","city":"⟦city.name⟧"}[destination]
 	return true
 
 static func toggle_door(ctx, id: int, payload: Dictionary) -> bool:
