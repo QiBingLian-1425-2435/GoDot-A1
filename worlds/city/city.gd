@@ -14,6 +14,8 @@ var target_nodes: Dictionary = {}
 var _material: ShaderMaterial
 var _interactions: Array = []
 var _cancelled := false
+var _door_nodes: Dictionary = {}
+var _door_open: Dictionary = {}
 
 func _ready() -> void:
 	layout = read_layout()
@@ -35,6 +37,7 @@ func _ready() -> void:
 	_build_ground()
 	if build_collisions:
 		_build_colliders()
+	_build_doors()
 	var extraction: Array = layout.extraction
 	_interactions.append({"kind":"travel","uid":"city_extraction","world":zone,"title":"⟦city.extraction⟧","pos":Vector2(extraction[0],extraction[2]),"height":float(extraction[1]),"destination":"bunker","spawn":Vector3(-1,0,4)})
 	loaded = true
@@ -111,14 +114,80 @@ func set_view_points(player: Vector3, camera: Vector3) -> void:
 	_material.set_shader_parameter("view_player",player)
 	_material.set_shader_parameter("view_camera",camera)
 	_material.set_shader_parameter("view_enabled",true)
+	var room := _room_at(player)
+	_material.set_shader_parameter("indoor_active",not room.is_empty())
+	if not room.is_empty():
+		var bounds: Array = room.bounds
+		_material.set_shader_parameter("indoor_bounds",Vector4(bounds[0]-.6,bounds[1]-.6,bounds[0]+bounds[2]+.6,bounds[1]+bounds[3]+.6))
 
 func set_vision(active: bool, parameters: Dictionary) -> void:
 	if _material == null: return
 	_material.set_shader_parameter("vision_enabled",active)
 	for key in parameters:_material.set_shader_parameter(key,parameters[key])
 
-func has_overhead_cover(_point: Vector3) -> bool:
-	return false
+func has_overhead_cover(point: Vector3) -> bool:
+	return not _room_at(point).is_empty()
+
+func _room_at(point: Vector3) -> Dictionary:
+	for room in layout.get("buildings",[]):
+		var b: Array = room.bounds
+		if Rect2(b[0],b[1],b[2],b[3]).has_point(Vector2(point.x,point.z)) and point.y < 3.0:
+			return room
+	return {}
+
+func _build_doors() -> void:
+	var material := StandardMaterial3D.new()
+	material.albedo_color=Color("76543b")
+	material.roughness=0.85
+	for room in layout.get("buildings",[]):
+		var uid: String=room.id
+		var at:=Vector3(room.door[0],room.door[1],room.door[2])
+		var anchor:=Node3D.new()
+		anchor.name=uid;anchor.position=at;anchor.rotation.y=float(room.angle)
+		add_child(anchor)
+		var body:=StaticBody3D.new()
+		body.collision_layer=25 if build_collisions else 0
+		body.collision_mask=0
+		body.position.x=-float(room.width)/2
+		anchor.add_child(body)
+		var box:=BoxShape3D.new()
+		box.size=Vector3(float(room.width),float(room.height),.16)
+		var shape:=CollisionShape3D.new()
+		shape.shape=box;shape.position=Vector3(float(room.width)/2,float(room.height)/2,0)
+		body.add_child(shape)
+		var mesh:=MeshInstance3D.new()
+		var geometry:=BoxMesh.new();geometry.size=box.size
+		mesh.mesh=geometry;mesh.material_override=material;mesh.position=shape.position
+		body.add_child(mesh)
+		var handle:=MeshInstance3D.new()
+		var handle_mesh:=BoxMesh.new();handle_mesh.size=Vector3(.16,.1,.3)
+		handle.mesh=handle_mesh;handle.position=Vector3(float(room.width)-.2,1.0,0)
+		body.add_child(handle)
+		_door_nodes[uid]={"body":body,"closed":body.transform,"shape":shape,"anchor":at}
+		_interactions.append({"kind":"door","uid":uid,"world":zone,"title":"⟦ground_zero.003⟧","pos":Vector2(at.x,at.z),"height":at.y,"initial_open":false})
+
+func update_doors(states: Dictionary) -> void:
+	for uid in _door_nodes:
+		var opened:=bool(states.get(uid,false))
+		if _door_open.has(uid) and _door_open[uid]==opened:continue
+		_door_open[uid]=opened
+		_door_nodes[uid].body.rotation.y=-PI/2 if opened else 0.0
+
+func can_reach_door(uid: String, from: Vector3) -> bool:
+	if not _door_nodes.has(uid):return false
+	var part: Dictionary=_door_nodes[uid]
+	var excluded: Array[RID]=[part.body.get_rid()]
+	var ray:=PhysicsRayQueryParameters3D.create(from+Vector3(0,.8,0),part.anchor+Vector3(0,.8,0),17,excluded)
+	return get_world_3d().direct_space_state.intersect_ray(ray).is_empty()
+
+func can_close_door(uid: String) -> bool:
+	if not _door_nodes.has(uid):return false
+	var part: Dictionary=_door_nodes[uid]
+	var query:=PhysicsShapeQueryParameters3D.new()
+	query.shape=part.shape.shape
+	query.transform=part.body.get_parent().global_transform*part.closed*part.shape.transform
+	query.collision_mask=2;query.margin=.04
+	return get_world_3d().direct_space_state.intersect_shape(query,1).is_empty()
 
 func vision_targets() -> Array:
 	return []

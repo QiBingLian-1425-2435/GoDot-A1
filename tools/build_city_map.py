@@ -99,6 +99,8 @@ class Builder:
         self.rng = rng
         self.tiles = {}
         self.colliders = []
+        self.buildings = []
+        self.interior_kind = "office"
 
     def geo_at(self, x, z, group="Tile"):
         key = (group, int(math.floor(x/TILE)), int(math.floor(-z/TILE)))
@@ -374,7 +376,7 @@ def chain_fence(b, x0, z0, x1, z1):
 
 
 # ------------------------------------------------------------ buildings
-def windows_on_face(b, rng, p0, p1, y0, floors, floor_h, normal, glass=None, every=2.6, frame=True, lit_skip=0.15):
+def windows_on_face(b, rng, p0, p1, y0, floors, floor_h, normal, glass=None, every=2.6, frame=True, lit_skip=0.15, entrance=False):
     """Windows along a wall from p0 to p1 (x,z), offset outward along normal."""
     L = math.hypot(p1[0]-p0[0], p1[1]-p0[1])
     ux, uz = (p1[0]-p0[0])/L, (p1[1]-p0[1])/L
@@ -384,6 +386,8 @@ def windows_on_face(b, rng, p0, p1, y0, floors, floor_h, normal, glass=None, eve
         for i in range(n):
             if rng.random() < lit_skip*0.3: continue
             t = (i+0.5)/n*L
+            if entrance and f == 0 and y0 == 0 and abs(t-L/2) < 1.9:
+                continue
             cx = p0[0]+ux*t+normal[0]*0.06
             cz = p0[1]+uz*t+normal[1]*0.06
             y = y0+f*floor_h+floor_h*0.55
@@ -396,6 +400,95 @@ def windows_on_face(b, rng, p0, p1, y0, floors, floor_h, normal, glass=None, eve
                 b.box((cx+normal[0]*0.05, y-0.1, cz+normal[1]*0.05), (1.3, 0.25, 0.08), C["wood"], ang+rng.uniform(-0.3, 0.3))
 
 
+def enterable_shell(b, x0, z0, x1, z1, height, wall, front, kind):
+    """Ground-floor rooms; upper floors remain scenery. Keep a central cross aisle."""
+    cx, cz = (x0+x1)/2, (z0+z1)/2
+    width, depth = x1-x0, z1-z0
+    door_w, door_h, thick = 1.8, min(2.5, height-0.2), 0.24
+    faces = {"s": ((cx, z1), width, 0), "n": ((cx, z0), width, math.pi),
+             "e": ((x1, cz), depth, math.pi/2), "w": ((x0, cz), depth, -math.pi/2)}
+    def wall_part(center, size, angle=0):
+        b.box(center, size, wall, angle, bottom=True)
+        b.collide(center, size, angle)
+    for side, ((mx, mz), length, angle) in faces.items():
+        if side != front:
+            wall_part((mx, height/2, mz), (length, height, thick), angle)
+            continue
+        for sign in (-1, 1):
+            offset = sign*(length+door_w)/4
+            wall_part((mx+math.cos(angle)*offset, height/2, mz-math.sin(angle)*offset),
+                      ((length-door_w)/2, height, thick), angle)
+        wall_part((mx, (height+door_h)/2, mz), (door_w, height-door_h, thick), angle)
+    # Floor top is flush with the district paving. Ceiling physically blocks jumping upstairs.
+    b.flat(x0, z0, x1, z1, 0.11, C["wood"] if kind == "home" else C["trim"])
+    b.box((cx, min(height, 3.0)+0.1, cz), (width, 0.2, depth), C["roof"], bottom=True)
+    b.collide((cx, min(height, 3.0)+0.1, cz), (width, 0.2, depth), kind="roof")
+    if height > 3.2:
+        b.box((cx, height+0.1, cz), (width, 0.2, depth), C["roof"], bottom=True)
+    (mx, mz), _, angle = faces[front]
+    uid = "city_door_%03d" % len(b.buildings)
+    b.buildings.append({"id": uid, "bounds": [x0, z0, width, depth], "kind": kind,
+                        "door": [mx, 0.08, mz], "angle": angle, "width": door_w,
+                        "height": door_h-0.08, "normal": [math.sin(angle), math.cos(angle)]})
+    # Furniture stays clear of the doorway and central crossing in every orientation.
+    def prop(x, z, sx, sy, sz, color):
+        b.box((x, 0.08+sy/2, z), (sx, sy, sz), C[color], bottom=True)
+        b.collide((x, 0.08+sy/2, z), (sx, sy, sz), kind="low")
+    if width < 5 or depth < 5:
+        prop(x0+0.65, z0+0.65, 0.7, 0.8, 0.7, "wood")
+        return
+    left, right, back, near = x0+1.3, x1-1.3, z0+1.4, z1-1.4
+    if kind == "home":
+        prop(left, back, 1.6, 0.45, 2.2, "wood")
+        b.box((left, 0.66, back), (1.55, 0.25, 2.1), C["white"])
+        b.box((left, 0.83, back-0.65), (1.1, 0.15, 0.45), C["blue"])
+        prop(right, back, 1.6, 1.7, 0.7, "wood")
+        prop(left, near, 1.6, 0.65, 0.9, "teal")
+        b.box((left, 0.95, near+0.3), (1.6, 0.6, 0.25), C["teal"])
+        prop(right, near, 1.3, 0.8, 0.8, "cream")
+    elif kind == "warehouse":
+        for x in (left, right):
+            for z in (back, near):
+                prop(x, z, 1.8, 1.2, 1.8, "wood")
+                b.box((x, 1.55, z), (1.2, 0.5, 1.2), C["rust"])
+    elif kind == "shop":
+        for x in (left, right):
+            prop(x, back, 1.6, 1.6, 0.7, "metal")
+            for y in (0.45, 0.95, 1.5):
+                for dx in (-0.5, 0, 0.5):
+                    b.box((x+dx, y+0.1, back+0.45), (0.3, 0.3, 0.3), C["sign_y"])
+        prop(left, near, 1.8, 0.9, 0.8, "wood")
+        b.box((left, 1.15, near), (0.5, 0.3, 0.4), C["dark"])
+        prop(right, near, 1.2, 1.8, 0.75, "glass2")
+    else:
+        for x in (left, right):
+            for z in (back, near):
+                prop(x, z, 1.5, 0.75, 0.8, "wood")
+                prop(x, z+(-0.8 if z == near else 0.8), 0.55, 0.45, 0.55, "blue")
+                b.box((x, 1.0, z), (0.5, 0.4, 0.12), C["dark"])
+    # Larger rooms get repeated aisles rather than four props in an empty hall.
+    # Leave the 4.4 m central cross free, linking every possible entrance to the centre.
+    if kind != "home":
+        x = x0+4
+        while x < x1-3:
+            z = z0+4
+            while z < z1-3:
+                if abs(x-cx)>2.2 and abs(z-cz)>2.2:
+                    if kind == "warehouse":
+                        prop(x,z,1.6,1.0,1.6,"wood")
+                        b.box((x,1.4,z),(1.1,.6,1.1),C["rust"])
+                    elif kind == "shop":
+                        prop(x,z,1.6,1.25,.75,"metal")
+                        for dx in (-.5,0,.5):
+                            b.box((x+dx,1.5,z),(.3,.3,.4),C["sign_y"])
+                    else:
+                        prop(x,z,1.5,.75,.8,"wood")
+                        prop(x,z+.9,.55,.45,.55,"blue")
+                        b.box((x,1.0,z),(.5,.4,.12),C["dark"])
+                z+=4
+            x+=4
+
+
 def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=None, sign=None, flat=True, cornice=True):
     """Box building occupying [x0,x1]x[z0,z1] (z0<z1). front: side with storefront."""
     fh = 3.3
@@ -403,8 +496,7 @@ def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=N
     cx, cz = (x0+x1)/2, (z0+z1)/2
     w, d = x1-x0, z1-z0
     wall = jitter(wall, rng, 0.05)
-    b.box((cx, H/2, cz), (w, H, d), wall, top=jitter(roof or C["roof"], rng, 0.05))
-    b.collide((cx, H/2, cz), (w, H, d))
+    enterable_shell(b, x0, z0, x1, z1, H, wall, front, "shop" if shop else b.interior_kind)
     if cornice:
         b.box((cx, H+0.25, cz), (w+0.3, 0.5, d+0.3), jitter(C["trim"], rng, 0.04), top=jitter(roof or C["roof"], rng, 0.05))
         b.box((cx, fh-0.1, cz), (w+0.12, 0.25, d+0.12), jitter(C["trim"], rng, 0.04))
@@ -414,15 +506,17 @@ def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=N
         upper_start = fh if (shop and key == front) else 0.0
         fl = floors-1 if upper_start else floors
         if fl > 0:
-            windows_on_face(b, rng, p0, p1, upper_start, fl, fh, nrm)
+            windows_on_face(b, rng, p0, p1, upper_start, fl, fh, nrm, entrance=key == front)
     if shop:
         p0, p1, nrm = faces[front]
         L = math.hypot(p1[0]-p0[0], p1[1]-p0[1])
         ux, uz = (p1[0]-p0[0])/L, (p1[1]-p0[1])/L
         ang = -math.atan2(uz, ux)
         mx, mz = (p0[0]+p1[0])/2, (p0[1]+p1[1])/2
-        b.box((mx+nrm[0]*0.07, 1.35, mz+nrm[1]*0.07), (L*0.8, 2.0, 0.1), jitter(C["glass2"], rng), ang)
-        b.box((mx+nrm[0]*0.06, 1.35, mz+nrm[1]*0.06), (L*0.84, 2.2, 0.1), C["trim_d"], ang)
+        for side in (-1, 1):
+            offset = side*(L/4+0.5)
+            b.box((mx+ux*offset+nrm[0]*0.15, 1.35, mz+uz*offset+nrm[1]*0.15),
+                  (max(0.5, L/2-1.4), 2.0, 0.1), jitter(C["glass2"], rng), ang)
         aw = rng.choice([C["awning_r"], C["awning_g"], C["awning_b"], C["awning_y"]])
         b.box((mx+nrm[0]*0.8, 2.75, mz+nrm[1]*0.8), (L*0.85, 0.12, 1.6), jitter(aw, rng), ang)
         b.box((mx+nrm[0]*1.58, 2.55, mz+nrm[1]*1.58), (L*0.85, 0.45, 0.06), jitter(aw, rng), ang)
@@ -432,7 +526,7 @@ def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=N
         p0, p1, nrm = faces[front]
         mx, mz = (p0[0]+p1[0])/2, (p0[1]+p1[1])/2
         ang = -math.atan2(p1[1]-p0[1], p1[0]-p0[0])
-        b.box((mx+nrm[0]*0.06, 1.15, mz+nrm[1]*0.06), (1.5, 2.3, 0.12), C["door"], ang)
+        # The separate runtime door supplies both the leaf and its collider.
     # rooftop parapet rim
     if flat and cornice:
         rim = jitter(C["trim"], rng, 0.04)
@@ -467,8 +561,7 @@ def house(b, rng, cx, cz, w, d, front="s", floors=1):
     fh = 3.0
     H = floors*fh
     wall = jitter(rng.choice([C["cream"], C["beige"], C["pink"], C["teal"], C["blue"], C["green_b"], C["grey"]]), rng)
-    b.box((cx, H/2, cz), (w, H, d), wall)
-    b.collide((cx, H/2+0.6, cz), (w, H+1.2, d))
+    enterable_shell(b, cx-w/2, cz-d/2, cx+w/2, cz+d/2, H, wall, front, "home")
     roof = jitter(rng.choice([C["roof_red"], C["roof_brown"], C["roof_teal"], C["roof_grey"]]), rng)
     ang = 0.0 if w >= d else math.pi/2
     pw, pd = (w, d) if w >= d else (d, w)
@@ -477,12 +570,11 @@ def house(b, rng, cx, cz, w, d, front="s", floors=1):
     faces = {"s": ((x0, z1), (x1, z1), (0, 1)), "n": ((x1, z0), (x0, z0), (0, -1)),
              "e": ((x1, z1), (x1, z0), (1, 0)), "w": ((x0, z0), (x0, z1), (-1, 0))}
     for key, (p0, p1, nrm) in faces.items():
-        windows_on_face(b, rng, p0, p1, 0, floors, fh, nrm, every=3.2)
+        windows_on_face(b, rng, p0, p1, 0, floors, fh, nrm, every=3.2, entrance=key == front)
     p0, p1, nrm = faces[front]
     mx, mz = (p0[0]+p1[0])/2, (p0[1]+p1[1])/2
     fa = -math.atan2(p1[1]-p0[1], p1[0]-p0[0])
-    b.box((mx+nrm[0]*0.07, 1.1, mz+nrm[1]*0.07), (1.2, 2.2, 0.12), C["door"], fa)
-    b.box((mx+nrm[0]*1.0, 0.12, mz+nrm[1]*1.0), (3.2, 0.24, 2.0), C["wood"], fa)          # porch
+    b.box((mx+nrm[0]*1.0, 0.005, mz+nrm[1]*1.0), (3.2, 0.01, 2.0), C["wood"], fa)
     if rng.random() < 0.5:
         b.box((cx+w*0.25, H+1.0, cz), (0.6, 2.0, 0.6), C["brick2"])                     # chimney
 
@@ -615,9 +707,9 @@ def block_houses(b, rng, x0, n0, x1, n1, autumn=False):
     b.box(((x0+x1)/2-12, 0.35, -mid), (5, 0.7, 3.4), jitter(C["concrete"], rng), top=C["water"])
     b.collide(((x0+x1)/2-12, 0.35, -mid), (5, 0.7, 3.4), kind="low")
     dead_tree(b, (x0+x1)/2+4, -mid+2, rng)
-    b.box(((x0+x1)/2+13, 1.2, -mid), (3, 2.4, 2.5), jitter(C["wood"], rng))
+    sx = (x0+x1)/2+13
+    enterable_shell(b, sx-1.5, -mid-1.25, sx+1.5, -mid+1.25, 2.4, jitter(C["wood"], rng), "s", "shed")
     b.prism(((x0+x1)/2+13, 2.4, -mid), (3, 0.9, 2.5), C["wood"], roof_col=C["roof_grey"], overhang=0.2)
-    b.collide(((x0+x1)/2+13, 1.4, -mid), (3, 2.8, 2.5))
     for _ in range(6):
         patch(b, rng.uniform(x0+3, x1-3), -rng.uniform(n0+3, n1-3), rng, rng.uniform(1.5, 3), col=C["dirt"], y=0.1)
 
@@ -787,7 +879,7 @@ def block_motel_diner(b, rng, x0, n0, x1, n1):
     building(b, rng, x0+3, -(n0+16), x0+22, -(n0+4), 1, C["white"], front="s", shop=True, sign=C["sign_r"], roof=C["roof_red"])
     b.box((x0+12.5, 4.0, -(n0+10)), (19.4, 0.4, 12.4), C["sign_r"], top=C["roof_red"])
     # L-shaped yellow-roof motel
-    building(b, rng, x0+26, -(n1-2), x1-2, -(n1-12), 2, C["cream"], front="s", roof=C["yellow_b"], cornice=False)
+    building(b, rng, x0+26, -(n1-2), x1-2, -(n1-12), 2, C["cream"], front="n", roof=C["yellow_b"], cornice=False)
     building(b, rng, x1-12, -(n1-12), x1-2, -(n0+18), 2, C["cream"], front="w", roof=C["yellow_b"], cornice=False)
     b.cylinder((x0+3, 0, -(n1-4)), 0.22, 8.5, C["metal"], n=6)
     b.box((x0+3, 9.0, -(n1-4)), (3.5, 2.2, 0.3), C["sign_y"], top=C["sign_r"])
@@ -805,7 +897,9 @@ def block_motel_diner(b, rng, x0, n0, x1, n1):
 
 def block_warehouse(b, rng, x0, n0, x1, n1):
     lot(b, rng, x0, n0, x1, n1, C["concrete"])
+    b.interior_kind = "warehouse"
     building(b, rng, x0+2, -(n1-2), x0+30, -(n0+14), 3, C["grey"], front="e", roof=C["roof_grey"], cornice=False)
+    b.interior_kind = "office"
     # corrugated roof ridges
     for k in range(9):
         b.box((x0+16, 3*3.3+0.15, -(n0+16+k*3)), (28, 0.3, 0.3), C["metal"])
@@ -1041,12 +1135,13 @@ def main():
     b, spawn, extract, trees = build()
     tris = write_glb(b, OUT/"city.glb")
     layout = {
-        "version": 1, "seed": SEED,
+        "version": 2, "seed": SEED,
         "bounds": [WALL_MIN-1, -(WALL_MAX+1), WALL_MAX-WALL_MIN+2, WALL_MAX-WALL_MIN+2],
         "spawn": [spawn[0], 0.0, -spawn[1]],
         "extraction": [extract[0], 0.0, -extract[1]],
         "camera_center": [(CITY_MIN+CITY_MAX)/2, 0.0, -(CITY_MIN+CITY_MAX)/2],
         "colliders": b.colliders,
+        "buildings": b.buildings,
     }
     (OUT/"city_layout.json").write_text(json.dumps(layout, separators=(",", ":")), encoding="utf-8")
     manifest = {"generator": "tools/build_city_map.py", "seed": SEED, "triangles": tris, "colliders": len(b.colliders),

@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "city": [("city_buildings_test", True, []), ("city_buildings_test", False, []), ("city_doors_network_test", True, [])],
     "container_marks": [("container_marks_test", True, []), ("item_network_test", True, []), ("container_marks_test", False, [])],
     "infinite_credits": [("infinite_credits_test", True, []), ("infinite_credits_test", False, []), ("infinite_credits_network_test", True, [])],
     "camp_recovery": [("camp_recovery_test", True, [])],
@@ -64,6 +65,8 @@ def run(engine, suite, steam_live):
             command.extend(['--', *arguments])
         suffix = '_host_loss' if arguments == ['--host-loss'] else ''
         if name == 'ground_zero_integration_test' and not headless:
+            suffix = '_visible'
+        if name == 'city_buildings_test' and not headless:
             suffix = '_visible'
         if name in ('container_marks_test', 'soul_roaming_test', 'infinite_credits_test', 'enemy_world_test', 'satiety_capacity_test', 'localization_test', 'zombie_test', 'soul_test', 'camp_upgrade_test', 'roll_test', 'auto_reload_test', 'toilet_search_test', 'item_features_test', 'item_world_test', 'vision_presentation_test', 'voice_test', 'vision_integration_test', 'exploration_recovery_test', 'door_interaction_test', 'room_save_test') and not headless:
             suffix = '_visible'
