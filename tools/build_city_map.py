@@ -100,7 +100,15 @@ class Builder:
         self.tiles = {}
         self.colliders = []
         self.buildings = []
+        self.open_buildings = []
         self.interior_kind = "office"
+        self.interior_exclusion = None
+
+    def excluded_furniture(self, center, size):
+        if self.interior_exclusion is None:
+            return False
+        x0, z0, x1, z1 = self.interior_exclusion
+        return center[0]+size[0]/2 > x0 and center[0]-size[0]/2 < x1 and center[2]+size[2]/2 > z0 and center[2]-size[2]/2 < z1
 
     def geo_at(self, x, z, group="Tile"):
         key = (group, int(math.floor(x/TILE)), int(math.floor(-z/TILE)))
@@ -109,6 +117,7 @@ class Builder:
 
     # -- primitives (all CCW from outside; Godot/glTF front faces)
     def box(self, center, size, col, ang=0.0, top=None, group="Tile", bottom=False, sides=None):
+        if self.excluded_furniture(center, size): return
         g = self.geo_at(center[0], center[2], group)
         cx, cy, cz = center
         hx, hy, hz = size[0]/2, size[1]/2, size[2]/2
@@ -189,6 +198,7 @@ class Builder:
                 g.quad(a, b2, c, d, face, center)
 
     def collide(self, center, size, ang=0.0, kind="solid"):
+        if self.excluded_furniture(center, size): return
         self.colliders.append({"c": [round(v, 3) for v in center], "s": [round(v, 3) for v in size],
                                "r": round(ang, 4), "k": kind})
 
@@ -400,8 +410,57 @@ def windows_on_face(b, rng, p0, p1, y0, floors, floor_h, normal, glass=None, eve
                 b.box((cx+normal[0]*0.05, y-0.1, cz+normal[1]*0.05), (1.3, 0.25, 0.08), C["wood"], ang+rng.uniform(-0.3, 0.3))
 
 
-def enterable_shell(b, x0, z0, x1, z1, height, wall, front, kind):
-    """Ground-floor rooms; upper floors remain scenery. Keep a central cross aisle."""
+def storeys(b, x0, z0, x1, z1, floors, floor_h):
+    """Two flights and a turning landing per storey, with matching slab openings."""
+    sx, back = x0+0.35, z0+0.35
+    run, landing, sw, lane = 2.2, 1.2, 2.5, 1.15
+    front = back+landing+run
+    routes = []
+    def solid(center, size, color="concrete"):
+        b.box(center,size,C[color],bottom=True)
+        b.collide(center,size,kind="solid")
+    for level in range(1, floors):
+        y = level*floor_h
+        # Slab strips leave a single rectangular stairwell open on every floor.
+        for ax, az, bx, bz in [(x0,z0,sx,z1),(sx+sw,z0,x1,z1),
+                               (sx,z0,sx+sw,back),(sx,front,sx+sw,z1)]:
+            if bx>ax and bz>az:
+                solid(((ax+bx)/2,y-.1,(az+bz)/2),(bx-ax,.2,bz-az),"trim")
+        base = (level-1)*floor_h
+        count = 11
+        rise, tread = floor_h/(count*2), run/count
+        for step in range(count):
+            top = base+(step+1)*rise
+            b.box((sx+lane/2,top-.08,front-(step+.5)*tread),(lane,.16,tread+.015),C["concrete"],bottom=True)
+            top = base+floor_h/2+(step+1)*rise
+            b.box((sx+sw-lane/2,top-.08,back+landing+(step+.5)*tread),(lane,.16,tread+.015),C["concrete"],bottom=True)
+        # Continuous hidden ramps beneath the visible treads keep both directions
+        # smooth and avoid the capsule catching many tiny descending edges.
+        for left, start, end, bottom, top in [(sx,front,back+landing,base,base+floor_h/2),
+                                             (sx+sw-lane,back+landing,front,base+floor_h/2,base+floor_h)]:
+            points = [[x,y-offset,z] for x in (left,left+lane)
+                      for z,y in ((start,bottom),(end,top)) for offset in (0,.2)]
+            b.colliders.append({"k":"solid","points":points})
+        solid((sx+sw/2,base+floor_h/2-.1,back+landing/2),(sw,.2,landing))
+        # Thin central divider/handrail keeps the two flights separate.
+        solid((sx+sw/2,base+floor_h/2,front-run/2),(.12,floor_h,run),"metal")
+        # Guard the open left edge of the stairwell on each upper floor.
+        solid((sx-.03,y+.45,back+(landing+run)/2),(.1,.9,landing+run),"metal")
+        routes.append([[sx+lane/2,base+.04,front+.6],
+                       [sx+lane/2,base+floor_h/2+.04,back+landing/2],
+                       [sx+sw-lane/2,base+floor_h/2+.04,back+landing/2],
+                       [sx+sw-lane/2,y+.04,front+.6]])
+        # A small desk and storage unit on upper floors, outside the stair approach.
+        solid((x1-1.2,y+.4,z1-1.3),(1.4,.8,.8),"wood")
+        solid((x1-1.2,y+.85,z0+1.3),(1.1,1.7,.7),"wood")
+    # Solid roof closes the top floor, rather than another traversable storey.
+    y = floors*floor_h
+    solid(((x0+x1)/2,y+.1,(z0+z1)/2),(x1-x0,.2,z1-z0),"roof")
+    return routes, (sx-.2,back-.2,sx+sw+.3,front+1.3)
+
+
+def enterable_shell(b, x0, z0, x1, z1, height, wall, front, kind, floors=1):
+    """Hollow rooms, connected storeys and furniture clear of the stairwell."""
     cx, cz = (x0+x1)/2, (z0+z1)/2
     width, depth = x1-x0, z1-z0
     door_w, door_h, thick = 1.8, min(2.5, height-0.2), 0.24
@@ -419,23 +478,23 @@ def enterable_shell(b, x0, z0, x1, z1, height, wall, front, kind):
             wall_part((mx+math.cos(angle)*offset, height/2, mz-math.sin(angle)*offset),
                       ((length-door_w)/2, height, thick), angle)
         wall_part((mx, (height+door_h)/2, mz), (door_w, height-door_h, thick), angle)
-    # Floor top is flush with the district paving. Ceiling physically blocks jumping upstairs.
+    # Ground physics stays flush with the district paving.
     b.flat(x0, z0, x1, z1, 0.11, C["wood"] if kind == "home" else C["trim"])
-    b.box((cx, min(height, 3.0)+0.1, cz), (width, 0.2, depth), C["roof"], bottom=True)
-    b.collide((cx, min(height, 3.0)+0.1, cz), (width, 0.2, depth), kind="roof")
-    if height > 3.2:
-        b.box((cx, height+0.1, cz), (width, 0.2, depth), C["roof"], bottom=True)
+    routes, exclusion = storeys(b,x0,z0,x1,z1,floors,height/floors)
     (mx, mz), _, angle = faces[front]
     uid = "city_door_%03d" % len(b.buildings)
     b.buildings.append({"id": uid, "bounds": [x0, z0, width, depth], "kind": kind,
                         "door": [mx, 0.08, mz], "angle": angle, "width": door_w,
-                        "height": door_h-0.08, "normal": [math.sin(angle), math.cos(angle)]})
+                        "height": door_h-0.08, "normal": [math.sin(angle), math.cos(angle)],
+                        "floors": floors, "floor_height": height/floors, "stairs": routes})
+    b.interior_exclusion = exclusion if floors > 1 else None
     # Furniture stays clear of the doorway and central crossing in every orientation.
     def prop(x, z, sx, sy, sz, color):
         b.box((x, 0.08+sy/2, z), (sx, sy, sz), C[color], bottom=True)
         b.collide((x, 0.08+sy/2, z), (sx, sy, sz), kind="low")
     if width < 5 or depth < 5:
         prop(x0+0.65, z0+0.65, 0.7, 0.8, 0.7, "wood")
+        b.interior_exclusion = None
         return
     left, right, back, near = x0+1.3, x1-1.3, z0+1.4, z1-1.4
     if kind == "home":
@@ -487,6 +546,7 @@ def enterable_shell(b, x0, z0, x1, z1, height, wall, front, kind):
                         b.box((x,1.0,z),(.5,.4,.12),C["dark"])
                 z+=4
             x+=4
+    b.interior_exclusion = None
 
 
 def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=None, sign=None, flat=True, cornice=True):
@@ -496,10 +556,12 @@ def building(b, rng, x0, z0, x1, z1, floors, wall, front="s", shop=False, roof=N
     cx, cz = (x0+x1)/2, (z0+z1)/2
     w, d = x1-x0, z1-z0
     wall = jitter(wall, rng, 0.05)
-    enterable_shell(b, x0, z0, x1, z1, H, wall, front, "shop" if shop else b.interior_kind)
+    enterable_shell(b, x0, z0, x1, z1, H, wall, front, "shop" if shop else b.interior_kind, floors)
     if cornice:
         b.box((cx, H+0.25, cz), (w+0.3, 0.5, d+0.3), jitter(C["trim"], rng, 0.04), top=jitter(roof or C["roof"], rng, 0.05))
-        b.box((cx, fh-0.1, cz), (w+0.12, 0.25, d+0.12), jitter(C["trim"], rng, 0.04))
+        band = jitter(C["trim"], rng, 0.04)
+        for px,pz,bw,bd in [(cx,z0,w+.12,.16),(cx,z1,w+.12,.16),(x0,cz,.16,d),(x1,cz,.16,d)]:
+            b.box((px,fh-.1,pz),(bw,.25,bd),band)
     faces = {"s": ((x0, z1), (x1, z1), (0, 1)), "n": ((x1, z0), (x0, z0), (0, -1)),
              "e": ((x1, z1), (x1, z0), (1, 0)), "w": ((x0, z0), (x0, z1), (-1, 0))}
     for key, (p0, p1, nrm) in faces.items():
@@ -561,7 +623,7 @@ def house(b, rng, cx, cz, w, d, front="s", floors=1):
     fh = 3.0
     H = floors*fh
     wall = jitter(rng.choice([C["cream"], C["beige"], C["pink"], C["teal"], C["blue"], C["green_b"], C["grey"]]), rng)
-    enterable_shell(b, cx-w/2, cz-d/2, cx+w/2, cz+d/2, H, wall, front, "home")
+    enterable_shell(b, cx-w/2, cz-d/2, cx+w/2, cz+d/2, H, wall, front, "home", floors)
     roof = jitter(rng.choice([C["roof_red"], C["roof_brown"], C["roof_teal"], C["roof_grey"]]), rng)
     ang = 0.0 if w >= d else math.pi/2
     pw, pd = (w, d) if w >= d else (d, w)
@@ -854,12 +916,14 @@ def block_construction(b, rng, x0, n0, x1, n1):
     fx0, fz0 = x0+6, n0+10
     for fy in range(3):
         y = fy*3.6
-        b.box((fx0+11, y+3.45, -(fz0+9)), (22, 0.3, 18), jitter(C["concrete"], rng))
+        jitter(C["concrete"], rng)  # Preserve the exterior dressing RNG sequence.
         for cx in range(4):
             for cz in range(3):
                 b.box((fx0+cx*7.3, y+1.7, -(fz0+cz*9)), (0.5, 3.4, 0.5), C["concrete"])
                 b.collide((fx0+cx*7.3, y+1.7, -(fz0+cz*9)), (0.6, 3.4, 0.6), kind="post")
-    b.collide((fx0+11, 7.2, -(fz0+9)), (22, 3.6, 18), kind="roof")
+    routes, _ = storeys(b,fx0,-(fz0+18),fx0+22,-fz0,3,3.6)
+    b.open_buildings.append({"id":"city_construction","bounds":[fx0,-(fz0+18),22,18],
+                             "floors":3,"floor_height":3.6,"stairs":routes,"kind":"construction"})
     # crane
     cx, cz = x1-6, -(n1-6)
     b.box((cx, 11, cz), (1.2, 22, 1.2), C["yellow_b"])
@@ -1135,13 +1199,14 @@ def main():
     b, spawn, extract, trees = build()
     tris = write_glb(b, OUT/"city.glb")
     layout = {
-        "version": 2, "seed": SEED,
+        "version": 3, "seed": SEED,
         "bounds": [WALL_MIN-1, -(WALL_MAX+1), WALL_MAX-WALL_MIN+2, WALL_MAX-WALL_MIN+2],
         "spawn": [spawn[0], 0.0, -spawn[1]],
         "extraction": [extract[0], 0.0, -extract[1]],
         "camera_center": [(CITY_MIN+CITY_MAX)/2, 0.0, -(CITY_MIN+CITY_MAX)/2],
         "colliders": b.colliders,
         "buildings": b.buildings,
+        "open_buildings": b.open_buildings,
     }
     (OUT/"city_layout.json").write_text(json.dumps(layout, separators=(",", ":")), encoding="utf-8")
     manifest = {"generator": "tools/build_city_map.py", "seed": SEED, "triangles": tris, "colliders": len(b.colliders),

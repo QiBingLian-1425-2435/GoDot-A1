@@ -91,6 +91,14 @@ func _build_colliders() -> void:
 			add_child(body)
 			bodies[kind] = body
 		var shape := CollisionShape3D.new()
+		if spec.has("points"):
+			var ramp:=ConcavePolygonShape3D.new()
+			var points:=PackedVector3Array()
+			for point in spec.points:points.append(Vector3(point[0],point[1],point[2]))
+			var faces:=PackedVector3Array([points[0],points[4],points[2],points[2],points[4],points[6]])
+			ramp.set_faces(faces);ramp.backface_collision=true;shape.shape=ramp
+			bodies[kind].add_child(shape)
+			continue
 		var box := BoxShape3D.new()
 		box.size = Vector3(spec.s[0],spec.s[1],spec.s[2])
 		shape.shape = box
@@ -117,6 +125,7 @@ func set_view_points(player: Vector3, camera: Vector3) -> void:
 	var room := _room_at(player)
 	_material.set_shader_parameter("indoor_active",not room.is_empty())
 	if not room.is_empty():
+		_material.set_shader_parameter("indoor_cut_height",player.y+1.8)
 		var bounds: Array = room.bounds
 		_material.set_shader_parameter("indoor_bounds",Vector4(bounds[0]-.6,bounds[1]-.6,bounds[0]+bounds[2]+.6,bounds[1]+bounds[3]+.6))
 
@@ -129,9 +138,10 @@ func has_overhead_cover(point: Vector3) -> bool:
 	return not _room_at(point).is_empty()
 
 func _room_at(point: Vector3) -> Dictionary:
-	for room in layout.get("buildings",[]):
+	for room in layout.get("buildings",[])+layout.get("open_buildings",[]):
 		var b: Array = room.bounds
-		if Rect2(b[0],b[1],b[2],b[3]).has_point(Vector2(point.x,point.z)) and point.y < 3.0:
+		var roof: float=float(room.get("floors",1))*float(room.get("floor_height",3.0))
+		if Rect2(b[0],b[1],b[2],b[3]).has_point(Vector2(point.x,point.z)) and point.y < roof:
 			return room
 	return {}
 

@@ -9,6 +9,7 @@ uniform vec3 view_camera;
 uniform float cutaway_radius = 3.2;
 uniform bool indoor_active = false;
 uniform vec4 indoor_bounds;
+uniform float indoor_cut_height = 1.8;
 varying vec3 world_position;
 varying vec4 vertex_tint;
 void vertex() {
@@ -16,9 +17,9 @@ void vertex() {
 	vertex_tint = COLOR;
 }
 void fragment() {
-	// Reveal the occupied ground floor, including low house roofs and upper floors.
+	// Reveal the occupied storey; the cut height follows the observer on the stairs.
 	// Only visuals change; physical walls, ceiling and line-of-sight remain intact.
-	if (indoor_active && world_position.y > 1.8 &&
+	if (indoor_active && world_position.y > indoor_cut_height &&
 		world_position.x > indoor_bounds.x && world_position.x < indoor_bounds.z &&
 		world_position.z > indoor_bounds.y && world_position.z < indoor_bounds.w) { discard; }
 	if (view_enabled && world_position.y>view_player.y+3.4) {

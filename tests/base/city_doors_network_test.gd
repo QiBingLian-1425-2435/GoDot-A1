@@ -8,8 +8,11 @@ var stage:=0
 var elapsed:=0.0
 var failures:=0
 var finished:=false
+var stairs_test:=false
+var waypoint:=0
 func _initialize():
 	client="--client" in OS.get_cmdline_user_args()
+	stairs_test="--stairs" in OS.get_cmdline_user_args()
 	call_deferred("start")
 func check(ok: bool, message: String):
 	print("PASS: " if ok else "FAIL: ",message)
@@ -24,7 +27,9 @@ func start():
 		DirAccess.remove_absolute("user://city_network_result.json")
 		check(game.session.host(PORT)==OK,"host starts")
 		game._enter_base()
-		child_pid=OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/city_network_client.log"),"--script","res://tests/base/city_doors_network_test.gd","--","--client"])
+		var args: PackedStringArray=["--headless","--path",ProjectSettings.globalize_path("res://"),"--log-file",ProjectSettings.globalize_path("res://artifacts/city_network_client.log"),"--script","res://tests/base/city_doors_network_test.gd","--","--client"]
+		if stairs_test:args.append("--stairs")
+		child_pid=OS.create_process(OS.get_executable_path(),args)
 func _process(delta: float) -> bool:
 	if game==null or finished:return false
 	elapsed+=delta
@@ -34,7 +39,7 @@ func _process(delta: float) -> bool:
 	if not client:
 		if child_pid>0 and not OS.is_process_running(child_pid):
 			check(FileAccess.get_file_as_string("user://city_network_result.json")=="0","client confirmed synchronized door and collision")
-			check(stage==3,"host received client open and close intents")
+			check(stage==(5 if stairs_test else 3),"host received client actions")
 			finish();return false
 		if model.state.players.size()<2:return false
 		if stage==0 and elapsed>3:
@@ -56,6 +61,23 @@ func _process(delta: float) -> bool:
 			model.state.qa_stage=2;game.session._broadcast_snapshot(true);stage=3
 		elif stage==3 and not model.state.doors.get(model.state.qa_door,true):
 			model.state.qa_stage=3;game.session._broadcast_snapshot(true)
+			if stairs_test:
+				for room in game.world.layout.buildings:
+					if int(room.floors)!=9:continue
+					model.state.qa_path=room.stairs[0]
+					var point: Array=room.stairs[0][0]
+					for id in model.state.players:
+						var p: Dictionary=model.state.players[id]
+						p.pos=Vector2(point[0],point[2]);p.height=point[1];model.reset_transients(id)
+					model.state.qa_stage=4;stage=4;game.session._broadcast_snapshot(true);break
+		elif stage==4:
+			var target: Array=model.state.qa_path[3]
+			for id in model.state.players:
+				if id==1:continue
+				var p: Dictionary=model.state.players[id]
+				if Vector2(p.pos).distance_to(Vector2(target[0],target[2]))<.2 and float(p.height)>3.1:
+					check(true,"host authoritative movement climbs both flights onto second floor")
+					model.state.qa_stage=5;stage=5;game.session._broadcast_snapshot(true)
 	else:
 		if not game.in_game or game.world_loading or game.world_id!="city":return false
 		var phase: int=int(model.state.get("qa_stage",0))
@@ -70,6 +92,17 @@ func _process(delta: float) -> bool:
 			game._update_interaction();game._interact();stage=2
 		elif phase==3 and stage==2:
 			check(not model.state.doors[uid] and not game.world._door_open[uid],"client receives confirmed close state")
+			if not stairs_test:finish()
+		elif phase==4:
+			var p: Dictionary=model.state.players[game.session.local_id]
+			var path: Array=model.state.qa_path
+			var point: Array=path[waypoint]
+			var offset:=Vector2(point[0],point[2])-Vector2(p.pos)
+			if offset.length()<.14 and waypoint<3:waypoint+=1
+			game.session.send("move",{"direction":offset.normalized() if offset.length()>.1 else Vector2.ZERO,"aim":offset.normalized()})
+		elif phase==5:
+			game.session.send("move",{"direction":Vector2.ZERO})
+			check(float(model.state.players[game.session.local_id].height)>3.1,"client receives upper floor height")
 			finish()
 	return false
 func finish():
