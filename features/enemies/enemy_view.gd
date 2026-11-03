@@ -12,20 +12,8 @@ var last_attack:=0
 var swing:=0.0
 func _ready():
 	rig=Node3D.new();add_child(rig)
-	G.sphere(rig,Vector3(0,.65,.07),Vector3(.85,.95,.75),Color("566653"))
-	G.sphere(rig,Vector3(0,1.19,-.18),Vector3(.73,.66,.72),Color("85926a"))
-	G.sphere(rig,Vector3(0,1.05,-.57),Vector3(.50,.16,.38),Color("b78950"))
-	G.box(rig,Vector3(0,1.01,-.66),Vector3(.40,.045,.20),Color("291c20"))
-	for side in [-1,1]:
-		G.sphere(rig,Vector3(side*.23,1.25,-.48),Vector3(.10,.08,.06),Color("eb5942"))
-		G.box(rig,Vector3(side*.22,1.32,-.46),Vector3(.23,.06,.06),Color("303a2a"))
-		G.box(rig,Vector3(side*.16,.98,-.72),Vector3(.055,.11,.06),Color("eee1b5"))
-		var foot:=Node3D.new();rig.add_child(foot);foot.position=Vector3(side*.23,.17,.04);feet.append(foot)
-		G.sphere(foot,Vector3.ZERO,Vector3(.22,.18,.45),Color("a48452"))
-		var wing:=Node3D.new();rig.add_child(wing);wing.position=Vector3(side*.42,.85,-.02);wings.append(wing)
-		G.sphere(wing,Vector3(0,-.18,0),Vector3(.24,.52,.31),Color("697457"))
-		for claw in [-1,0,1]:G.rod(wing,Vector3(claw*.06,-.34,-.06),Vector3(claw*.08,-.52,-.18),.025,Color("e2d2a7"))
-	G.box(rig,Vector3(0,.80,-.33),Vector3(.53,.27,.08),Color("692d2d"))
+	var model=load("res://assets/characters/sick_ghost/sick_ghost.glb").instantiate()
+	rig.add_child(model)
 	title=G.text(self,Texts.resolve("⟦enemy.name⟧"),Vector3(0,1.8,0),22,Color("ed9a83"))
 	title.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	title.outline_size=4
