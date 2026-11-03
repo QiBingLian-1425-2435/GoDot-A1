@@ -39,6 +39,8 @@ func update_enemy(data:Dictionary,delta:float):
 		for child in rig.get_children():child.queue_free()
 		feet.clear();wings.clear()
 		model=load("res://assets/characters/sick_ghost/sick_ghost.glb").instantiate();rig.add_child(model)
+		# Imported GLB faces +Z; enemy aim and cough use -Z.
+		model.rotation.y=PI
 		for node in model.find_children("*","Skeleton3D",true,false):skeleton=node
 		cough_cloud=MeshInstance3D.new();var sphere:=SphereMesh.new();sphere.radius=.3;sphere.height=.6;cough_cloud.mesh=sphere
 		var material:=StandardMaterial3D.new();material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA;material.albedo_color=Color(.55,.65,.12,.35);cough_cloud.material_override=material
