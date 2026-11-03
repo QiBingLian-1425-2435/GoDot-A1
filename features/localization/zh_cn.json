@@ -653,6 +653,7 @@
   "keys.single": "%s",
   "satiety.weight": "%.1f / %.1f kg · 饥饿",
   "satiety.tip": "基础负重上限 %.1f kg\n饱食度低于50时逐渐降低负重上限，饱食度为0时保留50%%。\n进食恢复上限；超重会减速，已有物品不会丢失。",
+  "enemy.sick.invulnerable": "病鬼 · 无敌",
   "enemy.name": "狂化鸭",
   "enemy.dead": "狂化鸭 · 已击倒",
   "enemy.health": "狂化鸭  %d / 100%s",

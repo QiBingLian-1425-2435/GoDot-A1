@@ -31,6 +31,7 @@ func run():
 	check(all_clear,"all spawn capsules are clear of source map geometry")
 	var chosen:Dictionary={};var player_at:=Vector3.ZERO
 	for e in m.state.enemies.values():
+		if e.get("kind","")=="sick_ghost":continue
 		var origin:Vector3=m.Enemies.at(e)
 		for i in range(12):
 			var dir:=Vector2.from_angle(TAU*i/12);var at:=origin

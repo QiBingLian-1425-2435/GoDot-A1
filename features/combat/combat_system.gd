@@ -62,7 +62,7 @@ static func _fire(ctx, p: Dictionary) -> bool:
 			ctx.Souls.reconcile(ctx,teammate)
 			ctx.Movement.hit(teammate,direction)
 	elif not chosen.is_empty():
-		chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
+		if not chosen.get("invulnerable",false):chosen.hp = maxi(0,int(chosen.hp) - int(ctx.Items.definition(weapon.kind).get("damage",20)))
 		chosen.hits = int(chosen.get("hits",0)) + 1
 		if ctx.state.get("enemies",{}).get(chosen.get("id",-1),{})==chosen:
 			ctx.Enemies.hit(chosen,direction)

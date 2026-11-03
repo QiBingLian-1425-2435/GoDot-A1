@@ -43,6 +43,9 @@ func spawn_wave(ctx):
 	var probe=body_for(-1)
 	var enemies:Dictionary=model.state.enemies
 	_spawn_group(ctx,probe,center,2,true)
+	if enemies.has(1):
+		var first_enemy:Dictionary=enemies[1]
+		enemies[1]=model.Enemies.create_sick(1,model.Enemies.at(first_enemy),first_enemy.aim)
 	for landmark in ["StartPoints/StartPoint_1","StartPoints/StartPoint_2","StartPoints/StartPoint_4","StartPoints/StartPoint_5","QuestLocations/FishingPoint2"]:
 		var location:Vector3=ctx.world.Library.source_location("surface",landmark)
 		_spawn_group(ctx,probe,Vector2(location.x,location.z),2,false)

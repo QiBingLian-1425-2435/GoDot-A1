@@ -2057,14 +2057,17 @@
     "ui/inventory/inventory_panel.gd:180",
     "ui/inventory/inventory_panel.gd:181"
   ],
+  "enemy.sick.invulnerable": [
+    "features/enemies/enemy_view.gd:74"
+  ],
   "enemy.name": [
-    "features/enemies/enemy_view.gd:29"
+    "features/enemies/enemy_view.gd:33"
   ],
   "enemy.dead": [
-    "features/enemies/enemy_view.gd:44"
+    "features/enemies/enemy_view.gd:57"
   ],
   "enemy.health": [
-    "features/enemies/enemy_view.gd:57"
+    "features/enemies/enemy_view.gd:70"
   ],
   "settings.voice_always_on": [
     "ui/menu/menu_screen.gd:101",

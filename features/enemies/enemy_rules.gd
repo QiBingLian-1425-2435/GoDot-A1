@@ -11,7 +11,7 @@ const HIT_DECELERATION := 22.0
 const HIT_DURATION := .25
 
 static func hit(enemy:Dictionary,direction:Vector2) -> void:
-	if enemy.hp<=0:return
+	if enemy.hp<=0 or enemy.get("kind","")=="sick_ghost":return
 	enemy.knockback=direction.normalized()*HIT_SPEED
 	enemy.mode="stagger";enemy.timer=HIT_DURATION
 
@@ -29,6 +29,12 @@ static func _push(ctx,enemy:Dictionary,delta:float) -> void:
 
 static func create(id: int, at: Vector3, facing: Vector2) -> Dictionary:
 	return {"id":id,"pos":Vector2(at.x,at.z),"height":at.y,"home":at,"aim":facing.normalized(),"velocity":Vector2.ZERO,"hp":100,"max_hp":100,"mode":"idle","target":0,"last_seen":at,"memory":0.0,"timer":0.0,"attack_seq":0}
+
+static func create_sick(id:int, position:Vector3, facing:Vector2)->Dictionary:
+	var enemy:=create(id,position,facing)
+	enemy.kind="sick_ghost"
+	enemy.invulnerable=true
+	return enemy
 
 static func at(p: Dictionary) -> Vector3:
 	return Vector3(p.pos.x,float(p.get("height",0)),p.pos.y)
@@ -48,6 +54,7 @@ static func clear_sight(ctx, from: Vector3, to: Vector3) -> bool:
 static func tick(ctx, delta: float) -> void:
 	if not ctx.world_ready or ctx.state.get("world","bunker")=="bunker":return
 	for enemy in ctx.state.get("enemies",{}).values():
+		var sick:bool=enemy.get("kind","")=="sick_ghost"
 		enemy.velocity=Vector2.ZERO
 		if enemy.hp<=0:enemy.mode="dead";enemy.target=0;enemy.knockback=Vector2.ZERO;continue
 		if enemy.mode=="stagger":
@@ -58,10 +65,15 @@ static func tick(ctx, delta: float) -> void:
 		enemy.timer=maxf(0,float(enemy.timer)-delta)
 		if enemy.mode=="windup":
 			if enemy.timer<=0:
-				var victim:Dictionary=ctx.state.players.get(enemy.target,{})
-				if ctx.Souls.alive(victim) and at(enemy).distance_to(at(victim))<=REACH+.2 and clear_sight(ctx,at(enemy),at(victim)):
-					ctx.enemy_damage(int(victim.id),DAMAGE)
-				enemy.attack_seq+=1;enemy.mode="recover";enemy.timer=RECOVERY
+				if sick:
+					for victim in ctx.enemy_targets():
+						if ctx.Souls.alive(victim) and at(enemy).distance_to(at(victim))<=3.0 and clear_sight(ctx,at(enemy),at(victim)):
+							ctx.enemy_damage(int(victim.id),20.0)
+				else:
+					var victim:Dictionary=ctx.state.players.get(enemy.target,{})
+					if ctx.Souls.alive(victim) and at(enemy).distance_to(at(victim))<=REACH+.2 and clear_sight(ctx,at(enemy),at(victim)):
+						ctx.enemy_damage(int(victim.id),DAMAGE)
+				enemy.attack_seq+=1;enemy.mode="recover";enemy.timer=2.2 if sick else RECOVERY
 			continue
 		if enemy.mode=="recover" and enemy.timer>0:continue
 		var chosen:Dictionary={};var nearest:=SIGHT_RANGE+1
@@ -71,8 +83,8 @@ static func tick(ctx, delta: float) -> void:
 			if distance<nearest and visible(ctx,enemy,player):chosen=player;nearest=distance
 		if not chosen.is_empty():
 			enemy.target=chosen.id;enemy.last_seen=at(chosen);enemy.memory=2.0
-			if at(chosen).distance_to(at(enemy))<=REACH:
-				enemy.mode="windup";enemy.timer=WINDUP
+			if at(chosen).distance_to(at(enemy))<=(2.8 if sick else REACH):
+				enemy.mode="windup";enemy.timer=.8 if sick else WINDUP
 				enemy.aim=Vector2(chosen.pos-enemy.pos).normalized()
 				continue
 		else:enemy.memory=maxf(0,float(enemy.memory)-delta)
@@ -84,6 +96,6 @@ static func tick(ctx, delta: float) -> void:
 		enemy.aim=direction.normalized()
 		if not ctx.enemy_move.is_valid():continue
 		var before:=at(enemy)
-		var moved:Vector3=ctx.enemy_move.call(int(enemy.id),before,direction.limit_length(SPEED*delta))
+		var moved:Vector3=ctx.enemy_move.call(int(enemy.id),before,direction.limit_length((2.0 if sick else SPEED)*delta))
 		enemy.pos=Vector2(moved.x,moved.z);enemy.height=moved.y
 		enemy.velocity=(Vector2(enemy.pos)-Vector2(before.x,before.z))/delta

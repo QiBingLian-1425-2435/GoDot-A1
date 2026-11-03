@@ -653,6 +653,7 @@
   "keys.single": "%s",
   "satiety.weight": "%.1f / %.1f kg · Hungry",
   "satiety.tip": "Base capacity %.1f kg\nBelow 50 satiety, capacity gradually falls to 50%% at zero.\nEating restores capacity. Overload slows movement; carried items are retained.",
+  "enemy.sick.invulnerable": "Sick Ghost · Invulnerable",
   "enemy.name": "Feral Duck",
   "enemy.dead": "Feral Duck · Defeated",
   "enemy.health": "Feral Duck  %d / 100%s",
