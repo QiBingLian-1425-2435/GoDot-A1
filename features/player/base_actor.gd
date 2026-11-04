@@ -26,6 +26,7 @@ var _eyes: Array[MeshInstance3D] = []
 var _clock := 0.0
 var _arm_phase:=0.0
 var _arm_move_blend:=0.0
+var locomotion_arm_angles:=Vector2.ZERO
 var _speed := 0.0
 var _run_blend := 0.0
 var _crouch_blend := 0.0
@@ -450,8 +451,9 @@ func _apply_arm_swing(delta:float,moving:float,tempo:float,action_weight:float)-
 	var wave:float=sin(_arm_phase)*amplitude
 	# Empty hands counter-swing; occupied hands keep the held weapon together.
 	var held:float=1.0-_unarmed_blend
-	_rotate("WingL",Vector3(wave*lerpf(1.0,.38,held),0,0))
-	_rotate("WingR",Vector3(wave*lerpf(-1.0,.38,held),0,0))
+	locomotion_arm_angles=Vector2(wave*lerpf(1.0,.38,held),wave*lerpf(-1.0,.38,held))
+	_rotate("WingL",Vector3(locomotion_arm_angles.x,0,0))
+	_rotate("WingR",Vector3(locomotion_arm_angles.y,0,0))
 	_rotate("Gun",Vector3(wave*.38*held,0,0))
 
 func _rotate(bone: String, offset: Vector3) -> void:

@@ -33,9 +33,29 @@ for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险
   b=bones.new(name);b.head=point;b.tail=Vector(point)+Vector((0,0,.15))
   if name in parents:b.parent=bones[parents[name]]
  bpy.ops.object.mode_set(mode='OBJECT');groups={n:obj.vertex_groups.new(name=n) for n in positions}
+ vertex_parts={}
+ for face in obj.data.polygons:
+  for index in face.vertices:vertex_parts[index]=face.material_index
+ skin_candidates={v.index for v in obj.data.vertices if vertex_parts.get(v.index)==2 and v.co.z<1.15}
+ adjacency={i:[] for i in skin_candidates}
+ for edge in obj.data.edges:
+  a,b=edge.vertices
+  if a in adjacency and b in adjacency:adjacency[a].append(b);adjacency[b].append(a)
+ skin_arms=set();remaining_skin=set(skin_candidates)
+ while remaining_skin:
+  pending=[remaining_skin.pop()];component=[]
+  while pending:
+   index=pending.pop();component.append(index)
+   for neighbor in adjacency[index]:
+    if neighbor in remaining_skin:remaining_skin.remove(neighbor);pending.append(neighbor)
+  mean_side=sum(abs(obj.data.vertices[i].co.x) for i in component)/len(component)
+  if mean_side>.255:skin_arms.update(component)
  for v in obj.data.vertices:
   x,y,z=v.co;weights={};side='L' if x<0 else 'R'
-  arm=max(0,min(1,(abs(x)-.18)/.075))*max(0,min(1,(1.28-z)/.10)) if z>.52 else 0
+  arm=max(0,min(1,(abs(x)-.165)/.075))*max(0,min(1,(1.35-z)/.12)) if z>.56 else 0
+  part=vertex_parts.get(v.index,0)
+  if part in [0,4]:arm=0
+  if part==2 and z<1.15:arm=1 if v.index in skin_arms else 0
   leg=max(0,min(1,(.86-z)/.16)) if z<.86 else 0
   head=max(0,min(1,(z-1.19)/.10))
   weights['Wing'+side]=arm;remaining=1-arm

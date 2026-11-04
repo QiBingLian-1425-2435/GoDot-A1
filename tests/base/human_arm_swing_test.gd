@@ -20,6 +20,15 @@ func run():
   data.sprint=true;data.velocity=Vector2(0,-6);var sprint:=sample(actor,data)
   check(walk>.25 and walk<.6,gender+" walk has a restrained arm swing")
   check(sprint>walk*2.0,gender+" running clearly increases swing")
+  var skin:Skeleton3D=actor.human_visual.skin
+  var wing:int=skin.find_bone("WingL")
+  var low_upper:=100.0;var high_upper:=-100.0
+  for i in range(180):
+   actor.update_actor(data,1.0/60);skin.force_update_all_bone_transforms()
+   var motion:Transform3D=skin.get_bone_global_pose(wing)*skin.get_bone_global_rest(wing).affine_inverse()
+   var upper:Vector3=motion*Vector3(-.28,1.08,0)
+   low_upper=minf(low_upper,upper.z);high_upper=maxf(high_upper,upper.z)
+  check(high_upper-low_upper>.10,gender+" running swings upper arm from shoulder")
   data.velocity=Vector2.ZERO;data.sprint=false
   check(sample(actor,data)<.05,gender+" stopped arms settle")
   data.equipment={"weapon":{"kind":"rifle"}};data.velocity=Vector2(0,-3.7)

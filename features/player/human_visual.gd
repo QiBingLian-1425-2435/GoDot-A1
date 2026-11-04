@@ -46,6 +46,18 @@ func sync_pose()->void:
   var driver:int=actor.skeleton.find_bone(skin.get_bone_name(i))
   if driver<0:continue
   var delta:Transform3D=actor.skeleton.get_bone_global_pose(driver)*actor.skeleton.get_bone_global_rest(driver).affine_inverse()
+  # Existing action clips pivot near the elbow. Only locomotion swing is
+  # translated to a shoulder pivot so equipment/action poses keep their anchors.
+  var bone_name:String=skin.get_bone_name(i)
+  if bone_name in ["WingL","WingR"]:
+   var left:bool=bone_name=="WingL"
+   var angle:float=actor.locomotion_arm_angles.x if left else actor.locomotion_arm_angles.y
+   var swing_basis:=Basis(Vector3.RIGHT,angle)
+   var elbow:Vector3=actor.skeleton.get_bone_global_rest(driver).origin
+   var shoulder:=Vector3(-.28 if left else .28,1.20,0.0)
+   var offset:Vector3=shoulder-elbow
+   var before_swing:Basis=delta.basis*swing_basis.inverse()
+   delta.origin+=before_swing*(offset-swing_basis*offset)
   skin.set_bone_global_pose_override(i,delta*skin.get_bone_global_rest(i),1.0,true)
  _bend_legs()
 func _bend_legs()->void:
