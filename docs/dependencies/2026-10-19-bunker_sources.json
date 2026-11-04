@@ -177,12 +177,14 @@
     "ui/widgets/stat_bar.gd.uid",
     "ui/widgets/loading_dots.gd",
     "ui/widgets/loading_dots.gd.uid",
-    "assets/characters/sick_ghost/sick_ghost.glb"
+    "assets/characters/sick_ghost/sick_ghost.glb",
+    "assets/characters/explorer/male.glb"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
     "assets/characters/humans/asset_manifest.json",
     "assets/worlds/city/asset_manifest.json",
-    "assets/characters/sick_ghost/asset_manifest.json"
+    "assets/characters/sick_ghost/asset_manifest.json",
+    "assets/characters/explorer/asset_manifest.json"
   ]
 }

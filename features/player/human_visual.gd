@@ -26,6 +26,7 @@ func update(value:Variant) -> void:
 		attachments.clear();meshes.clear();materials.clear()
 		gender=appearance.gender
 		var path:="res://assets/characters/humans/%s.glb"%gender
+		if gender=="male":path="res://assets/characters/explorer/male.glb"
 		var scene:PackedScene=load(path)
 		if scene==null:return
 		var source:Node3D=scene.instantiate()
@@ -42,6 +43,7 @@ func update(value:Variant) -> void:
 			attachments.append(attachment);meshes.append(child)
 			for surface in range(child.mesh.get_surface_count()):
 				var material:StandardMaterial3D=child.mesh.surface_get_material(surface).duplicate()
+				if gender=="male":material.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR
 				child.set_surface_override_material(surface,material)
 				var part:String=material.resource_name.get_slice(".",0)
 				if not materials.has(part):materials[part]=[]
