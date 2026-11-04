@@ -24,6 +24,8 @@ var pistol_mesh: Node3D
 var held_props: Dictionary = {}
 var _eyes: Array[MeshInstance3D] = []
 var _clock := 0.0
+var _arm_phase:=0.0
+var _arm_move_blend:=0.0
 var _speed := 0.0
 var _run_blend := 0.0
 var _crouch_blend := 0.0
@@ -349,6 +351,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	var tempo := lerpf(1.0, clampf(_speed / (1.78 if _crouch_blend > .5 else 3.7), .65, 1.45), moving)
 	motion.advance(delta, moving, _run_blend*moving, _crouch_blend, _aim_blend, tempo, _visual_action, _visual_action_time, _visual_action_weight)
 	_apply_direction(velocity, moving, _visual_action_weight)
+	_apply_arm_swing(delta,moving,tempo,_visual_action_weight)
 	_update_props(action_weight, kind)
 	_apply_roll(data)
 	if human_visual!=null:human_visual.sync_pose()
@@ -436,6 +439,20 @@ func _apply_direction(velocity: Vector2, moving: float, action_weight: float) ->
 		var index := skeleton.find_bone(bone)
 		skeleton.set_bone_pose_rotation(index, skeleton.get_bone_pose_rotation(index).slerp(Quaternion.IDENTITY, relaxed))
 		skeleton.set_bone_pose_position(index, skeleton.get_bone_pose_position(index).lerp(skeleton.get_bone_rest(index).origin, relaxed))
+
+func _apply_arm_swing(delta:float,moving:float,tempo:float,action_weight:float)->void:
+	if not human_enabled:return
+	_arm_phase+=delta*lerpf(7.0,10.5,_run_blend)*tempo
+	_arm_move_blend=move_toward(_arm_move_blend,moving,delta*7.0)
+	var weight:float=_arm_move_blend*(1.0-_aim_blend)*(1.0-action_weight)*(1.0-clampf(_recoil,0,1))
+	weight*=lerpf(1.0,.4,_crouch_blend)
+	var amplitude:float=lerpf(.20,.65,_run_blend)*weight
+	var wave:float=sin(_arm_phase)*amplitude
+	# Empty hands counter-swing; occupied hands keep the held weapon together.
+	var held:float=1.0-_unarmed_blend
+	_rotate("WingL",Vector3(wave*lerpf(1.0,.38,held),0,0))
+	_rotate("WingR",Vector3(wave*lerpf(-1.0,.38,held),0,0))
+	_rotate("Gun",Vector3(wave*.38*held,0,0))
 
 func _rotate(bone: String, offset: Vector3) -> void:
 	var index := skeleton.find_bone(bone)
