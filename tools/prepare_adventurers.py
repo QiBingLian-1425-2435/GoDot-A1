@@ -26,6 +26,9 @@ for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险
  bpy.ops.object.armature_add();rig=bpy.context.object;rig.name='player_rig';bpy.ops.object.mode_set(mode='EDIT');bones=rig.data.edit_bones;bones.remove(bones[0])
  positions={'Root':(0,0,0),'Hips':(0,-.06,.72),'Spine':(0,-.04,.92),'Head':(0,.10,1.30),'FootL':(-.19,0,.20),'FootR':(.19,0,.20),'WingL':(-.37,.11,.95),'WingR':(.37,.11,.95)}
  parents={'Hips':'Root','Spine':'Hips','Head':'Spine','FootL':'Root','FootR':'Root','WingL':'Spine','WingR':'Spine'}
+ for side,x in [("L",-.19),("R",.19)]:
+  positions["Thigh"+side]=(x,0,.76);positions["Shin"+side]=(x,0,.45)
+  parents["Thigh"+side]="Root";parents["Shin"+side]="Root"
  for name,point in positions.items():
   b=bones.new(name);b.head=point;b.tail=Vector(point)+Vector((0,0,.15))
   if name in parents:b.parent=bones[parents[name]]
@@ -36,7 +39,10 @@ for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险
   leg=max(0,min(1,(.86-z)/.16)) if z<.86 else 0
   head=max(0,min(1,(z-1.19)/.10))
   weights['Wing'+side]=arm;remaining=1-arm
-  weights['Foot'+side]=remaining*leg;remaining*=1-leg
+  lower=max(0,min(1,(.51-z)/.12));foot=max(0,min(1,(.27-z)/.08))
+  weights['Thigh'+side]=remaining*leg*(1-lower)
+  weights['Shin'+side]=remaining*leg*lower*(1-foot)
+  weights['Foot'+side]=remaining*leg*lower*foot;remaining*=1-leg
   weights['Head']=remaining*head;weights['Hips']=remaining*(1-head)
   for name,w in weights.items():
    if w>0:groups[name].add([v.index],w,'REPLACE')

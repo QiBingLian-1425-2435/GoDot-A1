@@ -421,6 +421,9 @@ func _apply_direction(velocity: Vector2, moving: float, action_weight: float) ->
 	var hip := skeleton.find_bone("Hips")
 	var hip_position := skeleton.get_bone_pose_position(hip)
 	hip_position.y -= .26*_crouch_blend*action_weight
+	if human_enabled:
+		hip_position.y-=.15*_crouch_blend
+		hip_position.z+=.08*_crouch_blend
 	skeleton.set_bone_pose_position(hip, hip_position)
 	# Aiming and recoil stay above the locomotion layer.
 	_rotate("Spine", Vector3(-.075*_recoil, 0, -local_move.x*.055*moving))

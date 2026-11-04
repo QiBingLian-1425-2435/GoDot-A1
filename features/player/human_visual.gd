@@ -47,6 +47,40 @@ func sync_pose()->void:
   if driver<0:continue
   var delta:Transform3D=actor.skeleton.get_bone_global_pose(driver)*actor.skeleton.get_bone_global_rest(driver).affine_inverse()
   skin.set_bone_global_pose_override(i,delta*skin.get_bone_global_rest(i),1.0,true)
+ _bend_legs()
+func _bend_legs()->void:
+ var crouch:float=actor._crouch_blend
+ for side in ["L","R"]:
+  var foot:int=skin.find_bone("Foot"+side)
+  var thigh:int=skin.find_bone("Thigh"+side)
+  var shin:int=skin.find_bone("Shin"+side)
+  if thigh<0 or shin<0 or foot<0:continue
+  var driver:int=actor.skeleton.find_bone("Foot"+side)
+  var step:Transform3D=actor.skeleton.get_bone_global_pose(driver)*actor.skeleton.get_bone_global_rest(driver).affine_inverse()
+  var rest_hip:Vector3=skin.get_bone_global_rest(thigh).origin
+  var rest_knee:Vector3=skin.get_bone_global_rest(shin).origin
+  var rest_ankle:Vector3=skin.get_bone_global_rest(foot).origin
+  var hip_driver:int=actor.skeleton.find_bone("Hips")
+  var hip_delta:Vector3=actor.skeleton.get_bone_global_pose(hip_driver).origin-actor.skeleton.get_bone_global_rest(hip_driver).origin
+  var hip:Vector3=rest_hip+hip_delta
+  var ankle:Vector3=step*rest_ankle
+  var upper:float=rest_hip.distance_to(rest_knee)
+  var lower:float=rest_knee.distance_to(rest_ankle)
+  var direction:Vector3=(ankle-hip).normalized()
+  var distance:float=clampf(hip.distance_to(ankle),.02,upper+lower-.001)
+  var along:float=(upper*upper-lower*lower+distance*distance)/(2*distance)
+  var bend:Vector3=Vector3.FORWARD-direction*Vector3.FORWARD.dot(direction)
+  if bend.length_squared()<.001:bend=Vector3.FORWARD
+  var knee:Vector3=hip+direction*along+bend.normalized()*sqrt(maxf(0,upper*upper-along*along))
+  for entry in [[thigh,rest_hip,rest_knee,hip,knee],[shin,rest_knee,rest_ankle,knee,ankle]]:
+   var index:int=entry[0]
+   var rest:Transform3D=skin.get_bone_global_rest(index)
+   var pose:=Transform3D(Basis(Quaternion((entry[2]-entry[1]).normalized(),(entry[4]-entry[3]).normalized()))*rest.basis,entry[3])
+   skin.set_bone_global_pose_override(index,pose,1.0,true)
+  var foot_rest:Transform3D=skin.get_bone_global_rest(foot)
+  var planted:=Transform3D(step.basis.slerp(Basis.IDENTITY,crouch)*foot_rest.basis,ankle)
+  skin.set_bone_global_pose_override(foot,planted,1.0,true)
+
 func set_helmet(visible:bool)->void:
  for material in materials.get("hair",[]):
   material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA if visible else BaseMaterial3D.TRANSPARENCY_DISABLED
