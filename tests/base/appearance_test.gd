@@ -22,14 +22,14 @@ func run():
 	check(saved.appearance==selected,"profile captures appearance")
 	game._update_actors(.016)
 	check(game.actors[1].human_visual.gender=="female","player uses female Blender model")
-	check(game.actors[1].human_visual.meshes.size()>20,"imported body parts replace duck visuals")
+	check(game.actors[1].human_visual.meshes.size()>0 and game.actors[1].human_visual.skin!=null,"imported body parts replace duck visuals")
 	check(m.Profile.apply(m,saved,1)==OK and p.appearance==selected,"saved appearance restores exactly")
 	var legacy:Dictionary=saved.duplicate(true);legacy.erase("appearance")
 	check(m.Profile.valid(m,legacy),"older profiles without appearance remain valid")
 	m.add_player(2,"other");game._update_actors(.016)
 	check(game.actors[2].human_visual.current!=selected,"other player appearance is independent")
 	for part in Rules.PARTS:
-		check(game.actors[1].human_visual.materials[part][0].albedo_color.is_equal_approx(Color(selected[part])),"material color matches "+part)
+		check(game.actors[1].human_visual.materials[part][0].albedo_color.is_equal_approx(Color(Color(selected[part]).r/Color(game.actors[1].human_visual.TEXTURE_BASE["female"][part]).r,Color(selected[part]).g/Color(game.actors[1].human_visual.TEXTURE_BASE["female"][part]).g,Color(selected[part]).b/Color(game.actors[1].human_visual.TEXTURE_BASE["female"][part]).b)),"material color matches "+part)
 
 	check(game.actors[1].human_visual.materials.has("hair") and game.actors[1].human_visual.materials.has("shirt"),"separate editable materials imported")
 	var escape:=InputEventKey.new();escape.physical_keycode=KEY_ESCAPE;escape.pressed=true
@@ -81,6 +81,7 @@ func run():
 		panel.preview_data.roll={};panel.preview_data.velocity=Vector2.ZERO;panel.preview_data.reloading=false;panel.preview_data.crouch=false
 		panel.actor.human_visual.set_helmet(true)
 		var hair_hidden:=true
+		for material in panel.actor.human_visual.materials.get("hair",[]):hair_hidden=hair_hidden and material.albedo_color.a==0.0
 		for mesh in panel.actor.human_visual.meshes:
 			if "hair" in str(mesh.name) or "fringe" in str(mesh.name):hair_hidden=hair_hidden and not mesh.visible
 		check(hair_hidden,"head equipment hides hair: "+gender)

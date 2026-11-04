@@ -1,58 +1,53 @@
 extends RefCounted
 const Appearance=preload("res://features/player/appearance_rules.gd")
+const TEXTURE_BASE := {"male":{"hair":"#493329","skin":"#d9ad83","shirt":"#706847","pants":"#967e53"},"female":{"hair":"#493329","skin":"#d9ad83","shirt":"#b58a4b","pants":"#736e4c"}}
 var actor:Node3D
+var source:Node3D
+var skin:Skeleton3D
 var meshes:Array[MeshInstance3D]=[]
-var attachments:Array[Node3D]=[]
 var materials:Dictionary={}
 var gender:=""
 var current:Dictionary={}
-
-func configure(owner:Node3D) -> void:
-	actor=owner
-	# Keep equipment and held props on the existing tested animation rig.
-	var keep:Array=[actor.helmet,actor.backpack,actor.armor,actor.weapon]
-	keep.append_array(actor.held_props.values())
-	for attachment in actor.skeleton.get_children():
-		if attachment is BoneAttachment3D:
-			for child in attachment.get_children():
-				if child not in keep:child.visible=false
-	update(Appearance.defaults())
-
-func update(value:Variant) -> void:
-	var appearance:Dictionary=Appearance.normalized(value)
-	if appearance==current:return
-	if gender!=appearance.gender:
-		for attachment in attachments:attachment.free()
-		attachments.clear();meshes.clear();materials.clear()
-		gender=appearance.gender
-		var path:="res://assets/characters/humans/%s.glb"%gender
-		if gender=="male":path="res://assets/characters/explorer/male.glb"
-		var scene:PackedScene=load(path)
-		if scene==null:return
-		var source:Node3D=scene.instantiate()
-		actor.add_child(source)
-		for child in source.find_children("*","MeshInstance3D",true,false):
-			var bone:String=str(child.name).split("__")[0]
-			var index:int=actor.skeleton.find_bone(bone)
-			if index<0:continue
-			var local:Transform3D=source.global_transform.affine_inverse()*child.global_transform
-			var attachment:=BoneAttachment3D.new()
-			attachment.bone_name=bone;actor.skeleton.add_child(attachment)
-			child.reparent(attachment,false)
-			child.transform=actor.skeleton.get_bone_global_rest(index).affine_inverse()*local
-			attachments.append(attachment);meshes.append(child)
-			for surface in range(child.mesh.get_surface_count()):
-				var material:StandardMaterial3D=child.mesh.surface_get_material(surface).duplicate()
-				if gender=="male":material.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR
-				child.set_surface_override_material(surface,material)
-				var part:String=material.resource_name.get_slice(".",0)
-				if not materials.has(part):materials[part]=[]
-				materials[part].append(material)
-		source.free()
-	for part in Appearance.PARTS:
-		for material in materials.get(part,[]):material.albedo_color=Color(appearance[part])
-	current=appearance
-
-func set_helmet(visible:bool) -> void:
-	for mesh in meshes:
-		if "hair" in str(mesh.name) or "fringe" in str(mesh.name) or "bob_side" in str(mesh.name) or "crown_lock" in str(mesh.name):mesh.visible=not visible
+func configure(owner:Node3D)->void:
+ actor=owner
+ var keep:Array=[actor.helmet,actor.backpack,actor.armor,actor.weapon]
+ keep.append_array(actor.held_props.values())
+ for attachment in actor.skeleton.get_children():
+  if attachment is BoneAttachment3D:
+   for child in attachment.get_children():
+    if child not in keep:child.visible=false
+ update(Appearance.defaults())
+func update(value:Variant)->void:
+ var appearance:Dictionary=Appearance.normalized(value)
+ if appearance!=current:
+  if gender!=appearance.gender:
+   if is_instance_valid(source):source.free()
+   meshes.clear();materials.clear();skin=null
+   gender=appearance.gender
+   source=load("res://assets/characters/adventurers/%s.glb"%gender).instantiate();actor.add_child(source)
+   for node in source.find_children("*","Skeleton3D",true,false):skin=node
+   for child in source.find_children("*","MeshInstance3D",true,false):
+    meshes.append(child)
+    for surface in child.mesh.get_surface_count():
+     var material:StandardMaterial3D=child.mesh.surface_get_material(surface).duplicate()
+     child.set_surface_override_material(surface,material)
+     var part:String=material.resource_name.get_slice(".",0)
+     if not materials.has(part):materials[part]=[]
+     materials[part].append(material)
+  var defaults:Dictionary=TEXTURE_BASE[gender]
+  for part in Appearance.PARTS:
+   var color:=Color(appearance[part]);var base:=Color(defaults[part])
+   for material in materials.get(part,[]):material.albedo_color=Color(color.r/base.r,color.g/base.g,color.b/base.b,1)
+  current=appearance.duplicate(true)
+ sync_pose()
+func sync_pose()->void:
+ if not is_instance_valid(skin):return
+ for i in skin.get_bone_count():
+  var driver:int=actor.skeleton.find_bone(skin.get_bone_name(i))
+  if driver<0:continue
+  var delta:Transform3D=actor.skeleton.get_bone_global_pose(driver)*actor.skeleton.get_bone_global_rest(driver).affine_inverse()
+  skin.set_bone_global_pose_override(i,delta*skin.get_bone_global_rest(i),1.0,true)
+func set_helmet(visible:bool)->void:
+ for material in materials.get("hair",[]):
+  material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA if visible else BaseMaterial3D.TRANSPARENCY_DISABLED
+  material.albedo_color.a=0.0 if visible else 1.0
