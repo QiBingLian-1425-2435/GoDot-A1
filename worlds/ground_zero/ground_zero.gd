@@ -488,3 +488,15 @@ static func _is_roof_renderer(item: Dictionary) -> bool:
 
 func loot_target(uid:String) -> Dictionary:
 	return _vision_groups.get(uid.trim_prefix("loot_"),{})
+
+func interaction_visuals(target:Dictionary)->Array:
+	var uid:String=str(target.get("uid",""))
+	if target.get("kind","") in ["loot","loot_view"]:
+		var nodes:Array=loot_target(uid).get("nodes",[])
+		if not nodes.is_empty():return nodes
+	if target.get("kind","")=="door":
+		var result:Array=[]
+		for part in _door_nodes.get(uid,[]):
+			if part.node is GeometryInstance3D:result.append(part.node)
+		return result
+	return preload("res://features/exploration/interaction_outline.gd").nearby_visuals(self,Vector3(target.pos.x,float(target.get("height",0))+.8,target.pos.y))

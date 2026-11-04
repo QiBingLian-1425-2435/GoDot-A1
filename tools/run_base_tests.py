@@ -20,6 +20,7 @@ SUITES = {
     "satiety": [("satiety_capacity_test", True, []), ("satiety_capacity_test", False, []), ("satiety_network_test", True, [])],
     "soul_roaming": [("soul_roaming_test", True, []), ("soul_network_test", True, []), ("soul_roaming_test", False, [])],
     "extraction": [("party_extraction_test", True, []), ("party_extraction_network_test", True, [])],
+    "interaction_outline": [("interaction_outline_test", True, []), ("interaction_outline_test", False, [])],
     "human_crouch": [("human_crouch_test", True, [])],
     "sick_ghost": [("sick_ghost_test", True, []), ("sick_ghost_world_test", False, []), ("sick_ghost_network_test", True, [])],
     "localization": [("localization_test", True, []), ("localization_network_test", True, []), ("localization_test", False, [])],

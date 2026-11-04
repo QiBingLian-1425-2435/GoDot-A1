@@ -21,6 +21,7 @@ var _points: Array = [
 	{"id":"trader","title":"⟦bunker.008⟧","pos":Vector2(-5,-2.6),"kind":"trader"}
 ]
 var target_nodes: Dictionary = {}
+var exit_visuals:Array=[]
 var lamps: Array[OmniLight3D] = []
 
 func obstacles() -> Array:
@@ -365,6 +366,7 @@ func _build_operations() -> void:
 	_solid(Vector2(-3.7,-7.8),Vector2(2.3,.4))
 
 func _build_exit() -> void:
+	var before:=get_children()
 	# Heavy blast hatch and a short ladder identify the way back to the surface.
 	G.box(self,Vector3(0,1.45,-10.58),Vector3(3.35,2.9,.30),Color("2e424c"),.5)
 	G.box(self,Vector3(0,1.35,-10.36),Vector3(2.85,2.5,.22),Color("667d80"),.5)
@@ -379,6 +381,8 @@ func _build_exit() -> void:
 	G.box(self,Vector3(.57,1.24,-10.02),Vector3(.32,.045,.05),Color("46575b"),.5)
 	G.box(self,Vector3(0,2.89,-10.42),Vector3(1.3,.32,.16),Color("345e5c"))
 	G.text(self,"⟦bunker.020⟧",Vector3(0,2.89,-10.31),32,Color("c2e3c2"))
+	for child in get_children():
+		if child not in before and child is GeometryInstance3D and not child is Label3D:exit_visuals.append(child)
 	_light(Vector3(0,2.4,-9.0),Color("90cbb9"),1,4)
 	for x in [2.0,2.55]:
 		G.rod(self,Vector3(x,.05,-10.18),Vector3(x,3.42,-10.18),.045,Color("8c9a90"),.6)
@@ -508,3 +512,7 @@ func _light(at: Vector3, color: Color, energy: float, radius: float) -> void:
 	light.shadow_enabled = false
 	add_child(light)
 	lamps.append(light)
+
+func interaction_visuals(target:Dictionary)->Array:
+	if target.get("uid","")=="bunker_to_surface" or target.get("id","")=="exit":return exit_visuals
+	return preload("res://features/exploration/interaction_outline.gd").nearby_visuals(self,Vector3(target.pos.x,.9,target.pos.y),1.6)

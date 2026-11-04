@@ -207,3 +207,8 @@ func loot_target(_uid: String) -> Dictionary:
 
 func can_reach_loot(_uid: String, _from: Vector3) -> bool:
 	return false
+
+func interaction_visuals(target:Dictionary)->Array:
+	var uid:String=str(target.get("uid",""))
+	if target.get("kind","")=="door" and _door_nodes.has(uid):return [_door_nodes[uid].body]
+	return preload("res://features/exploration/interaction_outline.gd").nearby_visuals(self,Vector3(target.pos.x,float(target.get("height",0))+.8,target.pos.y))

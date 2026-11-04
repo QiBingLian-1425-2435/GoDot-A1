@@ -180,7 +180,11 @@
     "assets/characters/sick_ghost/sick_ghost.glb",
     "assets/characters/explorer/male.glb",
     "assets/characters/adventurers/male.glb",
-    "assets/characters/adventurers/female.glb"
+    "assets/characters/adventurers/female.glb",
+    "features/exploration/interaction_outline.gd",
+    "features/exploration/interaction_outline.gd.uid",
+    "features/exploration/interaction_outline.gdshader",
+    "features/exploration/interaction_outline.gdshader.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

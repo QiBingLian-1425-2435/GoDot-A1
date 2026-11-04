@@ -54,11 +54,13 @@ var vision = Vision.new()
 var field_item_view:Node3D
 var global_map:Control
 var soul_view: Node3D
+var interaction_outline:Node3D
 var container_marks: Node3D
 
 var enemy_director:Node3D
 
 func _ready()->void:
+	interaction_outline=preload("res://features/exploration/interaction_outline.gd").new();add_child(interaction_outline)
 	container_marks=preload("res://features/exploration/container_marks.gd").new()
 	add_child(container_marks)
 	Texts.set_window_title("⟦application.title⟧")
@@ -255,6 +257,7 @@ func _return_menu()->void:
 	joining=false
 	in_game=false
 	container_marks.clear()
+	interaction_outline.clear()
 	session.offline()
 	soul_view.update(self)
 	field_item_view.update(self)
@@ -325,6 +328,7 @@ func _process(delta:float)->void:
 		field_item_view.update(self)
 		_update_tracers()
 		_update_interaction()
+		interaction_outline.update(self)
 		save_clock+=delta
 		if save_clock>30:
 			save_clock=0
@@ -359,10 +363,12 @@ func _update_interaction()->void:
 	nearest={}
 	if world_loading:
 		ui.set_interaction("")
+		interaction_outline.clear()
 		return
 	var p:Dictionary=session.model.state.players.get(session.local_id,{})
 	if not session.model.Souls.alive(p):
 		ui.set_interaction("")
+		interaction_outline.clear()
 		return
 	var pos:Vector2=p.get("pos",Vector2.ZERO)
 	var distance:=2.4
