@@ -642,10 +642,10 @@
   "keys.action.reload": "换弹",
   "keys.action.inventory": "背包 / 仓库",
   "keys.action.map": "全局地图",
-  "keys.action.rifle": "切换步枪",
-  "keys.action.pistol": "切换手枪",
-  "keys.action.medkit": "使用医疗包",
-  "keys.action.water": "饮水",
+  "keys.action.rifle": "快捷栏 1",
+  "keys.action.pistol": "快捷栏 2",
+  "keys.action.medkit": "快捷栏 4",
+  "keys.action.water": "快捷栏 5",
   "keys.action.save": "保存",
   "keys.action.fullscreen": "全屏切换",
   "keys.single": "%s",
@@ -684,5 +684,12 @@
   "city.extraction": "撤离点 · 返回地下基地（全队）",
   "bunker.city_exit": "城区出口 · 前往废弃城区",
   "bunker.city_route": "CITY ROUTE",
-  "base_hud.city": "废 弃 城 区"
+  "base_hud.city": "废 弃 城 区",
+  "quick.slot.3": "快捷栏 3",
+  "quick.slot.6": "快捷栏 6",
+  "quick.slot.7": "快捷栏 7",
+  "quick.slot.8": "快捷栏 8",
+  "quick.drag_hint": "拖动背包物品到快捷栏 · 右键清空绑定",
+  "quick.empty_hint": "拖入武器、装备或可使用物品绑定快捷键",
+  "quick.save_failed": "快捷栏绑定保存失败"
 }

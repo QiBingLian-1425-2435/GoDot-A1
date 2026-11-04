@@ -67,6 +67,9 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 				action = candidate
 				break
 	if ctx.session.model.Souls.zombie(ctx.session.model.state.players.get(ctx.session.local_id,{})) and action not in ["pause","fullscreen"]: return
+	var quick=preload("res://features/player/quick_slots.gd")
+	if action in quick.ACTIONS:
+		_activate_quick(ctx,quick.ACTIONS.find(action));return
 	match action:
 		"fire":
 			if not ctx.ui.is_blocking():ctx.trigger_held=true
@@ -124,3 +127,12 @@ static func _select_weapon(ctx, kind:String)->void:
 			ctx.session.send("equip",{"index":i})
 			return
 	ctx.ui.toast("⟦base_input.002⟧")
+
+static func _activate_quick(ctx,index:int)->void:
+	if ctx.ui.is_blocking() or ctx.world_loading:return
+	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+	var selected:Dictionary=preload("res://features/player/quick_slots.gd").resolve(p,index)
+	if selected.is_empty():return
+	if selected.equipped:return
+	var category:String=ctx.session.model.Items.definition(selected.item.kind).category
+	ctx.session.send("equip" if category in ["weapon","helmet","armor"] else "use",{"index":selected.index})

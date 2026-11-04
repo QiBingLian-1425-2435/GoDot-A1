@@ -67,10 +67,12 @@ static func _build_inventory(ctx) -> void:
 		ctx._stash_slots.append(slot)
 	ctx._stash_note = ctx._label(stash,"⟦base_hud.002⟧",Rect2(22,468,484,30),15,ctx.MUTED)
 	ctx._label(stash,"⟦inventory_panel.019⟧",Rect2(22,529,484,25),14,Color("819891"))
-	var details = ctx._panel(ctx._inventory,Rect2(60,737,1480,100),Color(0.1,0.15,0.17,0.94),Color("4c615d"),10)
-	ctx._details_name = ctx._label(details,"⟦inventory_panel.020⟧",Rect2(20,12,860,31),21,ctx.GOLD)
-	ctx._details_text = ctx._label(details,"⟦inventory_panel.021⟧",Rect2(20,50,1435,40),15,ctx.MUTED)
+	var details = ctx._panel(ctx._inventory,Rect2(60,737,740,100),Color(0.1,0.15,0.17,0.94),Color("4c615d"),10)
+	ctx._details_name = ctx._label(details,"⟦inventory_panel.020⟧",Rect2(20,12,700,31),21,ctx.GOLD)
+	ctx._details_text = ctx._label(details,"⟦inventory_panel.021⟧",Rect2(20,50,700,40),15,ctx.MUTED)
 	ctx._details_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ctx._build_quick_bar(ctx._inventory,Vector2(840,737),true)
+	ctx._label(ctx._inventory,"⟦quick.drag_hint⟧",Rect2(840,850,700,28),15,ctx.MUTED)
 	ctx._label(ctx._inventory,"⟦inventory_panel.022⟧",Rect2(60,850,1200,28),15,Color("8da59d"))
 
 static func _make_slot(ctx, parent: Control, container: String, index: int, pos: Vector2, slot_size: Vector2) -> Control:

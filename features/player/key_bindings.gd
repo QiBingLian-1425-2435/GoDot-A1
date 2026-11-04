@@ -8,7 +8,7 @@ const DEFAULTS := {
 	"fire": [-MOUSE_BUTTON_LEFT], "aim": [-MOUSE_BUTTON_RIGHT],
 	"interact": [KEY_E], "rescue": [KEY_F], "reload": [KEY_R],
 	"inventory": [KEY_TAB, KEY_I], "map": [KEY_M], "rifle": [KEY_1], "pistol": [KEY_2],
-	"medkit": [KEY_4], "water": [KEY_5], "save": [KEY_F5], "fullscreen": [KEY_F11]
+	"quick_3": [KEY_3], "quick_6": [KEY_6], "quick_7": [KEY_7], "quick_8": [KEY_8], "medkit": [KEY_4], "water": [KEY_5], "save": [KEY_F5], "fullscreen": [KEY_F11]
 }
 const LABELS := {
 	"voice": "⟦keys.action.voice⟧",
@@ -19,7 +19,7 @@ const LABELS := {
 	"rescue": "⟦keys.action.rescue⟧", "reload": "⟦keys.action.reload⟧", "inventory": "⟦keys.action.inventory⟧",
 	"map": "⟦keys.action.map⟧", "rifle": "⟦keys.action.rifle⟧", "pistol": "⟦keys.action.pistol⟧",
 	"medkit": "⟦keys.action.medkit⟧", "water": "⟦keys.action.water⟧", "save": "⟦keys.action.save⟧",
-	"fullscreen": "⟦keys.action.fullscreen⟧"
+	"fullscreen": "⟦keys.action.fullscreen⟧", "quick_3":"⟦quick.slot.3⟧", "quick_6":"⟦quick.slot.6⟧", "quick_7":"⟦quick.slot.7⟧", "quick_8":"⟦quick.slot.8⟧"
 }
 const MOUSE_LABELS := {1: "⟦keys.mouse_1⟧", 2: "⟦keys.mouse_2⟧", 3: "⟦keys.mouse_3⟧", 8: "⟦keys.mouse_8⟧", 9: "⟦keys.mouse_9⟧"}
 static var _loaded := false

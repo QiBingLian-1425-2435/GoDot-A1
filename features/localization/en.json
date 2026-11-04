@@ -642,10 +642,10 @@
   "keys.action.reload": "Reload",
   "keys.action.inventory": "Inventory / Storage",
   "keys.action.map": "World Map",
-  "keys.action.rifle": "Select Rifle",
-  "keys.action.pistol": "Select Pistol",
-  "keys.action.medkit": "Use First Aid Kit",
-  "keys.action.water": "Drink Water",
+  "keys.action.rifle": "Quick slot 1",
+  "keys.action.pistol": "Quick slot 2",
+  "keys.action.medkit": "Quick slot 4",
+  "keys.action.water": "Quick slot 5",
   "keys.action.save": "Save",
   "keys.action.fullscreen": "Toggle Fullscreen",
   "keys.single": "%s",
@@ -684,5 +684,12 @@
   "city.extraction": "Extract to Base (Team)",
   "bunker.city_exit": "City Exit · Head to the Abandoned City",
   "bunker.city_route": "CITY ROUTE",
-  "base_hud.city": "ABANDONED CITY"
+  "base_hud.city": "ABANDONED CITY",
+  "quick.slot.3": "Quick slot 3",
+  "quick.slot.6": "Quick slot 6",
+  "quick.slot.7": "Quick slot 7",
+  "quick.slot.8": "Quick slot 8",
+  "quick.drag_hint": "Drag carried items here · Right-click to clear",
+  "quick.empty_hint": "Drag a weapon, gear or usable item here to bind",
+  "quick.save_failed": "Could not save quick-slot binding"
 }

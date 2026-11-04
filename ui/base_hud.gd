@@ -1,4 +1,6 @@
 extends CanvasLayer
+const Quick=preload("res://features/player/quick_slots.gd")
+const QuickSlot=preload("res://ui/widgets/quick_slot.gd")
 const Keys = preload("res://features/player/key_bindings.gd")
 const KeyBindingsPanel = preload("res://ui/menu/key_bindings_panel.gd")
 var _key_bindings_panel: Control
@@ -313,18 +315,7 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 			reserve += int(item.get("count", 1))
 	Texts.bind(_reload_label, Texts.format("⟦base_hud.018⟧", int(float(p.get("reload_progress", 0.0)) * 100.0)) if p.get("reloading", false) else (Texts.format("⟦base_hud.019⟧", Keys.display("reload")) if state.get("infinite_reserve",false) else Texts.format("⟦base_hud.020⟧", [reserve, Keys.display("reload")])), "text")
 	if not p.get("pending_use",{}).is_empty():Texts.bind(_reload_label, Texts.format("⟦base_hud.021⟧", maxf(0,float(p.pending_use.remaining))), "text")
-	var bag: Array = p.get("bag", [])
-	var quick_kinds := ["rifle", "pistol", "medkit", "water"]
-	for i in range(_quick_slots.size()):
-		var quick_item: Dictionary = {}
-		for item in bag:
-			if item.get("kind", "") == quick_kinds[i]:
-				quick_item = item
-				break
-		var weapon: Dictionary = p.get("equipment", {}).get("weapon", {})
-		if weapon.get("kind", "") == quick_kinds[i]:
-			quick_item = weapon
-		_quick_slots[i].set_item(quick_item, _definition(quick_item))
+	_update_quick_slots(p)
 	if _inventory.visible:
 		_update_inventory()
 	if is_instance_valid(_dialog) and _dialog_kind=="⟦base_hud.022⟧":preload("res://ui/inventory/camp_panel.gd").refresh(self)
@@ -426,25 +417,7 @@ func _build_hud() -> void:
 		var bar := StatBar.new();bar.color=colors[i];bar.position=Vector2(98,y+6);bar.size=Vector2(196,10)
 		hp_panel.add_child(bar);_bars[keys[i]] = bar
 		_stat_labels[keys[i]] = _label(hp_panel,"100",Rect2(298,y,44,22),15,INK,HORIZONTAL_ALIGNMENT_RIGHT)
-	# Quick slots with key-cap badges.
-	var tray := _hud_card(_hud, Rect2(602,770,316,104), 14)
-	for i in range(4):
-		var slot: Control = Slot.new()
-		slot.position = Vector2(620+i*75,790)
-		slot.size = Vector2(65,65)
-		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		slot.container_name = "bag"
-		slot.slot_index = i
-		_hud.add_child(slot)
-		slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_quick_slots.append(slot)
-		var cap := _label(_hud,"",Rect2(612+i*75,778,24,22),13,Color("1b1408"),HORIZONTAL_ALIGNMENT_CENTER)
-		var cap_style := UiTheme.box(Color("e9c779"),Color.TRANSPARENT,5,0)
-		cap_style.content_margin_left=2;cap_style.content_margin_right=2;cap_style.content_margin_top=0;cap_style.content_margin_bottom=0
-		cap.add_theme_stylebox_override("normal",cap_style)
-		cap.add_theme_font_override("font",_bold_font)
-		Keys.bind_hint(cap, "⟦keys.single⟧", [["rifle", "pistol", "medkit", "water"][i]])
-	tray.size.y = 104
+	_build_quick_bar(_hud,Vector2(480,770),false)
 	_label(_hud,"⟦base_hud.031⟧",Rect2(602,854,316,18),12,FAINT_TEXT,HORIZONTAL_ALIGNMENT_CENTER)
 	# Weapon card: big magazine count.
 	var ammo := _hud_card(_hud, Rect2(1290,766,282,106))
@@ -733,3 +706,28 @@ func set_voice_status(text: String) -> void:
 
 func open_item_shop(mode:String) -> void:
 	preload("res://ui/inventory/item_shop.gd").open(self,mode)
+
+func _build_quick_bar(parent:Control,at:Vector2,editable:bool)->void:
+	_hud_card(parent,Rect2(at,Vector2(640,104)),14)
+	for i in range(8):
+		var slot=QuickSlot.new();slot.position=at+Vector2(14+i*77,22);slot.size=Vector2(65,65);slot.slot_index=i
+		parent.add_child(slot);slot.mouse_filter=Control.MOUSE_FILTER_STOP if editable else Control.MOUSE_FILTER_IGNORE
+		slot.binding_requested.connect(_bind_quick);_quick_slots.append(slot)
+		var cap:=_label(parent,"",Rect2(at+Vector2(6+i*77,8),Vector2(24,22)),13,GOLD)
+		cap.mouse_filter=Control.MOUSE_FILTER_IGNORE
+		Keys.bind_hint(cap,"⟦keys.single⟧",[Quick.ACTIONS[i]])
+func _bind_quick(index:int,payload:Dictionary)->void:
+	var kind:=""
+	var p:Dictionary=_player()
+	if not payload.is_empty():
+		var bag:Array=p.get("bag",[]);var from:int=int(payload.get("index",-1))
+		if from<0 or from>=bag.size() or bag[from].get("uid")!=payload.get("uid"):return
+		kind=str(bag[from].get("kind",""))
+	if Quick.bind_slot(index,kind)!=OK:toast("⟦quick.save_failed⟧");return
+	_update_quick_slots(p)
+func _update_quick_slots(p:Dictionary)->void:
+	for slot in _quick_slots:
+		var selected:Dictionary=Quick.resolve(p,int(slot.slot_index))
+		var item:Dictionary=selected.get("item",{})
+		slot.set_item(item,_definition(item))
+		if item.is_empty():Texts.bind(slot,"⟦quick.empty_hint⟧","tooltip_text")

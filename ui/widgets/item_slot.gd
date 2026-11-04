@@ -71,7 +71,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.size = Vector2(76, 76)
 	preview.modulate.a = 0.9
 	set_drag_preview(preview)
-	return {"duckov_item": true, "from": container_name, "index": slot_index, "uid": item.get("uid", -1)}
+	return {"duckov_item": true, "kind":item.get("kind",""), "from": container_name, "index": slot_index, "uid": item.get("uid", -1)}
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return not locked and data is Dictionary and data.get("duckov_item", false)
