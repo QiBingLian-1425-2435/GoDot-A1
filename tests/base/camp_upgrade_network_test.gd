@@ -41,7 +41,7 @@ func run():
 			check(false,"admitted");await finish();return
 		if role=="c":
 			check(await wait_for(func():return session.model.state.camp=={"medical":1,"training":1,"logistics":1}),"late join receives upgraded camp snapshot")
-			check(player().max_hp==105 and player().max_stamina==105 and player().max_weight==45,"late join receives actual attributes")
+			check(player().max_hp==105 and player().max_stamina==105 and player().max_weight==29,"late join receives actual attributes")
 			await finish();return
 		report(role+"_ready")
 		check(await wait_for(func():return session.model.state.get("camp_phase",0)==1),"phase1")
@@ -56,7 +56,7 @@ func run():
 		check(await wait_for(func():return int(session.model.state.camp.training)==1 and int(session.model.state.camp.logistics)==1),"independent facilities both upgrade")
 		session.send("move",{"direction":Vector2.ZERO,"aim":Vector2.UP})
 		check(await wait_for(func():return float(session.local_movement._state.get("max_stamina",0))==105),"client prediction receives upgraded stamina")
-		check(player().max_weight==45 and player().max_hp==105,"client receives actual team attributes")
+		check(player().max_weight==29 and player().max_hp==105,"client receives actual team attributes")
 		report(role+"_two")
 		check(await wait_for(func():return session.model.state.get("camp_phase",0)==3),"phase3")
 		var before:Array=assets()
@@ -97,7 +97,7 @@ func run():
 	check(session.model.state.players[1].max_hp==105,"host receives guest-funded upgrade")
 	phase(2)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_two")) and FileAccess.file_exists(path("b_two"))),"independent reports")
-	check(pa.credits+pb.credits==97400 and session.model.state.players[1].max_stamina==105 and session.model.state.players[1].max_weight==45,"independent facilities charge exact costs and buff host")
+	check(pa.credits+pb.credits==97400 and session.model.state.players[1].max_stamina==105 and session.model.state.players[1].max_weight==29,"independent facilities charge exact costs and buff host")
 	children.append(OS.create_process(OS.get_executable_path(),["--headless","--path",ProjectSettings.globalize_path("res://"),"--script","res://tests/base/camp_upgrade_network_test.gd","--","c",run_id]))
 	check(await wait_for(func():return FileAccess.file_exists(path("c_done"))),"third client joins upgraded camp")
 	check(read_report("c_done").failures==0,"late transport client assertions pass")
@@ -109,7 +109,7 @@ func run():
 		var loaded:Dictionary=restored.model.state.players[id]
 		check(loaded.credits==session.model.state.players[id].credits and restored.model._count(loaded.bag,"scrap")==session.model._count(session.model.state.players[id].bag,"scrap") and loaded.max_stamina==105,"returning member retains assets and benefits")
 	restored.model.add_player(999,"new member")
-	check(restored.model.state.players[999].max_hp==105 and restored.model.state.players[999].max_weight==45,"new late member receives shared camp")
+	check(restored.model.state.players[999].max_hp==105 and restored.model.state.players[999].max_weight==29,"new late member receives shared camp")
 	restored.free()
 	phase(3)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_three")) and FileAccess.file_exists(path("b_three"))),"rejection reports")

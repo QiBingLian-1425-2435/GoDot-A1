@@ -219,13 +219,6 @@ func _build_gear() -> void:
 	backpack.position = Vector3(0,.90,.38)
 	pivot.add_child(backpack)
 	# Soft canvas rucksack: rounded body, domed top flap and a front pouch.
-	G.rounded_box(backpack,Vector3.ZERO,Vector3(.52,.58,.28),base_tint.darkened(.10),.45)
-	G.rounded_box(backpack,Vector3(0,.2,.035),Vector3(.55,.2,.31),base_tint,.55)
-	G.rounded_box(backpack,Vector3(0,-.08,.16),Vector3(.4,.27,.11),base_tint.lightened(.08),.5)
-	for side in [-1,1]:
-		G.rounded_box(backpack,Vector3(side*.15,.0,.215),Vector3(.055,.4,.03),Color("3c4431"),.3)
-		G.box(backpack,Vector3(side*.15,.0,.232),Vector3(.075,.06,.02),Color("aba178"),.5)
-	G.cylinder(backpack,Vector3(.32,-.05,.02),.085,.35,Color("708079"),-1,.3)
 
 func _build_weapon() -> void:
 	var metal := Color("303635")
@@ -310,7 +303,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	if data.has("equipment"):
 		var equipment: Dictionary = data.equipment
 		helmet.visible = not equipment.get("helmet", {}).is_empty()
-		backpack.visible = not equipment.get("backpack", {}).is_empty()
+		backpack.visible = false
 		armor.visible = not equipment.get("armor", {}).is_empty()
 		kind = str(equipment.get("weapon", {}).get("kind", ""))
 		weapon.visible = not kind.is_empty()

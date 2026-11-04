@@ -24,7 +24,7 @@ var soul_height: Callable
 var field_placement:Callable
 var loot_reachable:Callable
 const Items = preload("res://features/inventory/item_catalog.gd")
-const EQUIPMENT := ["weapon", "helmet", "armor", "backpack"]
+const EQUIPMENT := ["weapon", "helmet", "armor"]
 const PLAYER_RADIUS := 0.32
 const INPUT_TIMEOUT := 0.35
 var bounds := Rect2(-15, -11, 30, 22)
@@ -59,7 +59,7 @@ func add_player(id: int, player_name: String) -> void:
 	var bag := _empty_slots(24)
 	var stash := _empty_slots(48)
 	var rifle := _item("rifle", 1)
-	var p := {"id":id, "name":Texts.clip(player_name.strip_edges(),24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{},"backpack":_item("backpack",1)}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "sprint_exhausted":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":44.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
+	var p := {"id":id, "name":Texts.clip(player_name.strip_edges(),24), "pos":Vector2(-1 + state.players.size() * 0.9, 4), "aim":Vector2.UP, "hp":100.0, "stamina":100.0, "hunger":85.0, "thirst":85.0, "bag":bag, "stash":stash, "equipment":{"weapon":rifle,"helmet":{},"armor":{}}, "ammo":20, "reloading":false, "reload_progress":0.0, "shots":0, "credits":500, "sprint":false, "sprint_exhausted":false, "crouch":false, "ads":false, "weight":0.0, "max_weight":28.0, "magazines":{rifle.uid:20}, "reload_timer":0.0, "fire_timer":0.0}
 	for spec in [["ammo",60],["bandage",3],["water",2],["canned_food",2],["scrap",8],["medkit",1],["pistol",1]]:
 		_insert(p.bag, _item(spec[0], spec[1]))
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:

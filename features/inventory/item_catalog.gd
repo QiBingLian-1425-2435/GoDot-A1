@@ -15,7 +15,6 @@ const DEFS := {
 	"scrap": {"name":"⟦item_catalog.021⟧", "weight":0.3, "stack":20, "color":Color("929c9b"), "category":"material", "description":"⟦item_catalog.022⟧"},
 	"helmet": {"name":"⟦item_catalog.023⟧", "weight":1.3, "stack":1, "color":Color("98a88a"), "category":"helmet", "description":"⟦item_catalog.024⟧"},
 	"armor": {"name":"⟦item_catalog.025⟧", "weight":4.0, "stack":1, "color":Color("8e9b86"), "category":"armor", "description":"⟦item_catalog.026⟧"},
-	"backpack": {"name":"⟦item_catalog.027⟧", "weight":0.8, "stack":1, "color":Color("b09b72"), "category":"backpack", "description":"⟦item_catalog.028⟧"},
 	"biscuits": {"name":"⟦item_catalog.029⟧","weight":0.2,"stack":5,"color":Color("d2b46c"),"category":"food","description":"⟦item_catalog.030⟧"},
 	"juice": {"name":"⟦item_catalog.031⟧","weight":0.4,"stack":3,"color":Color("e9a04c"),"category":"food","description":"⟦item_catalog.032⟧"},
 	"energy_bar": {"name":"⟦item_catalog.033⟧","weight":0.12,"stack":5,"color":Color("986eca"),"category":"food","description":"⟦item_catalog.034⟧"},
@@ -34,7 +33,7 @@ const DEFS := {
 }
 
 const TYPES := {"food":"⟦item_catalog.059⟧","medical":"⟦item_catalog.060⟧","tool":"⟦item_catalog.061⟧","material":"⟦item_catalog.062⟧","valuable":"⟦item_catalog.063⟧","equipment":"⟦item_catalog.064⟧"}
-const VALUES := {"san_capsule":10,"revival_serum":100,"poison_capsule":10,"rifle":900,"pistol":350,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"backpack":200,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
+const VALUES := {"san_capsule":10,"revival_serum":100,"poison_capsule":10,"rifle":900,"pistol":350,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
 const EFFECTS := {"san_capsule":{"san":-100},"poison_capsule":{"hp":-1000},"medkit":{"hp":45},"bandage":{"hp":18},"water":{"thirst":40},"canned_food":{"hunger":35},"biscuits":{"hunger":30,"thirst":-5},"juice":{"thirst":30,"hunger":10},"energy_bar":{"hunger":55,"stamina":20},"medical_box":{"hp":80}}
 const TIERS := ["⟦item_catalog.065⟧","⟦item_catalog.066⟧","⟦item_catalog.067⟧","⟦item_catalog.068⟧","⟦item_catalog.069⟧","⟦item_catalog.070⟧"]
 const COLORS := [Color("c5ccc9"),Color("73bc81"),Color("639ee5"),Color("b183df"),Color("edc65c"),Color("ed7474")]
@@ -46,7 +45,7 @@ static func definition(kind: String) -> Dictionary:
 	result.value=int(VALUES.get(kind,0))
 	result.rarity=tier(result.value)
 	result.rarity_name=TIERS[result.rarity];result.rarity_color=COLORS[result.rarity]
-	result.item_type="equipment" if result.category in ["weapon","ammo","helmet","armor","backpack"] else result.category
+	result.item_type="equipment" if result.category in ["weapon","ammo","helmet","armor"] else result.category
 	result.type_name=TYPES.get(result.item_type,"⟦item_catalog.072⟧")
 	result.sellable=kind!="ammo" and DEFS.has(kind)
 	result.buy_price=2 if kind=="ammo" else result.value*3

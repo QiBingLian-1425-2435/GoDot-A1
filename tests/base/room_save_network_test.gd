@@ -66,6 +66,7 @@ func host_step():
 	var player: Dictionary=model.state.players[remote]
 	if not prepared:
 		old_id=remote
+		model.state.world="surface" # Supplies must be consumed outside automatic camp recovery.
 		if phase==1:player.hunger=0
 		if phase==2:player.thirst=0
 		if phase>=2:check(count(player.bag,"canned_food")==0,"returning guest has no respawned food")

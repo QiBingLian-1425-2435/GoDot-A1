@@ -55,7 +55,7 @@ func _ready() -> void:
 		actor.setup(Color("7c8a64"), "")
 		actor.nameplate.visible = false
 		actors.append(actor)
-		data.append({"pos":at,"velocity":Vector2.ZERO,"aim":Vector2(-.40,1).normalized(),"equipment":{"weapon":{"kind":"rifle"},"backpack":{"kind":"backpack"},"helmet":{"kind":"helmet"},"armor":{"kind":"armor"}},"shots":0,"anim_seq":0})
+		data.append({"pos":at,"velocity":Vector2.ZERO,"aim":Vector2(-.40,1).normalized(),"equipment":{"weapon":{"kind":"rifle"},"helmet":{"kind":"helmet"},"armor":{"kind":"armor"}},"shots":0,"anim_seq":0})
 		var title := G.text(self,TITLES[i],Vector3(at.x,.04,at.y+1.35),25,Color("e9dfba"))
 		title.pixel_size = .011
 		title.billboard = BaseMaterial3D.BILLBOARD_ENABLED

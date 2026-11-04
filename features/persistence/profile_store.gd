@@ -29,7 +29,21 @@ static func capture(ctx, id: int) -> Dictionary:
 	var p: Dictionary=ctx.state.players[id]
 	return {"version":1,"appearance":ctx.Appearance.normalized(p.get("appearance",{})),"bag":p.bag,"stash":p.stash,"equipment":p.equipment,"magazines":p.magazines,"credits":p.credits,"hp":p.hp,"san":p.get("san",100),"hunger":p.hunger,"thirst":p.thirst,"stamina":p.stamina}.duplicate(true)
 
+static func _without_retired_equipment(value:Variant)->Variant:
+	if not value is Dictionary:return value
+	var data:Dictionary=value.duplicate(true)
+	for key in ["bag","stash"]:
+		if data.get(key) is Array:
+			for i in data[key].size():
+				var item:Variant=data[key][i]
+				if item is Dictionary and item.get("kind","")=="backpack" and item.get("uid") is String and item.get("count",0)==1:data[key][i]={}
+	if data.get("equipment") is Dictionary and data.equipment.has("backpack"):
+		var item:Variant=data.equipment.backpack
+		if item is Dictionary and (item.is_empty() or (item.get("kind","")=="backpack" and item.get("uid") is String and item.get("count",0)==1)):data.equipment.erase("backpack")
+	return data
+
 static func valid(ctx, data: Variant) -> bool:
+	data=_without_retired_equipment(data)
 	if not data is Dictionary or int(data.get("version",0)) != 1: return false
 	if not data.get("bag") is Array or data.bag.size() != 24 or not data.get("stash") is Array or data.stash.size() != 48 or not data.get("equipment") is Dictionary: return false
 	if data.has("appearance") and not ctx.Appearance.valid(data.appearance):return false
@@ -40,7 +54,7 @@ static func valid(ctx, data: Variant) -> bool:
 	for slot in ctx.EQUIPMENT:
 		if not data.equipment.has(slot): return false
 		if not data.equipment[slot].is_empty() and ctx.Items.definition(data.equipment[slot].kind).category != slot: return false
-	if data.equipment.size() != 4: return false
+	if data.equipment.size() != ctx.EQUIPMENT.size(): return false
 	for key in ["hp","san","hunger","thirst","stamina","credits"]:
 		var value: Variant=data.get(key,100)
 		if (not value is int and not value is float) or not is_finite(float(value)):return false
@@ -52,7 +66,7 @@ static func valid(ctx, data: Variant) -> bool:
 
 static func apply(ctx, value: Variant, id: int) -> Error:
 	if not ctx.state.players.has(id) or not valid(ctx,value):return ERR_FILE_CORRUPT
-	var data: Dictionary=value.duplicate(true)
+	var data: Dictionary=_without_retired_equipment(value)
 	var p: Dictionary = ctx.state.players[id]
 	# Reissue local UIDs so a profile can never collide with another current player.
 	var old_magazines: Dictionary = data.get("magazines",{}) if data.get("magazines",{}) is Dictionary else {}

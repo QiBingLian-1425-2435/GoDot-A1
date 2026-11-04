@@ -55,7 +55,7 @@ func _gui_input(event: InputEvent) -> void:
 					action_requested.emit("unequip", {"slot": slot_index})
 				elif container_name == "bag":
 					var kind := str(item.get("kind", ""))
-					if kind in ["rifle", "pistol", "helmet", "armor", "backpack"]:
+					if kind in ["rifle", "pistol", "helmet", "armor"]:
 						action_requested.emit("equip", {"index": slot_index})
 					else:
 						action_requested.emit("use", {"index": slot_index})
@@ -188,12 +188,6 @@ func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:
 			draw_rect(Rect2(-16,-4,32,23), Color("637968"))
 			draw_line(Vector2(-13,4),Vector2(13,4),Color("a3b39a"),3)
 			draw_line(Vector2(0,-8),Vector2(0,20),dark,2)
-		"backpack":
-			draw_style_box(_box(Color("a89466"),Color("d0bd83"),2),Rect2(-22,-23,44,47))
-			draw_style_box(_box(Color("8c815a"),Color("b9a774"),2),Rect2(-16,0,32,19))
-			draw_rect(Rect2(-24,-6,6,24),Color("726e51"))
-			draw_rect(Rect2(18,-6,6,24),Color("726e51"))
-			draw_arc(Vector2(0,-23),9,PI,TAU,10,Color("897649"),4)
 		"juice","energy_bar","biscuits":
 			draw_style_box(_box(tint,tint.lightened(.3),2),Rect2(-16,-23,32,46))
 			draw_rect(Rect2(-16,-5,32,12),Color("eee1b8"))

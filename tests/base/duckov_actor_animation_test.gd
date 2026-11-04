@@ -20,7 +20,7 @@ func fixture(title: String="QA鸭"):
     actors.append(a)
     return a
 func state() -> Dictionary:
-    return {"id":1,"name":"QA鸭","pos":Vector2(2,3),"aim":Vector2.UP,"velocity":Vector2.ZERO,"sprint":false,"crouch":false,"ads":false,"shots":0,"reloading":false,"reload_progress":0.0,"anim_seq":0,"anim_action":"","anim_time":0.0,"anim_duration":0.0,"equipment":{"weapon":{"kind":"rifle","uid":"qa-rifle"},"helmet":{},"armor":{},"backpack":{"kind":"backpack"}}}
+    return {"id":1,"name":"QA鸭","pos":Vector2(2,3),"aim":Vector2.UP,"velocity":Vector2.ZERO,"sprint":false,"crouch":false,"ads":false,"shots":0,"reloading":false,"reload_progress":0.0,"anim_seq":0,"anim_action":"","anim_time":0.0,"anim_duration":0.0,"equipment":{"weapon":{"kind":"rifle","uid":"qa-rifle"},"helmet":{},"armor":{}}}
 func step(a, data: Dictionary, count:int=1, local:bool=false) -> void:
     for i in count:a.update_actor(data,DT,local)
 func pose(a,bone:String) -> Transform3D:
@@ -170,7 +170,6 @@ func test_shots_and_equipment() -> void:
     check(not a.weapon.visible and not a.flash.visible and not a.flash_light.visible,"unequipping weapon clears visible weapon, flash and light immediately")
     d.equipment.helmet={"kind":"helmet"}
     d.equipment.armor={"kind":"armor"}
-    d.equipment.backpack={}
     step(a,d)
     check(a.helmet.visible and a.armor.visible and not a.backpack.visible,"equipment visibility follows authoritative slots")
     d.equipment.weapon={"kind":"pistol","uid":"qa-pistol"}

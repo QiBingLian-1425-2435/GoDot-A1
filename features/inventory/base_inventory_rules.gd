@@ -6,7 +6,7 @@ const SATIETY_FULL_CAPACITY := 50.0
 const MIN_CAPACITY_FACTOR := 0.5
 
 static func base_capacity(p: Dictionary) -> float:
-	return (44.0 if not p.get("equipment", {}).get("backpack", {}).is_empty() else 28.0) + float(p.get("camp_weight_bonus",0))
+	return 28.0 + float(p.get("camp_weight_bonus",0))
 
 static func capacity_factor(satiety: float) -> float:
 	return lerpf(MIN_CAPACITY_FACTOR, 1.0, clampf(satiety / SATIETY_FULL_CAPACITY, 0.0, 1.0))

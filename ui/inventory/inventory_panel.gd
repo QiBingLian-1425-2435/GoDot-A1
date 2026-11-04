@@ -13,11 +13,11 @@ static func _build_inventory(ctx) -> void:
 	ctx._label(equip,"⟦inventory_panel.004⟧",Rect2(20,17,175,35),25,ctx.INK)
 	ctx._player_name = ctx._label(equip,"⟦base_hud.025⟧",Rect2(177,22,170,27),17,ctx.MUTED,HORIZONTAL_ALIGNMENT_RIGHT)
 	ctx._portrait = ctx.Portrait.new()
-	ctx._portrait.position = Vector2(75,71)
-	ctx._portrait.size = Vector2(220,320)
+	ctx._portrait.position = Vector2(115,71)
+	ctx._portrait.size = Vector2(235,320)
 	equip.add_child(ctx._portrait)
-	var equipment_layout = {"helmet":Rect2(20,80,82,82),"armor":Rect2(20,190,82,82),"backpack":Rect2(269,190,82,82),"weapon":Rect2(269,80,82,82)}
-	var equip_names = {"helmet":"⟦inventory_panel.005⟧","armor":"⟦inventory_panel.006⟧","backpack":"⟦inventory_panel.007⟧","weapon":"⟦inventory_panel.008⟧"}
+	var equipment_layout = {"helmet":Rect2(20,80,82,82),"armor":Rect2(20,190,82,82),"weapon":Rect2(20,300,82,82)}
+	var equip_names = {"helmet":"⟦inventory_panel.005⟧","armor":"⟦inventory_panel.006⟧","weapon":"⟦inventory_panel.008⟧"}
 	for key in equipment_layout:
 		var slot: Control = ctx.Slot.new()
 		slot.position = equipment_layout[key].position
@@ -30,12 +30,12 @@ static func _build_inventory(ctx) -> void:
 		equip.add_child(slot)
 		ctx._equip_slots[key] = slot
 		ctx._label(equip,equip_names[key],Rect2(slot.position.x,slot.position.y+87,82,23),15,ctx.MUTED,HORIZONTAL_ALIGNMENT_CENTER)
-	ctx._line(equip,Vector2(20,404),Vector2(330,1))
+	ctx._line(equip,Vector2(20,420),Vector2(330,1))
 	var names = {"hp":"⟦base_hud.027⟧","stamina":"⟦base_hud.028⟧","hunger":"⟦base_hud.029⟧","thirst":"⟦base_hud.030⟧"}
 	var i = 0
 	for key in names:
 		var x = 21 + (i % 2) * 172
-		var y = 424 + (i / 2) * 48
+		var y = 440 + (i / 2) * 48
 		ctx._label(equip,names[key],Rect2(x,y,70,28),17,ctx.MUTED)
 		ctx._inventory_stats[key] = ctx._label(equip,"100",Rect2(x+76,y,76,28),16,ctx.INK,HORIZONTAL_ALIGNMENT_RIGHT)
 		i += 1
@@ -99,7 +99,7 @@ static func _slot_action(ctx, action: String, payload: Dictionary) -> void:
 		var container = str(payload.get("from","bag"))
 		var kind = str(payload.get("item",{}).get("kind",""))
 		if container == "bag":
-			if kind in ["rifle","pistol","helmet","armor","backpack"]:
+			if kind in ["rifle","pistol","helmet","armor"]:
 				Texts.add_item(ctx._popup, "⟦inventory_panel.004⟧", 1)
 			elif ctx.Items.definition(kind).usable:
 				Texts.add_item(ctx._popup, "⟦inventory_panel.023⟧", 0)

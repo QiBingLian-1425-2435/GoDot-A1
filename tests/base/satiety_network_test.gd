@@ -21,13 +21,13 @@ func run():
 	session=Session.new();root.add_child(session)
 	if client:
 		check(session.join("127.0.0.1",PORT)==OK,"connect")
-		var ready:=await wait_for(func():return player().get("hunger",100)==0 and player().get("max_weight",44)==22)
+		var ready:=await wait_for(func():return player().get("hunger",100)==0 and player().get("max_weight",28)==14)
 		check(ready,"host hunger and reduced capacity reach guest")
 		if ready:
 			session.send("move",{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT})
-			check(await wait_for(func():return player().get("input_max_weight",0)==22),"prediction anchor carries reduced capacity")
+			check(await wait_for(func():return player().get("input_max_weight",0)==14),"prediction anchor carries reduced capacity")
 			session.send("use",{"index":0,"hunger":100,"max_weight":999})
-			check(await wait_for(func():return player().get("max_weight",0)==44 and player().get("hunger",0)>50),"remote food restores host-confirmed capacity")
+			check(await wait_for(func():return player().get("max_weight",0)==28 and player().get("hunger",0)>50),"remote food restores host-confirmed capacity")
 			check(player().hunger<56 and session.model._count(player().bag,"energy_bar")==0,"forged hunger ignored and food consumed once")
 		var f=FileAccess.open("user://satiety_network_result.json",FileAccess.WRITE)
 		f.store_string(JSON.stringify({"failures":failures}));f.close()

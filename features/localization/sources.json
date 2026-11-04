@@ -625,150 +625,144 @@
   "item_catalog.026": [
     "features/inventory/item_catalog.gd:17"
   ],
-  "item_catalog.027": [
-    "features/inventory/item_catalog.gd:18"
-  ],
-  "item_catalog.028": [
-    "features/inventory/item_catalog.gd:18"
-  ],
   "item_catalog.029": [
-    "features/inventory/item_catalog.gd:19"
+    "features/inventory/item_catalog.gd:18"
   ],
   "item_catalog.030": [
-    "features/inventory/item_catalog.gd:19"
+    "features/inventory/item_catalog.gd:18"
   ],
   "item_catalog.031": [
-    "features/inventory/item_catalog.gd:20"
+    "features/inventory/item_catalog.gd:19"
   ],
   "item_catalog.032": [
-    "features/inventory/item_catalog.gd:20"
+    "features/inventory/item_catalog.gd:19"
   ],
   "item_catalog.033": [
-    "features/inventory/item_catalog.gd:21"
+    "features/inventory/item_catalog.gd:20"
   ],
   "item_catalog.034": [
-    "features/inventory/item_catalog.gd:21"
+    "features/inventory/item_catalog.gd:20"
   ],
   "item_catalog.035": [
-    "features/inventory/item_catalog.gd:22"
+    "features/inventory/item_catalog.gd:21"
   ],
   "item_catalog.036": [
-    "features/inventory/item_catalog.gd:22"
+    "features/inventory/item_catalog.gd:21"
   ],
   "item_catalog.037": [
-    "features/inventory/item_catalog.gd:23"
+    "features/inventory/item_catalog.gd:22"
   ],
   "item_catalog.038": [
-    "features/inventory/item_catalog.gd:23"
+    "features/inventory/item_catalog.gd:22"
   ],
   "item_catalog.039": [
-    "features/inventory/item_catalog.gd:24"
+    "features/inventory/item_catalog.gd:23"
   ],
   "item_catalog.040": [
-    "features/inventory/item_catalog.gd:24"
+    "features/inventory/item_catalog.gd:23"
   ],
   "item_catalog.041": [
-    "features/inventory/item_catalog.gd:25"
+    "features/inventory/item_catalog.gd:24"
   ],
   "item_catalog.042": [
-    "features/inventory/item_catalog.gd:25"
+    "features/inventory/item_catalog.gd:24"
   ],
   "item_catalog.043": [
-    "features/inventory/item_catalog.gd:26"
+    "features/inventory/item_catalog.gd:25"
   ],
   "item_catalog.044": [
-    "features/inventory/item_catalog.gd:26"
+    "features/inventory/item_catalog.gd:25"
   ],
   "item_catalog.045": [
-    "features/inventory/item_catalog.gd:27"
+    "features/inventory/item_catalog.gd:26"
   ],
   "item_catalog.046": [
-    "features/inventory/item_catalog.gd:27"
+    "features/inventory/item_catalog.gd:26"
   ],
   "item_catalog.047": [
-    "features/inventory/item_catalog.gd:28"
+    "features/inventory/item_catalog.gd:27"
   ],
   "item_catalog.048": [
-    "features/inventory/item_catalog.gd:28"
+    "features/inventory/item_catalog.gd:27"
   ],
   "item_catalog.049": [
-    "features/inventory/item_catalog.gd:29"
+    "features/inventory/item_catalog.gd:28"
   ],
   "item_catalog.050": [
-    "features/inventory/item_catalog.gd:29"
+    "features/inventory/item_catalog.gd:28"
   ],
   "item_catalog.051": [
-    "features/inventory/item_catalog.gd:30"
+    "features/inventory/item_catalog.gd:29"
   ],
   "item_catalog.052": [
-    "features/inventory/item_catalog.gd:30"
+    "features/inventory/item_catalog.gd:29"
   ],
   "item_catalog.053": [
-    "features/inventory/item_catalog.gd:31"
+    "features/inventory/item_catalog.gd:30"
   ],
   "item_catalog.054": [
-    "features/inventory/item_catalog.gd:31"
+    "features/inventory/item_catalog.gd:30"
   ],
   "item_catalog.055": [
-    "features/inventory/item_catalog.gd:32"
+    "features/inventory/item_catalog.gd:31"
   ],
   "item_catalog.056": [
-    "features/inventory/item_catalog.gd:32"
+    "features/inventory/item_catalog.gd:31"
   ],
   "item_catalog.057": [
-    "features/inventory/item_catalog.gd:33"
+    "features/inventory/item_catalog.gd:32"
   ],
   "item_catalog.058": [
-    "features/inventory/item_catalog.gd:33"
+    "features/inventory/item_catalog.gd:32"
   ],
   "item_catalog.059": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.060": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.061": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.062": [
-    "features/inventory/item_catalog.gd:36",
+    "features/inventory/item_catalog.gd:35",
     "ui/inventory/item_shop.gd:53"
   ],
   "item_catalog.063": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.064": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.065": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.066": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.067": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.068": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.069": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.070": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.071": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.072": [
-    "features/inventory/item_catalog.gd:50"
+    "features/inventory/item_catalog.gd:49"
   ],
   "item_catalog.073": [
-    "features/inventory/item_catalog.gd:69"
+    "features/inventory/item_catalog.gd:68"
   ],
   "item_catalog.074": [
-    "features/inventory/item_catalog.gd:69"
+    "features/inventory/item_catalog.gd:68"
   ],
   "item_trade.001": [
     "features/inventory/item_trade.gd:8"
@@ -1236,7 +1230,6 @@
     "ui/inventory/inventory_panel.gd:20"
   ],
   "inventory_panel.007": [
-    "ui/inventory/inventory_panel.gd:20",
     "ui/inventory/inventory_panel.gd:43"
   ],
   "inventory_panel.008": [
@@ -2058,16 +2051,16 @@
     "ui/inventory/inventory_panel.gd:181"
   ],
   "enemy.sick.invulnerable": [
-    "features/enemies/enemy_view.gd:74"
+    "features/enemies/enemy_view.gd:76"
   ],
   "enemy.name": [
     "features/enemies/enemy_view.gd:33"
   ],
   "enemy.dead": [
-    "features/enemies/enemy_view.gd:57"
+    "features/enemies/enemy_view.gd:59"
   ],
   "enemy.health": [
-    "features/enemies/enemy_view.gd:70"
+    "features/enemies/enemy_view.gd:72"
   ],
   "settings.voice_always_on": [
     "ui/menu/menu_screen.gd:101",
