@@ -1,9 +1,11 @@
-"""Blender background builder for supplied textured male/female player models."""
-import bpy,math,json,hashlib
+"""Blender background builder; append -- --female-only to rebuild only female."""
+import bpy,math,json,hashlib,sys
+import numpy as np
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'assets/characters/adventurers';(OUT/'source').mkdir(parents=True,exist_ok=True);(OUT/'source/.gdignore').write_text('')
 for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险者3d模型.glb')]:
+ if '--female-only' in sys.argv and gender!='female':continue
  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(Path.home()/'Downloads'/filename))
  obj=next(o for o in bpy.context.scene.objects if o.type=='MESH');obj.name='adventurer_body'
  # Preserve UVs and photographic color details; split tint regions into surfaces.
@@ -11,6 +13,11 @@ for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险
  for name in ['fixed','hair','skin','shirt','pants']:
   m=original.copy();m.name=name;obj.data.materials.append(m)
  for image in bpy.data.images:image.name=gender+'_albedo'
+ pixels=None;texture=None
+ if gender=='female':
+  texture=next(n.image for n in original.node_tree.nodes if n.type=='TEX_IMAGE' and n.image)
+  pixels=np.empty(len(texture.pixels),dtype=np.float32);texture.pixels.foreach_get(pixels);pixels=pixels.reshape(texture.size[1],texture.size[0],4)
+ uv_layer=obj.data.uv_layers.active
  for f in obj.data.polygons:
   c=sum((obj.data.vertices[i].co for i in f.vertices),Vector())/len(f.vertices);x,y,z=c
   part=0
@@ -18,6 +25,14 @@ for gender,filename in [('male','卡通冒险者3d模型.glb'),('female','探险
   elif z>.75 or (.34<z<.57 and abs(y)>.135):part=2
   elif .16<z<.49:part=4
   elif .49<z<.78 and x>-.045:part=3
+  if gender=='female' and z>.765:
+   uv=uv_layer.data[f.loop_indices[0]].uv
+   r,g,b,_=pixels[int((uv.y%1)*texture.size[1]),int((uv.x%1)*texture.size[0])]
+   hair_color=max(r,g,b)<.46 and g<.34 and b<.30 and r-g<.14
+   # Preserve frontal eyes/brows; include lower side locks and the rear ponytail.
+   hair_region=x<.07 or z>.84 or abs(y)>.065
+   if hair_color and hair_region:part=1
+   elif part==1 and z<.89:part=2
   f.material_index=part
  # Reduce dense generated topology while retaining seams and texture coordinates.
  bpy.context.view_layer.objects.active=obj;obj.select_set(True)
