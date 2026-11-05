@@ -31,7 +31,7 @@ var bounds := Rect2(-15, -11, 30, 22)
 var obstacles: Array[Rect2] = []
 var stations: Array = []
 var last_notice := ""
-var state: Dictionary = {"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "jump_chain_bonus":150, "jump_chain_max_speed":18, "jump_reward_window_ms":70, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
+var state: Dictionary = {"departure_ready":{},"camp":Camp.initial(),"field_effects":[],"containers":{},"players":{}, "drops":{}, "doors":{}, "infinite_reserve":false, "infinite_stamina":false, "infinite_credits":false, "jump_chain_bonus":150, "jump_chain_max_speed":18, "jump_reward_window_ms":70, "phase":"base", "world":"bunker", "world_revision":0, "targets":[], "shots":[]}
 var world_cache: Dictionary = {}
 var travel_validator: Callable
 var shot_query: Callable
@@ -64,6 +64,7 @@ func add_player(id: int, player_name: String) -> void:
 		_insert(p.bag, _item(spec[0], spec[1]))
 	for spec in [["ammo",60],["scrap",12],["medkit",2],["helmet",1],["armor",1],["water",3]]:
 		_insert(p.stash, _item(spec[0], spec[1]))
+	state.departure_ready={}
 	state.players[id] = p
 	p.appearance=Appearance.defaults()
 	p.jump_chain_bonus=int(state.get("jump_chain_bonus",1))
@@ -82,6 +83,7 @@ func add_player(id: int, player_name: String) -> void:
 func remove_player(id: int) -> void:
 	if state.players.has(id): Loot.close(self,state.players[id])
 	_recovery_after.erase(id)
+	state.departure_ready={}
 	state.players.erase(id)
 	_inputs.erase(id)
 

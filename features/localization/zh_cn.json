@@ -531,7 +531,6 @@
   "bunker.002": "仓库 · 整理物资",
   "bunker.003": "工作台 · 选择配方制作道具",
   "bunker.004": "医疗站 · 治疗",
-  "bunker.005": "地下出口 · 准备出发",
   "bunker.006": "训练场 · 重置全部训练靶",
   "bunker.007": "弹药补给箱 · 免费补至120发备用弹，R装填",
   "bunker.008": "商人 · 购买补给 / 回收物资",
@@ -547,7 +546,6 @@
   "bunker.018": "商人",
   "bunker.019": "TASK BOARD",
   "bunker.020": "EXIT ↑",
-  "bunker.021": "SURFACE ACCESS",
   "ground_zero.001": "返回地下基地（全队）",
   "ground_zero.002": "撤离至基地（全队）",
   "ground_zero.003": "开关门",
@@ -691,5 +689,10 @@
   "quick.slot.8": "快捷栏 8",
   "quick.drag_hint": "拖动背包物品到快捷栏 · 右键清空绑定",
   "quick.empty_hint": "拖入武器、装备或可使用物品绑定快捷键",
-  "quick.save_failed": "快捷栏绑定保存失败"
+  "quick.save_failed": "快捷栏绑定保存失败",
+  "departure.confirm": "完成准备 · 前往城市",
+  "departure.cancel": "取消准备",
+  "departure.ready_done": "准备完成，等待其他玩家",
+  "departure.ready_cancelled": "已取消准备",
+  "departure.count": "出发准备  %d / %d"
 }

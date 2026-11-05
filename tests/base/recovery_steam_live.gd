@@ -20,7 +20,7 @@ func run():
 	var lobby:int=service.lobby_id
 	check(service.steam.getLobbyData(lobby,"join_state")=="base","native lobby advertises base admission")
 	game.session.model.state.players[1].pos=Vector2(0,-8.2)
-	game.session.send("travel",{"route":"bunker_to_surface"})
+	preload("res://tests/base/surface_test_entry.gd").enter(game)
 	check(not service.join_allowed and not game.session.can_accept_join(),"actual surface transition locks Steam UI and Session admission")
 	check(service.steam.getLobbyData(lobby,"join_state")=="exploration","native lobby publishes exploration lock metadata")
 	if not await wait_for(func():return not game.world_loading,20):check(false,"surface loading timeout");await finish();return

@@ -25,6 +25,17 @@ static func travel(ctx, id: int, payload: Dictionary) -> bool:
 			ctx.Souls.reconcile(ctx,member)
 			if ctx.Souls.alive(member) and (Vector2(member.pos).distance_to(chosen.pos)>2.4001 or absf(float(member.get("height",0))-float(chosen.get("height",0)))>3):
 				return ctx._reject("⟦world_travel.010⟧")
+	if ctx.state.get("world","")=="bunker" and destination=="city":
+		var ready:Dictionary=ctx.state.get("departure_ready",{})
+		ready[id]=not bool(ready.get(id,false))
+		ctx.state.departure_ready=ready
+		ctx.last_notice="⟦departure.ready_done⟧" if ready[id] else "⟦departure.ready_cancelled⟧"
+		for member_id in ctx.state.players:
+			if not ready.get(member_id,false):return true
+		if not enter_world(ctx,destination,chosen.spawn):
+			ready[id]=false
+			return false
+		return true
 	return enter_world(ctx,destination,chosen.spawn)
 
 static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
@@ -50,6 +61,7 @@ static func enter_world(ctx, destination: String, spawn: Vector3) -> bool:
 	saved.erase("corpses")
 	ctx.state.field_effects=[]
 	ctx.state.shots.clear()
+	ctx.state.departure_ready={}
 	ctx.state.world = destination
 	ctx.state.map_revision = "" if destination=="bunker" else ctx.map_revision
 	ctx.state.phase = "base" if destination=="bunker" else "exploration"

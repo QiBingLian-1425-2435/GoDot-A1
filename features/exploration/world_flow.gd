@@ -130,12 +130,6 @@ static func _apply_rules(ctx) -> void:
 		for station in model.stations:
 			if station.kind=="exit":
 				station.kind = "travel"
-				station.uid = "bunker_to_surface"
-				station.world = "bunker"
-				station.destination = "surface"
-				station.spawn = Library.source_location("surface","Special/BunkerEntry") if available("surface") else Vector3.ZERO
-			elif station.kind=="exit_city":
-				station.kind = "travel"
 				station.uid = "bunker_to_city"
 				station.world = "bunker"
 				station.destination = "city"

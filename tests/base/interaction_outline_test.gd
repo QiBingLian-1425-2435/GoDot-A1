@@ -25,7 +25,7 @@ func run():
  p.pos=Vector2(0,4);game._update_interaction();game.interaction_outline.update(game)
  check(game.interaction_outline.shells.is_empty(),"moving out of range removes highlight")
  game.world_loading=true;game.interaction_outline.update(game);check(game.interaction_outline.shells.is_empty(),"loading clears highlight");game.world_loading=false
- p.pos=Vector2(0,-8.3);game.session.model.command(1,"travel",{"route":"bunker_to_surface"});game._sync_world()
+ p.pos=Vector2(0,-8.3);preload("res://tests/base/surface_test_entry.gd").enter(game);game._sync_world()
  while game.world_loading:await process_frame
  for i in range(3):await physics_frame
  var found:=false

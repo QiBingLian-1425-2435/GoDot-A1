@@ -62,6 +62,7 @@ func _process(delta: float) -> bool:
 	else: host_step()
 	return false
 func host_step() -> void:
+	if game.world_id=="bunker":preload("res://tests/base/surface_test_entry.gd").prepare(game)
 	var model=game.session.model
 	if child_pid>0 and not OS.is_process_running(child_pid):
 		var result: Variant=JSON.parse_string(FileAccess.get_file_as_string(result_path())) if FileAccess.file_exists(result_path()) else null
@@ -129,7 +130,7 @@ func client_step() -> void:
 	var p: Dictionary=model.state.players[game.session.local_id]
 	var stage:=int(model.state.get("qa_stage",0))
 	if stage==0 and elapsed>=rejection_retry_after:
-		game.session.send("travel",{"route":"bunker_to_surface"})
+		preload("res://tests/base/surface_test_entry.gd").enter(game)
 		rejection_retry_after=elapsed+.25
 	if stage==1 and phase<2 and game.world_id=="bunker" and Vector2(p.pos).distance_to(Vector2(0,-8.2))<.2:
 		if not saw_rejection:return

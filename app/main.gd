@@ -396,6 +396,8 @@ func _update_interaction()->void:
 			if not vision.can_see(Vector3(station.pos.x,float(station.get("height",0))+.8,station.pos.y)):continue
 		distance=d
 		nearest=station.duplicate()
+		if station.get("uid","")=="bunker_to_city" and session.mode in ["host","client"]:
+			nearest.title="⟦departure.cancel⟧" if session.model.state.get("departure_ready",{}).get(session.local_id,false) else "⟦departure.confirm⟧"
 		if station.get("kind")=="loot":
 			var raw_box:Variant=session.model.state.containers.get(station.uid,{})
 			var box:Dictionary=raw_box if raw_box is Dictionary else {}

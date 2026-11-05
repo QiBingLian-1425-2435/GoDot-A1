@@ -69,7 +69,7 @@ func run():
 	for id in model.state.players:
 		if id!=1:remote=id
 	model.state.players[1].pos=Vector2(0,-8.2)
-	game.session.send("travel",{"route":"bunker_to_surface"})
+	preload("res://tests/base/surface_test_entry.gd").enter(game)
 	check(await wait_for(func():return not game.world_loading,25),"host completes surface loading")
 	launch("denied")
 	check(await wait_for(func():return FileAccess.file_exists(report_path("denied"))) and read_report("denied"),"new process cannot join during exploration")

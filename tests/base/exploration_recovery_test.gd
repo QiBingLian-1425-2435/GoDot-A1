@@ -41,7 +41,7 @@ func run():
 	check(not model.command(1,"unstuck") and Texts.resolve(model.last_notice).contains("加载"),"recovery is refused while world geometry is unavailable")
 	model.world_ready=true
 	game.ui.toggle_pause();player.pos=Vector2(0,-8.2)
-	game.session.send("travel",{"route":"bunker_to_surface"})
+	preload("res://tests/base/surface_test_entry.gd").enter(game)
 	while game.world_loading:await process_frame
 	await physics_frame;await physics_frame
 	check(not game.session.can_accept_join(),"surface rejects new session admissions")

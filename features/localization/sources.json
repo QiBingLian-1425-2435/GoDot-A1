@@ -30,51 +30,51 @@
     "app/main.gd:381"
   ],
   "main.010": [
-    "app/main.gd:402"
+    "app/main.gd:404"
   ],
   "main.011": [
-    "app/main.gd:402"
+    "app/main.gd:404"
   ],
   "main.012": [
-    "app/main.gd:407"
+    "app/main.gd:409"
   ],
   "main.013": [
-    "app/main.gd:407"
+    "app/main.gd:409"
   ],
   "main.014": [
-    "app/main.gd:407"
+    "app/main.gd:409"
   ],
   "main.015": [
-    "app/main.gd:408",
+    "app/main.gd:410",
     "ui/inventory/container_panel.gd:28",
     "ui/inventory/container_panel.gd:37",
     "worlds/ground_zero/ground_zero.gd:359"
   ],
   "main.016": [
-    "app/main.gd:409",
+    "app/main.gd:411",
     "ui/inventory/container_panel.gd:28",
     "worlds/ground_zero/ground_zero.gd:366"
   ],
   "main.017": [
-    "app/main.gd:409"
+    "app/main.gd:411"
   ],
   "main.018": [
-    "app/main.gd:409"
+    "app/main.gd:411"
   ],
   "main.019": [
-    "app/main.gd:414"
+    "app/main.gd:416"
   ],
   "main.020": [
-    "app/main.gd:414"
+    "app/main.gd:416"
   ],
   "main.021": [
-    "app/main.gd:428"
+    "app/main.gd:430"
   ],
   "main.022": [
-    "app/main.gd:470"
+    "app/main.gd:472"
   ],
   "main.023": [
-    "app/main.gd:480"
+    "app/main.gd:482"
   ],
   "session.001": [
     "app/network/session.gd:25",
@@ -103,7 +103,7 @@
   ],
   "session.008": [
     "app/network/session.gd:109",
-    "ui/base_hud.gd:546"
+    "ui/base_hud.gd:551"
   ],
   "session.009": [
     "app/network/session.gd:132"
@@ -282,52 +282,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:138"
+    "features/base/base_model.gd:140"
   ],
   "base_model.002": [
-    "features/base/base_model.gd:141"
+    "features/base/base_model.gd:143"
   ],
   "base_model.003": [
-    "features/base/base_model.gd:142"
+    "features/base/base_model.gd:144"
   ],
   "base_model.004": [
-    "features/base/base_model.gd:149"
-  ],
-  "base_model.005": [
-    "features/base/base_model.gd:150"
-  ],
-  "base_model.006": [
     "features/base/base_model.gd:151"
   ],
-  "base_model.007": [
+  "base_model.005": [
+    "features/base/base_model.gd:152"
+  ],
+  "base_model.006": [
     "features/base/base_model.gd:153"
   ],
+  "base_model.007": [
+    "features/base/base_model.gd:155"
+  ],
   "base_model.008": [
-    "features/base/base_model.gd:159"
+    "features/base/base_model.gd:161"
   ],
   "base_model.009": [
-    "features/base/base_model.gd:190"
+    "features/base/base_model.gd:192"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:197"
+    "features/base/base_model.gd:199"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:201"
+    "features/base/base_model.gd:203"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:206"
+    "features/base/base_model.gd:208"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:238"
+    "features/base/base_model.gd:240"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:241"
+    "features/base/base_model.gd:243"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:248"
+    "features/base/base_model.gd:250"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:250"
+    "features/base/base_model.gd:252"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -478,11 +478,11 @@
   ],
   "world_flow.002": [
     "features/exploration/world_flow.gd:60",
-    "features/exploration/world_travel.gd:67"
+    "features/exploration/world_travel.gd:79"
   ],
   "world_flow.003": [
     "features/exploration/world_flow.gd:60",
-    "features/exploration/world_travel.gd:67"
+    "features/exploration/world_travel.gd:79"
   ],
   "world_flow.004": [
     "features/exploration/world_flow.gd:104"
@@ -497,22 +497,22 @@
     "features/exploration/world_travel.gd:21"
   ],
   "world_travel.004": [
-    "features/exploration/world_travel.gd:33"
+    "features/exploration/world_travel.gd:44"
   ],
   "world_travel.005": [
-    "features/exploration/world_travel.gd:67"
+    "features/exploration/world_travel.gd:79"
   ],
   "world_travel.006": [
-    "features/exploration/world_travel.gd:67"
+    "features/exploration/world_travel.gd:79"
   ],
   "world_travel.007": [
-    "features/exploration/world_travel.gd:75"
+    "features/exploration/world_travel.gd:87"
   ],
   "world_travel.008": [
-    "features/exploration/world_travel.gd:76"
+    "features/exploration/world_travel.gd:88"
   ],
   "world_travel.009": [
-    "features/exploration/world_travel.gd:78"
+    "features/exploration/world_travel.gd:90"
   ],
   "base_inventory_system.001": [
     "features/inventory/base_inventory_system.gd:26"
@@ -931,7 +931,7 @@
   ],
   "base_hud.007": [
     "ui/base_hud.gd:293",
-    "ui/base_hud.gd:394"
+    "ui/base_hud.gd:399"
   ],
   "base_hud.008": [
     "ui/base_hud.gd:293"
@@ -944,169 +944,169 @@
   ],
   "base_hud.011": [
     "ui/base_hud.gd:294",
-    "ui/base_hud.gd:396"
+    "ui/base_hud.gd:401"
   ],
   "base_hud.012": [
     "ui/base_hud.gd:294"
   ],
   "base_hud.013": [
-    "ui/base_hud.gd:296",
-    "ui/base_hud.gd:397"
+    "ui/base_hud.gd:301",
+    "ui/base_hud.gd:402"
   ],
   "base_hud.014": [
-    "ui/base_hud.gd:296"
+    "ui/base_hud.gd:301"
   ],
   "base_hud.015": [
-    "ui/base_hud.gd:298"
+    "ui/base_hud.gd:303"
   ],
   "base_hud.016": [
-    "ui/base_hud.gd:300"
+    "ui/base_hud.gd:305"
   ],
   "base_hud.017": [
-    "ui/base_hud.gd:303",
+    "ui/base_hud.gd:308",
     "ui/network/steam_panel.gd:60"
   ],
   "base_hud.018": [
-    "ui/base_hud.gd:316"
+    "ui/base_hud.gd:321"
   ],
   "base_hud.019": [
-    "ui/base_hud.gd:316"
+    "ui/base_hud.gd:321"
   ],
   "base_hud.020": [
-    "ui/base_hud.gd:316"
+    "ui/base_hud.gd:321"
   ],
   "base_hud.021": [
-    "ui/base_hud.gd:317"
+    "ui/base_hud.gd:322"
   ],
   "base_hud.022": [
-    "ui/base_hud.gd:321",
+    "ui/base_hud.gd:326",
     "ui/inventory/camp_panel.gd:6",
     "ui/inventory/camp_panel.gd:20"
   ],
   "base_hud.023": [
-    "ui/base_hud.gd:322",
+    "ui/base_hud.gd:327",
     "ui/inventory/item_shop.gd:6",
     "ui/inventory/item_shop.gd:43"
   ],
   "base_hud.024": [
-    "ui/base_hud.gd:322",
+    "ui/base_hud.gd:327",
     "ui/inventory/item_shop.gd:6"
   ],
   "base_hud.025": [
-    "ui/base_hud.gd:402",
+    "ui/base_hud.gd:407",
     "ui/inventory/inventory_panel.gd:14",
     "ui/inventory/inventory_panel.gd:166"
   ],
   "base_hud.026": [
-    "ui/base_hud.gd:403"
+    "ui/base_hud.gd:408"
   ],
   "base_hud.027": [
-    "ui/base_hud.gd:410",
+    "ui/base_hud.gd:415",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.028": [
-    "ui/base_hud.gd:410",
+    "ui/base_hud.gd:415",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.029": [
-    "ui/base_hud.gd:410",
+    "ui/base_hud.gd:415",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.030": [
-    "ui/base_hud.gd:410",
+    "ui/base_hud.gd:415",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.031": [
-    "ui/base_hud.gd:421"
+    "ui/base_hud.gd:426"
   ],
   "base_hud.032": [
-    "ui/base_hud.gd:425"
+    "ui/base_hud.gd:430"
   ],
   "base_hud.033": [
-    "ui/base_hud.gd:428"
+    "ui/base_hud.gd:433"
   ],
   "base_hud.035": [
-    "ui/base_hud.gd:475"
+    "ui/base_hud.gd:480"
   ],
   "base_hud.036": [
-    "ui/base_hud.gd:476"
+    "ui/base_hud.gd:481"
   ],
   "base_hud.037": [
-    "ui/base_hud.gd:477",
+    "ui/base_hud.gd:482",
     "ui/menu/menu_screen.gd:47"
   ],
   "base_hud.038": [
-    "ui/base_hud.gd:478"
+    "ui/base_hud.gd:483"
   ],
   "base_hud.039": [
-    "ui/base_hud.gd:479",
+    "ui/base_hud.gd:484",
     "ui/menu/menu_screen.gd:50"
   ],
   "base_hud.040": [
-    "ui/base_hud.gd:480",
+    "ui/base_hud.gd:485",
     "ui/menu/menu_screen.gd:80",
     "ui/menu/menu_screen.gd:123"
   ],
   "base_hud.041": [
-    "ui/base_hud.gd:482",
+    "ui/base_hud.gd:487",
     "ui/network/steam_panel.gd:149"
   ],
   "base_hud.042": [
-    "ui/base_hud.gd:484"
+    "ui/base_hud.gd:489"
   ],
   "base_hud.043": [
-    "ui/base_hud.gd:485"
+    "ui/base_hud.gd:490"
   ],
   "base_hud.044": [
-    "ui/base_hud.gd:486"
+    "ui/base_hud.gd:491"
   ],
   "base_hud.045": [
-    "ui/base_hud.gd:487"
+    "ui/base_hud.gd:492"
   ],
   "base_hud.046": [
-    "ui/base_hud.gd:488"
+    "ui/base_hud.gd:493"
   ],
   "base_hud.047": [
-    "ui/base_hud.gd:519"
-  ],
-  "base_hud.048": [
-    "ui/base_hud.gd:520"
-  ],
-  "base_hud.049": [
-    "ui/base_hud.gd:521"
-  ],
-  "base_hud.050": [
-    "ui/base_hud.gd:523"
-  ],
-  "base_hud.051": [
     "ui/base_hud.gd:524"
   ],
-  "base_hud.052": [
+  "base_hud.048": [
+    "ui/base_hud.gd:525"
+  ],
+  "base_hud.049": [
     "ui/base_hud.gd:526"
   ],
-  "base_hud.053": [
-    "ui/base_hud.gd:527"
-  ],
-  "base_hud.054": [
+  "base_hud.050": [
     "ui/base_hud.gd:528"
   ],
-  "base_hud.055": [
+  "base_hud.051": [
     "ui/base_hud.gd:529"
   ],
-  "base_hud.056": [
+  "base_hud.052": [
+    "ui/base_hud.gd:531"
+  ],
+  "base_hud.053": [
+    "ui/base_hud.gd:532"
+  ],
+  "base_hud.054": [
+    "ui/base_hud.gd:533"
+  ],
+  "base_hud.055": [
     "ui/base_hud.gd:534"
   ],
-  "base_hud.057": [
-    "ui/base_hud.gd:538"
+  "base_hud.056": [
+    "ui/base_hud.gd:539"
   ],
-  "base_hud.058": [
+  "base_hud.057": [
     "ui/base_hud.gd:543"
   ],
+  "base_hud.058": [
+    "ui/base_hud.gd:548"
+  ],
   "base_hud.059": [
-    "ui/base_hud.gd:546"
+    "ui/base_hud.gd:551"
   ],
   "base_hud.060": [
-    "ui/base_hud.gd:548",
+    "ui/base_hud.gd:553",
     "ui/network/steam_panel.gd:69"
   ],
   "camp_panel.001": [
@@ -1669,56 +1669,50 @@
   "bunker.004": [
     "worlds/bunker/bunker.gd:16"
   ],
-  "bunker.005": [
-    "worlds/bunker/bunker.gd:17"
-  ],
   "bunker.006": [
-    "worlds/bunker/bunker.gd:19"
+    "worlds/bunker/bunker.gd:18"
   ],
   "bunker.007": [
-    "worlds/bunker/bunker.gd:20"
+    "worlds/bunker/bunker.gd:19"
   ],
   "bunker.008": [
-    "worlds/bunker/bunker.gd:21"
+    "worlds/bunker/bunker.gd:20"
   ],
   "bunker.009": [
-    "worlds/bunker/bunker.gd:89"
+    "worlds/bunker/bunker.gd:88"
   ],
   "bunker.010": [
-    "worlds/bunker/bunker.gd:169"
+    "worlds/bunker/bunker.gd:168"
   ],
   "bunker.011": [
-    "worlds/bunker/bunker.gd:223"
+    "worlds/bunker/bunker.gd:222"
   ],
   "bunker.012": [
-    "worlds/bunker/bunker.gd:225"
+    "worlds/bunker/bunker.gd:224"
   ],
   "bunker.013": [
-    "worlds/bunker/bunker.gd:248"
+    "worlds/bunker/bunker.gd:247"
   ],
   "bunker.014": [
-    "worlds/bunker/bunker.gd:298"
+    "worlds/bunker/bunker.gd:297"
   ],
   "bunker.015": [
-    "worlds/bunker/bunker.gd:299"
+    "worlds/bunker/bunker.gd:298"
   ],
   "bunker.016": [
-    "worlds/bunker/bunker.gd:305"
+    "worlds/bunker/bunker.gd:304"
   ],
   "bunker.017": [
-    "worlds/bunker/bunker.gd:351"
+    "worlds/bunker/bunker.gd:350"
   ],
   "bunker.018": [
-    "worlds/bunker/bunker.gd:358"
+    "worlds/bunker/bunker.gd:357"
   ],
   "bunker.019": [
-    "worlds/bunker/bunker.gd:365"
+    "worlds/bunker/bunker.gd:364"
   ],
   "bunker.020": [
-    "worlds/bunker/bunker.gd:383"
-  ],
-  "bunker.021": [
-    "worlds/bunker/bunker.gd:394"
+    "worlds/bunker/bunker.gd:382"
   ],
   "ground_zero.001": [
     "worlds/ground_zero/ground_zero.gd:313"
@@ -1805,17 +1799,17 @@
     "ui/menu/menu_screen.gd:92"
   ],
   "settings.movement_speed_value": [
-    "ui/base_hud.gd:327"
+    "ui/base_hud.gd:332"
   ],
   "settings.show_jump_chain": [
     "ui/menu/menu_screen.gd:93"
   ],
   "settings.jump_chain_value": [
-    "ui/base_hud.gd:332"
+    "ui/base_hud.gd:337"
   ],
   "settings.more_save_failed": [
-    "ui/base_hud.gd:340",
-    "ui/base_hud.gd:346"
+    "ui/base_hud.gd:345",
+    "ui/base_hud.gd:351"
   ],
   "settings.jump_chain_bonus": [
     "ui/menu/menu_screen.gd:222"
@@ -1827,11 +1821,11 @@
     "ui/menu/menu_screen.gd:233"
   ],
   "settings.jump_chain_bonus_host_only": [
-    "features/base/base_model.gd:216"
+    "features/base/base_model.gd:218"
   ],
   "settings.jump_chain_host_only": [
-    "features/base/base_model.gd:221",
-    "features/base/base_model.gd:226"
+    "features/base/base_model.gd:223",
+    "features/base/base_model.gd:228"
   ],
   "settings.jump_chain_max_speed": [
     "ui/menu/menu_screen.gd:234"
@@ -1852,35 +1846,35 @@
     "ui/menu/menu_screen.gd:257"
   ],
   "bunker.shelter_sign": [
-    "worlds/bunker/bunker.gd:88"
+    "worlds/bunker/bunker.gd:87"
   ],
   "bunker.quarters_sign": [
-    "worlds/bunker/bunker.gd:168"
+    "worlds/bunker/bunker.gd:167"
   ],
   "bunker.medical_sign": [
-    "worlds/bunker/bunker.gd:170"
+    "worlds/bunker/bunker.gd:169"
   ],
   "bunker.workshop_sign": [
-    "worlds/bunker/bunker.gd:224"
+    "worlds/bunker/bunker.gd:223"
   ],
   "bunker.storage_sign": [
-    "worlds/bunker/bunker.gd:250"
+    "worlds/bunker/bunker.gd:249"
   ],
   "bunker.logistics_sign": [
-    "worlds/bunker/bunker.gd:251"
+    "worlds/bunker/bunker.gd:250"
   ],
   "bunker.range_sign": [
-    "worlds/bunker/bunker.gd:304"
+    "worlds/bunker/bunker.gd:303"
   ],
   "base_hud.san": [
-    "ui/base_hud.gd:410"
+    "ui/base_hud.gd:415"
   ],
   "format.base_hud.001": [
-    "ui/base_hud.gd:310"
+    "ui/base_hud.gd:315"
   ],
   "format.base_hud.002": [
     "features/player/animation/animation_preview.gd:64",
-    "ui/base_hud.gd:311"
+    "ui/base_hud.gd:316"
   ],
   "format.camp_panel.001": [
     "ui/inventory/camp_panel.gd:31"
@@ -1924,13 +1918,13 @@
     "ui/map/global_map.gd:165"
   ],
   "format.base_view.001": [
-    "worlds/bunker/base_view.gd:125"
+    "worlds/bunker/base_view.gd:119"
   ],
   "interaction.prompt": [
-    "app/main.gd:429"
+    "app/main.gd:431"
   ],
   "keys.title": [
-    "ui/base_hud.gd:563",
+    "ui/base_hud.gd:568",
     "ui/menu/menu_screen.gd:201"
   ],
   "keys.instructions": [
@@ -1963,7 +1957,7 @@
     "ui/menu/key_bindings_panel.gd:37"
   ],
   "keys.hud_hint": [
-    "ui/base_hud.gd:432"
+    "ui/base_hud.gd:437"
   ],
   "keys.mouse_1": [
     "features/player/key_bindings.gd:24"
@@ -2041,7 +2035,7 @@
     "features/player/key_bindings.gd:22"
   ],
   "keys.single": [
-    "ui/base_hud.gd:718"
+    "ui/base_hud.gd:723"
   ],
   "satiety.weight": [
     "ui/inventory/inventory_panel.gd:181"
@@ -2077,7 +2071,7 @@
     "ui/menu/menu_screen.gd:217"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:211"
+    "features/base/base_model.gd:213"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:39"
@@ -2086,7 +2080,7 @@
     "features/exploration/container_loot.gd:43"
   ],
   "loot_marks.view_remaining": [
-    "app/main.gd:412"
+    "app/main.gd:414"
   ],
   "loot_marks.searching": [
     "features/exploration/container_marks.gd:5"
@@ -2098,12 +2092,12 @@
     "features/exploration/container_marks.gd:5"
   ],
   "loot_marks.empty": [
-    "app/main.gd:412",
+    "app/main.gd:414",
     "features/exploration/container_marks.gd:5"
   ],
   "appearance.title": [
-    "ui/base_hud.gd:481",
-    "ui/base_hud.gd:556"
+    "ui/base_hud.gd:486",
+    "ui/base_hud.gd:561"
   ],
   "appearance.gender": [
     "ui/menu/appearance_panel.gd:38"
@@ -2144,16 +2138,16 @@
   ],
   "city.name": [
     "features/exploration/world_flow.gd:60",
-    "features/exploration/world_travel.gd:67"
+    "features/exploration/world_travel.gd:79"
   ],
   "city.extraction": [
     "worlds/city/city.gd:42"
   ],
   "bunker.city_exit": [
-    "worlds/bunker/bunker.gd:18"
+    "worlds/bunker/bunker.gd:17"
   ],
   "bunker.city_route": [
-    "worlds/bunker/bunker.gd:395"
+    "worlds/bunker/bunker.gd:389"
   ],
   "base_hud.city": [
     "ui/base_hud.gd:293"
@@ -2175,9 +2169,24 @@
     "ui/widgets/quick_slot.gd:15"
   ],
   "quick.empty_hint": [
-    "ui/base_hud.gd:733"
+    "ui/base_hud.gd:738"
   ],
   "quick.save_failed": [
-    "ui/base_hud.gd:726"
+    "ui/base_hud.gd:731"
+  ],
+  "departure.confirm": [
+    "app/main.gd:400"
+  ],
+  "departure.cancel": [
+    "app/main.gd:400"
+  ],
+  "departure.ready_done": [
+    "features/exploration/world_travel.gd:32"
+  ],
+  "departure.ready_cancelled": [
+    "features/exploration/world_travel.gd:32"
+  ],
+  "departure.count": [
+    "ui/base_hud.gd:300"
   ]
 }

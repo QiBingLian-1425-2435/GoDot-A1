@@ -14,8 +14,7 @@ var _points: Array = [
 	{"id":"stash","title":"⟦bunker.002⟧","pos":Vector2(9,-5.3),"kind":"stash"},
 	{"id":"workbench","title":"⟦bunker.003⟧","pos":Vector2(-9,2.2),"kind":"workbench"},
 	{"id":"medical","title":"⟦bunker.004⟧","pos":Vector2(-10,-5.2),"kind":"medical"},
-	{"id":"exit","title":"⟦bunker.005⟧","pos":Vector2(0,-8.2),"kind":"exit"},
-	{"id":"exit_city","title":"⟦bunker.city_exit⟧","pos":Vector2(3.4,-8.9),"kind":"exit_city"},
+	{"id":"exit","title":"⟦bunker.city_exit⟧","pos":Vector2(0,-8.2),"kind":"exit"},
 	{"id":"range","title":"⟦bunker.006⟧","pos":Vector2(9,4.2),"kind":"range"},
 	{"id":"ammo_supply","title":"⟦bunker.007⟧","pos":Vector2(7.2,2.7),"kind":"ammo_supply"},
 	{"id":"trader","title":"⟦bunker.008⟧","pos":Vector2(-5,-2.6),"kind":"trader"}
@@ -367,7 +366,7 @@ func _build_operations() -> void:
 
 func _build_exit() -> void:
 	var before:=get_children()
-	# Heavy blast hatch and a short ladder identify the way back to the surface.
+	# Heavy blast gate leads to the city.
 	G.box(self,Vector3(0,1.45,-10.58),Vector3(3.35,2.9,.30),Color("2e424c"),.5)
 	G.box(self,Vector3(0,1.35,-10.36),Vector3(2.85,2.5,.22),Color("667d80"),.5)
 	for x in [-1.13,1.13]:
@@ -384,15 +383,10 @@ func _build_exit() -> void:
 	for child in get_children():
 		if child not in before and child is GeometryInstance3D and not child is Label3D:exit_visuals.append(child)
 	_light(Vector3(0,2.4,-9.0),Color("90cbb9"),1,4)
-	for x in [2.0,2.55]:
-		G.rod(self,Vector3(x,.05,-10.18),Vector3(x,3.42,-10.18),.045,Color("8c9a90"),.6)
-	for y in range(9):
-		G.rod(self,Vector3(2,.25+y*.35,-10.16),Vector3(2.55,.25+y*.35,-10.16),.038,Color("a5aca0"),.6)
 	G.box(self,Vector3(3.4,1.37,-10.38),Vector3(.53,.87,.3),Color("52696f"),.4)
 	G.box(self,Vector3(3.4,1.53,-10.20),Vector3(.36,.20,.018),Color("9bc5a6"),0,.4)
 	G.sphere(self,Vector3(3.4,1.20,-10.19),Vector3(.16,.16,.08),Color("c68c74"))
-	_floor_label("⟦bunker.021⟧",Vector2(0,-8.4),25,Color("b2bdab"))
-	_floor_label("⟦bunker.city_route⟧",Vector2(4.7,-7.3),20,Color("d6c48a"))
+	_floor_label("⟦bunker.city_route⟧",Vector2(0,-8.4),25,Color("b2bdab"))
 
 func _build_clutter() -> void:
 	# Emergency equipment and utility supplies fill the cutaway edges without blocking paths.
@@ -514,5 +508,5 @@ func _light(at: Vector3, color: Color, energy: float, radius: float) -> void:
 	lamps.append(light)
 
 func interaction_visuals(target:Dictionary)->Array:
-	if target.get("uid","")=="bunker_to_surface" or target.get("id","")=="exit":return exit_visuals
+	if target.get("uid","")=="bunker_to_city" or target.get("id","")=="exit":return exit_visuals
 	return preload("res://features/exploration/interaction_outline.gd").nearby_visuals(self,Vector3(target.pos.x,.9,target.pos.y),1.6)

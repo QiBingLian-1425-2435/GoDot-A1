@@ -24,10 +24,11 @@ func run() -> void:
 	await frames(3)
 	var model = game.session.model
 	var player: Dictionary = model.state.players[1]
-	check(not model.command(1,"travel",{"route":"bunker_to_surface"}),"remote entrance requests are rejected by distance")
+	check(not model.command(1,"travel",{"route":"bunker_to_city"}),"remote entrance requests are rejected by distance")
 	player.pos = Vector2(0,-8.2)
 	game._update_interaction()
-	check(game.nearest.get("uid")=="bunker_to_surface","the normal E interaction selects the exploration entrance")
+	check(game.nearest.get("uid")=="bunker_to_city","the normal E interaction selects the exploration entrance")
+	preload("res://tests/base/surface_test_entry.gd").prepare(game)
 	game._interact()
 	game.session.set_physics_process(false)
 	await map_ready()
@@ -131,7 +132,7 @@ func run() -> void:
 	check(game.world_id=="bunker" and model.state.targets.size()==3,"returning restores the bunker and training targets")
 	check(not game.player_physics.spatial_enabled and game.world.obstacles().size()==43,"map replacement removes exploration physics and restores base collision")
 	player.pos=Vector2(0,-8.2);player.height=0
-	game.session.send("travel",{"route":"bunker_to_surface"})
+	preload("res://tests/base/surface_test_entry.gd").enter(game)
 	check(game.world_loading and not model.world_ready,"loading keeps movement and shared map interactions gated")
 	await process_frame
 	game._return_menu()

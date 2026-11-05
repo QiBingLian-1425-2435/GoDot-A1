@@ -75,7 +75,7 @@ func run():
 		scene.queue_free();await process_frame
 	var game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true
 	game.set_process(false);game.set_physics_process(false);game.session.set_physics_process(false);game._start_solo()
-	var p:Dictionary=game.session.model.state.players[1];p.pos=Vector2(0,-8.2);game.session.send("travel",{"route":"bunker_to_surface"})
+	var p:Dictionary=game.session.model.state.players[1];p.pos=Vector2(0,-8.2);preload("res://tests/base/surface_test_entry.gd").enter(game)
 	while game.world_loading:await process_frame
 	await physics_frame;await physics_frame
 	check(game.world._roof_bounds.size()>=5,"original house roofs registered without new external assets")

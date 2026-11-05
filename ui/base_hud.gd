@@ -293,6 +293,11 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	Texts.bind(_world_label, {"bunker":"⟦base_hud.007⟧","surface":"⟦base_hud.008⟧","cave":"⟦base_hud.009⟧","city":"⟦base_hud.city⟧"}.get(world_name,"⟦base_hud.010⟧"), "text")
 	Texts.bind(_world_note, "⟦base_hud.011⟧" if world_name=="bunker" else "⟦base_hud.012⟧", "text")
 	var player_count := _players().size()
+	if world_name=="bunker" and mode in ["host","client"]:
+		var ready_count:=0
+		for member_id in _players():
+			if state.get("departure_ready",{}).get(member_id,false):ready_count+=1
+		Texts.bind(_world_note,Texts.format("⟦departure.count⟧",[ready_count,player_count]))
 	var session_name := "⟦base_hud.013⟧" if world_name=="bunker" else "⟦base_hud.014⟧"
 	if mode == "host":
 		session_name = Texts.format("⟦base_hud.015⟧", player_count)

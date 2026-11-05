@@ -20,7 +20,7 @@ func run():
 	game=Main.new();game.smoke=true;game.elapsed=-10000;root.add_child(game);game.sound.muted=true
 	game.set_process(false);game.set_physics_process(false);game.session.set_physics_process(false);game._start_solo()
 	var model=game.session.model;var p:Dictionary=model.state.players[1]
-	p.pos=Vector2(0,-8.2);game.session.send("travel",{"route":"bunker_to_surface"})
+	p.pos=Vector2(0,-8.2);preload("res://tests/base/surface_test_entry.gd").enter(game)
 	while game.world_loading:await process_frame
 	await physics_frame;await physics_frame
 	var containers:=0;var chosen:Dictionary={}
@@ -95,7 +95,7 @@ func run():
 	model.stations.append(route);game.session.send("travel",{"route":"test_return"});settle()
 	check(model.state.field_effects.is_empty() and game.field_item_view.nodes.is_empty(),"travel removes temporary field effects and nodes")
 	check(model.world_cache[cached_world].containers.has(chosen.uid),"searched container state survives leaving that map")
-	p=model.state.players[1];p.pos=Vector2(0,-8.2);game.session.send("travel",{"route":"bunker_to_surface"})
+	p=model.state.players[1];p.pos=Vector2(0,-8.2);preload("res://tests/base/surface_test_entry.gd").enter(game)
 	while game.world_loading:await process_frame
 	settle();check(model.state.containers.has(chosen.uid),"returning to same room/map cannot reroll the opened container")
 	game.queue_free();await process_frame;await process_frame

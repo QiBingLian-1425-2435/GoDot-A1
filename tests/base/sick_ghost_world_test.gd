@@ -11,7 +11,7 @@ func run():
 	root.add_child(game);game.set_physics_process(false);game.sound.muted=true
 	var m=game.session.model;var p:Dictionary=m.state.players[1]
 	p.pos=Vector2(0,-8.2)
-	m.command(1,"travel",{"route":"bunker_to_surface"});game._sync_world();game.session.set_physics_process(false)
+	preload("res://tests/base/surface_test_entry.gd").enter(game);game._sync_world();game.session.set_physics_process(false)
 	while game.world_loading:await process_frame
 	for i in range(3):await physics_frame
 	game.enemy_director.update(game,.016)

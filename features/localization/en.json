@@ -531,7 +531,6 @@
   "bunker.002": "Storage · Organize Supplies",
   "bunker.003": "Workbench · Choose a Recipe",
   "bunker.004": "Medical Station · Heal",
-  "bunker.005": "Underground Exit · Prepare to Depart",
   "bunker.006": "Training Range · Reset All Targets",
   "bunker.007": "Ammo Supply · Free reserve refill to 120; R Reload",
   "bunker.008": "Trader · Buy Supplies / Sell Loot",
@@ -547,7 +546,6 @@
   "bunker.018": "Trader",
   "bunker.019": "TASK BOARD",
   "bunker.020": "EXIT ↑",
-  "bunker.021": "SURFACE ACCESS",
   "ground_zero.001": "Return to Underground Base (Team)",
   "ground_zero.002": "Extract to Base (Team)",
   "ground_zero.003": "Toggle Door",
@@ -691,5 +689,10 @@
   "quick.slot.8": "Quick slot 8",
   "quick.drag_hint": "Drag carried items here · Right-click to clear",
   "quick.empty_hint": "Drag a weapon, gear or usable item here to bind",
-  "quick.save_failed": "Could not save quick-slot binding"
+  "quick.save_failed": "Could not save quick-slot binding",
+  "departure.confirm": "Ready for the city",
+  "departure.cancel": "Cancel ready",
+  "departure.ready_done": "Ready. Waiting for team.",
+  "departure.ready_cancelled": "Readiness cancelled",
+  "departure.count": "Ready to depart  %d / %d"
 }

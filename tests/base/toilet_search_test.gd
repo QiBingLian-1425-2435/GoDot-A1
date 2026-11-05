@@ -27,7 +27,7 @@ func run():
 	game._start_solo()
 	var model = game.session.model
 	var p: Dictionary = model.state.players[1]
-	p.pos = Vector2(0, -8.2); game.session.send("travel", {"route":"bunker_to_surface"})
+	p.pos = Vector2(0, -8.2); preload("res://tests/base/surface_test_entry.gd").enter(game)
 	while game.world_loading: await process_frame
 	await physics_frame; await physics_frame
 	var toilets: Array = []
