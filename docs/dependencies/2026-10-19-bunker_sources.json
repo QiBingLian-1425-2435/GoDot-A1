@@ -188,7 +188,8 @@
     "features/player/quick_slots.gd",
     "features/player/quick_slots.gd.uid",
     "ui/widgets/quick_slot.gd",
-    "ui/widgets/quick_slot.gd.uid"
+    "ui/widgets/quick_slot.gd.uid",
+    "assets/ui/menu/survival_cover.png"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
@@ -196,6 +197,7 @@
     "assets/worlds/city/asset_manifest.json",
     "assets/characters/sick_ghost/asset_manifest.json",
     "assets/characters/explorer/asset_manifest.json",
-    "assets/characters/adventurers/asset_manifest.json"
+    "assets/characters/adventurers/asset_manifest.json",
+    "assets/ui/menu/asset_manifest.json"
   ]
 }

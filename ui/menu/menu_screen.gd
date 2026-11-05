@@ -4,7 +4,15 @@ const Texts = preload("res://features/localization/game_text.gd")
 
 static func _build_menu(ctx) -> void:
 	ctx._menu = ctx._full_control(ctx._root)
-	# Only translucent panels cover the world. The 3D security-camera backdrop stays visible.
+	var background:=TextureRect.new()
+	background.name="SurvivalCover"
+	background.texture=load("res://assets/ui/menu/survival_cover.png")
+	background.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	background.size=Vector2(1600,900)
+	background.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	ctx._menu.add_child(background)
+	# Keep menu text legible over the cover without intercepting button input.
 	var left_fade = GradientTexture2D.new()
 	var gradient = Gradient.new()
 	gradient.colors = PackedColorArray([Color(0.025,0.055,0.095,0.72), Color(0.025,0.055,0.095,0.28),Color(0.025,0.055,0.095,0.0)])
