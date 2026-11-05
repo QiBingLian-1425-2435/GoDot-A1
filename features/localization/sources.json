@@ -1033,19 +1033,19 @@
   ],
   "base_hud.037": [
     "ui/base_hud.gd:477",
-    "ui/menu/menu_screen.gd:39"
+    "ui/menu/menu_screen.gd:47"
   ],
   "base_hud.038": [
     "ui/base_hud.gd:478"
   ],
   "base_hud.039": [
     "ui/base_hud.gd:479",
-    "ui/menu/menu_screen.gd:42"
+    "ui/menu/menu_screen.gd:50"
   ],
   "base_hud.040": [
     "ui/base_hud.gd:480",
-    "ui/menu/menu_screen.gd:72",
-    "ui/menu/menu_screen.gd:115"
+    "ui/menu/menu_screen.gd:80",
+    "ui/menu/menu_screen.gd:123"
   ],
   "base_hud.041": [
     "ui/base_hud.gd:482",
@@ -1409,74 +1409,74 @@
     "ui/map/global_map.gd:191"
   ],
   "menu_screen.001": [
-    "ui/menu/menu_screen.gd:26"
+    "ui/menu/menu_screen.gd:34"
   ],
   "menu_screen.002": [
-    "ui/menu/menu_screen.gd:27"
+    "ui/menu/menu_screen.gd:35"
   ],
   "menu_screen.003": [
-    "ui/menu/menu_screen.gd:31"
+    "ui/menu/menu_screen.gd:39"
   ],
   "menu_screen.004": [
-    "ui/menu/menu_screen.gd:33"
+    "ui/menu/menu_screen.gd:41"
   ],
   "menu_screen.005": [
-    "ui/menu/menu_screen.gd:40",
+    "ui/menu/menu_screen.gd:48",
     "ui/network/steam_panel.gd:6"
   ],
   "menu_screen.006": [
-    "ui/menu/menu_screen.gd:41"
+    "ui/menu/menu_screen.gd:49"
   ],
   "menu_screen.007": [
-    "ui/menu/menu_screen.gd:43"
+    "ui/menu/menu_screen.gd:51"
   ],
   "menu_screen.008": [
-    "ui/menu/menu_screen.gd:47"
+    "ui/menu/menu_screen.gd:55"
   ],
   "menu_screen.009": [
-    "ui/menu/menu_screen.gd:56"
+    "ui/menu/menu_screen.gd:64"
   ],
   "menu_screen.010": [
-    "ui/menu/menu_screen.gd:57"
+    "ui/menu/menu_screen.gd:65"
   ],
   "menu_screen.011": [
-    "ui/menu/menu_screen.gd:97",
-    "ui/menu/menu_screen.gd:116"
+    "ui/menu/menu_screen.gd:105",
+    "ui/menu/menu_screen.gd:124"
   ],
   "menu_screen.012": [
-    "ui/menu/menu_screen.gd:127"
+    "ui/menu/menu_screen.gd:135"
   ],
   "menu_screen.013": [
-    "ui/menu/menu_screen.gd:99",
-    "ui/menu/menu_screen.gd:129"
+    "ui/menu/menu_screen.gd:107",
+    "ui/menu/menu_screen.gd:137"
   ],
   "menu_screen.014": [
-    "ui/menu/menu_screen.gd:138"
+    "ui/menu/menu_screen.gd:146"
   ],
   "menu_screen.015": [
-    "ui/menu/menu_screen.gd:107",
-    "ui/menu/menu_screen.gd:141"
-  ],
-  "menu_screen.016": [
+    "ui/menu/menu_screen.gd:115",
     "ui/menu/menu_screen.gd:149"
   ],
+  "menu_screen.016": [
+    "ui/menu/menu_screen.gd:157"
+  ],
   "menu_screen.017": [
-    "ui/menu/menu_screen.gd:150"
+    "ui/menu/menu_screen.gd:158"
   ],
   "menu_screen.018": [
-    "ui/menu/menu_screen.gd:107",
-    "ui/menu/menu_screen.gd:153"
-  ],
-  "menu_screen.019": [
+    "ui/menu/menu_screen.gd:115",
     "ui/menu/menu_screen.gd:161"
   ],
+  "menu_screen.019": [
+    "ui/menu/menu_screen.gd:169"
+  ],
   "menu_screen.020": [
-    "ui/menu/menu_screen.gd:100",
-    "ui/menu/menu_screen.gd:164"
+    "ui/menu/menu_screen.gd:108",
+    "ui/menu/menu_screen.gd:172"
   ],
   "menu_screen.021": [
-    "ui/menu/menu_screen.gd:79",
-    "ui/menu/menu_screen.gd:195"
+    "ui/menu/menu_screen.gd:87",
+    "ui/menu/menu_screen.gd:203"
   ],
   "steam_panel.001": [
     "ui/network/steam_panel.gd:12"
@@ -1747,68 +1747,68 @@
     "features/localization/game_text.gd:15"
   ],
   "settings.language": [
-    "ui/menu/menu_screen.gd:86",
-    "ui/menu/menu_screen.gd:178"
+    "ui/menu/menu_screen.gd:94",
+    "ui/menu/menu_screen.gd:186"
   ],
   "settings.language_save_failed": [
-    "ui/menu/menu_screen.gd:92",
-    "ui/menu/menu_screen.gd:191"
+    "ui/menu/menu_screen.gd:100",
+    "ui/menu/menu_screen.gd:199"
   ],
   "settings.more": [
-    "ui/menu/menu_screen.gd:194"
+    "ui/menu/menu_screen.gd:202"
   ],
   "settings.developer_settings_section": [
-    "ui/menu/menu_screen.gd:137"
+    "ui/menu/menu_screen.gd:145"
   ],
   "settings.category_hint": [
-    "ui/menu/menu_screen.gd:73"
+    "ui/menu/menu_screen.gd:81"
   ],
   "settings.category_player": [
-    "ui/menu/menu_screen.gd:74",
-    "ui/menu/menu_screen.gd:82"
+    "ui/menu/menu_screen.gd:82",
+    "ui/menu/menu_screen.gd:90"
   ],
   "settings.category_audio_display": [
-    "ui/menu/menu_screen.gd:75",
-    "ui/menu/menu_screen.gd:96"
+    "ui/menu/menu_screen.gd:83",
+    "ui/menu/menu_screen.gd:104"
   ],
   "settings.category_controls": [
-    "ui/menu/menu_screen.gd:76"
+    "ui/menu/menu_screen.gd:84"
   ],
   "settings.category_developer": [
-    "ui/menu/menu_screen.gd:77",
-    "ui/menu/menu_screen.gd:105"
+    "ui/menu/menu_screen.gd:85",
+    "ui/menu/menu_screen.gd:113"
   ],
   "settings.developer_warning": [
-    "ui/menu/menu_screen.gd:78",
-    "ui/menu/menu_screen.gd:106"
+    "ui/menu/menu_screen.gd:86",
+    "ui/menu/menu_screen.gd:114"
   ],
   "settings.back_to_categories": [
-    "ui/menu/menu_screen.gd:93",
-    "ui/menu/menu_screen.gd:102",
-    "ui/menu/menu_screen.gd:112"
+    "ui/menu/menu_screen.gd:101",
+    "ui/menu/menu_screen.gd:110",
+    "ui/menu/menu_screen.gd:120"
   ],
   "settings.back_to_developer": [
-    "ui/menu/menu_screen.gd:250"
+    "ui/menu/menu_screen.gd:258"
   ],
   "settings.jump_debug_settings": [
-    "ui/menu/menu_screen.gd:110",
-    "ui/menu/menu_screen.gd:212"
+    "ui/menu/menu_screen.gd:118",
+    "ui/menu/menu_screen.gd:220"
   ],
   "settings.jump_debug_settings_hint": [
-    "ui/menu/menu_screen.gd:111",
-    "ui/menu/menu_screen.gd:213"
+    "ui/menu/menu_screen.gd:119",
+    "ui/menu/menu_screen.gd:221"
   ],
   "settings.show_movement_speed": [
-    "ui/menu/menu_screen.gd:83"
+    "ui/menu/menu_screen.gd:91"
   ],
   "settings.show_movement_speed_hint": [
-    "ui/menu/menu_screen.gd:84"
+    "ui/menu/menu_screen.gd:92"
   ],
   "settings.movement_speed_value": [
     "ui/base_hud.gd:327"
   ],
   "settings.show_jump_chain": [
-    "ui/menu/menu_screen.gd:85"
+    "ui/menu/menu_screen.gd:93"
   ],
   "settings.jump_chain_value": [
     "ui/base_hud.gd:332"
@@ -1818,13 +1818,13 @@
     "ui/base_hud.gd:346"
   ],
   "settings.jump_chain_bonus": [
-    "ui/menu/menu_screen.gd:214"
+    "ui/menu/menu_screen.gd:222"
   ],
   "settings.jump_chain_bonus_option": [
-    "ui/menu/menu_screen.gd:219"
+    "ui/menu/menu_screen.gd:227"
   ],
   "settings.jump_chain_bonus_hint": [
-    "ui/menu/menu_screen.gd:225"
+    "ui/menu/menu_screen.gd:233"
   ],
   "settings.jump_chain_bonus_host_only": [
     "features/base/base_model.gd:216"
@@ -1834,22 +1834,22 @@
     "features/base/base_model.gd:226"
   ],
   "settings.jump_chain_max_speed": [
-    "ui/menu/menu_screen.gd:226"
+    "ui/menu/menu_screen.gd:234"
   ],
   "settings.jump_chain_max_speed_option": [
-    "ui/menu/menu_screen.gd:231"
+    "ui/menu/menu_screen.gd:239"
   ],
   "settings.jump_chain_max_speed_hint": [
-    "ui/menu/menu_screen.gd:237"
+    "ui/menu/menu_screen.gd:245"
   ],
   "settings.jump_reward_window": [
-    "ui/menu/menu_screen.gd:238"
+    "ui/menu/menu_screen.gd:246"
   ],
   "settings.jump_reward_window_option": [
-    "ui/menu/menu_screen.gd:243"
+    "ui/menu/menu_screen.gd:251"
   ],
   "settings.jump_reward_window_hint": [
-    "ui/menu/menu_screen.gd:249"
+    "ui/menu/menu_screen.gd:257"
   ],
   "bunker.shelter_sign": [
     "worlds/bunker/bunker.gd:88"
@@ -1931,7 +1931,7 @@
   ],
   "keys.title": [
     "ui/base_hud.gd:563",
-    "ui/menu/menu_screen.gd:193"
+    "ui/menu/menu_screen.gd:201"
   ],
   "keys.instructions": [
     "ui/menu/key_bindings_panel.gd:34"
@@ -2063,18 +2063,18 @@
     "features/enemies/enemy_view.gd:72"
   ],
   "settings.voice_always_on": [
-    "ui/menu/menu_screen.gd:101",
-    "ui/menu/menu_screen.gd:172"
+    "ui/menu/menu_screen.gd:109",
+    "ui/menu/menu_screen.gd:180"
   ],
   "keys.action.voice": [
     "features/player/key_bindings.gd:14"
   ],
   "settings.infinite_credits": [
-    "ui/menu/menu_screen.gd:107",
-    "ui/menu/menu_screen.gd:201"
+    "ui/menu/menu_screen.gd:115",
+    "ui/menu/menu_screen.gd:209"
   ],
   "settings.infinite_credits_hint": [
-    "ui/menu/menu_screen.gd:209"
+    "ui/menu/menu_screen.gd:217"
   ],
   "settings.infinite_credits_host_only": [
     "features/base/base_model.gd:211"
