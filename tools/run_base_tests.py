@@ -22,6 +22,7 @@ SUITES = {
     "extraction": [("party_extraction_test", True, []), ("party_extraction_network_test", True, [])],
     "interaction_outline": [("interaction_outline_test", True, []), ("interaction_outline_test", False, [])],
     "quick_slots": [("quick_slots_test", True, []), ("quick_slots_test", False, [])],
+    "backward_sprint": [("backward_sprint_test", True, []), ("duckov_actor_animation_test", True, [])],
     "arm_swing": [("human_arm_swing_test", True, [])],
     "human_crouch": [("human_crouch_test", True, [])],
     "sick_ghost": [("sick_ghost_test", True, []), ("sick_ghost_world_test", False, []), ("sick_ghost_network_test", True, [])],

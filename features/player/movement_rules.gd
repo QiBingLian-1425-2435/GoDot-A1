@@ -1,6 +1,7 @@
 extends RefCounted
 # The legacy roll field is retained for saved input bindings and packet layout.
 # Protocol v19 interprets it as a physical jump, never a dodge roll.
+const BACKWARD_SPRINT_FACTOR := .70
 const JUMP_SPEED := 5.0
 const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0
@@ -11,6 +12,13 @@ const JUMP_CHAIN_MAX := 4
 const JUMP_CHAIN_HEIGHT_BONUS := .045
 const HIT_SPEED := 5.5
 const HIT_DECELERATION := 22.0
+
+static func backward_amount(direction:Vector2,aim:Vector2)->float:
+	if direction.is_zero_approx() or aim.is_zero_approx():return 0.0
+	return clampf(-direction.normalized().dot(aim.normalized()),0.0,1.0)
+
+static func sprint_direction_factor(direction:Vector2,aim:Vector2)->float:
+	return lerpf(1.0,BACKWARD_SPRINT_FACTOR,backward_amount(direction,aim))
 
 static func hit(p:Dictionary,direction:Vector2) -> void:
 	if float(p.get("hp",0))<=0:return
@@ -156,7 +164,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 		p.sprint = false
 	var speed := 3.7
 	if p.sprint:
-		speed *= 1.65
+		speed *= 1.65*sprint_direction_factor(direction,Vector2(input.get("aim",p.get("aim",Vector2.UP))))
 		if p.get("infinite_stamina",false): p.stamina = float(p.get("max_stamina",100))
 		else: p.stamina -= delta*19.0
 	elif not exhausted_this_step: p.stamina = minf(float(p.get("max_stamina",100)),p.stamina+delta*12)

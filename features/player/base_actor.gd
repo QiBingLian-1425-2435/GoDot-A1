@@ -28,6 +28,7 @@ var _arm_phase:=0.0
 var _arm_move_blend:=0.0
 var locomotion_arm_angles:=Vector2.ZERO
 var _speed := 0.0
+var _backward_blend:=0.0
 var _run_blend := 0.0
 var _crouch_blend := 0.0
 var _aim_blend := 0.0
@@ -337,6 +338,8 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	_crouch_blend = move_toward(_crouch_blend, 1.0 if data.get("crouch", false) else 0.0, delta*6)
 	_aim_blend = move_toward(_aim_blend, 1.0 if data.get("ads", false) and weapon.visible else 0.0, delta*9)
 	_unarmed_blend = move_toward(_unarmed_blend, 0.0 if weapon.visible else 1.0, delta*7)
+	var back:float=preload("res://features/player/movement_rules.gd").backward_amount(velocity,aim)
+	_backward_blend=move_toward(_backward_blend,back,delta*8.0)
 	var moving := clampf(_speed/.55, 0, 1)
 	animation_state = "crouch_walk" if moving > .15 else "crouch_idle"
 	if not data.get("crouch", false):
@@ -350,7 +353,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 		_visual_action_time = action_time
 	_visual_action_weight = move_toward(_visual_action_weight, action_weight, delta*12)
 	var tempo := lerpf(1.0, clampf(_speed / (1.78 if _crouch_blend > .5 else 3.7), .65, 1.45), moving)
-	motion.advance(delta, moving, _run_blend*moving, _crouch_blend, _aim_blend, tempo, _visual_action, _visual_action_time, _visual_action_weight)
+	motion.advance(delta, moving, _run_blend*moving*lerpf(1.0,.65,_backward_blend), _crouch_blend, _aim_blend, tempo, _visual_action, _visual_action_time, _visual_action_weight)
 	_apply_direction(velocity, moving, _visual_action_weight)
 	_apply_arm_swing(delta,moving,tempo,_visual_action_weight)
 	_update_props(action_weight, kind)
@@ -413,7 +416,9 @@ func _apply_direction(velocity: Vector2, moving: float, action_weight: float) ->
 		var index := skeleton.find_bone(bone)
 		var rest := skeleton.get_bone_rest(index).origin
 		var pose := skeleton.get_bone_pose_position(index)
-		var stride := -(pose.z-rest.z)
+		var retreat:float=_backward_blend*_run_blend
+		var stride := -(pose.z-rest.z)*lerpf(1.0,.68,retreat)
+		pose.y=lerpf(rest.y,pose.y,lerpf(1.0,.65,retreat))
 		pose.x = rest.x+local_move.x*stride
 		pose.z = rest.z+local_move.y*stride
 		skeleton.set_bone_pose_position(index, pose)
@@ -429,6 +434,7 @@ func _apply_direction(velocity: Vector2, moving: float, action_weight: float) ->
 		hip_position.y-=.15*_crouch_blend
 		hip_position.z+=.08*_crouch_blend
 	skeleton.set_bone_pose_position(hip, hip_position)
+	_rotate("Hips",Vector3(.12*_backward_blend*_run_blend*(1.0-action_weight),0,0))
 	# Aiming and recoil stay above the locomotion layer.
 	_rotate("Spine", Vector3(-.075*_recoil, 0, -local_move.x*.055*moving))
 	_rotate("Head", Vector3(.035*_recoil, 0, local_move.x*.03*moving))
@@ -448,7 +454,8 @@ func _apply_arm_swing(delta:float,moving:float,tempo:float,action_weight:float)-
 	var weight:float=_arm_move_blend*(1.0-_aim_blend)*(1.0-action_weight)*(1.0-clampf(_recoil,0,1))
 	weight*=lerpf(1.0,.4,_crouch_blend)
 	var amplitude:float=lerpf(.20,.65,_run_blend)*weight
-	var wave:float=sin(_arm_phase)*amplitude
+	amplitude*=lerpf(1.0,.60,_backward_blend)
+	var wave:float=sin(_arm_phase)*amplitude*lerpf(1.0,-1.0,_backward_blend)
 	# Empty hands counter-swing; occupied hands keep the held weapon together.
 	var held:float=1.0-_unarmed_blend
 	locomotion_arm_angles=Vector2(wave*lerpf(1.0,.38,held),wave*lerpf(-1.0,.38,held))
