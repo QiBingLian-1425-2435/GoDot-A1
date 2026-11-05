@@ -112,20 +112,15 @@ static func _update_drops(ctx)->void:
 	for uid in data:
 		if not ctx.drops.has(uid):
 			var node =Node3D.new()
-			var mesh =MeshInstance3D.new()
-			var box =BoxMesh.new()
-			box.size=Vector3(0.48,0.3,0.38)
-			mesh.mesh=box
-			var mat =StandardMaterial3D.new()
-			mat.albedo_color=ctx.session.model.Items.definition(str(data[uid].kind)).rarity_color
-			mesh.material_override=mat
-			mesh.position.y=0.2
-			node.add_child(mesh)
+			var sack:Node3D=load("res://assets/props/loot_sack/loot_sack.glb").instantiate()
+			sack.rotation.y=float(str(uid).hash()%628)/100.0
+			node.add_child(sack)
 			var label =Label3D.new()
 			Texts.bind(label, Texts.format("⟦format.base_view.001⟧", [ctx.session.model.Items.definition(str(data[uid].kind)).name,int(data[uid].count)]), "text")
 			label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 			label.position.y=0.8
 			label.font_size=20
+			label.modulate=ctx.session.model.Items.definition(str(data[uid].kind)).rarity_color
 			label.pixel_size=0.012
 			node.add_child(label)
 			ctx.add_child(node)
