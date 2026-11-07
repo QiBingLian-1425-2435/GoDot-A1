@@ -2,6 +2,7 @@ extends RefCounted
 # The legacy roll field is retained for saved input bindings and packet layout.
 # Protocol v19 interprets it as a physical jump, never a dodge roll.
 const BACKWARD_SPRINT_FACTOR := .70
+const WALK_SPEED_FACTOR := .5
 const JUMP_SPEED := 5.0
 const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0
@@ -168,6 +169,7 @@ static func step(p: Dictionary, input: Dictionary, delta: float, solver: Callabl
 		if p.get("infinite_stamina",false): p.stamina = float(p.get("max_stamina",100))
 		else: p.stamina -= delta*19.0
 	elif not exhausted_this_step: p.stamina = minf(float(p.get("max_stamina",100)),p.stamina+delta*12)
+	if not p.sprint and not p.crouch: speed *= WALK_SPEED_FACTOR
 	if p.crouch: speed *= .48
 	if p.ads: speed *= .62
 	if p.weight > p.max_weight: speed *= clampf(p.max_weight/p.weight,.3,1.0)

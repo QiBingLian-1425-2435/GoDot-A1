@@ -63,7 +63,7 @@ func run_client() -> void:
 		phase = 1; phase_time = 0
 	var p: Dictionary = session.model.state.players.get(session.local_id,{})
 	if p.is_empty(): return
-	if p.get("velocity",Vector2.ZERO).length() > 3.0: saw_velocity = true
+	if p.get("velocity",Vector2.ZERO).length() > 1.8: saw_velocity = true
 	if phase == 1:
 		session.send("move",{"direction":Vector2.RIGHT,"aim":Vector2.RIGHT})
 		if phase_time > 0.45:
@@ -123,7 +123,7 @@ func run_host() -> void:
 		session.model.state.players[peer_id].hp = 30.0
 	if peer_id > 0 and session.model.state.players.has(peer_id):
 		var p: Dictionary = session.model.state.players[peer_id]
-		if p.velocity.length() > 3.0: saw_velocity = true
+		if p.velocity.length() > 1.8: saw_velocity = true
 		if p.crouch and p.velocity == Vector2.ZERO: saw_crouch = true
 		if saw_crouch and not p.crouch and p.velocity == Vector2.ZERO: saw_timeout = true
 		if p.anim_seq > 0:

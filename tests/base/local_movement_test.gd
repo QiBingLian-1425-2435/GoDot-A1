@@ -68,7 +68,7 @@ func test_latency(delay: int, drop_stop: bool) -> void:
 		predictor.advance(DT,observed)
 		var display: Dictionary = predictor.sample_player(observed)
 		if observed != original: failures += 1; push_error("LOCAL MOVEMENT FAIL: modified confirmed data")
-		if cycle == 30: check(display.velocity.x > 3.6,"first physics step starts before ACK (%d frames one-way)" % delay)
+		if cycle == 30: check(is_equal_approx(display.velocity.x,1.85),"first physics step starts before ACK (%d frames one-way)" % delay)
 		if cycle == 90: stopped_at = display.pos
 		if cycle >= 90 and cycle < 150:
 			stop_drift = maxf(stop_drift,Vector2(display.pos).distance_to(stopped_at))
@@ -79,7 +79,8 @@ func test_latency(delay: int, drop_stop: bool) -> void:
 	check(not stop_replayed,"no old ACK revives walking after release")
 	check(not reverse_replayed,"old ACK cannot reverse the latest direction")
 	check(stop_drift < (.22 if drop_stop else .08),"bounded correction after release: %.4f" % stop_drift)
-	check(max_error < .015,"stationary prediction converges without accumulating error: %.5f" % max_error)
+	# Rest corrections below the documented deadband stay still, independent of walk speed.
+	check(max_error <= predictor.REST_ERROR_LIMIT+.001,"stationary prediction stays within rest deadband without accumulating error: %.5f" % max_error)
 	check(predictor._history.size() <= 122 and predictor._sent.size() <= 45,"history remains bounded after 30 seconds")
 	print("LOCAL_LATENCY one_way_frames=",delay," lost_stop=",drop_stop," max_stop_drift=",stop_drift," settled_error=",max_error)
 

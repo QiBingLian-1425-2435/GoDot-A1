@@ -352,7 +352,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 		_visual_action = action_state
 		_visual_action_time = action_time
 	_visual_action_weight = move_toward(_visual_action_weight, action_weight, delta*12)
-	var tempo := lerpf(1.0, clampf(_speed / (1.78 if _crouch_blend > .5 else 3.7), .65, 1.45), moving)
+	var tempo := lerpf(1.0, clampf(_speed / (1.78 if _crouch_blend > .5 else 3.7), .3 if animation_state=="walk" else .65, 1.45), moving)
 	motion.advance(delta, moving, _run_blend*moving*lerpf(1.0,.65,_backward_blend), _crouch_blend, _aim_blend, tempo, _visual_action, _visual_action_time, _visual_action_weight)
 	_apply_direction(velocity, moving, _visual_action_weight)
 	_apply_arm_swing(delta,moving,tempo,_visual_action_weight)
