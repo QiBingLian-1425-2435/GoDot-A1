@@ -47,6 +47,11 @@ static func _footstep_state(motion: Dictionary) -> Dictionary:
 	return {"moving":velocity.length()>.1,"sprint":bool(motion.get("sprint",false)) and velocity.length()>.1}
 
 static func _input(ctx, event:InputEvent)->void:
+	if ctx.in_game and ctx.session!=null:
+		var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+		var operated:bool=(event is InputEventKey or event is InputEventMouseButton) and event.pressed
+		if event is InputEventMouseMotion:operated=event.relative.length_squared()>1.0
+		if p.get("dancing",false) and operated and not Keys.matches("dance",event):ctx.session.send("dance_cancel")
 	if (event is InputEventMouseButton or event is InputEventKey) and Keys.matches("fire",event) and not event.pressed:
 		ctx.trigger_held=false
 
@@ -71,6 +76,10 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 	if action in quick.ACTIONS:
 		_activate_quick(ctx,quick.ACTIONS.find(action));return
 	match action:
+		"dance":
+			if not ctx.world_loading and not ctx.ui.is_blocking() and not ctx.station_dialog.visible and not (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()):
+				ctx.session.send("dance")
+				ctx.get_viewport().set_input_as_handled()
 		"fire":
 			if not ctx.ui.is_blocking():ctx.trigger_held=true
 		"rescue":

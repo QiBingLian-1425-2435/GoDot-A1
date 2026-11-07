@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v30",
+  "protocol": "a1_bunker_v31",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -232,7 +232,11 @@
     "worlds/survivor_base/playable_base.gd",
     "worlds/survivor_base/playable_base.gd.uid",
     "features/exploration/interaction_silhouette.gdshader",
-    "features/exploration/interaction_silhouette.gdshader.uid"
+    "features/exploration/interaction_silhouette.gdshader.uid",
+    "features/player/animation/imported_motion.gd",
+    "features/player/animation/imported_motion.gd.uid",
+    "assets/characters/adventurers/animated_male.glb",
+    "assets/characters/adventurers/animated_female.glb"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

@@ -1,4 +1,7 @@
 {
+  "keys.action.dance": [
+    "features/player/key_bindings.gd:15"
+  ],
   "world_travel.010": [
     "features/exploration/world_travel.gd:27"
   ],
@@ -282,52 +285,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:140"
-  ],
-  "base_model.002": [
     "features/base/base_model.gd:143"
   ],
+  "base_model.002": [
+    "features/base/base_model.gd:146"
+  ],
   "base_model.003": [
-    "features/base/base_model.gd:144"
+    "features/base/base_model.gd:147"
   ],
   "base_model.004": [
-    "features/base/base_model.gd:151"
+    "features/base/base_model.gd:160"
   ],
   "base_model.005": [
-    "features/base/base_model.gd:152"
-  ],
-  "base_model.006": [
-    "features/base/base_model.gd:153"
-  ],
-  "base_model.007": [
-    "features/base/base_model.gd:155"
-  ],
-  "base_model.008": [
     "features/base/base_model.gd:161"
   ],
+  "base_model.006": [
+    "features/base/base_model.gd:162"
+  ],
+  "base_model.007": [
+    "features/base/base_model.gd:164"
+  ],
+  "base_model.008": [
+    "features/base/base_model.gd:170"
+  ],
   "base_model.009": [
-    "features/base/base_model.gd:192"
+    "features/base/base_model.gd:201"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:199"
-  ],
-  "base_model.011": [
-    "features/base/base_model.gd:203"
-  ],
-  "base_model.012": [
     "features/base/base_model.gd:208"
   ],
+  "base_model.011": [
+    "features/base/base_model.gd:212"
+  ],
+  "base_model.012": [
+    "features/base/base_model.gd:217"
+  ],
   "base_model.013": [
-    "features/base/base_model.gd:240"
+    "features/base/base_model.gd:249"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:243"
+    "features/base/base_model.gd:252"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:250"
+    "features/base/base_model.gd:259"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:252"
+    "features/base/base_model.gd:261"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -867,10 +870,10 @@
     "features/player/animation/animation_preview.gd:98"
   ],
   "base_input.001": [
-    "features/player/base_input.gd:118"
+    "features/player/base_input.gd:127"
   ],
   "base_input.002": [
-    "features/player/base_input.gd:129"
+    "features/player/base_input.gd:138"
   ],
   "soul_rules.001": [
     "features/rescue/soul_rules.gd:52"
@@ -1828,11 +1831,11 @@
     "ui/menu/menu_screen.gd:233"
   ],
   "settings.jump_chain_bonus_host_only": [
-    "features/base/base_model.gd:218"
+    "features/base/base_model.gd:227"
   ],
   "settings.jump_chain_host_only": [
-    "features/base/base_model.gd:223",
-    "features/base/base_model.gd:228"
+    "features/base/base_model.gd:232",
+    "features/base/base_model.gd:237"
   ],
   "settings.jump_chain_max_speed": [
     "ui/menu/menu_screen.gd:234"
@@ -1967,79 +1970,79 @@
     "ui/base_hud.gd:437"
   ],
   "keys.mouse_1": [
-    "features/player/key_bindings.gd:24"
+    "features/player/key_bindings.gd:26"
   ],
   "keys.mouse_2": [
-    "features/player/key_bindings.gd:24"
+    "features/player/key_bindings.gd:26"
   ],
   "keys.mouse_3": [
-    "features/player/key_bindings.gd:24"
+    "features/player/key_bindings.gd:26"
   ],
   "keys.mouse_8": [
-    "features/player/key_bindings.gd:24"
+    "features/player/key_bindings.gd:26"
   ],
   "keys.mouse_9": [
-    "features/player/key_bindings.gd:24"
+    "features/player/key_bindings.gd:26"
   ],
   "keys.action.move_up": [
-    "features/player/key_bindings.gd:15"
+    "features/player/key_bindings.gd:17"
   ],
   "keys.action.move_down": [
-    "features/player/key_bindings.gd:15"
+    "features/player/key_bindings.gd:17"
   ],
   "keys.action.move_left": [
-    "features/player/key_bindings.gd:16"
+    "features/player/key_bindings.gd:18"
   ],
   "keys.action.move_right": [
-    "features/player/key_bindings.gd:16"
+    "features/player/key_bindings.gd:18"
   ],
   "keys.action.sprint": [
-    "features/player/key_bindings.gd:17"
+    "features/player/key_bindings.gd:19"
   ],
   "keys.action.crouch": [
-    "features/player/key_bindings.gd:17"
+    "features/player/key_bindings.gd:19"
   ],
   "keys.action.roll": [
-    "features/player/key_bindings.gd:17"
+    "features/player/key_bindings.gd:19"
   ],
   "keys.action.fire": [
-    "features/player/key_bindings.gd:18"
+    "features/player/key_bindings.gd:20"
   ],
   "keys.action.aim": [
-    "features/player/key_bindings.gd:18"
+    "features/player/key_bindings.gd:20"
   ],
   "keys.action.interact": [
-    "features/player/key_bindings.gd:18"
+    "features/player/key_bindings.gd:20"
   ],
   "keys.action.rescue": [
-    "features/player/key_bindings.gd:19"
+    "features/player/key_bindings.gd:21"
   ],
   "keys.action.reload": [
-    "features/player/key_bindings.gd:19"
+    "features/player/key_bindings.gd:21"
   ],
   "keys.action.inventory": [
-    "features/player/key_bindings.gd:19"
+    "features/player/key_bindings.gd:21"
   ],
   "keys.action.map": [
-    "features/player/key_bindings.gd:20"
+    "features/player/key_bindings.gd:22"
   ],
   "keys.action.rifle": [
-    "features/player/key_bindings.gd:20"
+    "features/player/key_bindings.gd:22"
   ],
   "keys.action.pistol": [
-    "features/player/key_bindings.gd:20"
+    "features/player/key_bindings.gd:22"
   ],
   "keys.action.medkit": [
-    "features/player/key_bindings.gd:21"
+    "features/player/key_bindings.gd:23"
   ],
   "keys.action.water": [
-    "features/player/key_bindings.gd:21"
+    "features/player/key_bindings.gd:23"
   ],
   "keys.action.save": [
-    "features/player/key_bindings.gd:21"
+    "features/player/key_bindings.gd:23"
   ],
   "keys.action.fullscreen": [
-    "features/player/key_bindings.gd:22"
+    "features/player/key_bindings.gd:24"
   ],
   "keys.single": [
     "ui/base_hud.gd:723"
@@ -2068,7 +2071,7 @@
     "ui/menu/menu_screen.gd:180"
   ],
   "keys.action.voice": [
-    "features/player/key_bindings.gd:14"
+    "features/player/key_bindings.gd:16"
   ],
   "settings.infinite_credits": [
     "ui/menu/menu_screen.gd:115",
@@ -2078,7 +2081,7 @@
     "ui/menu/menu_screen.gd:217"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:213"
+    "features/base/base_model.gd:222"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:39"
@@ -2161,16 +2164,16 @@
     "ui/base_hud.gd:293"
   ],
   "quick.slot.3": [
-    "features/player/key_bindings.gd:22"
+    "features/player/key_bindings.gd:24"
   ],
   "quick.slot.6": [
-    "features/player/key_bindings.gd:22"
+    "features/player/key_bindings.gd:24"
   ],
   "quick.slot.7": [
-    "features/player/key_bindings.gd:22"
+    "features/player/key_bindings.gd:24"
   ],
   "quick.slot.8": [
-    "features/player/key_bindings.gd:22"
+    "features/player/key_bindings.gd:24"
   ],
   "quick.drag_hint": [
     "ui/inventory/inventory_panel.gd:75",

@@ -3,6 +3,7 @@ extends RefCounted
 const Texts = preload("res://features/localization/game_text.gd")
 const PATH := "user://key_bindings.cfg"
 const DEFAULTS := {
+	"dance": [KEY_F2],
 	"move_up": [KEY_W], "move_down": [KEY_S], "move_left": [KEY_A], "move_right": [KEY_D],
 	"voice": [KEY_Q], "sprint": [KEY_SHIFT], "crouch": [KEY_C], "roll": [KEY_SPACE],
 	"fire": [-MOUSE_BUTTON_LEFT], "aim": [-MOUSE_BUTTON_RIGHT],
@@ -11,6 +12,7 @@ const DEFAULTS := {
 	"quick_3": [KEY_3], "quick_6": [KEY_6], "quick_7": [KEY_7], "quick_8": [KEY_8], "medkit": [KEY_4], "water": [KEY_5], "save": [KEY_F5], "fullscreen": [KEY_F11]
 }
 const LABELS := {
+	"dance": "⟦keys.action.dance⟧",
 	"voice": "⟦keys.action.voice⟧",
 	"move_up": "⟦keys.action.move_up⟧", "move_down": "⟦keys.action.move_down⟧",
 	"move_left": "⟦keys.action.move_left⟧", "move_right": "⟦keys.action.move_right⟧",

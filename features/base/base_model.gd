@@ -113,6 +113,7 @@ func reset_transients(id: int) -> void:
 	p.roll=Movement.empty_roll();p.roll.seen=roll_seen
 	p.input_roll=p.roll.duplicate(true)
 	p.pending_use={}
+	p.dancing=false;p.dance_time=0.0
 	p.velocity = Vector2.ZERO
 	p.knockback=Vector2.ZERO
 	p.sprint = false; p.sprint_exhausted = false; p.crouch = false; p.ads = false
@@ -134,6 +135,8 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		return false
 	var p: Dictionary = state.players[id]
 	Souls.reconcile(self,p)
+	if action not in ["move","dance"]:p.dancing=false
+	if action=="dance_cancel":p.dancing=false;return true
 	if action in ["soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp"]:
 		if not world_ready: return false
 		return Souls.command(self,p,action,payload)
@@ -143,6 +146,12 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 		return _reject("⟦base_model.002⟧")
 	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("⟦base_model.003⟧")
 	match action:
+		"dance":
+			if not world_ready or p.reloading or p.crouch or float(p.get("anim_time",0))<float(p.get("anim_duration",0)) or not p.get("pending_use",{}).is_empty() or not p.get("rescue",{}).is_empty() or not str(p.get("loot_uid","")).is_empty():return false
+			var input:Dictionary=_inputs.get(id,{})
+			if not Vector2(input.get("direction",Vector2.ZERO)).is_zero_approx() or input.get("sprint",false) or input.get("ads",false):return false
+			p.dancing=not p.get("dancing",false);p.dance_time=0.0
+			return true
 		"appearance":
 			if not Appearance.valid(payload):return false
 			p.appearance=Appearance.normalized(payload)
@@ -263,6 +272,7 @@ func tick(delta: float) -> void:
 	Enemies.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
+		if not Souls.alive(p):p.dancing=false
 		if p.get("life","")=="soul":
 			p.soul_bounds=bounds
 			var soul_input: Dictionary = _inputs.get(id,{})
@@ -294,6 +304,8 @@ func tick(delta: float) -> void:
 		p.jump_chain_bonus = int(state.get("jump_chain_bonus",1))
 		p.jump_chain_max_speed=int(state.get("jump_chain_max_speed",18))
 		p.jump_reward_window_ms=int(state.get("jump_reward_window_ms",70))
+		if not Vector2(input.get("direction",Vector2.ZERO)).is_zero_approx() or input.get("sprint",false) or input.get("crouch",false) or input.get("ads",false) or int(input.get("roll_seq",0))>int(p.roll.seen) or not Vector2(p.get("knockback",Vector2.ZERO)).is_zero_approx():p.dancing=false
+		if p.get("dancing",false):p.dance_time=float(p.get("dance_time",0))+delta
 		Movement.step(p,input,delta,solve_motion.bind(int(id)))
 		p.anim_time = minf(float(p.get("anim_duration",0.0)),float(p.get("anim_time",0.0)) + delta)
 		if in_camp:
