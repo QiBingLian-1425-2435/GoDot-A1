@@ -1,5 +1,4 @@
 shader_type spatial;
-render_mode unshaded, cull_front, shadows_disabled;
-uniform float width = 0.025;
-void vertex() { VERTEX += NORMAL * width; }
-void fragment() { ALBEDO = vec3(1.0); }
+render_mode unshaded, shadows_disabled, fog_disabled;
+uniform float mask_value = 1.0;
+void fragment() { ALBEDO = vec3(mask_value); }

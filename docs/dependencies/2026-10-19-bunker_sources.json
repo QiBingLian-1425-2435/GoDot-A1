@@ -230,7 +230,9 @@
     "assets/worlds/survivor_base/water_tower.glb",
     "assets/worlds/survivor_base/generator.glb",
     "worlds/survivor_base/playable_base.gd",
-    "worlds/survivor_base/playable_base.gd.uid"
+    "worlds/survivor_base/playable_base.gd.uid",
+    "features/exploration/interaction_silhouette.gdshader",
+    "features/exploration/interaction_silhouette.gdshader.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
