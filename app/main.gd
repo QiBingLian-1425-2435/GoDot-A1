@@ -71,7 +71,7 @@ func _ready()->void:
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
 	add_child(field_item_view)
 	_setup_environment()
-	world=load("res://worlds/bunker/bunker.gd").new()
+	world=load("res://worlds/survivor_base/playable_base.gd").new()
 	world.name="Bunker"
 	add_child(world)
 	session=load("res://app/network/session.gd").new()
@@ -130,7 +130,7 @@ func _ready()->void:
 		_start_solo()
 		if capture_mode=="inventory": ui.toggle_inventory(true)
 		if capture_mode=="range":
-			session.model.state.players[1].pos=Vector2(9,4.2)
+			session.model.state.players[1].pos=Vector2(0,6.4)
 			session.model.state.players[1].aim=Vector2.DOWN
 	elif capture_mode=="menu_open":ui._reveal_menu()
 	steam_service=load("res://app/network/steam_service.gd").new()

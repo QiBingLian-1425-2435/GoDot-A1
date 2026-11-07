@@ -25,9 +25,9 @@ func run() -> void:
 	var bodies := 0
 	for child in game.world.get_children():
 		if child is StaticBody3D: bodies += 1
-	check(bodies == game.world.obstacles().size() and bodies == 43, "reference obstacles and four perimeter walls have real StaticBody3D colliders")
-	var stop: Vector2 = game.player_physics.solve(1, Vector2(0, -9.5), Vector2(0, -3))
-	check(stop.y > -10.6 and stop.y < -9.5, "CharacterBody3D is stopped by the actual northern wall")
+	check(bodies == game.world.obstacles().size() and bodies > 43, "new base furniture and four perimeter walls have real StaticBody3D colliders")
+	var stop: Vector2 = game.player_physics.solve(1, Vector2(0, -10.5), Vector2(0, -3))
+	check(stop.y > -11.6 and stop.y < -10.5, "CharacterBody3D is stopped by the actual northern wall")
 	check(Main.PROFILE == "user://a1_bunker_profile_v1.json", "new base uses its own profile and does not read the reference save")
 	check(game.session.name == "Session", "all transports keep the identical Session node path")
 	game.queue_free()

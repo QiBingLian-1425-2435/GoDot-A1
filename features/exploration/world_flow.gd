@@ -58,7 +58,7 @@ static func sync(ctx) -> void:
 	ctx.session.model.world_ready = not ctx.world_loading
 	ctx.player_physics.world_ready = not ctx.world_loading
 	ctx.ui.set_world_loading(ctx.world_loading,{"surface":"⟦world_flow.002⟧","city":"⟦city.name⟧"}.get(desired,"⟦world_flow.003⟧"))
-	if desired=="bunker": ctx.world = load("res://worlds/bunker/bunker.gd").new()
+	if desired=="bunker": ctx.world = load("res://worlds/survivor_base/playable_base.gd").new()
 	elif desired=="city":
 		ctx.world = City.new()
 		ctx.world.map_loaded.connect(_finish_loading.bind(ctx,ctx.world))
@@ -88,7 +88,9 @@ static func sync(ctx) -> void:
 			child.environment.ambient_light_color = Color("91afc7") if desired=="bunker" else Color("d6d9ce")
 			child.environment.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	if desired in ["surface","city"]: SurfaceLook.apply_surface(environment,sun)
-	else: SurfaceLook.clear(environment,sun,Vector3(-58,-25,0),Color("07182a"))
+	else:
+		SurfaceLook.clear(environment,sun,Vector3(-58,-25,0),Color("07182a"))
+		if desired=="bunker":ctx.world.apply_lighting(environment,sun)
 
 static func _finish_loading(ctx, map) -> void:
 	if not is_instance_valid(ctx) or ctx.world!=map: return
@@ -123,10 +125,14 @@ static func _apply_rules(ctx) -> void:
 	for station in model.stations:
 		if station.get("kind","")=="door" and not model.state.doors.has(station.uid):model.state.doors[station.uid]=station.initial_open
 	if ctx.world.has_method("update_doors"):ctx.world.update_doors(model.state.doors)
-	model.bounds = Rect2(-15,-11,30,22) if ctx.world_id=="bunker" else (ctx.world.play_bounds() if ctx.world.has_method("play_bounds") else Rect2(0,-1024,1024,1024))
+	model.bounds = ctx.world.play_bounds() if ctx.world.has_method("play_bounds") else Rect2(0,-1024,1024,1024)
 	model.shot_query = Callable() if ctx.world_id=="bunker" else ctx.player_physics.shot_hit
 	ctx.player_physics.spatial_enabled = ctx.world_id!="bunker"
 	if ctx.world_id=="bunker":
+		for i in range(mini(model.state.targets.size(),ctx.world.TARGETS.size())):model.state.targets[i].pos=ctx.world.TARGETS[i]
+		for child in ctx.get_children():
+			if child is WorldEnvironment:ctx.world.apply_lighting(child.environment,null)
+			if child is DirectionalLight3D:ctx.world.apply_lighting(null,child)
 		for station in model.stations:
 			if station.kind=="exit":
 				station.kind = "travel"

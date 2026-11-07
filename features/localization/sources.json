@@ -485,7 +485,7 @@
     "features/exploration/world_travel.gd:79"
   ],
   "world_flow.004": [
-    "features/exploration/world_flow.gd:104"
+    "features/exploration/world_flow.gd:106"
   ],
   "world_travel.001": [
     "features/exploration/world_travel.gd:11"
@@ -1658,25 +1658,32 @@
     "worlds/bunker/base_view.gd:102"
   ],
   "bunker.001": [
-    "worlds/bunker/bunker.gd:13"
+    "worlds/bunker/bunker.gd:13",
+    "worlds/survivor_base/playable_base.gd:12"
   ],
   "bunker.002": [
-    "worlds/bunker/bunker.gd:14"
+    "worlds/bunker/bunker.gd:14",
+    "worlds/survivor_base/playable_base.gd:13"
   ],
   "bunker.003": [
-    "worlds/bunker/bunker.gd:15"
+    "worlds/bunker/bunker.gd:15",
+    "worlds/survivor_base/playable_base.gd:14"
   ],
   "bunker.004": [
-    "worlds/bunker/bunker.gd:16"
+    "worlds/bunker/bunker.gd:16",
+    "worlds/survivor_base/playable_base.gd:15"
   ],
   "bunker.006": [
-    "worlds/bunker/bunker.gd:18"
+    "worlds/bunker/bunker.gd:18",
+    "worlds/survivor_base/playable_base.gd:19"
   ],
   "bunker.007": [
-    "worlds/bunker/bunker.gd:19"
+    "worlds/bunker/bunker.gd:19",
+    "worlds/survivor_base/playable_base.gd:18"
   ],
   "bunker.008": [
-    "worlds/bunker/bunker.gd:20"
+    "worlds/bunker/bunker.gd:20",
+    "worlds/survivor_base/playable_base.gd:17"
   ],
   "bunker.009": [
     "worlds/bunker/bunker.gd:88"
@@ -2144,7 +2151,8 @@
     "worlds/city/city.gd:42"
   ],
   "bunker.city_exit": [
-    "worlds/bunker/bunker.gd:17"
+    "worlds/bunker/bunker.gd:17",
+    "worlds/survivor_base/playable_base.gd:16"
   ],
   "bunker.city_route": [
     "worlds/bunker/bunker.gd:389"

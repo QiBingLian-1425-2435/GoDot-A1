@@ -13,7 +13,7 @@ func run() -> void:
 	root.add_child(game)
 	game.set_physics_process(false); game.session.set_physics_process(false)
 	var p: Dictionary = game.session.model.state.players[1]
-	p.pos = Vector2(9,4.2); p.aim = Vector2.DOWN
+	p.pos = Vector2(-1,4); p.aim = Vector2.DOWN
 	check(game.session.model.command(1,"fire"),"actual authority produces shot")
 	var state: Dictionary = game.session.model.state.duplicate(true)
 	game._update_tracers()

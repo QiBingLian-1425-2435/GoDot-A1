@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "playable_base": [("playable_base_test", True, []), ("playable_base_test", False, []), ("playable_base_network_test", True, [])],
     "departure": [("departure_ready_test", True, []), ("departure_network_test", True, []), ("departure_scene_test", False, [])],
     "city_stairs": [("city_stairs_test", True, []), ("city_stairs_test", False, []), ("city_doors_network_test", True, ["--stairs"])],
     "city": [("city_buildings_test", True, []), ("city_buildings_test", False, []), ("city_doors_network_test", True, [])],
