@@ -2,7 +2,7 @@ extends RefCounted
 # The legacy roll field is retained for saved input bindings and packet layout.
 # Protocol v19 interprets it as a physical jump, never a dodge roll.
 const BACKWARD_SPRINT_FACTOR := .70
-const WALK_SPEED_FACTOR := .5
+const WALK_SPEED_FACTOR := 2.5 / 3.7
 const JUMP_SPEED := 5.0
 const JUMP_GRAVITY := 18.0
 const JUMP_COST := 15.0

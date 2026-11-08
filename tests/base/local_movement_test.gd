@@ -68,7 +68,7 @@ func test_latency(delay: int, drop_stop: bool) -> void:
 		predictor.advance(DT,observed)
 		var display: Dictionary = predictor.sample_player(observed)
 		if observed != original: failures += 1; push_error("LOCAL MOVEMENT FAIL: modified confirmed data")
-		if cycle == 30: check(is_equal_approx(display.velocity.x,1.85),"first physics step starts before ACK (%d frames one-way)" % delay)
+		if cycle == 30: check(absf(display.velocity.x-2.5)<.001,"first physics step starts before ACK (%d frames one-way)" % delay)
 		if cycle == 90: stopped_at = display.pos
 		if cycle >= 90 and cycle < 150:
 			stop_drift = maxf(stop_drift,Vector2(display.pos).distance_to(stopped_at))

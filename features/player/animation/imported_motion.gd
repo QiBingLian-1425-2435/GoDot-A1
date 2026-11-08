@@ -108,7 +108,7 @@ func advance(data:Dictionary,dt:float)->void:
  if not clip.is_empty() and player!=null and clip_names.has(clip):
   if active_clip!=clip:
    player.play(clip_names[clip]);elapsed=0.0
-  var speed:float=clampf(actor._speed/(6.1 if clip=="run" else 1.85),.65,1.5)
+  var speed:float=clampf(actor._speed/(6.1 if clip=="run" else 2.5),.65,1.5)
   if clip=="dance":speed=1.0
   # Backpedalling preserves facing and reduced movement speed.
   if clip!="dance" and actor._backward_blend>.5:speed=-speed
