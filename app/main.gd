@@ -71,7 +71,7 @@ func _ready()->void:
 	field_item_view=preload("res://features/exploration/field_item_view.gd").new()
 	add_child(field_item_view)
 	_setup_environment()
-	world=load("res://worlds/survivor_base/playable_base.gd").new()
+	world=load("res://worlds/survivor_base/playable_base.tscn").instantiate()
 	world.name="Bunker"
 	add_child(world)
 	session=load("res://app/network/session.gd").new()

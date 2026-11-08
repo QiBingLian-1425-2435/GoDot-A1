@@ -1,0 +1,2661 @@
+{
+  "source": "tools/bake_editable_worlds.gd",
+  "files": {
+    "assets/worlds/editable/city/mesh_0000.res": {
+      "bytes": 8582,
+      "sha256": "52c00254085f179c26a59135e8ae543940db3175254affa5eb26ee4555193f82"
+    },
+    "assets/worlds/editable/city/mesh_0001.res": {
+      "bytes": 12390,
+      "sha256": "ff540914d9bb24e1ddb75278577dfb491c4d8b5832dfe76180c82ac2d7331e2d"
+    },
+    "assets/worlds/editable/city/mesh_0002.res": {
+      "bytes": 8581,
+      "sha256": "3544d8cbe457c6593e34f710bdd6727ad65358019d66d137d4353d9bbfbae566"
+    },
+    "assets/worlds/editable/city/mesh_0003.res": {
+      "bytes": 16733,
+      "sha256": "e5101c9fc119c90635de26effe5b71cb63a48cc93064653c3079f99e49bb4786"
+    },
+    "assets/worlds/editable/city/mesh_0004.res": {
+      "bytes": 16469,
+      "sha256": "0b7ce9154a3adb0e013b74f4533a2d2293288223dc3fd4420eaed55a8963738c"
+    },
+    "assets/worlds/editable/city/mesh_0005.res": {
+      "bytes": 12653,
+      "sha256": "90a93d3c6e41bc4c9d36c51a7d77baa8e1cdc93cb11759684898dfba2c0989a7"
+    },
+    "assets/worlds/editable/city/mesh_0006.res": {
+      "bytes": 12389,
+      "sha256": "3425257521aefb862131709fbec3addf52d27ba44693eab4f62021d6601e4ddc"
+    },
+    "assets/worlds/editable/city/mesh_0007.res": {
+      "bytes": 8581,
+      "sha256": "ebaccc879f347a19c9e058ed82899ec6e37037e4ea06c87db1e788b749ed89fd"
+    },
+    "assets/worlds/editable/city/mesh_0008.res": {
+      "bytes": 4237,
+      "sha256": "686f351e395b7f9088fc5aa840866acd8933a99d1528d65552328eabf300a883"
+    },
+    "assets/worlds/editable/city/mesh_0009.res": {
+      "bytes": 8318,
+      "sha256": "5fbcb8fcd30f5343a47ed3828e6d523759763387f99fa168eeb4a6e8493a584e"
+    },
+    "assets/worlds/editable/city/mesh_0010.res": {
+      "bytes": 261678,
+      "sha256": "72458099c8d2b5393c60ff856458213de183ef410aec4795866c10382e1649fa"
+    },
+    "assets/worlds/editable/city/mesh_0011.res": {
+      "bytes": 249613,
+      "sha256": "888f5ede7b5b6975dddbd2559d8247ba1d4e5d662fa4f1bcc7b727dc7aa2b6a5"
+    },
+    "assets/worlds/editable/city/mesh_0012.res": {
+      "bytes": 282581,
+      "sha256": "c2579f5b19e13f8b65215546a3ac7399f6f47d2fa1dd614a381f94a1c6de3e52"
+    },
+    "assets/worlds/editable/city/mesh_0013.res": {
+      "bytes": 290029,
+      "sha256": "4a5ca5699804a8c87c05a9e8fcebc2690b0cf8940053815c269057c787c42d29"
+    },
+    "assets/worlds/editable/city/mesh_0014.res": {
+      "bytes": 290165,
+      "sha256": "1b34b373bda06b77a8d9fd60e43e71f2aa6137623e1266d2818099422d148bdd"
+    },
+    "assets/worlds/editable/city/mesh_0015.res": {
+      "bytes": 292213,
+      "sha256": "350f7228216a06f4c046309c9de8f38565ac49aab29fc09d407847c02a4f871c"
+    },
+    "assets/worlds/editable/city/mesh_0016.res": {
+      "bytes": 46429,
+      "sha256": "1627ad0c2ec7b83e5311de9ee493abf6e8d3dbf68c276ac92e55de047a342e6a"
+    },
+    "assets/worlds/editable/city/mesh_0017.res": {
+      "bytes": 4101,
+      "sha256": "a6edafbc2c947a13b06a80d2836350239b5b950bf6ae61963515f01d4fe9bdb8"
+    },
+    "assets/worlds/editable/city/mesh_0018.res": {
+      "bytes": 16733,
+      "sha256": "5c59bbc633c271a8e162707285d1af4d8cba3b0d79968f8db3dfb778fe7f35ef"
+    },
+    "assets/worlds/editable/city/mesh_0019.res": {
+      "bytes": 304477,
+      "sha256": "fdcb64db4ac86a007d8ef750c6d6fd243c3907b5b4252cc8388ebd164a09322a"
+    },
+    "assets/worlds/editable/city/mesh_0020.res": {
+      "bytes": 4500,
+      "sha256": "50c459b2f518398d822816efdd37d5ec9e95413014808ea9ea5874a9b4174a71"
+    },
+    "assets/worlds/editable/city/mesh_0021.res": {
+      "bytes": 4500,
+      "sha256": "a7434bf30fe70481600e1266bf44e440f813b75d91e07456b2a649a8c99448c9"
+    },
+    "assets/worlds/editable/city/mesh_0022.res": {
+      "bytes": 4236,
+      "sha256": "12d5abd76bb2240d581304dff7f40254210af6d1efaccfe3504916c1232fdd54"
+    },
+    "assets/worlds/editable/city/mesh_0023.res": {
+      "bytes": 4500,
+      "sha256": "19eb73df1edadf275c53c3a7a89a18b67f41d8162be7c3768388b945e1abc916"
+    },
+    "assets/worlds/editable/city/mesh_0024.res": {
+      "bytes": 243212,
+      "sha256": "4a4474bfa7ceb53f58805c9558ff7168479e97e4f8c848e657a097370e4e7c8b"
+    },
+    "assets/worlds/editable/city/mesh_0025.res": {
+      "bytes": 73324,
+      "sha256": "8822daac6a96e5c5794eb4603cddc96252f0e3bf5d468f0d7991a2c50034db79"
+    },
+    "assets/worlds/editable/city/mesh_0026.res": {
+      "bytes": 4236,
+      "sha256": "a0815a4710db601adb05e071fb3df0a70f7d9f4a0bc9e53786ef839ede05de2f"
+    },
+    "assets/worlds/editable/city/mesh_0027.res": {
+      "bytes": 12653,
+      "sha256": "fb8926514fb4db3ae99470f551efa4310d8b485a55c8e258f586e374ff14ba23"
+    },
+    "assets/worlds/editable/city/mesh_0028.res": {
+      "bytes": 305989,
+      "sha256": "2cf0acb294b32c828353927bb37d501f641ad227d982897f1d2efd70568007ca"
+    },
+    "assets/worlds/editable/city/mesh_0029.res": {
+      "bytes": 4500,
+      "sha256": "7b17846eb6bb0a37d0b514c730d7fc52ea3df26b704f21668c09bb9a6481c407"
+    },
+    "assets/worlds/editable/city/mesh_0030.res": {
+      "bytes": 4500,
+      "sha256": "3c1807e4b70580a1a81f0d2f4361a8bfd660669f9bd7c35f46a991153fcab911"
+    },
+    "assets/worlds/editable/city/mesh_0031.res": {
+      "bytes": 4236,
+      "sha256": "5dbc425a0f58e7f60f5c9e2c9ec067796f2d36bd1f1040e3ea99ec79fbd4ae0a"
+    },
+    "assets/worlds/editable/city/mesh_0032.res": {
+      "bytes": 4500,
+      "sha256": "0e7a02fe432a4e155d9e5376df934108a4e2219c6e760c66cf5e6cbcd1f1966c"
+    },
+    "assets/worlds/editable/city/mesh_0033.res": {
+      "bytes": 235892,
+      "sha256": "8bdce8bbadb4e8b33c9c4d498426e1801f444c206e3ccfc511c9004ee3394042"
+    },
+    "assets/worlds/editable/city/mesh_0034.res": {
+      "bytes": 72516,
+      "sha256": "a6032845d7b2956d80367006a93643d6e10807f6d84fee1eeb531559af2c0ea8"
+    },
+    "assets/worlds/editable/city/mesh_0035.res": {
+      "bytes": 4236,
+      "sha256": "622cd9d92ccb1ebfa351d08930bdd2fa1de616bfe095b9b2b56624942e001fb5"
+    },
+    "assets/worlds/editable/city/mesh_0036.res": {
+      "bytes": 12389,
+      "sha256": "84b5c25a7b9bc658de3d246d3b546599b13f49de5748322c9a7a7671f052ea7a"
+    },
+    "assets/worlds/editable/city/mesh_0037.res": {
+      "bytes": 281197,
+      "sha256": "16c2dd9910eb8befd5cbd6c93a2f23d7f936d61d1ba58ca637b5c28728e1ef53"
+    },
+    "assets/worlds/editable/city/mesh_0038.res": {
+      "bytes": 4236,
+      "sha256": "ebf72a7b4232add54a603a462f4cd74f46a9c53014f7ed3282b40c6a4cd4f2b9"
+    },
+    "assets/worlds/editable/city/mesh_0039.res": {
+      "bytes": 4236,
+      "sha256": "63d80bcd810d4a990c6d21260b380ba082636a220b6a11e941b049c449c4fe0e"
+    },
+    "assets/worlds/editable/city/mesh_0040.res": {
+      "bytes": 4100,
+      "sha256": "f90ebc96e689755951d68cc84f518e404364420630960eba3fe86ea20886ab17"
+    },
+    "assets/worlds/editable/city/mesh_0041.res": {
+      "bytes": 4236,
+      "sha256": "68903afb978e6ce8159074c807c487d7996f9c76b0ccbd28479f7c038ff2c2cc"
+    },
+    "assets/worlds/editable/city/mesh_0042.res": {
+      "bytes": 242484,
+      "sha256": "180f0f570ec166685776d63712c6b84cdaa5bd033fb751103de87d411ebf38b8"
+    },
+    "assets/worlds/editable/city/mesh_0043.res": {
+      "bytes": 62372,
+      "sha256": "f96ade59b53b1bd516dcb25f637b7f1f335ba21fb9c37aa8ffa63a742b3b799a"
+    },
+    "assets/worlds/editable/city/mesh_0044.res": {
+      "bytes": 4100,
+      "sha256": "446a352b178dab624f745776a27b3762729002fd98041c884071815af8bd83b7"
+    },
+    "assets/worlds/editable/city/mesh_0045.res": {
+      "bytes": 16733,
+      "sha256": "873922ed5e0984136fd6d68db9012c4c1a80a61682aa79d22d269ad4bd5d71db"
+    },
+    "assets/worlds/editable/city/mesh_0046.res": {
+      "bytes": 281069,
+      "sha256": "d8e72957ab3effbdb0ad47168eb1cd5d60c84d9dc67a2186d0e5aa133f4675d0"
+    },
+    "assets/worlds/editable/city/mesh_0047.res": {
+      "bytes": 4500,
+      "sha256": "83f050835d289c48b79587390b71f9e6c9b3240b5ff93125bfe9b2608ed2a15f"
+    },
+    "assets/worlds/editable/city/mesh_0048.res": {
+      "bytes": 4500,
+      "sha256": "cf692b60249ceacd0ad002cf6013d897204700b2b413a4343f476772ddc9281c"
+    },
+    "assets/worlds/editable/city/mesh_0049.res": {
+      "bytes": 4236,
+      "sha256": "c9d6381010d9b2b5fe4569b657842a1eab0023b29cb25e5c6ab097d39ab084bc"
+    },
+    "assets/worlds/editable/city/mesh_0050.res": {
+      "bytes": 4500,
+      "sha256": "27942fc92bfe381a76f4afe5ca8dbe08c14a300038f4dd401c91ad56c0724c64"
+    },
+    "assets/worlds/editable/city/mesh_0051.res": {
+      "bytes": 226732,
+      "sha256": "4b04ec97db7361ff372eaa73bad518fb00079c1a946a7211498ecf81bbc96ab2"
+    },
+    "assets/worlds/editable/city/mesh_0052.res": {
+      "bytes": 71332,
+      "sha256": "40cc3082b429c5071027a7f75f719de86f5475f5d05050d4f5d5ef37931ea566"
+    },
+    "assets/worlds/editable/city/mesh_0053.res": {
+      "bytes": 4236,
+      "sha256": "384c764654595a394576f9caf4b5c5c7e6b4dea36d64f2ce679c663f9bfe2fc0"
+    },
+    "assets/worlds/editable/city/mesh_0054.res": {
+      "bytes": 8317,
+      "sha256": "b7629413d3a4d3daaa019c76678d30642d9f1e0f3a6584c33a54cc7e6b4345f4"
+    },
+    "assets/worlds/editable/city/mesh_0055.res": {
+      "bytes": 288845,
+      "sha256": "d8064b317dc7dde9e64239e9b5949c154644f3a6158ad9681dc2903661105893"
+    },
+    "assets/worlds/editable/city/mesh_0056.res": {
+      "bytes": 237412,
+      "sha256": "321fdc2b9b1c36f3b158582509019e36d7cda9bf58e74abb857c4a399a48c4f9"
+    },
+    "assets/worlds/editable/city/mesh_0057.res": {
+      "bytes": 229500,
+      "sha256": "11cad4600083ec81cf32fa08d8c7eef6de6601e5f8b68a6daad63c8f25634b7d"
+    },
+    "assets/worlds/editable/city/mesh_0058.res": {
+      "bytes": 230284,
+      "sha256": "0ba673bdd7b66c33fd15ca9c72191751b24562f3a1b7413d76a0242e458a0d39"
+    },
+    "assets/worlds/editable/city/mesh_0059.res": {
+      "bytes": 231084,
+      "sha256": "79bb52625fab1511b09ef5d0ba9562b44275c694e5a1be8e7a2c07f0b7b18f68"
+    },
+    "assets/worlds/editable/city/mesh_0060.res": {
+      "bytes": 308956,
+      "sha256": "f54b7a5a5a48b5509db14edc9de351d01fbb17dbd4c563885b69f0b98b317127"
+    },
+    "assets/worlds/editable/city/mesh_0061.res": {
+      "bytes": 88884,
+      "sha256": "0a7cf78ce89bfdcfe79d50177a6e691596bbb595bf09cf8d605e5f8b1aade3b6"
+    },
+    "assets/worlds/editable/city/mesh_0062.res": {
+      "bytes": 4100,
+      "sha256": "72ec5dcdf25fc960d29769493bda854e4baeb7035d8d65b006fdfe0f06adbe86"
+    },
+    "assets/worlds/editable/city/mesh_0063.res": {
+      "bytes": 12653,
+      "sha256": "da28296e7cbf0f4b88deecd1675ca90483354ce760c1d28be14c28e5addb4458"
+    },
+    "assets/worlds/editable/city/mesh_0064.res": {
+      "bytes": 57709,
+      "sha256": "c014cf9b71dd83f1a8166c4d04e04820ee3096096188c2f941adaac985a13296"
+    },
+    "assets/worlds/editable/city/mesh_0065.res": {
+      "bytes": 67516,
+      "sha256": "e363e21b6a422396b758b6f41e9b7ddb706178b5626325d357025c06083dae7a"
+    },
+    "assets/worlds/editable/city/mesh_0066.res": {
+      "bytes": 65196,
+      "sha256": "148256d9ecabe30ce5f2a6107d3e1761a86f1419c5089661b9d63170f2d8c540"
+    },
+    "assets/worlds/editable/city/mesh_0067.res": {
+      "bytes": 75620,
+      "sha256": "caa71a358894174d4cad23449e27bdc0d2839340346b76ac5fcc2e6f64c1b7ee"
+    },
+    "assets/worlds/editable/city/mesh_0068.res": {
+      "bytes": 55916,
+      "sha256": "1917483ac15731a2c6d819966ab53d9335b2e65c209ff097596b7f7d2e2442e4"
+    },
+    "assets/worlds/editable/city/mesh_0069.res": {
+      "bytes": 72132,
+      "sha256": "0bfa89684c6ca7fcd57666d664113d78f2945da1caf2843d9ab66912b38b1bb4"
+    },
+    "assets/worlds/editable/city/mesh_0070.res": {
+      "bytes": 13460,
+      "sha256": "b594527e2e02ae7295f314b5ab35dc8a1355689fda42e0f8f90bdfcb45516f04"
+    },
+    "assets/worlds/editable/city/mesh_0071.res": {
+      "bytes": 4236,
+      "sha256": "cc15217d7d538b4077e963e2eee3125e7f416cd4a8f25660be47a0c17692da12"
+    },
+    "assets/worlds/editable/city/mesh_0072.res": {
+      "bytes": 4237,
+      "sha256": "ed51f87c1bd84f1edb46bee084afcef94b206bd8e54bf4d2c020eedbc3e4a387"
+    },
+    "assets/worlds/editable/city/mesh_0073.res": {
+      "bytes": 4101,
+      "sha256": "3f652ec34f851939cbc65cfeba79aeccf2a8cac726740282ad0785a639f9bd4b"
+    },
+    "assets/worlds/editable/city/mesh_0074.res": {
+      "bytes": 4236,
+      "sha256": "52a7e97a26d1f2410ac7bd95e5b38918c7c910e07cc09d13311855d38432f481"
+    },
+    "assets/worlds/editable/city/mesh_0075.res": {
+      "bytes": 4236,
+      "sha256": "4d9764c4d504fcd1476b31b5e8fcf576a8c0339a7e3e66e22ec96dd5a4c5f492"
+    },
+    "assets/worlds/editable/city/mesh_0076.res": {
+      "bytes": 4100,
+      "sha256": "454944b80df4cf1b0fdc923f58c8e7021ea02dc115c628617e878ac71fb7aabf"
+    },
+    "assets/worlds/editable/city/mesh_0077.res": {
+      "bytes": 4236,
+      "sha256": "911a6c2000a7ea127534dfedf9ec10b8f322300a25da1ba59242c11b426d0683"
+    },
+    "assets/worlds/editable/city/mesh_0078.res": {
+      "bytes": 4100,
+      "sha256": "193c8b088ea70e281a2cde893aef33d46b1c8e56cc728b9c1d3843a126d282b5"
+    },
+    "assets/worlds/editable/city/mesh_0079.res": {
+      "bytes": 4236,
+      "sha256": "2b7c00ab50be54ac94faf2f7a248d6413f13668fdfc97f0ef6e3dca789a032ec"
+    },
+    "assets/worlds/editable/city/mesh_0080.res": {
+      "bytes": 4100,
+      "sha256": "3211d8247ba6b08d0eae60ce116861a76b916b179efa741a0131fffd50e029f5"
+    },
+    "assets/worlds/editable/city/mesh_0081.res": {
+      "bytes": 4400,
+      "sha256": "b78abb10320998da40f4118335e235f440aa12d4bd67f2b0af57291e8a794640"
+    },
+    "assets/worlds/editable/city/mesh_0082.res": {
+      "bytes": 4400,
+      "sha256": "a9b8b98db1c56c173deadfffce5387c4d98bd2d02f3d5563b4de1d5114352128"
+    },
+    "assets/worlds/editable/city/mesh_0083.res": {
+      "bytes": 4400,
+      "sha256": "d79f21dc7dad6d8048a4ad2255357dcf2639f9c203556435b702320b26801e8b"
+    },
+    "assets/worlds/editable/city/mesh_0084.res": {
+      "bytes": 4552,
+      "sha256": "df382d5198faeb52b570aa751eae55fb6fcfc922b1872e02498ddc5323721575"
+    },
+    "assets/worlds/editable/city/mesh_0085.res": {
+      "bytes": 4856,
+      "sha256": "6e74f9fe616db52a1e6c5a1a509bd68f884f6320b84afb092348a03f716021a6"
+    },
+    "assets/worlds/editable/city/mesh_0086.res": {
+      "bytes": 4400,
+      "sha256": "f7c264dde3d512cdf9f9320e075637e968e21265fdb45a3519df8f75aef84240"
+    },
+    "assets/worlds/editable/city/mesh_0087.res": {
+      "bytes": 221799,
+      "sha256": "576751e4cad6a0c4838644bf07383e5c4067ef8a376a639934681ad19554da09"
+    },
+    "assets/worlds/editable/city/mesh_0088.res": {
+      "bytes": 177911,
+      "sha256": "2cd0b12b89725134bb1d93591be03440877ea9b2b41e4f799fbbb9dfe65e6b92"
+    },
+    "assets/worlds/editable/city/mesh_0089.res": {
+      "bytes": 370799,
+      "sha256": "a54db57b87d1cab721363adbeabe43bd009ce0a6aa630f4f695265a0850191e5"
+    },
+    "assets/worlds/editable/city/mesh_0090.res": {
+      "bytes": 481687,
+      "sha256": "089f2dd6c4efd9628472696dd831000abd19f82836c84f0101fbef510265dfdc"
+    },
+    "assets/worlds/editable/city/mesh_0091.res": {
+      "bytes": 123751,
+      "sha256": "f2fcd3de5ee4d832aa531b8b9cb241450a607612fb677ea733f523e4171fcac6"
+    },
+    "assets/worlds/editable/city/mesh_0092.res": {
+      "bytes": 4400,
+      "sha256": "d6d7bbac6e6522d285d145b530b0d9d899ad1ef39a1d1f67e62a5e201edd8b19"
+    },
+    "assets/worlds/editable/city/mesh_0093.res": {
+      "bytes": 897855,
+      "sha256": "6cae568e9ebb3718c190e84cead31835555986a0f08cbc4a34663315a472de1e"
+    },
+    "assets/worlds/editable/city/mesh_0094.res": {
+      "bytes": 348871,
+      "sha256": "203c425d8cbfd2628f58f289406212e6c8f3c2bd7062ba0655585d7986e6e753"
+    },
+    "assets/worlds/editable/city/mesh_0095.res": {
+      "bytes": 1256655,
+      "sha256": "1d6b458b2d8ff9db8059c4cd51e8a06b711acad7140b7076764e87dc643e5dbd"
+    },
+    "assets/worlds/editable/city/mesh_0096.res": {
+      "bytes": 411991,
+      "sha256": "9c441ea9cedb5d2a9cc9c51ab417055e0db0279c281a785b45f900aa9cd31088"
+    },
+    "assets/worlds/editable/city/mesh_0097.res": {
+      "bytes": 98119,
+      "sha256": "d9246d9e7f8a63450f969284da4f8e6d0a353d3fda0379679c3d756d8a74093b"
+    },
+    "assets/worlds/editable/city/mesh_0098.res": {
+      "bytes": 4400,
+      "sha256": "84b7fb2cf93dd858054f06819ccde6c4abca603ae077abb44551c2adcbd3f642"
+    },
+    "assets/worlds/editable/city/mesh_0099.res": {
+      "bytes": 244079,
+      "sha256": "7dec7ca1e8f992491436ae8b049d0266d784d001d7db341c8aacf553ba46fa93"
+    },
+    "assets/worlds/editable/city/mesh_0100.res": {
+      "bytes": 348543,
+      "sha256": "0cb7d0e10c5c3071c87716a226ccef8e32e8d33ac2642fc7ca3aaeddf07a31a2"
+    },
+    "assets/worlds/editable/city/mesh_0101.res": {
+      "bytes": 972311,
+      "sha256": "b986d6b75e1f2da3a0b34480fdb19dae86d4ae8980e13818f53a84599bf2393e"
+    },
+    "assets/worlds/editable/city/mesh_0102.res": {
+      "bytes": 523543,
+      "sha256": "151822c0b7aec784ad879100683010667390ae77ada21c17afd9a710e76a5b75"
+    },
+    "assets/worlds/editable/city/mesh_0103.res": {
+      "bytes": 105399,
+      "sha256": "aff1ca209404faac9eaac263ef580b8b6461cd183bf45aed1d66357a48bac9ab"
+    },
+    "assets/worlds/editable/city/mesh_0104.res": {
+      "bytes": 4400,
+      "sha256": "56045e266f5f90eb3f309a8f320fba14c09c53c5d40c89c83c9d14a60e5d6473"
+    },
+    "assets/worlds/editable/city/mesh_0105.res": {
+      "bytes": 285327,
+      "sha256": "10f12d3e580e6b57e81576b927f638089471cb68017d367a9743394221d0049a"
+    },
+    "assets/worlds/editable/city/mesh_0106.res": {
+      "bytes": 397503,
+      "sha256": "c0660bb700ae5453b84ff7bf7f61d213280642664e444a74b5abb2d66a12d328"
+    },
+    "assets/worlds/editable/city/mesh_0107.res": {
+      "bytes": 294463,
+      "sha256": "2e062f54f0dac12ef108d687ccf811c761c4be30fc6cffd2d6ff0c1b02bb682e"
+    },
+    "assets/worlds/editable/city/mesh_0108.res": {
+      "bytes": 917311,
+      "sha256": "8739e87910c8ba807ffd17d72cd9f654daa8bb7340f465a3b0309cb901bb4266"
+    },
+    "assets/worlds/editable/city/mesh_0109.res": {
+      "bytes": 78439,
+      "sha256": "5e508484101471e930bd866111730de5a400102a74a88536acb1361967a4a4dc"
+    },
+    "assets/worlds/editable/city/mesh_0110.res": {
+      "bytes": 4400,
+      "sha256": "6c09584c01f1fde1c8975dd271dc578af517d50d9585d2444c5edd4695d731b2"
+    },
+    "assets/worlds/editable/city/mesh_0111.res": {
+      "bytes": 70471,
+      "sha256": "b1a3fb06dc5900a529cc74b474b98b4ce2c8921243c5d66c506bec544421348d"
+    },
+    "assets/worlds/editable/city/mesh_0112.res": {
+      "bytes": 55255,
+      "sha256": "198d48d8cc64849261f0e31096c4a45b73fd571bcb6f5e1a7378673f37384dec"
+    },
+    "assets/worlds/editable/city/mesh_0113.res": {
+      "bytes": 51023,
+      "sha256": "de3ebfa8ae6ca2f7a825c63fb998eb8feafef59569e3b78f4ea42ad5a0c603cb"
+    },
+    "assets/worlds/editable/city/mesh_0114.res": {
+      "bytes": 109039,
+      "sha256": "9ad91d16a95c8b1902066c98481de83f34400d19dd03af4686d6d543bb1e9e6b"
+    },
+    "assets/worlds/editable/city/mesh_0115.res": {
+      "bytes": 41535,
+      "sha256": "3f47bb8e419d071e6c5bc10c21cc866f5200627a6cb8104abe27ccc401fbb25a"
+    },
+    "assets/worlds/editable/city/mesh_0116.res": {
+      "bytes": 442,
+      "sha256": "5843f9253710f64fc1eea37252150ad2d8bfbeee14441b4b23817af713e62bfe"
+    },
+    "assets/worlds/editable/city/mesh_0117.res": {
+      "bytes": 442,
+      "sha256": "a69dffda5b6e981b79c5d9ea0705c944304ffa4680a0c0316e63561d08cdfb98"
+    },
+    "assets/worlds/editable/city/mesh_0118.res": {
+      "bytes": 442,
+      "sha256": "0586f85abadd17aae92b4975981712e0bcafdaf7d4ae64668434edca8a262b06"
+    },
+    "assets/worlds/editable/city/mesh_0119.res": {
+      "bytes": 442,
+      "sha256": "44cf3cadc7face416a8af0bd12692153e47e2ff98ed5250aae308552cb7d2c03"
+    },
+    "assets/worlds/editable/city/mesh_0120.res": {
+      "bytes": 442,
+      "sha256": "aed8172774fcc863a57d92ed56e2f0997ac62263cadd192185e7bc5171bacb3c"
+    },
+    "assets/worlds/editable/city/mesh_0121.res": {
+      "bytes": 442,
+      "sha256": "c27afae4a05d1f744aaa8ba6987a7bc07c445725dad25c0df3b3bf87bfc1db72"
+    },
+    "assets/worlds/editable/city/mesh_0122.res": {
+      "bytes": 442,
+      "sha256": "e1bad0c64859ff01a92796afc4ef8f0c336d5081ea82d34b7c4d6f2854e33570"
+    },
+    "assets/worlds/editable/city/mesh_0123.res": {
+      "bytes": 442,
+      "sha256": "eaa9de52061fe2e1d725eaa4dd1d94e63947fe252681da6de1df891921f5068d"
+    },
+    "assets/worlds/editable/city/mesh_0124.res": {
+      "bytes": 442,
+      "sha256": "df573b694cf2ee45c5987399cbfb473f899215787e6ba0bc81eec3071849c697"
+    },
+    "assets/worlds/editable/city/mesh_0125.res": {
+      "bytes": 442,
+      "sha256": "86bc9bf346b2d6c8e5c0372bb1437856f35ebf4c292d3ebcbe74f919d6bb6d49"
+    },
+    "assets/worlds/editable/city/mesh_0126.res": {
+      "bytes": 442,
+      "sha256": "cece5db0ee0894736370ef9544afd324cb710977f5fb9d59b8e347af4657fdd9"
+    },
+    "assets/worlds/editable/city/mesh_0127.res": {
+      "bytes": 442,
+      "sha256": "829c8d599787ea74c60736a5dac7f01b5a0590736136fbf64dd3f750978e36c5"
+    },
+    "assets/worlds/editable/city/mesh_0128.res": {
+      "bytes": 442,
+      "sha256": "fd56000cb9b1af86aaf458cbbf6fd9d33f8f0fca5caeb6103c7db8477144b83b"
+    },
+    "assets/worlds/editable/city/mesh_0129.res": {
+      "bytes": 442,
+      "sha256": "d54c0255bbc75704e10e4dccb835f4cb08766f1d29631d2a05b75d2cd91066f6"
+    },
+    "assets/worlds/editable/city/mesh_0130.res": {
+      "bytes": 442,
+      "sha256": "9b31afbc71f54b58fcf1312f960ecda3e7e2006a6b0b4addd4707baa44cc6ea8"
+    },
+    "assets/worlds/editable/city/mesh_0131.res": {
+      "bytes": 442,
+      "sha256": "da62fcbaa44cc77192a3404b9c3382d03b709427830490c12890a6c20dda688c"
+    },
+    "assets/worlds/editable/city/mesh_0132.res": {
+      "bytes": 442,
+      "sha256": "39b8ced227416c724408da538f85d1550d905150a9ec4baf4829b622760d6cd0"
+    },
+    "assets/worlds/editable/city/mesh_0133.res": {
+      "bytes": 442,
+      "sha256": "ed47239fcd619366f5546bb8ee9944c17ef5c91c07b386635bb5d1fec277fa29"
+    },
+    "assets/worlds/editable/city/mesh_0134.res": {
+      "bytes": 442,
+      "sha256": "299331707b577d019aa4e89a28a61234f003aad929ebe6baf4b84dcb51d46767"
+    },
+    "assets/worlds/editable/city/mesh_0135.res": {
+      "bytes": 442,
+      "sha256": "6472a073769ec852fbd6709d5607ded951b87e7ea2b8e726bbd0a228c0ba366f"
+    },
+    "assets/worlds/editable/city/mesh_0136.res": {
+      "bytes": 442,
+      "sha256": "65b9bdcb833a6a794577768c9d5e9d8fde37913aaf038b4d40141c15dcd97f3c"
+    },
+    "assets/worlds/editable/city/mesh_0137.res": {
+      "bytes": 442,
+      "sha256": "6af95266259581ccab863b68778eb67cbeb35a097809c7337d202adbd69bee28"
+    },
+    "assets/worlds/editable/city/mesh_0138.res": {
+      "bytes": 442,
+      "sha256": "4fbd013703a4a6c50075aa6c4baa84e5ed3dd890b177d3777e2a50c02ce79554"
+    },
+    "assets/worlds/editable/city/mesh_0139.res": {
+      "bytes": 442,
+      "sha256": "c09a73f6b22c500371dc679f3682c08368c2ccd617d0b3ced15b505c67fd3a7f"
+    },
+    "assets/worlds/editable/city/mesh_0140.res": {
+      "bytes": 442,
+      "sha256": "201b241e2961f60d2b14c75c9e38a3c5c7297053d36004ad4a8a29bc222086a2"
+    },
+    "assets/worlds/editable/city/mesh_0141.res": {
+      "bytes": 442,
+      "sha256": "16e1c4bf9d12e0973644694b5e58dec025a7abc59e49d3785cbbe7a214f3a609"
+    },
+    "assets/worlds/editable/city/mesh_0142.res": {
+      "bytes": 442,
+      "sha256": "0bbfaa0097e4151dfe391d80556b5a0d4a360dcfd7bbf2501554b1f288aedb32"
+    },
+    "assets/worlds/editable/city/mesh_0143.res": {
+      "bytes": 442,
+      "sha256": "b3fee88deb2bbdd9c1acdb953eba7a29ae7cf472230cdec8550de75be3aa38f4"
+    },
+    "assets/worlds/editable/city/mesh_0144.res": {
+      "bytes": 442,
+      "sha256": "993049bee273bab4dbfae788d61281c96c47b9edbd4a15c0881c76d94de41d40"
+    },
+    "assets/worlds/editable/city/mesh_0145.res": {
+      "bytes": 442,
+      "sha256": "2778f69d4f8e31cda6e19bf9025fed257ff66d0e716de4174ad7b7595f252476"
+    },
+    "assets/worlds/editable/city/mesh_0146.res": {
+      "bytes": 442,
+      "sha256": "bf826e5f4665487d60a335edf911e463b720bf636bd6d6e0b387260c6926898b"
+    },
+    "assets/worlds/editable/city/mesh_0147.res": {
+      "bytes": 442,
+      "sha256": "8e6a4eee85779cf8d3bd2166e4853442bfcc54ff2ecb8a8a8d1551ccea291f70"
+    },
+    "assets/worlds/editable/city/mesh_0148.res": {
+      "bytes": 442,
+      "sha256": "01638ed164b66e63e89bebe26a8d0807d8a8d86bbf6b698cc3b31e79f8c9d03b"
+    },
+    "assets/worlds/editable/city/mesh_0149.res": {
+      "bytes": 442,
+      "sha256": "90c3c90f14503b305368d890b30caf5396e9cb26af52a893b559f6c3aa5d355d"
+    },
+    "assets/worlds/editable/city/mesh_0150.res": {
+      "bytes": 442,
+      "sha256": "e201d994cec3328770e832b04be9f205aaa371eb54c4293434ecf0b24d0f1cfb"
+    },
+    "assets/worlds/editable/city/mesh_0151.res": {
+      "bytes": 442,
+      "sha256": "87ec71d3e3bcce97109cf6b931763a6d31dc4a295b7dc3783a2df53c4adfbb94"
+    },
+    "assets/worlds/editable/city/mesh_0152.res": {
+      "bytes": 442,
+      "sha256": "f58560c8ac56743a27c6df15fb0e8f5fa21b72386517d5f24a61c4399e7e3e68"
+    },
+    "assets/worlds/editable/city/mesh_0153.res": {
+      "bytes": 442,
+      "sha256": "1dbf05cd17375adef0dc0e43f64235a01a61bf4a48a6e58c4eef4b7bd2ade6bd"
+    },
+    "assets/worlds/editable/city/mesh_0154.res": {
+      "bytes": 442,
+      "sha256": "452f11c006bf29845bd9cbacd2016b29f034179b42af25653543daf13c6fa11a"
+    },
+    "assets/worlds/editable/city/mesh_0155.res": {
+      "bytes": 442,
+      "sha256": "3869bbcb99bd15ffcd8632a32ea8e74ddf16a5afb2ef0d0e0c3a8f5e1924fed3"
+    },
+    "assets/worlds/editable/city/mesh_0156.res": {
+      "bytes": 442,
+      "sha256": "217679a001806be62bbc702cc27fb4ce0a3dc95eb4147e67fedbfe3a6d9d288b"
+    },
+    "assets/worlds/editable/city/mesh_0157.res": {
+      "bytes": 442,
+      "sha256": "ff0211f4d9d2592cd2638e14d29833eb9c399552c80707229ed752c86374540f"
+    },
+    "assets/worlds/editable/city/mesh_0158.res": {
+      "bytes": 442,
+      "sha256": "0a2858b855107fe528fa5d05a59922b314106c704a3fca6878571b2ffd5d6e95"
+    },
+    "assets/worlds/editable/city/mesh_0159.res": {
+      "bytes": 442,
+      "sha256": "0f39950cad688995f61d373e1a867c83a410cc46d4259385f1d24d20a08b40c6"
+    },
+    "assets/worlds/editable/city/mesh_0160.res": {
+      "bytes": 442,
+      "sha256": "7fa09ec339bd077dc71c3d8d200216160e4938789bd0b5f008b3520b036cf787"
+    },
+    "assets/worlds/editable/city/mesh_0161.res": {
+      "bytes": 442,
+      "sha256": "15019f98172ba9e21a3718fdd239445f73c16cd1e0b3a5afd0e6ce7a66e52ce9"
+    },
+    "assets/worlds/editable/city/mesh_0162.res": {
+      "bytes": 442,
+      "sha256": "0e4a90d6af4b4c198ff834839b1e13bb8a7f829a427d6b44902a6f0b29644004"
+    },
+    "assets/worlds/editable/city/mesh_0163.res": {
+      "bytes": 442,
+      "sha256": "f40661907278015bd5a581f96dc1ab8cc256c1fb6f6e3ef6d36c4d40c6aa1ee6"
+    },
+    "assets/worlds/editable/city/mesh_0164.res": {
+      "bytes": 442,
+      "sha256": "45fab2562b264aa7af0f17782aa54991c3653520fbf07aab90e7bc43ae3b7793"
+    },
+    "assets/worlds/editable/city/mesh_0165.res": {
+      "bytes": 442,
+      "sha256": "1e25be1b00b42bf2c1a989a1f5c49a90696e37d9f429cc3903beaa1083f7a949"
+    },
+    "assets/worlds/editable/city/mesh_0166.res": {
+      "bytes": 442,
+      "sha256": "42fc2b77b3b8d8ef11b9422dac4a5b3116704c3fe752f89e9c5c763eed088db8"
+    },
+    "assets/worlds/editable/city/mesh_0167.res": {
+      "bytes": 442,
+      "sha256": "92fbc9f8aaa260c5ef47b125bd065cbd32147f54f70724466392c5903b25206f"
+    },
+    "assets/worlds/editable/city/mesh_0168.res": {
+      "bytes": 442,
+      "sha256": "b8a0df2c7201a321ac1c46ef9c5849e52918bb0a8391b04b6d1b4378904fe30a"
+    },
+    "assets/worlds/editable/city/mesh_0169.res": {
+      "bytes": 442,
+      "sha256": "f80751ced7d07ba2a623742e6cc401911e30d1a36120f8654bffca420477677a"
+    },
+    "assets/worlds/editable/city/mesh_0170.res": {
+      "bytes": 442,
+      "sha256": "8acfb840dd8b3b41f52bea34e82e16242b9fa90c3173b41caa21dd06f12428ec"
+    },
+    "assets/worlds/editable/city/mesh_0171.res": {
+      "bytes": 442,
+      "sha256": "df27f88f65442d6dd8047bdf5c623f0754d19ed02f69490383c6fd1239f671be"
+    },
+    "assets/worlds/editable/city/mesh_0172.res": {
+      "bytes": 442,
+      "sha256": "cf646fb014c7ad9dfaa5dc712b7ae128dd5eeb5f479d00347410f7f164b89502"
+    },
+    "assets/worlds/editable/city/mesh_0173.res": {
+      "bytes": 442,
+      "sha256": "8501e6bde0725c45fa4d5aa855c0de6fb420820179b9b075a2420c1d8029e759"
+    },
+    "assets/worlds/editable/city/mesh_0174.res": {
+      "bytes": 442,
+      "sha256": "b592250e9d47904ea7d182df82e30c121a0784f8d2c92c4f86134416884f92e1"
+    },
+    "assets/worlds/editable/city/mesh_0175.res": {
+      "bytes": 442,
+      "sha256": "df90ddfe60c9eed3f6822173c9c672af31115b48dce4fa854b29b8f646e80038"
+    },
+    "assets/worlds/editable/city/mesh_0176.res": {
+      "bytes": 442,
+      "sha256": "ef4bdaf04bf7d6c7021ea320dfe2111698be0a57913c53f6cb7c34614119f58f"
+    },
+    "assets/worlds/editable/city/mesh_0177.res": {
+      "bytes": 442,
+      "sha256": "5d496903a6bfc62ddc0e4e96306d5c96e7d969e08f22bea44b16ca82aa0a9daa"
+    },
+    "assets/worlds/editable/city/mesh_0178.res": {
+      "bytes": 442,
+      "sha256": "ca69386f416026c45249655d3bce043bb2899c0fdaaf45452d563bd62641aa2e"
+    },
+    "assets/worlds/editable/city/mesh_0179.res": {
+      "bytes": 442,
+      "sha256": "ee636d703ab45a10c5a54908ff9b41eb4f0d673cef2ac5a0cb6c9993ae72b43d"
+    },
+    "assets/worlds/editable/city/mesh_0180.res": {
+      "bytes": 442,
+      "sha256": "9cfc01bf44e432f722b80b2053b7561265f529599db26b3abe68c6ae41cfa2c9"
+    },
+    "assets/worlds/editable/city/mesh_0181.res": {
+      "bytes": 442,
+      "sha256": "99aeb6907c87a6cef59aacb1541d2388c56bf5de736ad3b78f22fbf23debe02d"
+    },
+    "assets/worlds/editable/city/mesh_0182.res": {
+      "bytes": 442,
+      "sha256": "ab2935610a6b8c73718176a97a5a21a4b2e4e2bf05685b6387f7db8c75414c92"
+    },
+    "assets/worlds/editable/city/mesh_0183.res": {
+      "bytes": 442,
+      "sha256": "9b07f01eda66c977a9a99eeb35b41795134ac27370fd3221631ea8134c94245b"
+    },
+    "assets/worlds/editable/city/mesh_0184.res": {
+      "bytes": 442,
+      "sha256": "b1018832419fb8dd8f23b267e24cfc0c2fdcea35ef2a44825c04408bbb06239c"
+    },
+    "assets/worlds/editable/city/mesh_0185.res": {
+      "bytes": 442,
+      "sha256": "b315c334b0f5a2735208e7a096fb2821190fdb0fa1d31c2b5d9c2fa5f776c40c"
+    },
+    "assets/worlds/editable/city/mesh_0186.res": {
+      "bytes": 442,
+      "sha256": "b61a84d4d6ffebccc0fb07ffea27e2f70eecc89dfd1dc1f3ea078b8343f009d4"
+    },
+    "assets/worlds/editable/city/mesh_0187.res": {
+      "bytes": 442,
+      "sha256": "f6934400e7bc5cff5ed2e3104dae50a477a33081aa18dd6bacdfba4147bc85a9"
+    },
+    "assets/worlds/editable/city/mesh_0188.res": {
+      "bytes": 442,
+      "sha256": "80ea4980c839ec3eaec89d58434a2c2479b5c5edd26059c7cded3570b74064f4"
+    },
+    "assets/worlds/editable/city/mesh_0189.res": {
+      "bytes": 442,
+      "sha256": "f2e8382da87279ece3f23a7f3c44fcbc0a4aca5c2bc0f2130fd75e1aa13c8b60"
+    },
+    "assets/worlds/editable/city/mesh_0190.res": {
+      "bytes": 442,
+      "sha256": "11b547d876d8a8d70433520e118d7adcd00ab2657b13bc8c249f196681bbd2a3"
+    },
+    "assets/worlds/editable/city/mesh_0191.res": {
+      "bytes": 442,
+      "sha256": "03529146067374b202388e17eba37f2b3f6114e2b9a90eb118a95ff0993b75d6"
+    },
+    "assets/worlds/editable/city/mesh_0192.res": {
+      "bytes": 442,
+      "sha256": "ee8898b740d6a373c831fb1ab76a1bbf159bc70829d4eee4b3d7abfe6b95a784"
+    },
+    "assets/worlds/editable/city/mesh_0193.res": {
+      "bytes": 442,
+      "sha256": "674a3b776e2857cd417077f39991b75cd77e03663b4efb1bd6c24d6081020c6d"
+    },
+    "assets/worlds/editable/city/mesh_0194.res": {
+      "bytes": 442,
+      "sha256": "da87bbdddf5ff46104521c2da99711327844424030e92907d335cd144d1eb69c"
+    },
+    "assets/worlds/editable/city/mesh_0195.res": {
+      "bytes": 442,
+      "sha256": "51ea6db4471c41596d2fb79b5b75dfa0b85a75cba9eec9df4429b2a3a4c44316"
+    },
+    "assets/worlds/editable/city/mesh_0196.res": {
+      "bytes": 442,
+      "sha256": "aaa7160df034e279b4ba048701df0b896293a3a3b0e1cc9b58df93bd1a2d22c1"
+    },
+    "assets/worlds/editable/city/mesh_0197.res": {
+      "bytes": 442,
+      "sha256": "2ce586c490f9b55a228564299b97fc52e38a63a62d255ad8b77d8e293237f6f7"
+    },
+    "assets/worlds/editable/city/mesh_0198.res": {
+      "bytes": 442,
+      "sha256": "a05ab32b413d96fdaf960acb91c2544fd4f1a77cf98e66d9cc45f6d73bdd18b1"
+    },
+    "assets/worlds/editable/city/mesh_0199.res": {
+      "bytes": 442,
+      "sha256": "968e2a531f11c0eff947fa87d26b0a8a951e522c1f3078ad1db8602ffd3b56c4"
+    },
+    "assets/worlds/editable/city/mesh_0200.res": {
+      "bytes": 442,
+      "sha256": "f179b3cda647f97ce9c4a43cf39c3d94c170cac07c3650e65072451d6d5c97b6"
+    },
+    "assets/worlds/editable/city/mesh_0201.res": {
+      "bytes": 442,
+      "sha256": "c008439040754126233007972284453b45b22500723467b40b2d9bcbbc5fe6f0"
+    },
+    "assets/worlds/editable/city/mesh_0202.res": {
+      "bytes": 442,
+      "sha256": "106138c1d5cbb1d16754cff32ad1359bc094c4aa52c4e5e5cf11ffc1f307d190"
+    },
+    "assets/worlds/editable/city/mesh_0203.res": {
+      "bytes": 442,
+      "sha256": "49d8e4318384d6dbe9faab59ff708e093f445846d5db4c7b5734c2c06a78944e"
+    },
+    "assets/worlds/editable/city/mesh_0204.res": {
+      "bytes": 442,
+      "sha256": "0b03f0182a7fcf4d9bdfc86f9859728d69c13c7f40390c189af7b0d603d49306"
+    },
+    "assets/worlds/editable/city/mesh_0205.res": {
+      "bytes": 442,
+      "sha256": "acf8f56855fb7b0b6076c416365b4fdbef6461bb877a0234215acaf72ad5f46d"
+    },
+    "assets/worlds/editable/city/mesh_0206.res": {
+      "bytes": 442,
+      "sha256": "cf5a5987fea4758b379432a9466489a05e23d4ea2cf81f4c2bd8f4fb9bf9f13a"
+    },
+    "assets/worlds/editable/city/mesh_0207.res": {
+      "bytes": 442,
+      "sha256": "c379e17ecd89c7209654d1e545b614fdc565ad23e476dbfc17299c9dd1ce1e65"
+    },
+    "assets/worlds/editable/city/mesh_0208.res": {
+      "bytes": 442,
+      "sha256": "48d928efc3e49abfb54cbc19c52b24c307067436e8d64dbc15a6a1c561ccab45"
+    },
+    "assets/worlds/editable/city/mesh_0209.res": {
+      "bytes": 442,
+      "sha256": "f3be2cc716ee5b77b3e125d654f0c3d47e744772fb89262a4707d0d537d792ca"
+    },
+    "assets/worlds/editable/city/mesh_0210.res": {
+      "bytes": 442,
+      "sha256": "23edd71fd09de074f2e7c39ff98e54c809b9cbc9c740a0d97bdace27f1ce566a"
+    },
+    "assets/worlds/editable/city/mesh_0211.res": {
+      "bytes": 442,
+      "sha256": "978f245bd7d89c7ee0bd7ca42c869d159a487a455c5c018f66a1909cf7bdabd2"
+    },
+    "assets/worlds/editable/city/mesh_0212.res": {
+      "bytes": 442,
+      "sha256": "23e1372aff16eca7fc2c8c3c152f2a2ff6356f3acaa5174f773478f2e7ed5e73"
+    },
+    "assets/worlds/editable/city/mesh_0213.res": {
+      "bytes": 442,
+      "sha256": "e5a130e3f280a3be6cdeeb475856d8469e8ea152f9c7b438be29898525df5516"
+    },
+    "assets/worlds/editable/city/mesh_0214.res": {
+      "bytes": 442,
+      "sha256": "c755143433b1460fba7068edf98ee74a87fabc9486dae9b4b1605b40f3ff09a8"
+    },
+    "assets/worlds/editable/city/mesh_0215.res": {
+      "bytes": 442,
+      "sha256": "bbb0ed257d4dde0429c9375c9db326db5c99079df6dfbdeea0c93f09543b3607"
+    },
+    "assets/worlds/editable/city/mesh_0216.res": {
+      "bytes": 442,
+      "sha256": "8429b5edc97eb6d7e47ef371f904c80de13df09627cb1290841af4b1d9a76f63"
+    },
+    "assets/worlds/editable/city/mesh_0217.res": {
+      "bytes": 442,
+      "sha256": "d714294e012a6381676e7abe76ed010b3fe60d75a330844c3a9f0c7cc92df221"
+    },
+    "assets/worlds/editable/city/mesh_0218.res": {
+      "bytes": 442,
+      "sha256": "e5d35680367704277c3f44bae6f97683ede17b81dd88068c23ccacc73d55de35"
+    },
+    "assets/worlds/editable/city/mesh_0219.res": {
+      "bytes": 442,
+      "sha256": "c182ebaa1e0b55e1117e5566ebc2eef80c7e91dca089b06a3fb1bfd106a2684f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0000.res": {
+      "bytes": 451,
+      "sha256": "64dae8cb32a04b8b1641fbe80eacef6d3f9eefc93e6524a9ab1fd90fc6bd8dae"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0001.res": {
+      "bytes": 451,
+      "sha256": "4ca6ff54638ae016b071a003de312a627184205591c2156adcfadc1adc855706"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0002.res": {
+      "bytes": 451,
+      "sha256": "bfc909d2d2c492f8d48cee023be96f6b4886ecafd81bdf088c90f4c25a4cf132"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0003.res": {
+      "bytes": 451,
+      "sha256": "0358471d09e2bc192372abf877e7c771c947079eedf895c141e02c3224de0eee"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0004.res": {
+      "bytes": 451,
+      "sha256": "eba3280750369a852bb2b03060db78b5ff13d647bb90c72146a82284f0224fb3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0005.res": {
+      "bytes": 451,
+      "sha256": "462bc77cac095ae31aed4a3211ec2a0e594fff4a90d547c989515498dc17314f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0006.res": {
+      "bytes": 451,
+      "sha256": "4de27253c2b18eb1c59a6b28d906e43da066592b45bc70657e78dbad63f2fab0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0007.res": {
+      "bytes": 451,
+      "sha256": "894197e394423133686e03b985217bce8a659a4367b11bbac826638df11adea3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0008.res": {
+      "bytes": 451,
+      "sha256": "4e1affd70e3b8aeaa05d7ddbb4ca0651f80e7b377457b7d90f6f4078bb060dad"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0009.res": {
+      "bytes": 451,
+      "sha256": "7947d66088d021e372232adcd25d6c2dcca4844df7999495e123ee173cc8b5e9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0010.res": {
+      "bytes": 451,
+      "sha256": "5fb98185e4c9c8800791f4478a9e0153382bbdbfd0e1e913f17dde09aa096646"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0011.res": {
+      "bytes": 451,
+      "sha256": "5a93a50f2e297078a2731af3531f0a73b285643561a786b08ab3ec5e66e4fde9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0012.res": {
+      "bytes": 451,
+      "sha256": "e04e1d964ef30828fa6ce1f4443c8bdc66c9c127f56886a3084739ad3c9125fa"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0013.res": {
+      "bytes": 451,
+      "sha256": "5b807a25baa80602473005599812d943d41553deea0eb615f8d732b3eaf691c3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0014.res": {
+      "bytes": 451,
+      "sha256": "cb26a8cf83648b1a25b3ce2d2231abdfbc61610d14a4ea22275f0927e76325d1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0015.res": {
+      "bytes": 451,
+      "sha256": "65ff8c8a37c5df5a9841813a6a16b1a7e0008e0c64ac2ccf926e7187619645b9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0016.res": {
+      "bytes": 451,
+      "sha256": "7c5af5781bf8108978ec5569ecd40a7de4a7d8e3a6478d1425958e94582fc9f8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0017.res": {
+      "bytes": 451,
+      "sha256": "5ca23fd306dfad8bed2011f782bc116e800fe61ca73b9bdfa40c2d744c065c4d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0018.res": {
+      "bytes": 451,
+      "sha256": "ec104bde281a41587349ac5f4c3b8f524ec481ced633210f158efec0250b5c39"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0019.res": {
+      "bytes": 451,
+      "sha256": "9614c2c96ab26d96f79ef74be14e58da7034abf95af575e2dd3ebd2d9d6919ef"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0020.res": {
+      "bytes": 451,
+      "sha256": "89abaab93d90caf14decd499069e61d63f91de985a1b632945413eba6064b291"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0021.res": {
+      "bytes": 451,
+      "sha256": "3c4110755608dc4c5ea15a0a9f854dea67fff103a24e4f877b72003922ddd336"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0022.res": {
+      "bytes": 451,
+      "sha256": "874d99edf4c962919a9bd331c29b1bff43b416307b965188f51220044fd10211"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0023.res": {
+      "bytes": 451,
+      "sha256": "e73fe6b7145fd3d58bfe41dfe80e0ea4d2eb5a0b91c9deff11fca6160f8d4c46"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0024.res": {
+      "bytes": 451,
+      "sha256": "09f9c3c446c4f43981e865dadf27f76438b6db2bf873dafe63b6cf6ac35b84b3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0025.res": {
+      "bytes": 451,
+      "sha256": "0025ec9348cc5514d54ca60f7c6651b828d838b39d83ee725baacefdd3019b8e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0026.res": {
+      "bytes": 451,
+      "sha256": "793bcc37424648dd17f6a11f34d13395a62e5224c6dd56c55f5c9ecd78f585f3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0027.res": {
+      "bytes": 451,
+      "sha256": "7e524321f078e0f86526f3fcad8c8857b060773cb4bce90a169aae61800721ef"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0028.res": {
+      "bytes": 451,
+      "sha256": "716914621131fc4e8be5cc90fbe79dbe05158016a815ec90da53a0491f82f09c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0029.res": {
+      "bytes": 451,
+      "sha256": "a1b15914e1986aade5d719d01bb2157d75ff925c37e0fdc16c5ce1bf7d753c88"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0030.res": {
+      "bytes": 451,
+      "sha256": "7ff9e45f6c01512d8e6d2ab7753545c7b43765ff7e201f4c12f16a1200210637"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0031.res": {
+      "bytes": 451,
+      "sha256": "5c28c02a103498dc5d3daa8e7e749656b0fae241504f518947c9c05577967e70"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0032.res": {
+      "bytes": 451,
+      "sha256": "2746d5ccb154c54a3830680eb8faddbade9aabdd879de41906eebdf97c4f4659"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0033.res": {
+      "bytes": 451,
+      "sha256": "e6ef5b5811d522fa44628e41a5718386ac8240b64c6bf3f0b7b873d1c8aa3a50"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0034.res": {
+      "bytes": 451,
+      "sha256": "46b4dc2bff643bbed442945a72a0b0f9d16783c560ff692ab680febaa65d9cd2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0035.res": {
+      "bytes": 451,
+      "sha256": "f72f117f8e27056122c7608a88ead1999697497153c0c465d31e29ce57609f21"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0036.res": {
+      "bytes": 451,
+      "sha256": "fe033cb283fd3087d7c708aa69ea61ee749a5daf1bad75fec62e6361458135e7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0037.res": {
+      "bytes": 451,
+      "sha256": "b45574e2b7b954e52db90c9aea6109a0fb49c530b44963e699478809d64e42b0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0038.res": {
+      "bytes": 451,
+      "sha256": "5b00656218e107c1bf78e93d5318d492f736a987524d914b739ab26abce42ccf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0039.res": {
+      "bytes": 451,
+      "sha256": "b54bbbc996679d600cbd21cf49bbc9463129cefd6c7134882ac7eacc65cb4c0c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0040.res": {
+      "bytes": 451,
+      "sha256": "17f6fa298863b7a8febe6a5f2a955c5a67942639d3514ea736bbaef80a178e8f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0041.res": {
+      "bytes": 451,
+      "sha256": "89bacfb3e9afce502e12627763e1a2ed4d6cd1582a736653afdb42a0934bb64d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0042.res": {
+      "bytes": 451,
+      "sha256": "c914ac93696d73068177fcd6729e0f480661edc23efcaf1bcecff001f88a1990"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0043.res": {
+      "bytes": 451,
+      "sha256": "e2d8389192f932a1d6486d09cdff50fed995613d1714146bc726334a31e722b8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0044.res": {
+      "bytes": 451,
+      "sha256": "0ba48c4d5a0f182276e765787e579177c23c990714380062bed7dff0c3aa44f5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0045.res": {
+      "bytes": 451,
+      "sha256": "5ce159db8c12867ada51c143b8257b6ab1eb03e34fe2d2b863e1ba6f24cc85e7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0046.res": {
+      "bytes": 451,
+      "sha256": "0058cbff75fe65c1949440a27a0f7c8f9baeb7ff61af9dee347959afb5e69e32"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0047.res": {
+      "bytes": 451,
+      "sha256": "d6501d36f9fa33d440237d85435fa351e3d72964df73988603b311bbaac9b4b2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0048.res": {
+      "bytes": 451,
+      "sha256": "23c07bb3a721a9f2011845e01c1a499c20b9c90c2d57adcab9a5a6cacd86cef4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0049.res": {
+      "bytes": 451,
+      "sha256": "b4a7a00bee1add03696f97722a836917182a86cf216f960b26c25e8feb960a81"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0050.res": {
+      "bytes": 451,
+      "sha256": "0397020e055f67a67336977e2b9a7d2f7b8bd8994f5b2e16f05f2adedcde7d9d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0051.res": {
+      "bytes": 451,
+      "sha256": "38259d519fe6c4d6da8bd726f03febd3e42d6d38303a04c8061b73e77c28f15b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0052.res": {
+      "bytes": 451,
+      "sha256": "e261c3f964777d8c3b9e67e93d04b5db8e356e5187fb94c694d29515cee856a3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0053.res": {
+      "bytes": 451,
+      "sha256": "0e30151cd5d6a75de30cc0d5cd37c0fda1a022074c3dfd63cddda5be341bc737"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0054.res": {
+      "bytes": 451,
+      "sha256": "282657f9c5985f1dce69658847f10d7a21ea40ba3cef3744629b20b940575d75"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0055.res": {
+      "bytes": 451,
+      "sha256": "da57040a7df35e4e452f324298d9fdc35deb55dd41f43963add623ac74bdc67d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0056.res": {
+      "bytes": 451,
+      "sha256": "96c008dcdf5d0fec7ea174caf2a2333e291e1c1a4d69567f7d5763f73b7d53a0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0057.res": {
+      "bytes": 451,
+      "sha256": "36d3f15afcb8f1e91356ea099d61738fc745bfef2fa4decfee067a1b0312681b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0058.res": {
+      "bytes": 451,
+      "sha256": "f860b8a3ac986ff104269cf92b337253a2e3b8331c84d3e009df2cea1a808dfb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0059.res": {
+      "bytes": 451,
+      "sha256": "b53ff4e23f493b09ec9d42c14b72009fff2afb81cc81bb915e08de4fc8850a72"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0060.res": {
+      "bytes": 451,
+      "sha256": "663f4ea344128188ac77c8077a624ea2f3a3134fd708088c9c07be1d754d8157"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0061.res": {
+      "bytes": 451,
+      "sha256": "8509ab76adefcc9a29ed600be1059c76ea84cd757d76c012e9ff73bb2768e078"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0062.res": {
+      "bytes": 451,
+      "sha256": "9391e0e520ff8285cfd3a5cf3054305089fd6ad71ea50e7ba323a2553472f313"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0063.res": {
+      "bytes": 451,
+      "sha256": "736cc4ba1f460059407a617997dc5e69cc74ee00bcb05b549d5e9c741ea8b3a8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0064.res": {
+      "bytes": 451,
+      "sha256": "e7fce304aefe75c6dd315d84d093883907ed1ca09802005c656e2891ed3f4198"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0065.res": {
+      "bytes": 451,
+      "sha256": "9427ec5d3b8dd0f15da4d3fd2ff58c41ffcc995b63b22cf4b4fe807af8f267bf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0066.res": {
+      "bytes": 451,
+      "sha256": "afb5d3762cf8140a26955ff17b7b868f1417f65aeea83b1431c7d47678b7bd7a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0067.res": {
+      "bytes": 451,
+      "sha256": "2e97646197a783e3ff1c40513c0fb9a1cefe8f79c18a68210f93f358e4ef20c2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0068.res": {
+      "bytes": 451,
+      "sha256": "9c25be652cd21f92dbb66dfe3f90a8d3725c36bbe36ba725d6991f158154687f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0069.res": {
+      "bytes": 451,
+      "sha256": "7ff5dc623c42bf1db54099ac23ca6ebb3c7e4ec40c304a2361abf5953b471d45"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0070.res": {
+      "bytes": 451,
+      "sha256": "e811900618920c72f12849def6389da735164f81bde2f7c2c18d773f67ac3a07"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0071.res": {
+      "bytes": 451,
+      "sha256": "f9bcf36c01db29a058d5ce9926c797225cdb2ca728a18b2d1ad81e44b18eb934"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0072.res": {
+      "bytes": 451,
+      "sha256": "78d3e08c7feb9fc76d38c90e20de2741564f1f269c4b61b262793546cac75028"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0073.res": {
+      "bytes": 451,
+      "sha256": "ba55cc3c558102d3d9f5e7c06c7bcd2debd78574b6fe41a6f84c0d1b53378f2e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0074.res": {
+      "bytes": 451,
+      "sha256": "8e7302dd5817d7412dae0dd5c9e0a0361fffec0a8a263752603f66e705c1f390"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0075.res": {
+      "bytes": 451,
+      "sha256": "189b6c6ca579d81996b8881ba51e9fbe4d30a6bf15b0d155c1b1d772b0389e36"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0076.res": {
+      "bytes": 451,
+      "sha256": "d529f74a5e02514d124ef87e7ca1c6ff68b1ffef444e315a648c2032396ff4af"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0077.res": {
+      "bytes": 451,
+      "sha256": "8b4dd44a57e541aba63ec8779023b3a2d3810da41bfca8ac1b314af1ebd65bfd"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0078.res": {
+      "bytes": 451,
+      "sha256": "f9ede5f31d1ada6dd014641dcfbb260c04a879c4c6a09ba4c3fdbc7111e732c1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0079.res": {
+      "bytes": 451,
+      "sha256": "30924484ec4197f4feed12976c5b5d36dc07a8a995a30b52a1eb611424677929"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0080.res": {
+      "bytes": 451,
+      "sha256": "733e08489e3eeebd245f01e4707a2d2ee5d35ef359e86448919fa7e44e420ecf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0081.res": {
+      "bytes": 451,
+      "sha256": "48dffc37456ce29a64867f4af9f4ae50ced59fda475760a6a5799b9b13b39420"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0082.res": {
+      "bytes": 451,
+      "sha256": "26f81379e5b96402c51d84db71b414640df0a2a530edd4e3b9ce7cf144522ede"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0083.res": {
+      "bytes": 451,
+      "sha256": "5660d65159ccf530f4e57c5a0bff58146865728eb3d8b3737a2dcaa0d836f9d5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0084.res": {
+      "bytes": 451,
+      "sha256": "77d2063e38ebdee217f0234afc7f05568f1d7000d430fab3cf4c556f782d6207"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0085.res": {
+      "bytes": 451,
+      "sha256": "9383ac1bcf3770429abb0348c006a08871c2aca4ba57103359a73cb1c207724f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0086.res": {
+      "bytes": 451,
+      "sha256": "b9bcc52614ed2c1d0e8e76f08d3cbe8ba87eef8f97004a6e9e8765a6b465b8f0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0087.res": {
+      "bytes": 451,
+      "sha256": "e68f8e234425a7f972dd1613933924318178436878cbda6044c32ea6a9d7c99a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0088.res": {
+      "bytes": 451,
+      "sha256": "801519d38b5ea207d924593a883950ce79a7e796a3955a0b2d5bc2a44ae8233a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0089.res": {
+      "bytes": 451,
+      "sha256": "ef90a9e606219490536215d9ea9f6fc1701ac7112edf733ad9a27cbb932f5aec"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0090.res": {
+      "bytes": 451,
+      "sha256": "b0d73075d67509b7f5a4f7adbaf81e7d5af9bf4a41266d20fdbb0320361deb07"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0091.res": {
+      "bytes": 451,
+      "sha256": "e8bbec3f6f0a3e459212d0a755c4b6c9f0ea4dd0068ff4ac7a231fe4de969fb5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0092.res": {
+      "bytes": 451,
+      "sha256": "8599f77accc73b32c15c9462498fcafeefc128a0ac709a0ad066f9a9b2745bd0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0093.res": {
+      "bytes": 451,
+      "sha256": "259170932dcc01c3b5a4d1cea83dbbdd9a4fddd5be7e0c86738ee16f5be74306"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0094.res": {
+      "bytes": 451,
+      "sha256": "dfdf279d12fa857b9ea5c60a03f9314b4bef50cf37367a6b0288efbffe99f2ff"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0095.res": {
+      "bytes": 451,
+      "sha256": "ffe2bb89ac3050a89847d9eadf8f407b4bc3591753b18ac7062fef2525419199"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0096.res": {
+      "bytes": 451,
+      "sha256": "250648db7c246264ea00e25800d70446a6e5cce48f52c5e49e2e4061309a6478"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0097.res": {
+      "bytes": 451,
+      "sha256": "a0c2b89c556fcf16456963902d8150b56d7e6d80b60e39a09d79a071d74ed8bb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0098.res": {
+      "bytes": 451,
+      "sha256": "56cd0baccf7d4255f30374a93945776a980c7bb2614f8a0db113e2d883c51c55"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0099.res": {
+      "bytes": 451,
+      "sha256": "09bad60b869223c7a7df7395c096fb3df2b7039dcbeb369de356957fc4607971"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0100.res": {
+      "bytes": 451,
+      "sha256": "3f74780322c30b9d0e4dbe2d0445e2c3790f819b4a27f33b2f94458a81c4b2f7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0101.res": {
+      "bytes": 451,
+      "sha256": "8fe5680ff69855a3982846b54011855042064fd3e0eefb55ecf6018108099381"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0102.res": {
+      "bytes": 451,
+      "sha256": "c4d4e07746b6c6f8ad66a1db3ca8adbdafe47cdcd2dfc2ee05e740b4401c0e78"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0103.res": {
+      "bytes": 451,
+      "sha256": "4adc35fdbcfd5d3fdbdaef54a18fcff49275dd0d9eb0aa089cec7fe7fb03e177"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0104.res": {
+      "bytes": 451,
+      "sha256": "3d1e51533c536258a38865b2439e3b85804e320b90762642e3b80377589145ca"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0105.res": {
+      "bytes": 451,
+      "sha256": "9041317bdfc0dc8a44eea37a0117735f64eb6a4047d3a8281d38c4cca9e2cf37"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0106.res": {
+      "bytes": 451,
+      "sha256": "9f141758ec19ec6f0dfbe1b676fbd8957195e94bc7aaa388e275a62afc74a874"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0107.res": {
+      "bytes": 451,
+      "sha256": "ece6a22512137c8d73af14d3cc6c170f09311b27fa923c4dd6ac2537b926f225"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0108.res": {
+      "bytes": 451,
+      "sha256": "e27162104b3887428a42e48a067e893c5a2036c5ea7916f2d5c4b3ffe1cda888"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0109.res": {
+      "bytes": 451,
+      "sha256": "7ee7e3494715ec40215d4288dc91e4cf614f28a98075f21d45a6b7a8918376a2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0110.res": {
+      "bytes": 451,
+      "sha256": "990ba709b3f65ade9e05555ba4f5a33adf448e2799a34aaa302fc57d3046f2f3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0111.res": {
+      "bytes": 451,
+      "sha256": "8fd2ec8b81d211a72f499af5f4a9784427b9859c7c6bac6af8edd439bf1ab30d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0112.res": {
+      "bytes": 451,
+      "sha256": "f3da1689bffa0af2331701fe787e89a918bbcb7176c7c6fafbc0d5f0abb7e5c9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0113.res": {
+      "bytes": 451,
+      "sha256": "9a3ce37a005466982083abce8828527a564234af768898e35b81f0e220144992"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0114.res": {
+      "bytes": 451,
+      "sha256": "3907f9d7a9d3617ab3444ceab14d53e12c24ef3871b2475630fd62a36578355b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0115.res": {
+      "bytes": 451,
+      "sha256": "efa573b685bf972994ca6a7c0be7a5210beb7eed0ca3bcf5c872c13bd504252f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0116.res": {
+      "bytes": 451,
+      "sha256": "0566a85f21ae5658fd1004d1d8c8c5d927f4a2e9d02fdfbe335f581f063ffa76"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0117.res": {
+      "bytes": 451,
+      "sha256": "426eb10020bbfeae41b6dcfea3691baa041d0d0941b8f67a6a17d22541466918"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0118.res": {
+      "bytes": 451,
+      "sha256": "354a5923905fcc726b51533879639d9575014ea5f72aa228fdc58bd8e02c6f87"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0119.res": {
+      "bytes": 451,
+      "sha256": "8c33924ee34c79265f13435a2ea688c3ce8696d00a05768eb7f2146e40c3ce98"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0120.res": {
+      "bytes": 451,
+      "sha256": "2cd90c487d720098c2b15906a9e46ab50f95ead198eba1384a28a73bc3845442"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0121.res": {
+      "bytes": 451,
+      "sha256": "eec1c36289212dca9b3c134dc9eb49e58eee157559622b485bfe4aace4b3427a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0122.res": {
+      "bytes": 451,
+      "sha256": "ce2e7fe0dd81b8c5f22c505c9a004a9a369aa4db1dc4cb138c21c02c1ff2def9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0123.res": {
+      "bytes": 451,
+      "sha256": "3754956853d5e7560d4e17710f38e931520c538f24757d616951540d43a7a6e1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0124.res": {
+      "bytes": 451,
+      "sha256": "c04bddd07c1f68d7b15b895302b71ad7de818bb6e3b15b52e3185bffbe001aaa"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0125.res": {
+      "bytes": 451,
+      "sha256": "f4c00e36afa18b635841fe06c366f3843242cbc8f836871c0cdcdd2ef11d908f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0126.res": {
+      "bytes": 451,
+      "sha256": "0c940b12d9003f60643a8d5aad1de3425f323b04916723a718b03284743a065d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0127.res": {
+      "bytes": 451,
+      "sha256": "403b54688ffe4e96c3e03e9e4d1c92b7211779a88f7319eb1ef493a2f1f49dfa"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0128.res": {
+      "bytes": 451,
+      "sha256": "d25d11da0a9b791f413ef030adaa65f8824f5b80808a00451d4f4903acf3ee02"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0129.res": {
+      "bytes": 451,
+      "sha256": "9ae2a70e72bf67665b7522204e590d712e9c0774a8d476d38e41327e67d57962"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0130.res": {
+      "bytes": 451,
+      "sha256": "60a2d68b78aeba2d11a9c029bacb62104ca8b15fa22560273082f636798c2d00"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0131.res": {
+      "bytes": 451,
+      "sha256": "3c79b367ae76acccc7d1034931805d9c23d5297f50a34287330b0fa374cd5f2d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0132.res": {
+      "bytes": 451,
+      "sha256": "7be53671fada95c5e0b2ef83cf018f267544fecb87f3a2c9083eb6c1bf356fee"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0133.res": {
+      "bytes": 451,
+      "sha256": "dc8ab5ab5aab6d2e7e21dcc959e5c48c3097fa2ce8aba52fc6e96e92197b46ad"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0134.res": {
+      "bytes": 451,
+      "sha256": "ee459b89207cf2fbf043f9d66aebe3eecabadbcdee4785c7ca0624daf1b11f10"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0135.res": {
+      "bytes": 451,
+      "sha256": "978d5adefa1174903566fc007f9dc21129bb4e6261953ae6c2343f0e4ba67841"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0136.res": {
+      "bytes": 451,
+      "sha256": "642fdaa23214eca6fde3cf09f4113381aa0db3c1698d7a428661ee8fe89b564e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0137.res": {
+      "bytes": 451,
+      "sha256": "95679a09fefb6a2164c6a8853f0aa386682b9a433ad4cebed8d399793dc891bf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0138.res": {
+      "bytes": 451,
+      "sha256": "4647f120bde63fe8be3729cabb7390cba4bfe2fd87d871638dc04ce6162c3d1e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0139.res": {
+      "bytes": 451,
+      "sha256": "a1f9cf53cc2097bb5445ecba8ad19b02f0ff1f150a250765f157623f96e4e4af"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0140.res": {
+      "bytes": 451,
+      "sha256": "c82022e2916ce1866758a743a292e735d4640074b0fbf0596d30e7b37952b5d5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0141.res": {
+      "bytes": 451,
+      "sha256": "e2880cba305a407f69fe896ee1f522a00ced2d3adaa288b6ce772dfb32860bb0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0142.res": {
+      "bytes": 451,
+      "sha256": "2d6c175db4cb4d6b7f035cd39a7b9ca3c8b11be8c8cd7fe1fa50291e7e6e916a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0143.res": {
+      "bytes": 451,
+      "sha256": "1f65374d55fbdb64c6c03df440158b708b2ddc6a1679a5cbef1944b746fa222e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0144.res": {
+      "bytes": 451,
+      "sha256": "67d2186664e0dcae6124b9f939761ee8cc23cf10fac630f0cbb17aef4346c037"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0145.res": {
+      "bytes": 451,
+      "sha256": "8f68d130813442656d576c440cbd2620d90eeba29c6ca76e8a8b0d20651bb608"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0146.res": {
+      "bytes": 451,
+      "sha256": "20b7fa0e3ec60095a71421f8bbfb84e9ddcc4fd2fdf8b5722effdf422e7b8577"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0147.res": {
+      "bytes": 451,
+      "sha256": "377bdffcd4ea5bb4ce4654020068839d8e227042b9f8e5d65991c64455a42f6a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0148.res": {
+      "bytes": 451,
+      "sha256": "37fc5972a5b19921214dbd72929334eac3503fefcd83dc9f619a8c3c65551a4a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0149.res": {
+      "bytes": 451,
+      "sha256": "1b775806f3e155a4ae031635a2ced71223b8d40dcd409e5cb573d874cbaf81aa"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0150.res": {
+      "bytes": 451,
+      "sha256": "ce4d63c37bd3cc3a763a35f0a60a61dc48984830fab8c5b91d75c660472be61a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0151.res": {
+      "bytes": 451,
+      "sha256": "9d2e7ba9fa4471fc5644766787c478584c33673bcc5886fcc5ef3a4135c72263"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0152.res": {
+      "bytes": 451,
+      "sha256": "8dfb21bec9cf76f030ae0beaacb08ac6c7197bf4f049281bc022360337e3064a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0153.res": {
+      "bytes": 451,
+      "sha256": "99d2eed5f59ac5ae36cfcfd78c19121a0de3a817d8662dd232fd269f7b436f8b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0154.res": {
+      "bytes": 451,
+      "sha256": "c7c872f5ebe1d38f450b0dbe2c6f88975c11a8761cb6094080bb1bd61d459bcb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0155.res": {
+      "bytes": 451,
+      "sha256": "f19f87eaeeada8e7ec6f92bd08094de4252688793a7e9e4c85b0f7794de545fd"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0156.res": {
+      "bytes": 451,
+      "sha256": "40923f5e0db7b6ca9fd75c061f30244fbd200a33418369903ede5227587c4875"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0157.res": {
+      "bytes": 451,
+      "sha256": "33443b72db3ebdbd501d216ab59d22b9ddb6d2f10cda00a291b37406da6a86ff"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0158.res": {
+      "bytes": 451,
+      "sha256": "a291fec1fdfa2275cddb91db47f0be6ea6ed2279ff427f8630eb3de744ca5416"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0159.res": {
+      "bytes": 451,
+      "sha256": "5b1eff7f82eb88c7031a7a47bdf792d01e98d16a68f454e5df619dda19de9e36"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0160.res": {
+      "bytes": 451,
+      "sha256": "e2dd4ff98a8bab61c2176e05b3ffb908acfb2ae8f8baa42fbd30d28ccf7f3f3b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0161.res": {
+      "bytes": 451,
+      "sha256": "67ebea1c2c22da8ae13dbb8e66fdcd4f9d9b6e18c84404b570c83274ba36b243"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0162.res": {
+      "bytes": 451,
+      "sha256": "e40bb620df335db8c1d990f69a409335994174619c15882fd6aea5881adc7210"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0163.res": {
+      "bytes": 451,
+      "sha256": "e778e520661a3a38971a49aebd184615f99108dfeb3adbdf8240753158b67fbc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0164.res": {
+      "bytes": 451,
+      "sha256": "6c0604ee54780f48c1427ad6a110568da614e6a4a8a034d03fb43d72f7b177b4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0165.res": {
+      "bytes": 451,
+      "sha256": "45f719208d805bbf2c961de1504102634e417d40246431c97596ee22eae7d681"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0166.res": {
+      "bytes": 451,
+      "sha256": "20e323499a4d99454addbeefc6d57791dfee697f7c75fd1c9e87706565b3e0c2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0167.res": {
+      "bytes": 451,
+      "sha256": "715c9e8f6942815ea7c8cae82943654554aca74ab8dbebf321bd889e38d1e855"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0168.res": {
+      "bytes": 451,
+      "sha256": "4eeafd85efd47e147691b9188859c01515aff14ad3fa54d7ec4ef0c83ded12ed"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0169.res": {
+      "bytes": 451,
+      "sha256": "531fdcee6cbd4403f6250acc40c2ddd08632db7908c2bb8c04254b4403699fc3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0170.res": {
+      "bytes": 451,
+      "sha256": "107a9eedab5d4e31a7210569a29fcc254f01cc2e3307fd46e25aa5359d5d688a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0171.res": {
+      "bytes": 451,
+      "sha256": "2f15f46f2bdcec41fe47b967771de4538949ba174b1e27b785d1c26dfaaf6acb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0172.res": {
+      "bytes": 451,
+      "sha256": "015c9f09311f1fbb87a2eb869935d136341429b28f4c548c5469aa009a3c788b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0173.res": {
+      "bytes": 451,
+      "sha256": "701e0895ad8a3580f21ee696481cc585486c1d2e82b92773de05bcad9fd88fc7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0174.res": {
+      "bytes": 451,
+      "sha256": "34f71cf611ba33c6eb7b70e91c8a7bc83272819a6434d65692d42c43ea39ac95"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0175.res": {
+      "bytes": 451,
+      "sha256": "587bf36c7310d661df0fc1e5335f2bf201c27780fa97d5820ea30ebbbe3f8fd0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0176.res": {
+      "bytes": 451,
+      "sha256": "9bc6f5cf273c7e40404f861887c3c174cdb9cce86279f090d33ba2ba4e56c970"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0177.res": {
+      "bytes": 451,
+      "sha256": "0c50cedf4f04166646522d6af52e0ddc1dbb2336530ba3b63082bc50e8da1c8d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0178.res": {
+      "bytes": 451,
+      "sha256": "eb9e82769fbd2bca6e72ecead9dcf4168e3abce79ecb418f8ef2a61d0515dd75"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0179.res": {
+      "bytes": 451,
+      "sha256": "a21de670411c09270ad1daff8d7bc61d8621a3657bafaaa66534ae3b2e922ebf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0180.res": {
+      "bytes": 451,
+      "sha256": "4d2fe6528509189c48d0d73989d33f5a6ac26c9807d22982d48ddf97739b6252"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0181.res": {
+      "bytes": 451,
+      "sha256": "85b7d4d1e821ec5d462aa19284fe2a8f5572b8b2ced31c2f5a64d78fbcec9629"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0182.res": {
+      "bytes": 451,
+      "sha256": "de7c9d995fea8f9a131d4d02fa8dcebdf3e9484c120318f23aadd8bb716d9911"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0183.res": {
+      "bytes": 451,
+      "sha256": "ac31809f71ec9f3195ac255266caac8d897b389d994138bed4871a76fd095602"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0184.res": {
+      "bytes": 451,
+      "sha256": "d41f983e00d45999aae523f875602ac2dd3876d02b2845f5389a00ef6e97d820"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0185.res": {
+      "bytes": 451,
+      "sha256": "8d4b0d3c4d7a497f187d7c97ede9c73b1650bcd7873c35d7f22e998a34aaa2a1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0186.res": {
+      "bytes": 451,
+      "sha256": "07ec3ece226c83e63398a36c4043124d163b04a491f9a264575d2e60f82b3f7c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0187.res": {
+      "bytes": 451,
+      "sha256": "99874947063880320c1221d318997b0a4cbc6a092fd174dc050780c421edfe7d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0188.res": {
+      "bytes": 451,
+      "sha256": "7528b11910bfb516a4afe5346d176085da89e6c824ec81d97701d7a91d8a1e4b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0189.res": {
+      "bytes": 451,
+      "sha256": "5c0a40b4d02f98fe55eab56c3a893b5925fe4612c76c8ce819c34646e9eee899"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0190.res": {
+      "bytes": 451,
+      "sha256": "f757477ae98210c4274040cb796369a5e6a72ca4d009c7a2d435f4dcf468598f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0191.res": {
+      "bytes": 451,
+      "sha256": "a71e176c51d696e8e9db7f790b62200cf166da2062649e9c9f551be47bd54680"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0192.res": {
+      "bytes": 451,
+      "sha256": "334979132fa15ed53e15e353f9f8d45094ea63727c793a120d87bd5bf6b23cc1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0193.res": {
+      "bytes": 451,
+      "sha256": "ad77b5dddb4287cfe4caf0b3bcd328e50f585212234ea1b17525fca4b8c6cddb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0194.res": {
+      "bytes": 451,
+      "sha256": "6b59854eefd05d5415c6bbadf503fb798c7036027dd5263a09c5d9fdcc371f37"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0195.res": {
+      "bytes": 451,
+      "sha256": "f33943a57a6c6c0ca9dc8e3ee3122d3ad9ae58f18f2df82fed9c1012493ef899"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0196.res": {
+      "bytes": 451,
+      "sha256": "edfc4ca589627bd205bd2cc4024f795a44ae737f5ffdd9627d0b46f5447f888d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0197.res": {
+      "bytes": 451,
+      "sha256": "8f2bc30859fcfb390ccc02b55ed7b2aca5bfa5a70969244e19f29b26f7442a0b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0198.res": {
+      "bytes": 451,
+      "sha256": "57111fae5ec3a209fd382ee2b7117114c07330f0871c3e35b1fe53ecfec3f962"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0199.res": {
+      "bytes": 451,
+      "sha256": "0525e3fc9a206ee5328ff2ca3c84725035a0df8b1a7a1886065dcbcb3e8af34c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0200.res": {
+      "bytes": 451,
+      "sha256": "3a4aca6c4c5a37871eca88bcb7e24b0b7ea9826f99ded0896e41118746a0d961"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0201.res": {
+      "bytes": 451,
+      "sha256": "ba6804111d3ed7c76947685019203f067cd7b6e073fe3c20bd6de1a2d74c4bd4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0202.res": {
+      "bytes": 451,
+      "sha256": "dc58add4767010e755de48cc37844cdef189d2989c927be11a1903b605e21a17"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0203.res": {
+      "bytes": 451,
+      "sha256": "faec96eb54f5066488c83a33599685df2b6899743bd71774e204f268e4e91bb2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0204.res": {
+      "bytes": 451,
+      "sha256": "78e19976a38bbb80123bc77b48042062ccadc96a5db35a07020c0d9153da2206"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0205.res": {
+      "bytes": 451,
+      "sha256": "eb8267ca11fba00525e692f4a40c1545a10a9ceff1920662409116ebcba34e85"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0206.res": {
+      "bytes": 451,
+      "sha256": "b25cc4b8f92d27881592b22ab5c232417323b4a5a9ee37971c40bc8faeb4d6e4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0207.res": {
+      "bytes": 451,
+      "sha256": "3fb267b7f0db628349232785f31bdcd021e46013bc97d200336f26b71a159c5e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0208.res": {
+      "bytes": 451,
+      "sha256": "0c84bfc6f2adfdbf708ae6ff16117d6122ce7a827ef450285f82e63d7c465862"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0209.res": {
+      "bytes": 451,
+      "sha256": "e2e5c6131dcf5063637bd9ce800b4d0b4cf4bce8ca69fb67ff1dc7f4522e11bf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0210.res": {
+      "bytes": 451,
+      "sha256": "65147789eff91953d6c30e9999636c5fe3623a78e9a0ee6a549d8eda4da66dc1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0211.res": {
+      "bytes": 451,
+      "sha256": "49f24e141011a20736cb638c8f878326bd4b4fc03b2cbb2c903a1ee4cdee1a66"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0212.res": {
+      "bytes": 451,
+      "sha256": "e221544b3491f7d8c6568a7dd68e782a2588a4ed5a64deeefaa3490e32e27fbf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0213.res": {
+      "bytes": 451,
+      "sha256": "36a080b865a7ac0f840c820cc35b850ce82c5ba579e828b25d5e3db036d683be"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0214.res": {
+      "bytes": 451,
+      "sha256": "eb4eb07a64091700ec60f2d3ff9728ee88ea84b12294cc45e0e8ad5e3d0f438e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0215.res": {
+      "bytes": 451,
+      "sha256": "7ca2920b2a038c48531ac3c09fee7794bf745d00ae3d2b003ed6ace9f225d9d9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0216.res": {
+      "bytes": 451,
+      "sha256": "d06bea3bf4afbbe9223188bd90c953f20043e6ba9b06aed7e58881ecebc9f549"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0217.res": {
+      "bytes": 451,
+      "sha256": "b563fe6b8a7b2fce789c2eabda64c381eca06f318d9ecec4a47e36d439569818"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0218.res": {
+      "bytes": 451,
+      "sha256": "2676b4703210a2ecaec4bff4d721a5ec0d095751214cdf9cc5527eb41e02b164"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0219.res": {
+      "bytes": 451,
+      "sha256": "4ce15d033c1ddf1277bbce27d053ab8e330d2c38850c68102abdfbd91bc1bbfe"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0220.res": {
+      "bytes": 451,
+      "sha256": "bd67f1e890394b9c2fdfa096c4c1440edb3015962b3c763384ce4859b92d5f87"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0221.res": {
+      "bytes": 451,
+      "sha256": "2f0dbbc825a84e54347a8be50ff6c6416595ff5a3d29177817adf2496198be5a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0222.res": {
+      "bytes": 451,
+      "sha256": "5f77e5dc969a86a45b5eb9903cdfaf1a3e02dc9fbbdc501dd8fab97e2c79497e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0223.res": {
+      "bytes": 451,
+      "sha256": "e1ed27b9e372977dccdd99743219895a9e59c639aaa880c8fb0064e83424b7d6"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0224.res": {
+      "bytes": 451,
+      "sha256": "690aef8df94d78ea66d432764f39011d53e8c3118a71f636805604cf3db806b4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0225.res": {
+      "bytes": 451,
+      "sha256": "9b0d3ff799fcb1f967891d47be4fa622d59e6f7af07d3a9fe3f1b872d063864a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0226.res": {
+      "bytes": 451,
+      "sha256": "e06c36711955ce8473934e571a1b523cc4183c2926c69f659c3e491465afab13"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0227.res": {
+      "bytes": 451,
+      "sha256": "1d565dfc0082a6b3447bb33757470f8f3626c818fd4c623c08d7677adb7d773a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0228.res": {
+      "bytes": 451,
+      "sha256": "bad62724a5e10acae10ecdb4ac9409f80c5d433fa5f125e2600edd077af7b91b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0229.res": {
+      "bytes": 451,
+      "sha256": "13e4c4abc8d563702c9cf59fe8dd584bec497f78e33a4fe330532dfd2026257e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0230.res": {
+      "bytes": 451,
+      "sha256": "4d73bfa1cb658841468edd9c15dcf8bd780a94cab0c6e319eb4e34bf954b9f28"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0231.res": {
+      "bytes": 451,
+      "sha256": "4e732db3b8d2eef6fc261ed67eaa781c60dacaad0a6eded4ad58ed17ac1b2d88"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0232.res": {
+      "bytes": 451,
+      "sha256": "03b425d8291a046216b91c7f35036658fcbb41d83bc9a52fe199a24aa1e7c0a9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0233.res": {
+      "bytes": 451,
+      "sha256": "b234868a5d6e2f2b46514c2e57b9b99c06697a395da961d42517b68407152907"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0234.res": {
+      "bytes": 451,
+      "sha256": "5733bb4e1efff92d004ae8dbc55e122a011e1facfeb983476dde2e320a70cf78"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0235.res": {
+      "bytes": 451,
+      "sha256": "9a2beedea61d68edd2f81fc2d0eb4cef9da7958f297de5ad333b6b7fc36f1ca3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0236.res": {
+      "bytes": 451,
+      "sha256": "91e7b422115481b0eb9b60b99a53e3e68cac3cb2f09facd5af9cc9213e919cd4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0237.res": {
+      "bytes": 451,
+      "sha256": "41f95b29f5080e14c049314001a9488bda37ae8d6df9791cc240c08057f27e75"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0238.res": {
+      "bytes": 451,
+      "sha256": "ac03f5289c6d0bb35efdfb57e3700aceb900832d143b65f8a84ecd747f0c827b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0239.res": {
+      "bytes": 451,
+      "sha256": "33ceb91d66f86eed42402533cf7d8b09124214b29317cbcb506a2ad143dae802"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0240.res": {
+      "bytes": 451,
+      "sha256": "29289d55c87026677d580ef1f71b43a28b2e7937d2054dbf72422eef6c260f79"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0241.res": {
+      "bytes": 451,
+      "sha256": "23b32f25b6322a4010c0ae2b47fac791c2a6ed3553ed8ddac8fd8f20b0b5a6f5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0242.res": {
+      "bytes": 451,
+      "sha256": "704b9ef208de7b950c64eca9ee2d69be1574777a613c01927d724f1f66be6b5a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0243.res": {
+      "bytes": 451,
+      "sha256": "959853f7770dc8c03a6c1d4082ea336c97dcb551e306449675d6aded6dddfd30"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0244.res": {
+      "bytes": 451,
+      "sha256": "4a28cac1e39d265d4db7aa5affa9225a12dcdcc73889e002b0b9d68173ef39d6"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0245.res": {
+      "bytes": 451,
+      "sha256": "26abd2e0031578585443fe64cbfe4e4b321a10eeb0a50214fd24804333b84552"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0246.res": {
+      "bytes": 451,
+      "sha256": "7cc55eef71a52718a0475035573a7796aefb1f3e4d709dcb41dc4e5eeb8c54ed"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0247.res": {
+      "bytes": 451,
+      "sha256": "9b757d3d9eef56b5dc74559734461aeaa6047a0017205b6aa30c7becb9df7dc8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0248.res": {
+      "bytes": 451,
+      "sha256": "e2e7b8b14243b8894e9e807ee06bd03e48572cf98a71ed781d33c44adbcd67fe"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0249.res": {
+      "bytes": 451,
+      "sha256": "e48844798d2e65a4afda8684667dd98d1579b5b13181b539a52e575da7cb2733"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0250.res": {
+      "bytes": 451,
+      "sha256": "6be256cb78728a0d3c650c2fd8bd2932e59a547e038096d9990b71722eb23a4d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0251.res": {
+      "bytes": 451,
+      "sha256": "e8130081c66a3f4371f8c559cf14d423e439b18183df72488820bbe927a17f72"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0252.res": {
+      "bytes": 451,
+      "sha256": "d7f2b1cc5bbf1860dbc707d682c2bbe5002854d9d7912378827b906a4b65695c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0253.res": {
+      "bytes": 451,
+      "sha256": "c0e410e040d166291a56a9e082ee9c428677813fb2966ebece4ad37b1c06212f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0254.res": {
+      "bytes": 451,
+      "sha256": "48f685b2b92c28c5029752948db99a1e7cc3ff51b013ee36918a877da1a99fa3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0255.res": {
+      "bytes": 451,
+      "sha256": "8a3de42dd22e3952b801873333d8c0556db2a01fbc5d29488117633440958e2f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0256.res": {
+      "bytes": 451,
+      "sha256": "d4bd2f5bc5f75df78072d1c5d119f538867a49a48d533a83eb5cd3b10f793d7d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0257.res": {
+      "bytes": 451,
+      "sha256": "f89e1b306b9d88a6d52356fea5286fdd122266b05a5b6da87c1af2b254f5623e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0258.res": {
+      "bytes": 620113,
+      "sha256": "62589ce98484fda0054599b3c52d63c128e050d3838f479e66af0eddedbe4015"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0259.res": {
+      "bytes": 649152,
+      "sha256": "3b0e54e99bfd74cc4dfbd4aeb10ea2d9cff4bd2b54c1209d8959c6139175c5db"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0260.res": {
+      "bytes": 729839,
+      "sha256": "c33de72c79afaec004c5b785b74726e459cf08cc58ad2349eb9342c8e902c806"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0261.res": {
+      "bytes": 654348,
+      "sha256": "7026902609b0f993ec6f909ac46819a0ea84334e0a8cb518d25caa92e0243816"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0262.res": {
+      "bytes": 451,
+      "sha256": "a3b1d8b4b44e3ce25026deda0f4fb521698924b6df25b2365b8921c49a6b06ee"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0263.res": {
+      "bytes": 451,
+      "sha256": "a151647284004309b6f67ef59c19f1b31ae503446fa2ad6c21edfe7599b9459f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0264.res": {
+      "bytes": 451,
+      "sha256": "823099f8288ebe595597760f70df76a1aba528cd6d06933486fa29e5e60c496e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0265.res": {
+      "bytes": 451,
+      "sha256": "c626f1393d78f8b4ce12b7ffeeb73f760d064af684cbb597976c7f4fd5cac924"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0266.res": {
+      "bytes": 520,
+      "sha256": "5046fbc3079b22feb38a74bee9d1e970afd265658987ea42b2161df1c701cf62"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0267.res": {
+      "bytes": 451,
+      "sha256": "f675db720f90a527db06e07eea262041f9fd13231eaca45ddfe07196b3168474"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0268.res": {
+      "bytes": 451,
+      "sha256": "2ed8dd6dc224e5934af5cf2622f2ab3ea74e93b3703601d4b9f9868a7caf32e2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0269.res": {
+      "bytes": 451,
+      "sha256": "5858a0327756e30727e15c7cf3221170a7f746aded276dd6901e22f7182ecb71"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0270.res": {
+      "bytes": 451,
+      "sha256": "19599f49b07eb4d662131f3e828935bddfba700d112140c6d2cce0de370d0b43"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0271.res": {
+      "bytes": 451,
+      "sha256": "e9c11a4aeea56a8c84ebb2019f5b09677f6adc756234cd5c4d39662b042ebbe0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0272.res": {
+      "bytes": 451,
+      "sha256": "140f34cfbf65351b39a211576a3ce954181899e38a2b9ad7a1c1799adf099636"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0273.res": {
+      "bytes": 451,
+      "sha256": "d88371408fe6a1c30af9cd1a9a819fb26c27c897a121080e00e947d3495e7983"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0274.res": {
+      "bytes": 451,
+      "sha256": "0321e557af441d5768f5f8681b4df6ea88ce630ab69ff9380c01671d2e4ad06e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0275.res": {
+      "bytes": 451,
+      "sha256": "97a115758752ec434a11e747162732e62b33d61b232754c52f4af7e726cf9572"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0276.res": {
+      "bytes": 451,
+      "sha256": "0bfb4d50a39013a0af7a8cf2cd0598cd886d101299659fc4d706eb4cd67c4008"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0277.res": {
+      "bytes": 451,
+      "sha256": "f1b1e0fe3ec8d0cb4a0462f190b6fa63db88cfaadd6fbad6cc3dfe6e06969737"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0278.res": {
+      "bytes": 451,
+      "sha256": "f7dff7f8da513cd8d4940269e62b0093b61d387a8a56f1f75d9e2c95e1efd42c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0279.res": {
+      "bytes": 451,
+      "sha256": "e47dba34b6700000abf70f5671ac5d29b986420288b29d084994e851164d081a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0280.res": {
+      "bytes": 451,
+      "sha256": "d875f3000dee544aa8f7047fa54f75b8fdf7c32be16ebc38e8b70b2ab3429a42"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0281.res": {
+      "bytes": 451,
+      "sha256": "6dcac8ca6ad250981aabe3b9aa2f49b09cd04961975c3f1567549a60e61e8594"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0282.res": {
+      "bytes": 451,
+      "sha256": "eecaee0250e4204fac5a970c5761b994fc94337dcd3ca783774be40bcf8748fb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0283.res": {
+      "bytes": 451,
+      "sha256": "3549d6bc6d2750d763f35bcccdb599aac02857fe8c9d7766413be868100889b5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0284.res": {
+      "bytes": 451,
+      "sha256": "3a4107e86f729137613ba603d18a5aaadd81f8070856045d682fd5ef64ecbef0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0285.res": {
+      "bytes": 451,
+      "sha256": "7fd5af7d8a9ae93bcdad2a05a9fa389065bd7209e7e1d4f9d21f2dfa550d5a85"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0286.res": {
+      "bytes": 451,
+      "sha256": "835d950d0b148fcce07ce37ab7551f64e329ccde1b761d0d227276c8a5b003e9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0287.res": {
+      "bytes": 451,
+      "sha256": "c3c2e369e797c3cce0c7bb913b63e04fb4529ad515fd2d003caf86065cd41af8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0288.res": {
+      "bytes": 451,
+      "sha256": "f0c392d035b71cd98bc6ce94272b1a48b6fc708f9b380289ee1db572d3152a43"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0289.res": {
+      "bytes": 451,
+      "sha256": "330a1e2ae01522a39525ac7354cc90089206da3a3a1a641fee6fbc687949480e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0290.res": {
+      "bytes": 451,
+      "sha256": "8e89d7f74c4ccc4e5a9dacd5c7abb6d0a05817b8a6823cc99f83996f273f4f60"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0291.res": {
+      "bytes": 451,
+      "sha256": "1b262ceaaafd9ebd2c7cbecf1cab875961f6c53b063d0df837736a70b319fa90"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0292.res": {
+      "bytes": 451,
+      "sha256": "ecc346a96fb6aedca29e8679befe27554fc7af973d5be1ba6c7c12e8657badf3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0293.res": {
+      "bytes": 451,
+      "sha256": "077571fe700091a207a2cdcea53d367e383d174d8b9b4e4f0dc14a32f3448db7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0294.res": {
+      "bytes": 451,
+      "sha256": "6eb7deedd882147979d605144968485caa347603b7bf63a0ee2f8798f5fac02c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0295.res": {
+      "bytes": 451,
+      "sha256": "c2ca341cfec56cc89dd66ed8344f077843a4c590825560235db90a43225e57b0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0296.res": {
+      "bytes": 451,
+      "sha256": "4ea89771beff129de4432c548af193c9428587c831966e98acf6ffc973c236fb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0297.res": {
+      "bytes": 451,
+      "sha256": "998f2fe080a4edd6e497f40fa2d1940be91eccac060e2073eb8b4c072cd23b79"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0298.res": {
+      "bytes": 451,
+      "sha256": "7fd9eb2e731f1efadf781d16dd35335c329f9653ec7931d20b668a946a6978db"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0299.res": {
+      "bytes": 1018150,
+      "sha256": "24cbc6b59ef8881c234339b3b9958d3a9a9664ad8385fce33d3904f5188b63b1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0300.res": {
+      "bytes": 665178,
+      "sha256": "f2f825ae7e9e9d518c2f6bbf428936431cd917cf5f49eb1de5c8633754d586f8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0301.res": {
+      "bytes": 954005,
+      "sha256": "6c86afeb6023ac16e919e7cad949061854c0968ab1b6ed550bf75702571d69d2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0302.res": {
+      "bytes": 451,
+      "sha256": "a95e916c9d854022f7a1079ec8ae4178a8eeb1a9877ced75b42a050e3b79b7b8"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0303.res": {
+      "bytes": 520,
+      "sha256": "9129bf92eac9d34aab6e8e36c7a9bb7d870fe917ac8a1306197550da6b2b93f4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0304.res": {
+      "bytes": 520,
+      "sha256": "ea230e730baf96ca95b3aebbd6ff92b806c720795c7bb267bd89236418ad9ef5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0305.res": {
+      "bytes": 520,
+      "sha256": "cc045e9179cddb33b3832782353da81a1f94775694155e5ae5aaa16ee2eb49a4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0306.res": {
+      "bytes": 520,
+      "sha256": "b6f6ce6e3f5833ba65d4d580c64a4a108595dc7a0f5967a655478fb6dc710f56"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0307.res": {
+      "bytes": 520,
+      "sha256": "22a04694f4780cfbdfafbf1fc398cf73cb437606587f4cdd4437d2eb8e5ae317"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0308.res": {
+      "bytes": 610480,
+      "sha256": "f96fac493657f7e428f173494f79a2f6ae6268387ebfeb57b0fe2f9115a51766"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0309.res": {
+      "bytes": 717421,
+      "sha256": "45a5c0062404d19424649a7aebf9655f0ee7326cf6d0e1b6a9f7d3914803b608"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0310.res": {
+      "bytes": 733532,
+      "sha256": "46f184f2dd113c0428f61933de2db56e91549d6d619b5eaad9c9b90ce7d45c59"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0311.res": {
+      "bytes": 609821,
+      "sha256": "9facb7e61e418558e638ad4df28a6db9c661a6fe774e44944de53d2cb6ef11e5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0312.res": {
+      "bytes": 649134,
+      "sha256": "a2b82c64c97945ca176b4cb37ea0cc86ce28e28ddd7179b25b9d0692f2e7d9a7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0313.res": {
+      "bytes": 762417,
+      "sha256": "ceaf14cb5652bc043cac2bc958b3fcb7287e90d49dba7ed48e7bf6001aed91eb"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0314.res": {
+      "bytes": 1000833,
+      "sha256": "e3b5eda71e7a68b7c7749fc0e93884d9be0e6891c0b5ac222560f18843008362"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0315.res": {
+      "bytes": 617793,
+      "sha256": "7c5740a4d76e68541b4107f92d12960611ad6ada61e6deff6b6bd72e7a0dfc5a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0316.res": {
+      "bytes": 883794,
+      "sha256": "262a23b557ba2cdc7806a08bd1abdce334f7b82051dd50f98299baef2e93ec54"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0317.res": {
+      "bytes": 713618,
+      "sha256": "11cf2db19ff06c8ed96e1db0bb951401f23a1642a24a8bd85dbad6f3857707d1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0318.res": {
+      "bytes": 682273,
+      "sha256": "000517f6e7980ef33057bf7b84d074dc6b0251b0224ebea9e4f166cf0aa9eed6"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0319.res": {
+      "bytes": 982457,
+      "sha256": "69f1051bfbf452f30360a887533b80ebf6c028c26103cee62b728df44155c29f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0320.res": {
+      "bytes": 636157,
+      "sha256": "62b06922736923a131faf3a380a2fc49d1329402b1240f8deed154ae2be94211"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0321.res": {
+      "bytes": 653256,
+      "sha256": "faf21ceedc017658adeed42afe23a543e9ffd78f0d19e2f324e98747ad950093"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0322.res": {
+      "bytes": 774147,
+      "sha256": "b18d7e7dfdbb2c7687739b740752d305a250cc1abb12058dad51ddf82900071d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0323.res": {
+      "bytes": 711619,
+      "sha256": "5073402344a83a04fb596f947d2b0f22400cb9e15640cb6861d5d08c27deb56e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0324.res": {
+      "bytes": 520,
+      "sha256": "0d92e32f05d49c4c9f90c8090cfd04b3427f7df3c439b1c228f313ed607786ce"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0325.res": {
+      "bytes": 451,
+      "sha256": "820b60df307b773600a9958a76020c4d2ab6c2fb3b89604984fc6a4acb6c9aec"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0326.res": {
+      "bytes": 451,
+      "sha256": "ddc9a15001295ef174ddf04fb1be2816202690250ad6eb505e6d00e0d7cfbc3b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0327.res": {
+      "bytes": 451,
+      "sha256": "04d9a23f138ab47b53a2470cd817fd2807d5a431b81c76251b1f7d7419425e25"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0328.res": {
+      "bytes": 451,
+      "sha256": "87b625faf255b84164aedb4cd1fa3d2954e56daf2743a3af7a07517942d78ca4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0329.res": {
+      "bytes": 451,
+      "sha256": "b4f8d427124b6cbc51ffecaff14040c133ef680d9af1f6cb4e26540954112248"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0330.res": {
+      "bytes": 451,
+      "sha256": "b7cdee4198181c91b9a1f0184a083b851123a36f2d6b877bea009bf3056ebd94"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0331.res": {
+      "bytes": 451,
+      "sha256": "87cfedcf907aa9b3b10d99d57e11017596938976a34dadbc1b425ab32e4c99d5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0332.res": {
+      "bytes": 451,
+      "sha256": "5f1509d1c6e2a15d05f9cd3241218b29d9f0a4e10f93dbf81458137ea5b973e7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0333.res": {
+      "bytes": 451,
+      "sha256": "994b3dc2986d3cce3831b95f9d7512edb50329e805f83842fe37672b9c4f774d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0334.res": {
+      "bytes": 451,
+      "sha256": "810bd4119075abb66962ef87ce9644a3d2fb1974872a26a62a8896934fe8d749"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0335.res": {
+      "bytes": 728301,
+      "sha256": "48b497ae70e1cbdbab18385ce4c68e3611dd39b889f15d5d7255325f276f52e7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0336.res": {
+      "bytes": 639049,
+      "sha256": "897b028df0c28f07ffc1161b1b9f60eab3096ef2c35244daacc27edfbba5e2d7"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0337.res": {
+      "bytes": 610028,
+      "sha256": "2d6ccc016b394a632728af9635ab001f7f9f3ad049d5e267f5ff65f32b79bb72"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0338.res": {
+      "bytes": 1084146,
+      "sha256": "7f025a8e3569399614d054ef428a3018070a1386b9e3655b83f37b0051d30099"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0339.res": {
+      "bytes": 1004856,
+      "sha256": "dcb441eb6f2f5fa7d0851ca044c379006ce040ad8fbe3ca0bf92e886b62b578e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0340.res": {
+      "bytes": 659852,
+      "sha256": "cce77f14b8862a4ef01a8d25faebe979a9c593a41711f805a3f775df8f3f40bf"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0341.res": {
+      "bytes": 682654,
+      "sha256": "d8ff0aeda89da1de0b944deb81cbbdaee69e20b529973624ccfe0f87913c17db"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0342.res": {
+      "bytes": 670424,
+      "sha256": "f8ca1aa7ea0f61676a2b98dd2d4841aa1f9f9571cc900aef53365bbec939986b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0343.res": {
+      "bytes": 893404,
+      "sha256": "2857fb31f56eb4f0d59f31e9d279f268e12dffdcd15ecb0597125323d77b34f6"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0344.res": {
+      "bytes": 451,
+      "sha256": "6ad9cfeb7b3977bfd698dd7d168a686ac12800d4f66f89444ae0bbbb295d76e4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0345.res": {
+      "bytes": 604717,
+      "sha256": "7a2001cecd49d82408275a1dffe454d2e4956f47a8546fda30ab0b535ffc217c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0346.res": {
+      "bytes": 451,
+      "sha256": "ff0273d75518fc28435b4f46e0d90ef12285d70b101840e0a418e9a999706a28"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0347.res": {
+      "bytes": 451,
+      "sha256": "185edc53ec7eb59207416da0a7f7644f202990403fdcf7d0a3906ccf1d963f88"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0348.res": {
+      "bytes": 451,
+      "sha256": "95fff21fcf88dea08a934f305df17d78bfa4a8623cd0cbfe758c6b974e9d9fa1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0349.res": {
+      "bytes": 451,
+      "sha256": "ed3c8fc5cef89d8a5f039f9d5199060c3e31bb60892610b0a7c4c49f25420524"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0350.res": {
+      "bytes": 451,
+      "sha256": "839318024bca7dc818a750998fb10f27c5eddba6956b0048c335f8ded849a259"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0351.res": {
+      "bytes": 451,
+      "sha256": "a5d9ae2418ab8e8cdba90329c0da1dbfb5132084bd43fc06f5acf5530e578986"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0352.res": {
+      "bytes": 451,
+      "sha256": "09c51ed08bd7210e95866569be3b97cfd7fd8c31e245b4b6d84ecbcbf270e2a4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0353.res": {
+      "bytes": 451,
+      "sha256": "3a4b39b902176ab5b317ac804363c27102c095f330bd7a84fc7a9bdc2e0d7dfd"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0354.res": {
+      "bytes": 451,
+      "sha256": "22ffbf7d8769280299c47b20115ac5d82b45d7bfbadb57c894ac91ea77dffdae"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0355.res": {
+      "bytes": 451,
+      "sha256": "9bf7eb6f0f9cfbd1a3624225ac117c6708492d7cdc9b3fa76f4924782517bb3e"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0356.res": {
+      "bytes": 451,
+      "sha256": "f6126e086b48b818f84449b25bcbcb77ba59ee04cfd0117b2a1fe0eca260cdfc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0357.res": {
+      "bytes": 451,
+      "sha256": "38b4bbdf5c4ad12cf60ecc662937978c1d6223e3939fecd75a0912e242380712"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0358.res": {
+      "bytes": 451,
+      "sha256": "404c3b41b1d993bf3907ffcae7298a4a2382ebd442336821ece220de49771ce5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0359.res": {
+      "bytes": 451,
+      "sha256": "d7f89ca7e923c503f947d891ad6c05893925d33c82f48ae83b3c8011a7151112"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0360.res": {
+      "bytes": 451,
+      "sha256": "6b7fb04a4ed1a3cb5febdddfff645e108045c3e619cfe95d700dad7863f99aad"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0361.res": {
+      "bytes": 451,
+      "sha256": "3730c7705e85123a6d2378d8c754af660dd2778d94f8bcc825e46bd4ef8d339f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0362.res": {
+      "bytes": 451,
+      "sha256": "26bfeaf7bedd29121507213c6863b8fc45cdf90fceb2b1849e4925b2a7eb53a2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0363.res": {
+      "bytes": 451,
+      "sha256": "5dd7a9d9d88dc5bb8696b1df918dad807ca9a3def0f4bec3013c751de4af5848"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0364.res": {
+      "bytes": 451,
+      "sha256": "214b31027fecc3470485eeb8a3c61fe2c0c9d3895899656db6f4853ab038de60"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0365.res": {
+      "bytes": 451,
+      "sha256": "ebbf5aaa82f9ab412403bae3e8369ca5bef2b1c58522ca5dee2169b9726b4fbc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0366.res": {
+      "bytes": 451,
+      "sha256": "4eb9fb2155a623be803e855188a0464862d572389b68e48571d982795e14c56b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0367.res": {
+      "bytes": 451,
+      "sha256": "b86bff100a7c747d393b7f3f322fb8f0b4d28f8fb8443fdf831f5dd1057c96a2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0368.res": {
+      "bytes": 451,
+      "sha256": "20d8a18031e84a55b88896774c6c652354acf117e01d38c978532dd7594db6ba"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0369.res": {
+      "bytes": 451,
+      "sha256": "84be1e5c92bbe6101f1ab3780b92807c3f7d74f2211762ad4775608a32831879"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0370.res": {
+      "bytes": 451,
+      "sha256": "a4bfe7bfacaf9d8c570320a79e07aa54d7512eaa15ddd7a1967d3e8531a0506a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0371.res": {
+      "bytes": 451,
+      "sha256": "8769d0f1da726ae8b2af45b3d2c461319d6576329734a0c78b8290d8b57521e0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0372.res": {
+      "bytes": 451,
+      "sha256": "e86b4700d35c28cedeb447e5a00d421dcb2ea258efcf8a41abb8aa7fca9723de"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0373.res": {
+      "bytes": 451,
+      "sha256": "e803e37d0744569242e7fd6d63bd7f3100a6fdb54a5e01cdf4dc64fad26d269f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0374.res": {
+      "bytes": 451,
+      "sha256": "fa8e4cc8220c423a4f5523dbd6b729935a54ae218eccc98303753b6cc9c16842"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0375.res": {
+      "bytes": 451,
+      "sha256": "c9dab82155472371a11200923285b8a9fed9e8494411e42a3f2b41da2b9164ba"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0376.res": {
+      "bytes": 451,
+      "sha256": "ced3ea36b654db8649d85d73936dcc21424f487ddea24e3f98b39d47a5075620"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0377.res": {
+      "bytes": 451,
+      "sha256": "5deccc5af561111bc012cd93f4f7525a5b2fb2e966a125290ab193bd744b785b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0378.res": {
+      "bytes": 451,
+      "sha256": "066ecdfd2ea5860d203d526034ac6145a878c874b9c8196007485e8f1a3a0904"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0379.res": {
+      "bytes": 451,
+      "sha256": "05d02328891b7320739ae712d4d2c5431e5271cf0dee5874451d9c4e9fee17c1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0380.res": {
+      "bytes": 451,
+      "sha256": "78387199fbfb2da6abfce011e30b4fc2a727860e091fda6819af61b51f38df4d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0381.res": {
+      "bytes": 451,
+      "sha256": "d6487afa28157017067d8667fe62e6bf3b2fb2f2394e0e5f00bf12998269b7a5"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0382.res": {
+      "bytes": 451,
+      "sha256": "5b6b5d8560c98d7c142acfc574832904f308a769c0dcfd8387870a273e3139b9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0383.res": {
+      "bytes": 451,
+      "sha256": "a62d19c954be984944c2c941b051ec57979593bc4b9735fc486910d7a7cda248"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0384.res": {
+      "bytes": 451,
+      "sha256": "b4c7dc38b834277e0bff241987692e7976269e5a2be6142afdfd37264d0c2687"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0385.res": {
+      "bytes": 451,
+      "sha256": "6afd93427465b48ddfb4949be1e5d050b5b42a735f033211ce4554d907f995ca"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0386.res": {
+      "bytes": 451,
+      "sha256": "0c8b9f0a2368302fbf11d20d215896e5f36b273d98d74a1f4a458f431c94df39"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0387.res": {
+      "bytes": 451,
+      "sha256": "15cce982ef3f49ca793607ce1dc7fe04f2818c50218167895bfc6ffecd5bd71f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0388.res": {
+      "bytes": 451,
+      "sha256": "18b0c8690c1879362dcd65a1cef8c208f19c6f03b9f0643f67dc207e5d03dd46"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0389.res": {
+      "bytes": 451,
+      "sha256": "addbd305403854164cc5daba6731d4ab11e2a796994655a325633a60f053121a"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0390.res": {
+      "bytes": 451,
+      "sha256": "db2f4eae3e69a8ff36688a6a53a7b1f8bbd56cef720e1606d476afe6866f8448"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0391.res": {
+      "bytes": 451,
+      "sha256": "74de8b64d7cb2f8b58246ad93466c26fa1f4f9a17a6f133d055ba9a93960f004"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0392.res": {
+      "bytes": 451,
+      "sha256": "5cea0c90d2ae4c2d82c3a12eaeb469e5ea4f72072ae90c316132f3bb15f2cf6c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0393.res": {
+      "bytes": 451,
+      "sha256": "8117ce9fc5d202aacb26058d209a606696cbd78334fa515d2b07759d53bfb6ec"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0394.res": {
+      "bytes": 451,
+      "sha256": "335a1acbc3f5bc9f6dc4daa2fc8f9ceff2fe8e2201ced701c2aa1a9b61c54aff"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0395.res": {
+      "bytes": 451,
+      "sha256": "b3c9a689d6a8b61a369ff47d65ba1fd799dd30dd178dece10d6aa8fc6a1c7192"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0396.res": {
+      "bytes": 451,
+      "sha256": "2949e08b77c55acfa759509cb7e758bbbd9e57fe70f928b90b147c38028f9f40"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0397.res": {
+      "bytes": 451,
+      "sha256": "8ea5d181b9a104d2384bcd1fbd70433f456ad8603557a0f167cbad33a48e76f2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0398.res": {
+      "bytes": 451,
+      "sha256": "512b2a826a689b0e2749d6d72b95a2ff85e4f7090fd955b1d7ef899727370136"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0399.res": {
+      "bytes": 451,
+      "sha256": "bfbdac4eac92a751d2a8d86f291f63a5fbd3dfa2ee80d5e731a8b7792e907e67"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0400.res": {
+      "bytes": 451,
+      "sha256": "f35e0708fe5481b20016e8a985f40bdfcb1b916d60be72f8ca395ae76f3fe87f"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0401.res": {
+      "bytes": 451,
+      "sha256": "f011bcb5721754b0906ef60c4222f9267062d8305644c417ccc07f1f10ca466b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0402.res": {
+      "bytes": 451,
+      "sha256": "c48f345e005cc692218bfe9d6bf5094b409ca4677fa0b1f25d5c4ac53e56ac3c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0403.res": {
+      "bytes": 451,
+      "sha256": "84df2d18e88dea57454c9a9daf95e19feec87e01fbe1a0714e7f81eba3b30415"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0404.res": {
+      "bytes": 451,
+      "sha256": "74a70a27508e86b64269f640844bee44f45815f95cf592de87f2867739f87389"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0405.res": {
+      "bytes": 451,
+      "sha256": "da241337256af7da37b6ad0ff4a093674954381427d48208fe04378c3a93e1c1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0406.res": {
+      "bytes": 451,
+      "sha256": "01deaff21e60591f7af73e6469dcc2fcf05abad07e41d18ed57b701f233fab53"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0407.res": {
+      "bytes": 451,
+      "sha256": "1683c27f6f18c5558be83980c95d279105d0881b4b1b4a48e9c05fc7aedcb2b2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0408.res": {
+      "bytes": 451,
+      "sha256": "0759f63e3ce750680fa671104b68e08df84ea3ab38d19eacaf8ead3913b180f3"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0409.res": {
+      "bytes": 451,
+      "sha256": "087ae077a5f483e6444035ddcebd60326bad21167283a12b73d28b412ff658e2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0410.res": {
+      "bytes": 451,
+      "sha256": "0666aeec641126e74dd8e5beb69794c7e139bfc8018845e8d513d6bb37a6b8ec"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0411.res": {
+      "bytes": 451,
+      "sha256": "1701f482893c2ea1876a8cde6f6481e614b31420b44396b020c8d392497ccd06"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0412.res": {
+      "bytes": 451,
+      "sha256": "bb470b6859cb17b3fed12d221ee36498a89b372a32481bf29678c75ac73ff460"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0413.res": {
+      "bytes": 451,
+      "sha256": "5815dc68b03eae348e56572f2053ffb4c3e408817f56d8a01fe4ab91f1a5a788"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0414.res": {
+      "bytes": 451,
+      "sha256": "d85f996d4f6a3a85c65fa119279a73b42ef22eb57713e0f2a89cbba9d873e8f9"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0415.res": {
+      "bytes": 451,
+      "sha256": "1d5336627ba1e72c8f60c7dd6390b1fd32d7b529b6c2ef90aaa0de276589c71b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0416.res": {
+      "bytes": 451,
+      "sha256": "f45ec46ed95c9560ed111b61cdf6f2cf602bfecea87ce4ccd424c79a7a77e2b1"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0417.res": {
+      "bytes": 451,
+      "sha256": "7c35e9a8b2b85b07521260b1a0ff9d6a4540020360c490e8d0bb1a58ca53b7b0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0418.res": {
+      "bytes": 451,
+      "sha256": "30bbde971cd34614923dbbcd414fbb9db2df24715418ca9dbd066dd1820e7492"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0419.res": {
+      "bytes": 451,
+      "sha256": "7296a88e122dbda0492ae4dcc39140913e0b6f19dfb77461fbdc19b8e76715d4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0420.res": {
+      "bytes": 451,
+      "sha256": "2cfd8af23f3b4a159abcdf2f66905824149a1ce00f4ca1c709db01979e36ab38"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0421.res": {
+      "bytes": 451,
+      "sha256": "cf5d35354c9872a84497a04fe54bbfbbee95abd47a74555e742b1b80d2cfc4be"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0422.res": {
+      "bytes": 451,
+      "sha256": "ae67650d126f867659341587f25247f6c1a860a2902cbdc26a701cc603d4bc75"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0423.res": {
+      "bytes": 451,
+      "sha256": "7d534c131f6ff8d01719f1d7883716fd863e0398e2f38b9b7a298a5e3d5cd1d2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0424.res": {
+      "bytes": 451,
+      "sha256": "a0306ea6fc984994f44edef5b0ed38aec10b0f768bf314e642e54cf26448709d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0425.res": {
+      "bytes": 451,
+      "sha256": "30536e7b2a88fae6fc5dffe2a58fb061751a812f6b62b8bf2fa5999a82d96b1d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0426.res": {
+      "bytes": 451,
+      "sha256": "76d6de55ff10d50ad3b733d1a904b64895da342098b58b461ba4418b18aa3eef"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0427.res": {
+      "bytes": 451,
+      "sha256": "8c6df0a1dafe14b10805fb5ca161f6085b25451c27e2f55a2ec80c4e6402ba0b"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0428.res": {
+      "bytes": 451,
+      "sha256": "e4c98b4c1c21eab170c85b8ccfbd8de7d287100d58dac8398b0f1e7fa54c94fc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0429.res": {
+      "bytes": 451,
+      "sha256": "ac15ba1b7281b76c7a8f4039184ee63ae6fede46be4f56799e59eb3a9b7e4dd4"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0430.res": {
+      "bytes": 451,
+      "sha256": "56f20717a6a6332b7d092b756b10ddb6430b6d612c7c4022221ffc0e921e26f0"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0431.res": {
+      "bytes": 451,
+      "sha256": "264d20ab56005ddbb517dff4817021e5a687812e025a098ee74d89fbb5b8e24c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0432.res": {
+      "bytes": 451,
+      "sha256": "0417871ac0e55d634b49976e172298c787f42260456ddcb0e16cd5de5cab7bbc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0433.res": {
+      "bytes": 451,
+      "sha256": "553b92541f67a842756fc4f5dd1f39a3a934c6598d88593514c3bb869e307dcc"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0434.res": {
+      "bytes": 520,
+      "sha256": "9959a4b0e0f894b0c9fb43f2bc0d1ddf87b6ddf47a987cd069b985570d79498d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0435.res": {
+      "bytes": 520,
+      "sha256": "7a3d913d74f2b6aa9f5bc17942cf22e5e1b55a3d6ef93eb8949c848d31a60e1d"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0436.res": {
+      "bytes": 451,
+      "sha256": "fda34221fc9a69e731b17c7c544dc94428a8b1e6ac838013f2331499eca3ac50"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0437.res": {
+      "bytes": 451,
+      "sha256": "edd1d9ffb632a981db733d0ea6c32427925c0159db8f61dc5daa2039ea9222d6"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0438.res": {
+      "bytes": 520,
+      "sha256": "08940cf4a7748f4afe7ce82e69df39efaf3964f47cd855401eab1162f533309c"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0439.res": {
+      "bytes": 520,
+      "sha256": "93076676ed94d6818ce28f59f2825dacc75bb10a0f758968166f645a3434eeb2"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0440.res": {
+      "bytes": 451,
+      "sha256": "3270225f80a7d140e9c3a65878b5df896001e5494593cfb108fb498202552ddd"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0441.res": {
+      "bytes": 451,
+      "sha256": "ae1cb86d14d682c254f871050278d9f71572a0469a9b354430a40538ee7d3330"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0442.res": {
+      "bytes": 520,
+      "sha256": "032dbc99072436477e16048f7fd1aed20f41553124e4f8b68b2ec9063c4d3a53"
+    },
+    "assets/worlds/editable/survivor_base/mesh_0443.res": {
+      "bytes": 520,
+      "sha256": "dc6862bda1fa96fb912d3accab913fb7a22acfca0003b1637100c2b0142a1544"
+    }
+  }
+}

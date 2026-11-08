@@ -46,7 +46,9 @@ func _process(delta: float) -> bool:
 			for route in model.stations:
 				if route.get("destination","")!="city":continue
 				for p in model.state.players.values():p.pos=route.pos;p.height=0
-				check(model.command(1,"travel",{"route":route.uid}),"host travels party to city")
+				check(model.command(1,"travel",{"route":route.uid}),"host prepares departure")
+				for id in model.state.players:
+					if id!=1:check(model.command(id,"travel",{"route":route.uid}),"other member prepares departure")
 				game._sync_world();stage=1;break
 		elif stage==1 and game.world_id=="city" and not game.world_loading:
 			var room: Dictionary=game.world.layout.buildings[0]

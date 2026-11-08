@@ -180,7 +180,8 @@ func offline() -> void:
 	if not _local_profile.is_empty():
 		model.state.players[1] = _local_profile.duplicate(true)
 		model.state.players[1].id = 1
-		model.state.players[1].pos = Vector2(-1,4)
+		var base_spawn:Vector3=preload("res://features/exploration/scene_points.gd").spawn("bunker")
+		model.state.players[1].pos = Vector2(base_spawn.x,base_spawn.z)
 		model.state.players[1].height = 0.0
 		model.state.players[1].reloading = false
 		model.state.players[1].fire_timer = 0.0

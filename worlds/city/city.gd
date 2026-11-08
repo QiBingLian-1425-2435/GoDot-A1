@@ -6,6 +6,9 @@ signal map_loaded()
 const ROOT := "res://assets/worlds/city/"
 const SHADER = preload("res://worlds/city/city_surface.gdshader")
 const KINDS := {"solid":1|8|16, "low":1|8, "post":1|8, "fence":1|8, "roof":1|8|16, "air":1}
+@export var scene_layout:=false
+@export var scene_rooms:Array=[]
+@export var scene_bounds:=Rect2(0,-300,300,300)
 var zone := "city"
 var build_collisions := true
 var loaded := false
@@ -18,6 +21,23 @@ var _door_nodes: Dictionary = {}
 var _door_open: Dictionary = {}
 
 func _ready() -> void:
+	if scene_layout:
+		layout={"bounds":[scene_bounds.position.x,scene_bounds.position.y,scene_bounds.size.x,scene_bounds.size.y],"buildings":scene_rooms.filter(func(room):return room.has("door")),"open_buildings":scene_rooms.filter(func(room):return not room.has("door"))}
+		for mesh in find_children("*","MeshInstance3D",true,false):
+			if mesh.material_override is ShaderMaterial and mesh.material_override.shader==SHADER:_material=mesh.material_override;break
+		for marker in find_children("*","Marker3D",true,false):
+			if not marker.has_meta("interaction"):continue
+			var spec:Dictionary=marker.get_meta("interaction").duplicate(true)
+			var at:Vector3=to_local(marker.global_position)
+			spec.pos=Vector2(at.x,at.z);spec.height=at.y
+			_interactions.append(spec)
+		for node in find_children("*","Node3D",true,false):
+			if not node.has_meta("door_uid"):continue
+			var body:StaticBody3D=node.get_node("Body")
+			_door_nodes[str(node.get_meta("door_uid"))]={"body":body,"closed":body.transform,"shape":body.get_child(0),"anchor":node.position}
+		loaded=true
+		map_loaded.emit.call_deferred()
+		return
 	layout = read_layout()
 	if layout.is_empty(): return
 	_material = ShaderMaterial.new()
@@ -53,9 +73,7 @@ static func read_layout() -> Dictionary:
 	return value if value is Dictionary else {}
 
 static func spawn_point() -> Vector3:
-	var data := read_layout()
-	if data.is_empty(): return Vector3.ZERO
-	return Vector3(data.spawn[0],data.spawn[1],data.spawn[2])
+	return preload("res://features/exploration/scene_points.gd").spawn("city")
 
 func play_bounds() -> Rect2:
 	var b: Array = layout.get("bounds",[0,-300,300,300])

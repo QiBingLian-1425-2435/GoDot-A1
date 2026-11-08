@@ -151,7 +151,7 @@ static func command(ctx, p: Dictionary, action: String, payload: Dictionary) -> 
 			for member in ctx.state.players.values():
 				if zombie(member): return ctx._reject("⟦soul_rules.004⟧")
 				if alive(member): return ctx._reject("⟦soul_rules.005⟧")
-			return ctx.WorldTravel.enter_world(ctx,"bunker",Vector3(-1,0,4))
+			return ctx.WorldTravel.enter_world(ctx,"bunker",preload("res://features/exploration/scene_points.gd").spawn("bunker"))
 	return false
 
 static func revive(ctx, p: Dictionary) -> void:

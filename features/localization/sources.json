@@ -121,40 +121,40 @@
     "app/network/session.gd:148"
   ],
   "session.013": [
-    "app/network/session.gd:203"
+    "app/network/session.gd:204"
   ],
   "session.014": [
-    "app/network/session.gd:628"
+    "app/network/session.gd:629"
   ],
   "session.015": [
-    "app/network/session.gd:637"
+    "app/network/session.gd:638"
   ],
   "session.016": [
-    "app/network/session.gd:644"
+    "app/network/session.gd:645"
   ],
   "session.017": [
-    "app/network/session.gd:649"
+    "app/network/session.gd:650"
   ],
   "session.018": [
-    "app/network/session.gd:655"
+    "app/network/session.gd:656"
   ],
   "session.019": [
-    "app/network/session.gd:655"
+    "app/network/session.gd:656"
   ],
   "session.020": [
-    "app/network/session.gd:662"
+    "app/network/session.gd:663"
   ],
   "session.021": [
-    "app/network/session.gd:662"
+    "app/network/session.gd:663"
   ],
   "session.022": [
-    "app/network/session.gd:670"
+    "app/network/session.gd:671"
   ],
   "session.023": [
-    "app/network/session.gd:670"
+    "app/network/session.gd:671"
   ],
   "session.024": [
-    "app/network/session.gd:720"
+    "app/network/session.gd:721"
   ],
   "steam_service.001": [
     "app/network/steam_service.gd:20",
@@ -477,18 +477,18 @@
     "features/exploration/field_items.gd:33"
   ],
   "world_flow.001": [
-    "features/exploration/world_flow.gd:36"
+    "features/exploration/world_flow.gd:37"
   ],
   "world_flow.002": [
-    "features/exploration/world_flow.gd:60",
+    "features/exploration/world_flow.gd:61",
     "features/exploration/world_travel.gd:79"
   ],
   "world_flow.003": [
-    "features/exploration/world_flow.gd:60",
+    "features/exploration/world_flow.gd:61",
     "features/exploration/world_travel.gd:79"
   ],
   "world_flow.004": [
-    "features/exploration/world_flow.gd:106"
+    "features/exploration/world_flow.gd:107"
   ],
   "world_travel.001": [
     "features/exploration/world_travel.gd:11"
@@ -1662,31 +1662,38 @@
   ],
   "bunker.001": [
     "worlds/bunker/bunker.gd:13",
-    "worlds/survivor_base/playable_base.gd:12"
+    "worlds/survivor_base/playable_base.gd:33",
+    "worlds/survivor_base/playable_base.tscn:5184"
   ],
   "bunker.002": [
     "worlds/bunker/bunker.gd:14",
-    "worlds/survivor_base/playable_base.gd:13"
+    "worlds/survivor_base/playable_base.gd:34",
+    "worlds/survivor_base/playable_base.tscn:4853"
   ],
   "bunker.003": [
     "worlds/bunker/bunker.gd:15",
-    "worlds/survivor_base/playable_base.gd:14"
+    "worlds/survivor_base/playable_base.gd:35",
+    "worlds/survivor_base/playable_base.tscn:5048"
   ],
   "bunker.004": [
     "worlds/bunker/bunker.gd:16",
-    "worlds/survivor_base/playable_base.gd:15"
+    "worlds/survivor_base/playable_base.gd:36",
+    "worlds/survivor_base/playable_base.tscn:4425"
   ],
   "bunker.006": [
     "worlds/bunker/bunker.gd:18",
-    "worlds/survivor_base/playable_base.gd:19"
+    "worlds/survivor_base/playable_base.gd:40",
+    "worlds/survivor_base/playable_base.tscn:6500"
   ],
   "bunker.007": [
     "worlds/bunker/bunker.gd:19",
-    "worlds/survivor_base/playable_base.gd:18"
+    "worlds/survivor_base/playable_base.gd:39",
+    "worlds/survivor_base/playable_base.tscn:6417"
   ],
   "bunker.008": [
     "worlds/bunker/bunker.gd:20",
-    "worlds/survivor_base/playable_base.gd:17"
+    "worlds/survivor_base/playable_base.gd:38",
+    "worlds/survivor_base/playable_base.tscn:4538"
   ],
   "bunker.009": [
     "worlds/bunker/bunker.gd:88"
@@ -1731,7 +1738,59 @@
     "worlds/ground_zero/ground_zero.gd:315"
   ],
   "ground_zero.003": [
-    "worlds/city/city.gd:177",
+    "worlds/city/city.gd:195",
+    "worlds/city/city.tscn:14517",
+    "worlds/city/city.tscn:14550",
+    "worlds/city/city.tscn:14583",
+    "worlds/city/city.tscn:14616",
+    "worlds/city/city.tscn:14650",
+    "worlds/city/city.tscn:14684",
+    "worlds/city/city.tscn:14718",
+    "worlds/city/city.tscn:14751",
+    "worlds/city/city.tscn:14784",
+    "worlds/city/city.tscn:14817",
+    "worlds/city/city.tscn:14850",
+    "worlds/city/city.tscn:14884",
+    "worlds/city/city.tscn:14918",
+    "worlds/city/city.tscn:14952",
+    "worlds/city/city.tscn:14985",
+    "worlds/city/city.tscn:15018",
+    "worlds/city/city.tscn:15051",
+    "worlds/city/city.tscn:15084",
+    "worlds/city/city.tscn:15117",
+    "worlds/city/city.tscn:15151",
+    "worlds/city/city.tscn:15185",
+    "worlds/city/city.tscn:15219",
+    "worlds/city/city.tscn:15253",
+    "worlds/city/city.tscn:15286",
+    "worlds/city/city.tscn:15320",
+    "worlds/city/city.tscn:15353",
+    "worlds/city/city.tscn:15387",
+    "worlds/city/city.tscn:15420",
+    "worlds/city/city.tscn:15454",
+    "worlds/city/city.tscn:15487",
+    "worlds/city/city.tscn:15520",
+    "worlds/city/city.tscn:15553",
+    "worlds/city/city.tscn:15586",
+    "worlds/city/city.tscn:15619",
+    "worlds/city/city.tscn:15653",
+    "worlds/city/city.tscn:15687",
+    "worlds/city/city.tscn:15721",
+    "worlds/city/city.tscn:15755",
+    "worlds/city/city.tscn:15788",
+    "worlds/city/city.tscn:15821",
+    "worlds/city/city.tscn:15854",
+    "worlds/city/city.tscn:15888",
+    "worlds/city/city.tscn:15922",
+    "worlds/city/city.tscn:15956",
+    "worlds/city/city.tscn:15989",
+    "worlds/city/city.tscn:16022",
+    "worlds/city/city.tscn:16056",
+    "worlds/city/city.tscn:16090",
+    "worlds/city/city.tscn:16124",
+    "worlds/city/city.tscn:16157",
+    "worlds/city/city.tscn:16190",
+    "worlds/city/city.tscn:16224",
     "worlds/ground_zero/ground_zero.gd:319"
   ],
   "ground_zero.004": [
@@ -2147,15 +2206,17 @@
     "ui/inventory/item_shop.gd:112"
   ],
   "city.name": [
-    "features/exploration/world_flow.gd:60",
+    "features/exploration/world_flow.gd:61",
     "features/exploration/world_travel.gd:79"
   ],
   "city.extraction": [
-    "worlds/city/city.gd:42"
+    "worlds/city/city.gd:62",
+    "worlds/city/city.tscn:16239"
   ],
   "bunker.city_exit": [
     "worlds/bunker/bunker.gd:17",
-    "worlds/survivor_base/playable_base.gd:16"
+    "worlds/survivor_base/playable_base.gd:37",
+    "worlds/survivor_base/playable_base.tscn:3740"
   ],
   "bunker.city_route": [
     "worlds/bunker/bunker.gd:389"

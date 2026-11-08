@@ -21,6 +21,7 @@ static func configure(ctx) -> void:
 	var city_manifest := FileAccess.open(City.ROOT+"asset_manifest.json",FileAccess.READ)
 	var city_data: Variant = JSON.parse_string(city_manifest.get_as_text()) if city_manifest!=null else null
 	ctx.session.model.map_revision += "+city:"+(str(city_data.get("revision","")) if city_data is Dictionary else "none")
+	ctx.session.model.map_revision+="+scenes:"+FileAccess.get_sha256("res://worlds/city/city.tscn")+FileAccess.get_sha256("res://worlds/survivor_base/playable_base.tscn")
 	_apply_rules(ctx)
 
 static func sync(ctx) -> void:
@@ -58,9 +59,9 @@ static func sync(ctx) -> void:
 	ctx.session.model.world_ready = not ctx.world_loading
 	ctx.player_physics.world_ready = not ctx.world_loading
 	ctx.ui.set_world_loading(ctx.world_loading,{"surface":"⟦world_flow.002⟧","city":"⟦city.name⟧"}.get(desired,"⟦world_flow.003⟧"))
-	if desired=="bunker": ctx.world = load("res://worlds/survivor_base/playable_base.gd").new()
+	if desired=="bunker": ctx.world = load("res://worlds/survivor_base/playable_base.tscn").instantiate()
 	elif desired=="city":
-		ctx.world = City.new()
+		ctx.world = load("res://worlds/city/city.tscn").instantiate()
 		ctx.world.map_loaded.connect(_finish_loading.bind(ctx,ctx.world))
 	else:
 		ctx.world = Map.new()
@@ -110,6 +111,8 @@ static func _apply_rules(ctx) -> void:
 	var model = ctx.session.model
 	model.obstacles.assign(ctx.world.obstacles())
 	model.stations = ctx.world.interactions().duplicate(true)
+	for station in model.stations:
+		if station.get("destination","")=="bunker":station.spawn=preload("res://features/exploration/scene_points.gd").spawn("bunker")
 	model.field_placement=func(from:Vector3,to:Vector3)->Dictionary:
 		if ctx.world_id=="bunker":return {"position":to} if ctx.session.model._free(Vector2(to.x,to.z)) else {}
 		var query:=PhysicsRayQueryParameters3D.create(from+Vector3(0,.7,0),to+Vector3(0,.7,0),1)
