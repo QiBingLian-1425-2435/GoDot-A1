@@ -6,6 +6,7 @@ var holder:Node3D
 var models:Dictionary={}
 var kind:=""
 var pose_weight:=0.0
+var right_weight:=0.0
 var pose:=Transform3D.IDENTITY
 var active:=false
 var attacking:=false
@@ -19,9 +20,11 @@ func configure(owner:Node3D)->void:
 func prepare(data:Dictionary,dt:float)->void:
 	kind=actor.weapon_kind;active=Rules.is_melee(kind)
 	holder.visible=active and not data.get("dancing",false) and float(data.get("hp",100))>0
-	if not active:pose_weight=0.0;attacking=false;return
+	if not active:pose_weight=0.0;right_weight=0.0;attacking=false;return
 	if not models.has(kind):
 		var model:Node3D=load("res://assets/weapons/melee/"+kind+".glb").instantiate()
+		# Source cutting edges/hooks face +Z; turn them toward the actor's -Z front.
+		model.rotation.y=PI
 		holder.add_child(model);models[kind]=model
 	for key in models:models[key].visible=key==kind
 	var duration:float=maxf(.01,actor._event_duration)
@@ -29,10 +32,12 @@ func prepare(data:Dictionary,dt:float)->void:
 	attacking=actor._event_action in ["melee_forward","melee_back"] and actor._event_time<duration
 	var desired:float=maxf(actor._aim_blend,1.0 if attacking else 0.0)*(1.0-actor._visual_action_weight)
 	pose_weight=move_toward(pose_weight,desired,dt*12)
+	right_weight=maxf(1.0-actor._arm_move_blend,pose_weight)*(1.0-actor._visual_action_weight)
+	var carry:=Transform3D(Basis.from_euler(Vector3(-PI/2,0,0)),Vector3(.30,.88,-.20))
 	var right:=Transform3D(Basis.from_euler(Vector3(-.30,0,-.20)),Vector3(.24,1.08,-.26))
 	var middle:=Transform3D(Basis.from_euler(Vector3(-1.55,0,.05)),Vector3(.10,1.04,-.43))
 	var left:=Transform3D(Basis.from_euler(Vector3(-1.60,0,.85)),Vector3(-.18,1.00,-.35))
-	var target:=right
+	var target:=carry.interpolate_with(right,actor._aim_blend)
 	if attacking:
 		var u:float=smoothstep(.10,.80,phase)
 		if actor._event_action=="melee_back":u=1.0-u
@@ -52,6 +57,5 @@ func attach(skin:Skeleton3D,space:Transform3D)->void:
 	var index:int=skin.find_bone("R_Hand")
 	if index<0:return
 	var hand:Transform3D=space*skin.get_bone_global_pose(index)
-	var relaxed:=Basis.from_euler(Vector3(-2.65,.10,-.13))
-	var origin:Vector3=(hand.origin+Vector3(0,-.07,-.01)).lerp(hand.origin-pose.basis*RIGHT_WRIST,pose_weight)
-	holder.transform=Transform3D(relaxed.slerp(pose.basis,pose_weight),origin)
+	var origin:Vector3=(hand.origin+Vector3(0,-.07,-.01)).lerp(hand.origin-pose.basis*RIGHT_WRIST,right_weight)
+	holder.transform=Transform3D(pose.basis,origin)

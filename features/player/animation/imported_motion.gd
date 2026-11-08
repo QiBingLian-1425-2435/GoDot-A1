@@ -73,8 +73,7 @@ func _legacy()->Array[Transform3D]:
    if side=="L" or actor._visual_action!="reload":grip_weight*=1.0-actor._visual_action_weight
    hand=hand.lerp(actor.weapon_grip(side),grip_weight)
   elif actor.melee_pose.active:
-   var grip_weight:float=actor.melee_pose.pose_weight
-   if side=="L":grip_weight*=actor._aim_blend
+   var grip_weight:float=actor.melee_pose.right_weight if side=="R" else actor.melee_pose.pose_weight*actor._aim_blend
    hand=hand.lerp(actor.melee_pose.hand_target(side),grip_weight)
   var upper:float=rest[hi].origin.distance_to(rest[ki].origin)
   var lower:float=rest[ki].origin.distance_to(rest[ai].origin)
@@ -93,7 +92,7 @@ func _legacy()->Array[Transform3D]:
    elif n.begins_with(side+"_Forearm"):result[i]=Transform3D(lower_basis*rest[i].basis,elbow+lower_basis*(rest[i].origin-rest[ki].origin))
   result[ai].origin=hand
   if actor.melee_pose.active:
-   var weight:float=actor.melee_pose.pose_weight*(actor._aim_blend if side=="L" else 1.0)
+   var weight:float=actor.melee_pose.right_weight if side=="R" else actor.melee_pose.pose_weight*actor._aim_blend
    var target_basis:Basis=actor.melee_pose.hand_basis(side,rest[ai].basis)
    result[ai].basis=result[ai].basis.orthonormalized().slerp(target_basis.orthonormalized(),weight).scaled(rest[ai].basis.get_scale())
  return result
