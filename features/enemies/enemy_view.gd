@@ -14,6 +14,7 @@ var clock:=0.0
 var initialized:=false
 var last_attack:=0
 var swing:=0.0
+var zombie_visual:Node3D
 func _ready():
 	rig=Node3D.new();add_child(rig)
 	G.sphere(rig,Vector3(0,.65,.07),Vector3(.85,.95,.75),Color("566653"))
@@ -34,6 +35,8 @@ func _ready():
 	title.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	title.outline_size=4
 func update_enemy(data:Dictionary,delta:float):
+	if data.get("kind","")=="zombie":
+		_update_zombie(data,delta);return
 	if data.get("kind","")=="sick_ghost" and not sick_visual:
 		sick_visual=true
 		for child in rig.get_children():child.queue_free()
@@ -85,3 +88,17 @@ func update_enemy(data:Dictionary,delta:float):
 					if bone>=0:
 						var angle:float=sin(phase)*.30 if part=="thigh" else maxf(0,-sin(phase))*.42
 						skeleton.set_bone_pose_rotation(bone,skeleton.get_bone_rest(bone).basis.get_rotation_quaternion()*Quaternion(Vector3.RIGHT,angle*moving))
+
+func _update_zombie(data:Dictionary,delta:float)->void:
+	if zombie_visual==null:
+		rig.visible=false
+		zombie_visual=preload("res://features/enemies/zombie_visual.gd").new();add_child(zombie_visual)
+		title.position.y=1.95
+	var target:=Vector3(data.pos.x,data.height,data.pos.y)
+	position=position.lerp(target,1-exp(-delta*18)) if initialized and position.distance_to(target)<5 else target
+	initialized=true
+	var aim:Vector2=data.aim
+	if aim.length_squared()>.01:rotation.y=lerp_angle(rotation.y,atan2(-aim.x,-aim.y),1-exp(-delta*18))
+	zombie_visual.update_pose(data,delta)
+	Texts.bind(title,"⟦enemy.zombie.dead⟧" if data.hp<=0 else Texts.format("⟦enemy.zombie.health⟧",[data.hp,"  !" if data.mode=="windup" else ""]))
+	title.modulate=Color("ff694f") if data.mode=="windup" else Color.WHITE

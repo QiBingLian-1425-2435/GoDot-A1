@@ -2114,16 +2114,16 @@
     "ui/inventory/inventory_panel.gd:183"
   ],
   "enemy.sick.invulnerable": [
-    "features/enemies/enemy_view.gd:76"
+    "features/enemies/enemy_view.gd:79"
   ],
   "enemy.name": [
-    "features/enemies/enemy_view.gd:33"
+    "features/enemies/enemy_view.gd:34"
   ],
   "enemy.dead": [
-    "features/enemies/enemy_view.gd:59"
+    "features/enemies/enemy_view.gd:62"
   ],
   "enemy.health": [
-    "features/enemies/enemy_view.gd:72"
+    "features/enemies/enemy_view.gd:75"
   ],
   "settings.voice_always_on": [
     "ui/menu/menu_screen.gd:109",
@@ -2323,5 +2323,11 @@
   ],
   "throwable.controls": [
     "ui/base_hud.gd:333"
+  ],
+  "enemy.zombie.health": [
+    "features/enemies/enemy_view.gd:103"
+  ],
+  "enemy.zombie.dead": [
+    "features/enemies/enemy_view.gd:103"
   ]
 }

@@ -10,9 +10,9 @@ const HIT_SPEED := 5.5
 const HIT_DECELERATION := 22.0
 const HIT_DURATION := .25
 
-static func hit(enemy:Dictionary,direction:Vector2) -> void:
+static func hit(enemy:Dictionary,direction:Vector2,melee:bool=false) -> void:
 	if enemy.hp<=0 or enemy.get("kind","")=="sick_ghost":return
-	enemy.knockback=direction.normalized()*HIT_SPEED
+	enemy.knockback=direction.normalized()*HIT_SPEED if melee or enemy.get("kind","")!="zombie" else Vector2.ZERO
 	enemy.mode="stagger";enemy.timer=HIT_DURATION
 
 static func _push(ctx,enemy:Dictionary,delta:float) -> void:
@@ -34,6 +34,11 @@ static func create_sick(id:int, position:Vector3, facing:Vector2)->Dictionary:
 	var enemy:=create(id,position,facing)
 	enemy.kind="sick_ghost"
 	enemy.invulnerable=true
+	return enemy
+
+static func create_zombie(id:int,position:Vector3,facing:Vector2)->Dictionary:
+	var enemy:=create(id,position,facing)
+	enemy.kind="zombie"
 	return enemy
 
 static func at(p: Dictionary) -> Vector3:
@@ -96,6 +101,6 @@ static func tick(ctx, delta: float) -> void:
 		enemy.aim=direction.normalized()
 		if not ctx.enemy_move.is_valid():continue
 		var before:=at(enemy)
-		var moved:Vector3=ctx.enemy_move.call(int(enemy.id),before,direction.limit_length((2.0 if sick else SPEED)*delta))
+		var moved:Vector3=ctx.enemy_move.call(int(enemy.id),before,direction.limit_length((2.0 if sick or enemy.get("kind","")=="zombie" else SPEED)*delta))
 		enemy.pos=Vector2(moved.x,moved.z);enemy.height=moved.y
 		enemy.velocity=(Vector2(enemy.pos)-Vector2(before.x,before.z))/delta

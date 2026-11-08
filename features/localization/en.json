@@ -716,5 +716,7 @@
   "throwable.frag.description": "Select to hold. Hold aim to preview the arc and 3 m radius; press fire to throw. Explodes on impact for 65 damage.",
   "throwable.molotov.name": "Molotov cocktail",
   "throwable.molotov.description": "Select to hold. Hold aim and press fire to throw. Burns within 3 m for 5 seconds, dealing 24 damage per second.",
-  "throwable.controls": "%s aim\n%s throw"
+  "throwable.controls": "%s aim\n%s throw",
+  "enemy.zombie.health": "Zombie  %d / 100%s",
+  "enemy.zombie.dead": "Zombie · down"
 }

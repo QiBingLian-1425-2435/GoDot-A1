@@ -35,6 +35,8 @@ func move_enemy(id:int,from:Vector3,offset:Vector2)->Vector3:
 		if value>score:best=candidate;score=value
 	return best
 func spawn_wave(ctx):
+	if ctx.world_id=="city":
+		_spawn_city(ctx);return
 	if ctx.session.mode=="client" or ctx.world_id!="surface" or ctx.session.model.state.get("enemies_seeded",false):return
 	var model=ctx.session.model
 	if model.state.players.is_empty():return
@@ -50,6 +52,42 @@ func spawn_wave(ctx):
 		var location:Vector3=ctx.world.Library.source_location("surface",landmark)
 		_spawn_group(ctx,probe,Vector2(location.x,location.z),2,false)
 	model.state.enemies_seeded=true
+	if ctx.session.mode=="host":ctx.session._broadcast_snapshot(true)
+
+func _spawn_city(ctx)->void:
+	if ctx.session.mode=="client" or ctx.session.model.state.get("enemies_seeded",false):return
+	var model=ctx.session.model
+	if model.state.players.is_empty():return
+	var probe=body_for(-1)
+	var rng:=RandomNumberGenerator.new();rng.randomize()
+	var bounds:Rect2=model.bounds.grow(-2)
+	var candidates:Array[Vector2]=[]
+	var viewer:Dictionary=model.state.players.values()[0]
+	# Some encounters near arrival, with the remainder distributed across the city.
+	for i in 80:candidates.append(Vector2(viewer.pos)+Vector2.from_angle(rng.randf()*TAU)*rng.randf_range(7,22))
+	for i in 2400:candidates.append(Vector2(rng.randf_range(bounds.position.x,bounds.end.x),rng.randf_range(bounds.position.y,bounds.end.y)))
+	for point in candidates:
+		if not bounds.has_point(point):continue
+		if model.state.enemies.size()>=3 and Vector2(viewer.pos).distance_to(point)<25:continue
+		var floor_hit:Dictionary=probe._support(point,ctx.world.terrain_height(point)+.1)
+		if floor_hit.is_empty() or floor_hit.normal.y<.65:continue
+		var at:=Vector3(point.x,probe._feet_height(floor_hit),point.y)
+		if not probe.is_clear(at):continue
+		var spaced:=true
+		for member in model.state.players.values():
+			if Vector2(member.pos).distance_to(point)<6:spaced=false
+		for enemy in model.state.enemies.values():
+			if Vector2(enemy.pos).distance_to(point)<4:spaced=false
+		if not spaced:continue
+		var exits:=0
+		for direction in [Vector2.UP,Vector2.DOWN,Vector2.LEFT,Vector2.RIGHT]:
+			if probe.move_spatial(at,direction*.6).distance_to(at)>.4:exits+=1
+		if exits<2:continue
+		var id:int=model.state.enemies.size()+1
+		model.state.enemies[id]=model.Enemies.create_zombie(id,at,Vector2(viewer.pos)-point)
+		if model.state.enemies.size()==10:break
+	# Never mark a partial wave complete; retry missing slots on the next update.
+	model.state.enemies_seeded=model.state.enemies.size()==10
 	if ctx.session.mode=="host":ctx.session._broadcast_snapshot(true)
 func _spawn_group(ctx,probe,center:Vector2,count:int,prefer_visible:bool):
 	var enemies:Dictionary=ctx.session.model.state.enemies

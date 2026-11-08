@@ -67,7 +67,7 @@ static func _strike(ctx,p:Dictionary,attack:Dictionary,phase:float)->void:
 		attack.hits[key]=true
 		if not target.get("invulnerable",false):target.hp=maxi(0,int(target.hp)-int(info.damage))
 		target.hits=int(target.get("hits",0))+1
-		if ctx.state.get("enemies",{}).get(target.get("id",-1),{})==target:ctx.Enemies.hit(target,p.aim)
+		if ctx.state.get("enemies",{}).get(target.get("id",-1),{})==target:ctx.Enemies.hit(target,p.aim,true)
 	if ctx.state.world=="bunker":return
 	for member in ctx.state.players.values():
 		var key:String="player:"+str(member.id)
