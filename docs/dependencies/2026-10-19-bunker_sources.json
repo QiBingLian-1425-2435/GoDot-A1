@@ -941,7 +941,12 @@
     "features/combat/firearm_spread.gd",
     "features/combat/firearm_spread.gd.uid",
     "features/player/animation/hurt_pose.gd",
-    "features/player/animation/hurt_pose.gd.uid"
+    "features/player/animation/hurt_pose.gd.uid",
+    "assets/audio/footsteps/concrete_00.wav",
+    "assets/audio/footsteps/concrete_01.wav",
+    "assets/audio/footsteps/concrete_02.wav",
+    "assets/audio/footsteps/concrete_03.wav",
+    "assets/audio/footsteps/concrete_04.wav"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
@@ -954,6 +959,7 @@
     "assets/props/loot_sack/asset_manifest.json",
     "assets/worlds/survivor_base/asset_manifest.json",
     "assets/props/throwables/manifest.json",
-    "assets/characters/zombie/asset_manifest.json"
+    "assets/characters/zombie/asset_manifest.json",
+    "assets/audio/footsteps/manifest.json"
   ]
 }

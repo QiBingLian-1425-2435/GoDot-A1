@@ -3,10 +3,19 @@ signal sound_played(kind:String)
 var sounds:Dictionary={}
 var step_clock:=0.0
 var muted:=false
+var step_samples:Array[AudioStream]=[]
+var last_step:=-1
+var step_sprint:=false
+var step_rng:=RandomNumberGenerator.new()
 func _ready()->void:
+	step_rng.randomize()
+	for i in range(5):
+		var path:="res://assets/audio/footsteps/concrete_%02d.wav"%i
+		if ResourceLoader.exists(path):step_samples.append(load(path) as AudioStream)
+	if step_samples.is_empty():push_warning("Restore footstep audio with tools/prepare_footstep_audio.py")
 	for kind in ["fire","pistol","impact","reload","step","pickup","ui","swing","enemy_hit","enemy_slash"]:
 		var player:=AudioStreamPlayer.new()
-		player.stream=_synth(kind)
+		player.stream=(step_samples[0] if not step_samples.is_empty() else null) if kind=="step" else _synth(kind)
 		player.volume_db=-15 if kind=="fire" else (-19 if kind=="pistol" else (-17 if kind in ["reload","enemy_hit","enemy_slash"] else -23))
 		add_child(player)
 		sounds[kind]=player
@@ -26,7 +35,6 @@ func _synth(kind:String)->AudioStreamWAV:
 			"impact": value=rng.randf_range(-1,1)*0.3+sin(TAU*t*2200)*0.2
 			"enemy_hit":value=sin(TAU*t*(135-t*450))*.7+rng.randf_range(-1,1)*.24
 			"enemy_slash":value=sin(TAU*t*95)*.5+rng.randf_range(-1,1)*.6
-			"step": value=rng.randf_range(-1,1)*0.3
 			"swing":value=rng.randf_range(-1,1)*.48*sin(PI*float(i)/float(rate*duration))
 			"reload":
 				value=(rng.randf_range(-1,1)*0.42+sin(TAU*t*1050)*0.18)*exp(-t*48)
@@ -44,9 +52,18 @@ func _synth(kind:String)->AudioStreamWAV:
 	return wav
 func play(kind:String)->void:
 	if not muted and sounds.has(kind):
+		if kind=="step":
+			if step_samples.is_empty():return
+			var index:=step_rng.randi_range(0,step_samples.size()-2) if last_step>=0 and step_samples.size()>1 else step_rng.randi_range(0,step_samples.size()-1)
+			if last_step>=0 and step_samples.size()>1 and index>=last_step:index+=1
+			last_step=index
+			sounds.step.stream=step_samples[index]
+			sounds.step.pitch_scale=step_rng.randf_range(.97,1.03)
+			sounds.step.volume_db=(-14.0 if step_sprint else -17.0)+step_rng.randf_range(-.6,.6)
 		sound_played.emit(kind)
 		sounds[kind].play()
 func step(delta:float,moving:bool,sprint:bool)->void:
+	step_sprint=sprint
 	step_clock-=delta
 	if moving and step_clock<=0:
 		play("step")
