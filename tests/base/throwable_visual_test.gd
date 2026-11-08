@@ -46,6 +46,20 @@ func run():
    check("throw" in game.ui._reload_label.text and Rules.held(p).get("kind","")==kind,"English hint preserves selected tool")
    await capture(kind+"_"+gender+"_aim_en")
    texts.set_locale("zh_CN",false);game._refresh_ui()
+   for mode in ["forward","backward","side","crouch"]:
+    var moving:Dictionary=p.duplicate(true)
+    moving.velocity=right*(1.5 if mode!="backward" else -1.5)
+    if mode=="side":moving.velocity=right.orthogonal()*1.5
+    moving.crouch=mode=="crouch";moving.ads=true
+    var actor=game.actors[1]
+    for tick in 40:actor.update_actor(moving,.025,true)
+    var motion=actor.human_visual.imported_motion
+    var hand:Vector3=(motion.space*motion.skin.get_bone_global_pose(motion.skin.find_bone("R_Hand"))).origin
+    check(hand.y>(.75 if moving.crouch else 1.15),kind+" "+gender+" "+mode+" moving aim keeps right hand raised")
+    check(actor.melee_pose.holder.visible and actor.melee_pose.holder.position.distance_to(hand)<.1,"moving tool remains in right palm")
+    await capture(kind+"_"+gender+"_aim_"+mode)
+   for i in 12:
+    m.command(1,"move",{"aim":right,"ads":true});await frame(.05)
    preload("res://features/player/base_input.gd")._fire_pressed(game,kind,false)
    check(m.state.field_effects.is_empty(),"input click without aim does not throw")
    preload("res://features/player/base_input.gd")._fire_pressed(game,kind,true)

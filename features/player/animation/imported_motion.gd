@@ -128,7 +128,11 @@ func advance(data:Dictionary,dt:float)->void:
    for i in skin.get_bone_count():
     var n:String=skin.get_bone_name(i)
     if "arm" in n or "Hand" in n or "Clavicle" in n or n.begins_with("Spine") or n.begins_with("Neck") or n=="Head":
-     result[i]=result[i].interpolate_with(legacy[i],upper)
+     var weight:float=upper
+     # A held throwable owns the right arm while the walk/run clip drives the legs.
+     if actor.melee_pose.active and n.begins_with("R_") and ("arm" in n or "Hand" in n or "Clavicle" in n):
+      weight=maxf(weight,actor.melee_pose.right_weight)
+     result[i]=result[i].interpolate_with(legacy[i],weight)
  else:
   if player!=null:player.stop()
   skin.reset_bone_poses()
