@@ -14,7 +14,7 @@ mat=bpy.data.materials.new('explorer_textured');mat.use_nodes=True;n=mat.node_tr
 objects=[o for o in bpy.context.scene.objects if o.type=='MESH']
 for o in objects:
  part=int(o.name.rsplit('_',1)[1]);o.data.materials.clear();o.data.materials.append(mat)
- 
+
  while o.data.uv_layers:o.data.uv_layers.remove(o.data.uv_layers[0])
  uv=o.data.uv_layers.new(name='UVMap')
  for poly in o.data.polygons:
