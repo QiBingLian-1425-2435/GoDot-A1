@@ -904,7 +904,9 @@
     "assets/worlds/editable/survivor_base/mesh_0440.res",
     "assets/worlds/editable/survivor_base/mesh_0441.res",
     "assets/worlds/editable/survivor_base/mesh_0442.res",
-    "assets/worlds/editable/survivor_base/mesh_0443.res"
+    "assets/worlds/editable/survivor_base/mesh_0443.res",
+    "assets/worlds/survivor_base/bed_repaired.glb",
+    "assets/worlds/editable/repaired_bed/mesh_00.res"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

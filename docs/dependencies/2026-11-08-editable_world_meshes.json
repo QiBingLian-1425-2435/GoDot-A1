@@ -2656,6 +2656,10 @@
     "assets/worlds/editable/survivor_base/mesh_0443.res": {
       "bytes": 520,
       "sha256": "dc6862bda1fa96fb912d3accab913fb7a22acfca0003b1637100c2b0142a1544"
+    },
+    "assets/worlds/editable/repaired_bed/mesh_00.res": {
+      "bytes": 632409,
+      "sha256": "dbc6d02b0c7fb8f4748d9b00f4a7a1d79019696a31e49367d2b2d4ae1e53a68f"
     }
   }
 }
