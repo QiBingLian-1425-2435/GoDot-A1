@@ -43,7 +43,7 @@ static func _physics_process(ctx, delta:float)->void:
 	ctx.sound.step(delta,footstep.moving,footstep.sprint)
 
 static func _footstep_state(motion: Dictionary) -> Dictionary:
-	if motion.get("life","")=="soul":return {"moving":false,"sprint":false}
+	if motion.get("life","")=="soul" or motion.get("crouch",false):return {"moving":false,"sprint":false}
 	# Input expresses intent; collision-resolved velocity says whether the feet
 	# actually travelled. Holding a key into a wall or corner must stay silent.
 	var velocity: Vector2 = motion.get("velocity",Vector2.ZERO)
