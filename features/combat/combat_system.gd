@@ -1,9 +1,11 @@
 extends RefCounted
+const Melee=preload("res://features/combat/melee_system.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _reload(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
 	if weapon.is_empty() or p.reloading: return false
+	if Melee.is_melee(weapon.kind):return false
 	if p.ammo >= int(ctx.Items.definition(weapon.kind).get("magazine",30)): return ctx._reject("⟦combat_system.001⟧")
 	if not ctx.state.get("infinite_reserve",false) and ctx._count(p.bag,"ammo") <= 0: return ctx._reject("⟦combat_system.002⟧")
 	var reload_time := float(ctx.Items.definition(weapon.kind).get("reload_time",1.6))
@@ -12,6 +14,7 @@ static func _reload(ctx, p: Dictionary) -> bool:
 
 static func _fire(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
+	if not weapon.is_empty() and Melee.is_melee(weapon.kind):return Melee.request(ctx,p)
 	if weapon.is_empty() or p.reloading or p.fire_timer > 0: return false
 	if p.ammo <= 0: return _reload(ctx, p)
 	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1

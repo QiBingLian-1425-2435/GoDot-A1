@@ -1,5 +1,6 @@
 extends RefCounted
 const Keys = preload("res://features/player/key_bindings.gd")
+const Melee=preload("res://features/combat/melee_system.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _physics_process(ctx, delta:float)->void:
@@ -26,7 +27,8 @@ static func _physics_process(ctx, delta:float)->void:
 		if point is Vector3:
 			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
 	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Keys.held("sprint") and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Keys.held("aim") and not blocked and focused})
-	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and Keys.held("fire") and ctx.fire_clock<=0:
+	var melee:bool=Melee.is_melee(p.get("equipment",{}).get("weapon",{}).get("kind",""))
+	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and (melee or Keys.held("fire")) and ctx.fire_clock<=0:
 		ctx.session.send("fire")
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked and ctx.session.model.Souls.mobile(p)
@@ -81,7 +83,11 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 				ctx.session.send("dance")
 				ctx.get_viewport().set_input_as_handled()
 		"fire":
-			if not ctx.ui.is_blocking():ctx.trigger_held=true
+			if not ctx.ui.is_blocking() and not ctx.world_loading and not ctx.station_dialog.visible and not (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()):
+				ctx.trigger_held=true
+				var weapon:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{}).get("equipment",{}).get("weapon",{})
+				if Melee.is_melee(weapon.get("kind","")):
+					ctx.session.send("fire");ctx.fire_clock=.13
 		"rescue":
 			if not ctx.ui.is_blocking() and ctx.nearest.get("kind","")=="corpse":
 				ctx.session.send("rescue",{"target":ctx.nearest.target,"uid":ctx.nearest.uid})

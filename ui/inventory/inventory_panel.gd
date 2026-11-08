@@ -101,7 +101,7 @@ static func _slot_action(ctx, action: String, payload: Dictionary) -> void:
 		var container = str(payload.get("from","bag"))
 		var kind = str(payload.get("item",{}).get("kind",""))
 		if container == "bag":
-			if kind in ["rifle","pistol","sniper","helmet","armor"]:
+			if ctx.Items.definition(kind).category in ["weapon","helmet","armor"]:
 				Texts.add_item(ctx._popup, "⟦inventory_panel.004⟧", 1)
 			elif ctx.Items.definition(kind).usable:
 				Texts.add_item(ctx._popup, "⟦inventory_panel.023⟧", 0)

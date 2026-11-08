@@ -319,6 +319,11 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 		if item.get("kind", "") == "ammo":
 			reserve += int(item.get("count", 1))
 	Texts.bind(_reload_label, Texts.format("⟦base_hud.018⟧", int(float(p.get("reload_progress", 0.0)) * 100.0)) if p.get("reloading", false) else (Texts.format("⟦base_hud.019⟧", Keys.display("reload")) if state.get("infinite_reserve",false) else Texts.format("⟦base_hud.020⟧", [reserve, Keys.display("reload")])), "text")
+	var melee:bool=Items.definition(p.get("equipment",{}).get("weapon",{}).get("kind","")).get("melee",false)
+	_ammo_label.add_theme_font_size_override("font_size",30 if melee else 50)
+	if melee:
+		Texts.bind(_ammo_label,"⟦combat.melee.label⟧","text")
+		Texts.bind(_reload_label,"⟦combat.melee.no_ammo⟧","text")
 	if not p.get("pending_use",{}).is_empty():Texts.bind(_reload_label, Texts.format("⟦base_hud.021⟧", maxf(0,float(p.pending_use.remaining))), "text")
 	_update_quick_slots(p)
 	if _inventory.visible:

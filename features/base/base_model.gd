@@ -9,6 +9,7 @@ var enemy_move: Callable
 var enemy_push: Callable
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
+const Melee = preload("res://features/combat/melee_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
 const Facilities = preload("res://features/base/facility_system.gd")
 const Movement = preload("res://features/player/movement_rules.gd")
@@ -113,6 +114,7 @@ func reset_transients(id: int) -> void:
 	p.roll=Movement.empty_roll();p.roll.seen=roll_seen
 	p.input_roll=p.roll.duplicate(true)
 	p.pending_use={}
+	Melee.cancel(p);p.melee_chain=0
 	p.dancing=false;p.dance_time=0.0
 	p.velocity = Vector2.ZERO
 	p.knockback=Vector2.ZERO
@@ -272,7 +274,7 @@ func tick(delta: float) -> void:
 	Enemies.tick(self,delta)
 	for id in state.players:
 		var p: Dictionary = state.players[id]
-		if not Souls.alive(p):p.dancing=false
+		if not Souls.alive(p):p.dancing=false;Melee.cancel(p)
 		if p.get("life","")=="soul":
 			p.soul_bounds=bounds
 			var soul_input: Dictionary = _inputs.get(id,{})
@@ -313,6 +315,7 @@ func tick(delta: float) -> void:
 		else:
 			p.thirst = maxf(0, p.thirst - delta * 0.018)
 		p.fire_timer = maxf(0, float(p.fire_timer) - delta)
+		Melee.tick(self,p,delta)
 		if p.reloading:
 			p.reload_timer = maxf(0, float(p.reload_timer) - delta)
 			var reload_time := 1.6

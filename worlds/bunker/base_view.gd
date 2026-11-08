@@ -81,6 +81,10 @@ static func _update_actors(ctx, delta:float)->void:
 		if shots>int(ctx.last_shots.get(id,shots)):
 			ctx.sound.play("pistol" if players[id].equipment.weapon.get("kind","")=="pistol" else "fire")
 		ctx.last_shots[id]=shots
+		var sequence:int=players[id].get("anim_seq",0)
+		if players[id].get("anim_action","") in ["melee_forward","melee_back"] and sequence!=ctx.actors[id].melee_pose.sound_sequence:
+			ctx.actors[id].melee_pose.sound_sequence=sequence
+			if float(players[id].get("anim_time",0))<.22:ctx.sound.play("swing")
 		var reloading:bool=bool(players[id].get("reloading",false))
 		if ctx.last_reloading.has(id) and reloading and not bool(ctx.last_reloading[id]):
 			ctx.sound.play("reload")

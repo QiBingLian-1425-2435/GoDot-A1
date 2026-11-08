@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v34",
+  "protocol": "a1_bunker_v35",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -911,7 +911,17 @@
     "features/player/weapon_models.gd.uid",
     "assets/weapons/firearms/rifle.glb",
     "assets/weapons/firearms/pistol.glb",
-    "assets/weapons/firearms/sniper.glb"
+    "assets/weapons/firearms/sniper.glb",
+    "features/combat/melee_system.gd",
+    "features/combat/melee_system.gd.uid",
+    "features/player/animation/melee_pose.gd",
+    "features/player/animation/melee_pose.gd.uid",
+    "assets/weapons/melee/fire_axe.glb",
+    "assets/weapons/melee/crowbar.glb",
+    "assets/weapons/melee/baseball_bat.glb",
+    "assets/weapons/melee/baton.glb",
+    "assets/weapons/melee/machete.glb",
+    "assets/weapons/melee/katana.glb"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

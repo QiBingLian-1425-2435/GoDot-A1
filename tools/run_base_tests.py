@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "melee": [("melee_test", True, []), ("melee_visual_test", True, []), ("melee_visual_test", False, []), ("melee_integration_test", True, []), ("melee_integration_test", False, []), ("melee_network_test", True, [])],
     "animated_player": [("animated_player_test", True, []), ("animated_player_test", False, []), ("dance_network_test", True, [])],
     "playable_base": [("playable_base_test", True, []), ("playable_base_test", False, []), ("playable_base_network_test", True, [])],
     "departure": [("departure_ready_test", True, []), ("departure_network_test", True, []), ("departure_scene_test", False, [])],
@@ -77,6 +78,8 @@ def run(engine, suite, steam_live):
         if name == 'ground_zero_integration_test' and not headless:
             suffix = '_visible'
         if name in ('city_buildings_test', 'city_stairs_test') and not headless:
+            suffix = '_visible'
+        if name in ('melee_visual_test', 'melee_integration_test') and not headless:
             suffix = '_visible'
         if arguments == ['--stairs']:
             suffix = '_stairs'

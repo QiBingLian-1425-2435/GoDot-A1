@@ -4,7 +4,7 @@ var sounds:Dictionary={}
 var step_clock:=0.0
 var muted:=false
 func _ready()->void:
-	for kind in ["fire","pistol","impact","reload","step","pickup","ui"]:
+	for kind in ["fire","pistol","impact","reload","step","pickup","ui","swing"]:
 		var player:=AudioStreamPlayer.new()
 		player.stream=_synth(kind)
 		player.volume_db=-15 if kind=="fire" else (-19 if kind=="pistol" else (-17 if kind=="reload" else -23))
@@ -25,6 +25,7 @@ func _synth(kind:String)->AudioStreamWAV:
 			"pistol": value=rng.randf_range(-1,1)*0.55+sin(TAU*t*175)*0.4
 			"impact": value=rng.randf_range(-1,1)*0.3+sin(TAU*t*2200)*0.2
 			"step": value=rng.randf_range(-1,1)*0.3
+			"swing":value=rng.randf_range(-1,1)*.48*sin(PI*float(i)/float(rate*duration))
 			"reload":
 				value=(rng.randf_range(-1,1)*0.42+sin(TAU*t*1050)*0.18)*exp(-t*48)
 				if t>=0.13:

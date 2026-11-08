@@ -697,5 +697,19 @@
   "departure.ready_cancelled": "已取消准备",
   "departure.count": "出发准备  %d / %d",
   "weapon.sniper.name": "狙击步枪",
-  "weapon.sniper.description": "配备瞄准镜的栓动步枪，使用通用弹药。"
+  "weapon.sniper.description": "配备瞄准镜的栓动步枪，使用通用弹药。",
+  "weapon.fire_axe.name": "消防斧",
+  "weapon.fire_axe.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "weapon.crowbar.name": "撬棍",
+  "weapon.crowbar.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "weapon.baseball_bat.name": "棒球棍",
+  "weapon.baseball_bat.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "weapon.baton.name": "伸缩警棍",
+  "weapon.baton.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "weapon.machete.name": "开山刀",
+  "weapon.machete.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "weapon.katana.name": "日本刀",
+  "weapon.katana.description": "近战武器；单手携带，右键双手持握，左键连续交替挥击，无需弹药。",
+  "combat.melee.label": "近战",
+  "combat.melee.no_ammo": "无需弹药"
 }

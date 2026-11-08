@@ -72,6 +72,10 @@ func _legacy()->Array[Transform3D]:
    var grip_weight:float=1.0-actor._unarmed_blend
    if side=="L" or actor._visual_action!="reload":grip_weight*=1.0-actor._visual_action_weight
    hand=hand.lerp(actor.weapon_grip(side),grip_weight)
+  elif actor.melee_pose.active:
+   var grip_weight:float=actor.melee_pose.pose_weight
+   if side=="L":grip_weight*=actor._aim_blend
+   hand=hand.lerp(actor.melee_pose.hand_target(side),grip_weight)
   var upper:float=rest[hi].origin.distance_to(rest[ki].origin)
   var lower:float=rest[ki].origin.distance_to(rest[ai].origin)
   var direction:Vector3=(hand-shoulder).normalized()
@@ -88,6 +92,10 @@ func _legacy()->Array[Transform3D]:
    if n.begins_with(side+"_Upperarm"):result[i]=Transform3D(upper_basis*rest[i].basis,shoulder+upper_basis*(rest[i].origin-rest[hi].origin))
    elif n.begins_with(side+"_Forearm"):result[i]=Transform3D(lower_basis*rest[i].basis,elbow+lower_basis*(rest[i].origin-rest[ki].origin))
   result[ai].origin=hand
+  if actor.melee_pose.active:
+   var weight:float=actor.melee_pose.pose_weight*(actor._aim_blend if side=="L" else 1.0)
+   var target_basis:Basis=actor.melee_pose.hand_basis(side,rest[ai].basis)
+   result[ai].basis=result[ai].basis.orthonormalized().slerp(target_basis.orthonormalized(),weight).scaled(rest[ai].basis.get_scale())
  return result
 
 func advance(data:Dictionary,dt:float)->void:
@@ -117,7 +125,7 @@ func advance(data:Dictionary,dt:float)->void:
    offset.y=0
    for i in result.size():result[i].origin-=offset
   if not dancing:
-   var upper:float=maxf(actor._visual_action_weight,1.0-actor._unarmed_blend)
+   var upper:float=maxf(maxf(actor._visual_action_weight,1.0-actor._unarmed_blend),actor.melee_pose.pose_weight)
    for i in skin.get_bone_count():
     var n:String=skin.get_bone_name(i)
     if "arm" in n or "Hand" in n or "Clavicle" in n or n.begins_with("Spine") or n.begins_with("Neck") or n=="Head":
@@ -131,6 +139,7 @@ func advance(data:Dictionary,dt:float)->void:
   if last.size()==result.size():result[i]=last[i].interpolate_with(result[i],blend)
   skin.set_bone_global_pose_override(i,space.affine_inverse()*result[i],1.0,true)
  last=result
+ actor.melee_pose.attach(skin,space)
  var left_hand:int=skin.find_bone("L_Hand")
  if left_hand>=0:
   var hand_world:Vector3=skin.global_transform*skin.get_bone_global_pose(left_hand).origin

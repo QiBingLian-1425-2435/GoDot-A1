@@ -21,6 +21,7 @@ var action_time := 0.0
 var magazine: MeshInstance3D
 var rifle_mesh: Node3D
 var weapon_kind:=""
+var melee_pose:RefCounted
 var sniper_mesh:Node3D
 var pistol_mesh: Node3D
 var held_props: Dictionary = {}
@@ -141,6 +142,8 @@ func setup(tint: Color, title: String) -> void:
 	_build_weapon()
 	_bind(weapon, "Gun")
 	_build_props()
+	melee_pose=preload("res://features/player/animation/melee_pose.gd").new()
+	melee_pose.configure(self)
 	nameplate = G.text(self,title,Vector3(0,2.03,0),25,Color("f2ead4"))
 	nameplate.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	nameplate.outline_size = 7
@@ -308,6 +311,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 		human_visual.update(data.get("appearance",{}))
 		human_visual.set_helmet(helmet.visible)
 	weapon_kind=kind
+	var melee:bool=Items.definition(kind).get("melee",false)
 	sniper_mesh.visible=kind=="sniper"
 	rifle_mesh.visible = kind == "rifle"
 	pistol_mesh.visible = kind == "pistol"
@@ -319,21 +323,21 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	flash_light.position = flash.position
 	var shots := int(data.get("shots", 0))
 	var fired := has_previous_pos and shots > previous_shots and weapon.visible
-	if fired:
+	if fired and not melee:
 		flash_time = .065 if kind == "pistol" else .095
 		_recoil = .65 if kind == "pistol" else 1.0
 		_event_suppressed = int(data.get("anim_seq", 0))
 	else:
 		flash_time = maxf(0, flash_time-delta)
 		_recoil *= exp(-delta*19)
-	flash.visible = weapon.visible and flash_time > 0
+	flash.visible = weapon.visible and flash_time > 0 and not melee
 	flash_light.visible = flash.visible
 	_speed = velocity.length() if local else lerpf(_speed, velocity.length(), 1.0-exp(-delta*13))
 	_run_blend = move_toward(_run_blend, 1.0 if data.get("sprint", false) and velocity.length() > .1 else 0.0, delta*6)
 	if local and velocity.is_zero_approx(): _run_blend = 0.0
 	_crouch_blend = move_toward(_crouch_blend, 1.0 if data.get("crouch", false) else 0.0, delta*6)
 	_aim_blend = move_toward(_aim_blend, 1.0 if data.get("ads", false) and weapon.visible else 0.0, delta*9)
-	_unarmed_blend = move_toward(_unarmed_blend, 0.0 if weapon.visible else 1.0, delta*7)
+	_unarmed_blend = move_toward(_unarmed_blend, 0.0 if weapon.visible and not melee else 1.0, delta*7)
 	var back:float=preload("res://features/player/movement_rules.gd").backward_amount(velocity,aim)
 	_backward_blend=move_toward(_backward_blend,back,delta*8.0)
 	var moving := clampf(_speed/.55, 0, 1)
@@ -354,6 +358,7 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	_apply_arm_swing(delta,moving,tempo,_visual_action_weight)
 	_update_props(action_weight, kind)
 	_apply_roll(data)
+	melee_pose.prepare(data,delta)
 	if human_visual!=null:human_visual.advance(data,delta)
 	var blink := maxf(0, 1.0-absf(fmod(_clock+float(nameplate.text.hash()%100)*.01, 4.3)-.12)/.085)
 	for i in range(_eyes.size()): _eyes[i].scale.y = (.106 if i%2 == 0 else .025) * (1-blink*.94)

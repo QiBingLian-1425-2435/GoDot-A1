@@ -697,5 +697,19 @@
   "departure.ready_cancelled": "Readiness cancelled",
   "departure.count": "Ready to depart  %d / %d",
   "weapon.sniper.name": "Sniper Rifle",
-  "weapon.sniper.description": "A scoped bolt-action rifle using standard ammunition."
+  "weapon.sniper.description": "A scoped bolt-action rifle using standard ammunition.",
+  "weapon.fire_axe.name": "Fire Axe",
+  "weapon.fire_axe.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "weapon.crowbar.name": "Crowbar",
+  "weapon.crowbar.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "weapon.baseball_bat.name": "Baseball Bat",
+  "weapon.baseball_bat.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "weapon.baton.name": "Telescopic Baton",
+  "weapon.baton.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "weapon.machete.name": "Machete",
+  "weapon.machete.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "weapon.katana.name": "Katana",
+  "weapon.katana.description": "A melee weapon. Carry one-handed, hold aim for a two-handed guard, and click or hold attack for alternating swings. No ammunition required.",
+  "combat.melee.label": "Melee",
+  "combat.melee.no_ammo": "No ammo required"
 }

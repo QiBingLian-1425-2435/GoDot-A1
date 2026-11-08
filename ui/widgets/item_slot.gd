@@ -55,7 +55,7 @@ func _gui_input(event: InputEvent) -> void:
 					action_requested.emit("unequip", {"slot": slot_index})
 				elif container_name == "bag":
 					var kind := str(item.get("kind", ""))
-					if kind in ["rifle", "pistol", "sniper", "helmet", "armor"]:
+					if preload("res://features/inventory/item_catalog.gd").definition(kind).category in ["weapon","helmet","armor"]:
 						action_requested.emit("equip", {"index": slot_index})
 					else:
 						action_requested.emit("use", {"index": slot_index})
@@ -135,6 +135,17 @@ func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:
 	var dark := Color("1c252b")
 	var metal := Color("a7b3b2")
 	match kind:
+		"fire_axe":
+			draw_line(Vector2(15,23),Vector2(-9,-21),Color("975d3a"),6)
+			draw_colored_polygon(PackedVector2Array([Vector2(-25,-18),Vector2(-18,-27),Vector2(3,-13),Vector2(-1,0),Vector2(-19,-5)]),metal)
+		"crowbar":
+			draw_polyline(PackedVector2Array([Vector2(15,25),Vector2(-8,-16),Vector2(-15,-22),Vector2(-23,-20),Vector2(-24,-11)]),Color("aa6551"),6,true)
+		"baseball_bat","baton":
+			draw_line(Vector2(15,25),Vector2(-17,-22),Color("ae8650") if kind=="baseball_bat" else metal,9)
+			draw_line(Vector2(15,25),Vector2(4,9),dark,6)
+		"machete","katana":
+			draw_line(Vector2(15,25),Vector2(5,9),Color("675039"),7)
+			draw_colored_polygon(PackedVector2Array([Vector2(1,13),Vector2(-21,-22),Vector2(-19,-28),Vector2(8,8)]),metal)
 		"rifle", "sniper":
 			draw_colored_polygon(PackedVector2Array([Vector2(-29,-4),Vector2(-18,-9),Vector2(-12,-6),Vector2(14,-6),Vector2(14,3),Vector2(-13,3),Vector2(-23,11),Vector2(-29,10)]), Color("8d826b"))
 			draw_rect(Rect2(-14,-7,30,11), metal)

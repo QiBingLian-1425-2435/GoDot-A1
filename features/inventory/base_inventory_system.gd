@@ -53,6 +53,8 @@ static func _sync_weapon(ctx, p: Dictionary, old_uid: String) -> void:
 	var weapon: Dictionary = p.equipment.weapon
 	var uid = str(weapon.get("uid",""))
 	if uid != old_uid:
+		preload("res://features/combat/melee_system.gd").cancel(p)
+		p.melee_chain=0
 		p.reloading = false; p.reload_timer = 0.0; p.reload_progress = 0.0
 		p.ammo = int(p.magazines.get(uid,0)) if uid != "" else 0
 
