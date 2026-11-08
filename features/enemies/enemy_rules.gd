@@ -9,6 +9,30 @@ const RECOVERY := .85
 const HIT_SPEED := 5.5
 const HIT_DECELERATION := 22.0
 const HIT_DURATION := .25
+const HIT_TRACK_DURATION := 5.0
+
+static func provoke(ctx,enemy:Dictionary,attacker_id:int)->void:
+	var attacker:Dictionary=ctx.state.players.get(attacker_id,{})
+	if enemy.hp<=0 or not ctx.Souls.alive(attacker):return
+	enemy.aggro_target=attacker_id;enemy.aggro_until=ctx._clock+HIT_TRACK_DURATION
+	enemy.target=attacker_id;enemy.last_seen=at(attacker);enemy.memory=0.0
+	var direction:Vector2=Vector2(attacker.pos)-Vector2(enemy.pos)
+	if not direction.is_zero_approx():enemy.aim=direction.normalized()
+	if enemy.mode in ["windup","recover"]:enemy.mode="idle";enemy.timer=0.0
+
+static func forced_target(ctx,enemy:Dictionary)->Dictionary:
+	var id:int=enemy.get("aggro_target",0)
+	if id==0:return {}
+	var target:Dictionary=ctx.state.players.get(id,{})
+	if ctx._clock<float(enemy.get("aggro_until",0)) and ctx.Souls.alive(target):
+		enemy.target=id;enemy.last_seen=at(target)
+		var direction:Vector2=Vector2(target.pos)-Vector2(enemy.pos)
+		if not direction.is_zero_approx():enemy.aim=direction.normalized()
+		return target
+	# Forced tracking ends here; do not leave an extra blind pursuit memory tail.
+	enemy.aggro_target=0;enemy.aggro_until=0.0;enemy.memory=0.0;enemy.target=0
+	enemy.last_seen=enemy.home
+	return {}
 
 static func hit(enemy:Dictionary,direction:Vector2,melee:bool=false) -> void:
 	enemy.hurt_sound_seq=(int(enemy.get("hurt_sound_seq",0))+1)%65536
@@ -64,6 +88,7 @@ static func tick(ctx, delta: float) -> void:
 		var sick:bool=enemy.get("kind","")=="sick_ghost"
 		enemy.velocity=Vector2.ZERO
 		if enemy.hp<=0:enemy.mode="dead";enemy.target=0;enemy.knockback=Vector2.ZERO;continue
+		var forced:Dictionary=forced_target(ctx,enemy)
 		if enemy.mode=="stagger":
 			_push(ctx,enemy,delta)
 			enemy.timer=maxf(0,float(enemy.timer)-delta)
@@ -83,23 +108,24 @@ static func tick(ctx, delta: float) -> void:
 				enemy.attack_seq+=1;enemy.mode="recover";enemy.timer=2.2 if sick else RECOVERY
 			continue
 		if enemy.mode=="recover" and enemy.timer>0:continue
-		var chosen:Dictionary={};var nearest:=SIGHT_RANGE+1
-		for player in ctx.enemy_targets():
-			if at(player).distance_to(enemy.home)>28:continue
-			var distance:float=Vector2(player.pos).distance_to(enemy.pos)
-			if distance<nearest and visible(ctx,enemy,player):chosen=player;nearest=distance
+		var chosen:Dictionary=forced;var nearest:=SIGHT_RANGE+1
+		if forced.is_empty():
+			for player in ctx.enemy_targets():
+				if at(player).distance_to(enemy.home)>28:continue
+				var distance:float=Vector2(player.pos).distance_to(enemy.pos)
+				if distance<nearest and visible(ctx,enemy,player):chosen=player;nearest=distance
 		if not chosen.is_empty():
-			enemy.target=chosen.id;enemy.last_seen=at(chosen);enemy.memory=2.0
-			if at(chosen).distance_to(at(enemy))<=(2.8 if sick else REACH):
+			enemy.target=chosen.id;enemy.last_seen=at(chosen);enemy.memory=2.0 if forced.is_empty() else 0.0
+			if at(chosen).distance_to(at(enemy))<=(2.8 if sick else REACH) and clear_sight(ctx,at(enemy),at(chosen)):
 				enemy.mode="windup";enemy.timer=.8 if sick else WINDUP
 				enemy.aim=Vector2(chosen.pos-enemy.pos).normalized()
 				continue
 		else:enemy.memory=maxf(0,float(enemy.memory)-delta)
-		var destination:Vector3=enemy.last_seen if enemy.memory>0 else enemy.home
+		var destination:Vector3=at(forced) if not forced.is_empty() else enemy.last_seen if enemy.memory>0 else enemy.home
 		var direction:=Vector2(destination.x,destination.z)-Vector2(enemy.pos)
 		if direction.length()<.2:
 			enemy.mode="idle";enemy.target=0;continue
-		enemy.mode="chase" if enemy.memory>0 else "return"
+		enemy.mode="chase" if not forced.is_empty() or enemy.memory>0 else "return"
 		enemy.aim=direction.normalized()
 		if not ctx.enemy_move.is_valid():continue
 		var before:=at(enemy)

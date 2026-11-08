@@ -107,6 +107,7 @@ static func damage(ctx,effect:Dictionary,amount:float)->void:
 		if int(target.hp)<=0 or not reachable(ctx,effect,target):continue
 		if not target.get("invulnerable",false):target.hp=maxi(0,int(target.hp)-int(amount))
 		target.hits=int(target.get("hits",0))+1
+		if ctx.state.get("enemies",{}).get(target.get("id",-1),{})==target:ctx.Enemies.provoke(ctx,target,int(effect.get("owner",0)))
 	if ctx.state.world=="bunker":return
 	for member in ctx.state.players.values():
 		if not ctx.Souls.mobile(member) or not reachable(ctx,effect,member):continue
