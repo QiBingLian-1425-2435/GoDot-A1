@@ -28,7 +28,7 @@ func update(ctx)->void:
   _:
    if ctx.world.has_method("interaction_visuals"):nodes=ctx.world.interaction_visuals(target)
  for node in nodes:_outline(node)
- # Nearby opaque geometry writes black into the same depth-tested mask, so
+ # Nearby opaque geometry writes the occluder channel into the same depth-tested mask, so
  # tables, walls and players hide the portions of the target behind them.
  var selected:Array=[]
  for shell in shells:selected.append(shell.get_meta("original"))
@@ -51,6 +51,13 @@ func _copy_mesh(mesh:Mesh,original:Node3D,offset:Transform3D,occluder:bool=false
  var copy:=MeshInstance3D.new();copy.mesh=mesh
  var material:=ShaderMaterial.new();material.shader=OUTLINE;material.set_shader_parameter("mask_value",0.0 if occluder else 1.0);copy.material_override=material
  mask.add_child(copy);copy.global_transform=original.global_transform*offset
+ # Reuse the live skin/skeleton for animated blockers and targets. Copying
+ # only the mesh renders its bind pose and leaves a detached human silhouette.
+ if original is MeshInstance3D:
+  var skeleton:Node=original.get_node_or_null(original.skeleton)
+  if skeleton is Skeleton3D:
+   copy.skin=original.skin;copy.skeleton=copy.get_path_to(skeleton)
+  for i in original.get_blend_shape_count():copy.set_blend_shape_value(i,original.get_blend_shape_value(i))
  copy.set_meta("original",original);copy.set_meta("offset",offset);shells.append(copy)
 func _setup_mask():
  if is_instance_valid(mask):return
@@ -70,7 +77,10 @@ func _process(_delta:float):
  mask_camera.global_transform=camera.global_transform;mask_camera.projection=camera.projection;mask_camera.size=camera.size;mask_camera.fov=camera.fov;mask_camera.near=camera.near;mask_camera.far=camera.far;mask_camera.keep_aspect=camera.keep_aspect
  for copy in shells:
   var original=copy.get_meta("original")
-  if is_instance_valid(original):copy.global_transform=original.global_transform*copy.get_meta("offset");copy.visible=original.is_visible_in_tree()
+  if is_instance_valid(original):
+   copy.global_transform=original.global_transform*copy.get_meta("offset");copy.visible=original.is_visible_in_tree()
+   if original is MeshInstance3D:
+    for i in original.get_blend_shape_count():copy.set_blend_shape_value(i,original.get_blend_shape_value(i))
   else:copy.visible=false
 static func nearby_visuals(root:Node3D,point:Vector3,radius:float=2.0)->Array:
  var result:Array=[]
