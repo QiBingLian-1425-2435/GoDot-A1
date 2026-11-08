@@ -81,7 +81,7 @@ func _prepare_throw(data:Dictionary,dt:float)->void:
 	var phase:float=float(data.get("anim_time",0))/.65
 	holder.visible=holder.visible and (not throwing or phase<.34)
 	pose_weight=0.0
-	right_weight=move_toward(right_weight,1.0,dt*15)
+	right_weight=move_toward(right_weight,maxf(actor._aim_blend,1.0 if throwing else 0.0),dt*15)
 	var carry:=Transform3D(Basis.IDENTITY,Vector3(.32,.79,-.10))
 	var raised:=Transform3D(Basis.from_euler(Vector3(-.35,0,0)),Vector3(.29,1.46,.02))
 	var target:=carry.interpolate_with(raised,actor._aim_blend)

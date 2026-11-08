@@ -58,6 +58,19 @@ func run():
     check(hand.y>(.75 if moving.crouch else 1.15),kind+" "+gender+" "+mode+" moving aim keeps right hand raised")
     check(actor.melee_pose.holder.visible and actor.melee_pose.holder.position.distance_to(hand)<.1,"moving tool remains in right palm")
     await capture(kind+"_"+gender+"_aim_"+mode)
+   for crouched in [false,true]:
+    var walking:Dictionary=p.duplicate(true);walking.ads=false;walking.crouch=crouched;walking.velocity=right*1.5
+    var actor=game.actors[1]
+    for tick in 40:actor.update_actor(walking,.025,true)
+    var motion=actor.human_visual.imported_motion
+    var positions:Array[Vector3]=[]
+    for tick in 30:
+     actor.update_actor(walking,.025,true)
+     positions.append((motion.space*motion.skin.get_bone_global_pose(motion.skin.find_bone("R_Hand"))).origin)
+    var travel:=0.0
+    for at in positions:travel=maxf(travel,at.distance_to(positions[0]))
+    check(actor.melee_pose.right_weight<.01 and travel>.01,kind+" "+gender+" relaxed walk restores original arm swing crouch="+str(crouched))
+    await capture(kind+"_"+gender+"_relaxed_"+("crouch" if crouched else "walk"))
    for i in 12:
     m.command(1,"move",{"aim":right,"ads":true});await frame(.05)
    preload("res://features/player/base_input.gd")._fire_pressed(game,kind,false)
