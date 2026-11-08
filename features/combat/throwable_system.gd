@@ -110,4 +110,4 @@ static func damage(ctx,effect:Dictionary,amount:float)->void:
 	if ctx.state.world=="bunker":return
 	for member in ctx.state.players.values():
 		if not ctx.Souls.mobile(member) or not reachable(ctx,effect,member):continue
-		member.hp=maxf(0,float(member.hp)-amount);ctx.Souls.reconcile(ctx,member)
+		member.hp=maxf(0,float(member.hp)-amount);ctx.mark_player_hurt(member);ctx.Souls.reconcile(ctx,member)

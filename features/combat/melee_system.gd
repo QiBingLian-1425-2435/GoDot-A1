@@ -76,4 +76,5 @@ static func _strike(ctx,p:Dictionary,attack:Dictionary,phase:float)->void:
 		if ctx.Souls.zombie(member):ctx.Souls.die(ctx,member)
 		else:
 			member.hp=maxf(0,float(member.hp)-float(info.damage))
+			ctx.mark_player_hurt(member)
 			ctx.Souls.reconcile(ctx,member);ctx.Movement.hit(member,p.aim)

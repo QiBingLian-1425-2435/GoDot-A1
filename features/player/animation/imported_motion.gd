@@ -9,6 +9,7 @@ var last:Array[Transform3D]=[]
 var active_clip:=""
 var clip_names:Dictionary={}
 var elapsed:=0.0
+var hurt=preload("res://features/player/animation/hurt_pose.gd").new()
 
 func configure(owner:Node3D,source:Node3D,skeleton:Skeleton3D)->void:
  actor=owner;skin=skeleton
@@ -98,6 +99,7 @@ func _legacy()->Array[Transform3D]:
  return result
 
 func advance(data:Dictionary,dt:float)->void:
+ hurt.observe(data,dt)
  skin.clear_bones_global_pose_override()
  var clip:=""
  var dancing:bool=data.get("dancing",false) and float(data.get("hp",100))>0 and not data.get("roll",{}).get("active",false) and Vector2(data.get("velocity",Vector2.ZERO)).length()<.1
@@ -136,6 +138,7 @@ func advance(data:Dictionary,dt:float)->void:
  else:
   if player!=null:player.stop()
   skin.reset_bone_poses()
+ hurt.apply(result,skin)
  active_clip=clip
  var blend:float=1.0-exp(-dt*25)
  for i in skin.get_bone_count():

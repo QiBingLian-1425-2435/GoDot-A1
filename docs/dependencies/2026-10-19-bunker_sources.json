@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v41",
+  "protocol": "a1_bunker_v42",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -937,7 +937,11 @@
     "assets/props/throwables/molotov.glb",
     "features/enemies/zombie_visual.gd",
     "features/enemies/zombie_visual.gd.uid",
-    "assets/characters/zombie/zombie.glb"
+    "assets/characters/zombie/zombie.glb",
+    "features/combat/firearm_spread.gd",
+    "features/combat/firearm_spread.gd.uid",
+    "features/player/animation/hurt_pose.gd",
+    "features/player/animation/hurt_pose.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

@@ -22,7 +22,8 @@ static func _fire(ctx, p: Dictionary) -> bool:
 	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1
 	p.fire_timer = float(ctx.Items.definition(weapon.kind).get("fire_interval",0.16))
 	var origin: Vector2 = p.pos
-	var direction: Vector2 = p.aim
+	var cone:float=ctx.Spread.shot(p,weapon.kind)
+	var direction: Vector2 = Vector2(p.aim).rotated(randf_range(-cone,cone))
 	var distance = 22.0
 	var impact := "none"
 	var height := float(p.get("height",0))+.9
@@ -64,6 +65,7 @@ static func _fire(ctx, p: Dictionary) -> bool:
 		if ctx.Souls.zombie(teammate): ctx.Souls.die(ctx,teammate)
 		else:
 			teammate.hp=maxf(0,float(teammate.hp)-damage)
+			ctx.mark_player_hurt(teammate)
 			ctx.Souls.reconcile(ctx,teammate)
 			ctx.Movement.hit(teammate,direction)
 	elif not chosen.is_empty():
@@ -71,7 +73,7 @@ static func _fire(ctx, p: Dictionary) -> bool:
 		chosen.hits = int(chosen.get("hits",0)) + 1
 		if ctx.state.get("enemies",{}).get(chosen.get("id",-1),{})==chosen:
 			ctx.Enemies.hit(chosen,direction)
-	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"target_id":chosen.get("id",-1) if teammate.is_empty() else -1,"hit_player_id":teammate.get("id",0),"ttl":0.16})
+	ctx.state.shots.append({"from":origin,"to":origin + direction * distance,"height":height,"player_id":p.id,"sequence":p.shots,"weapon":weapon.kind,"impact":impact,"spread_angle":cone,"enemy_impact":impact=="target" and not chosen.is_empty() and ctx.state.get("enemies",{}).get(chosen.get("id",-1),{})==chosen,"target_id":chosen.get("id",-1) if teammate.is_empty() else -1,"hit_player_id":teammate.get("id",0),"ttl":0.16})
 	return true
 
 static func _ray_rect(ctx, origin: Vector2, direction: Vector2, rect: Rect2) -> float:

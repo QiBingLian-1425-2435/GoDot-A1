@@ -13,7 +13,7 @@ const RoomStore=preload("res://features/persistence/room_store.gd")
 const LocalMovement = preload("res://features/player/local_movement.gd")
 const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
-const MOTION_FIELDS := ["dancing","dance_time","pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus","jump_chain_max_speed","jump_reward_window_ms"]
+const MOTION_FIELDS := ["gun_bloom","gun_bloom_wait","hurt_seq","dancing","dance_time","pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus","jump_chain_max_speed","jump_reward_window_ms"]
 const DEFAULT_PORT := 24567
 const ACTIONS := ["hold_throwable","dance","dance_cancel","appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","set_jump_chain_max_speed","set_jump_reward_window","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
@@ -475,6 +475,8 @@ func _apply_motion(rows: Array, token: int, seq: int, stamp: float, world_revisi
 		var impact_offset:=32 if row[19].size()==36 else 40 if row[19].size()>=44 else 20
 		p.knockback=Vector2(int(row[19][impact_offset])-128,int(row[19][impact_offset+1])-128)/20.0 if row[19].size()>=impact_offset+4 else Vector2.ZERO
 		p.hit_seq=row[19].decode_u16(impact_offset+2) if row[19].size()>=impact_offset+4 else 0
+		p.hurt_seq=(int(row[4])>>14)&255
+		p.gun_bloom=float((int(row[4])>>6)&255)/20.0;p.gun_bloom_wait=float((int(row[4])>>22)&63)/100.0
 	motion_buffer.push(model.state.players,stamp)
 	_confirm_local_motion()
 
@@ -528,6 +530,10 @@ func _motion_rows() -> Array:
 	for id in model.state.players:
 		var p: Dictionary = model.state.players[id]
 		var flags := int(p.sprint) | (int(p.crouch) << 1) | (int(p.ads) << 2) | (int(p.reloading) << 3) | (int(p.get("sprint_exhausted",false)) << 4) | (int(p.get("input_sprint_exhausted",false)) << 5)
+		# Bits 0..5 retain movement; 6..13 bloom, 14..21 hurt sequence, 22..27 cooldown.
+		flags |= clampi(roundi(float(p.get("gun_bloom",0))*20),0,255)<<6
+		flags |= (int(p.get("hurt_seq",0))%256)<<14
+		flags |= clampi(roundi(float(p.get("gun_bloom_wait",0))*100),0,63)<<22
 		rows.append([id,p.pos,p.velocity,p.aim,flags,p.anim_seq,p.anim_action,p.anim_time,p.anim_duration,p.shots,p.reload_progress,p.input_seq,p.input_origin,p.input_stamina,p.input_weight,p.input_max_weight,p.get("height",0.0),p.get("input_height",0.0),p.get("relocation_seq",0),_pack_roll(p)])
 	return rows
 
@@ -581,7 +587,7 @@ func _enemy_batches() -> Array:
 func _enemy_rows() -> Array:
 	var rows:Array=[]
 	for e in model.state.get("enemies",{}).values():
-		rows.append([e.id,e.pos,e.height,e.velocity,e.hp,e.mode,e.timer,e.attack_seq,e.aim])
+		rows.append([e.id,e.pos,e.height,e.velocity,e.hp,e.mode,e.timer,e.attack_seq,e.aim,int(e.get("hurt_sound_seq",0)),bool(e.get("hurt_sound_melee",false))])
 	return rows
 
 @rpc("authority","call_remote","unreliable",1)
@@ -598,6 +604,7 @@ func _apply_enemies(rows:Array, token:int, seq:int, revision:int) -> void:
 		_enemy_serials[row[0]]=seq
 		var e:Dictionary=model.state.enemies[row[0]]
 		e.pos=row[1];e.height=row[2];e.velocity=row[3];e.hp=row[4];e.mode=row[5];e.timer=row[6];e.attack_seq=row[7];e.aim=row[8]
+		if row.size()>10:e.hurt_sound_seq=int(row[9]);e.hurt_sound_melee=bool(row[10])
 
 func _broadcast_snapshot(control: bool) -> void:
 	if mode != "host" or _peer == null: return

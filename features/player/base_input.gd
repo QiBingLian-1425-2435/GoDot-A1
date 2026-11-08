@@ -21,11 +21,13 @@ static func _physics_process(ctx, delta:float)->void:
 	var direction:Vector2=(right*axis.x+down*axis.y).limit_length(1)
 	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
 	var aim:Vector2=p.get("aim",Vector2.UP)
+	var cursor_point:=Vector3(p.get("pos",Vector2.ZERO).x,float(p.get("height",0))+.75,p.get("pos",Vector2.ZERO).y)+Vector3(aim.x,0,aim.y)*8
 	if not blocked and focused:
 		var plane =Plane(Vector3.UP,float(p.get("height",0))+.75)
 		var mouse =ctx.get_viewport().get_mouse_position()
 		var point:Variant=plane.intersects_ray(ctx.camera.project_ray_origin(mouse),ctx.camera.project_ray_normal(mouse))
 		if point is Vector3:
+			cursor_point=point
 			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
 	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Keys.held("sprint") and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Keys.held("aim") and not blocked and focused})
 	var held:Dictionary=Throwables.held(p)
@@ -40,6 +42,7 @@ static func _physics_process(ctx, delta:float)->void:
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked and ctx.session.model.Souls.mobile(p)
 	ctx.crosshair.aiming=Keys.held("aim")
+	ctx.crosshair.set_accuracy(p,ctx.camera,cursor_point)
 	var soul_controls: bool = is_instance_valid(ctx.ui._soul_panel) and ctx.ui._soul_panel.visible
 	Input.mouse_mode=Input.MOUSE_MODE_HIDDEN if not blocked and not soul_controls else Input.MOUSE_MODE_VISIBLE
 	var audible_motion := p

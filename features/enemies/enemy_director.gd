@@ -4,11 +4,12 @@ const Body=preload("res://features/player/player.tscn")
 const View=preload("res://features/enemies/enemy_view.gd")
 var bodies:Dictionary={}
 var views:Dictionary={}
+var heard_hits:Dictionary={}
 var world_instance:=0
 func clear():
 	for node in bodies.values():node.free()
 	for node in views.values():node.free()
-	bodies.clear();views.clear();world_instance=0
+	bodies.clear();views.clear();heard_hits.clear();world_instance=0
 func bind_world(ctx):
 	ctx.session.model.enemy_sight=clear_sight
 	ctx.session.model.enemy_move=move_enemy
@@ -124,8 +125,15 @@ func update(ctx,delta:float):
 	spawn_wave(ctx)
 	var enemies:Dictionary=ctx.session.model.state.get("enemies",{})
 	for id in views.keys():
-		if not enemies.has(id):views[id].free();views.erase(id)
+		if not enemies.has(id):views[id].free();views.erase(id);heard_hits.erase(id)
 	for id in enemies:
 		if not views.has(id):var view=View.new();add_child(view);views[id]=view
 		views[id].update_enemy(enemies[id],delta)
 		views[id].visible=ctx.vision.can_see(views[id].position+Vector3(0,.85,0))
+
+		var sequence:int=enemies[id].get("hurt_sound_seq",0)
+		if heard_hits.has(id) and sequence!=int(heard_hits[id]) and views[id].visible:
+			var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
+			if not p.is_empty() and Vector2(p.pos).distance_to(enemies[id].pos)<=24:
+				ctx.sound.play("enemy_slash" if enemies[id].get("hurt_sound_melee",false) else "enemy_hit")
+		heard_hits[id]=sequence

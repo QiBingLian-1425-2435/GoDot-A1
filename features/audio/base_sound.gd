@@ -4,10 +4,10 @@ var sounds:Dictionary={}
 var step_clock:=0.0
 var muted:=false
 func _ready()->void:
-	for kind in ["fire","pistol","impact","reload","step","pickup","ui","swing"]:
+	for kind in ["fire","pistol","impact","reload","step","pickup","ui","swing","enemy_hit","enemy_slash"]:
 		var player:=AudioStreamPlayer.new()
 		player.stream=_synth(kind)
-		player.volume_db=-15 if kind=="fire" else (-19 if kind=="pistol" else (-17 if kind=="reload" else -23))
+		player.volume_db=-15 if kind=="fire" else (-19 if kind=="pistol" else (-17 if kind in ["reload","enemy_hit","enemy_slash"] else -23))
 		add_child(player)
 		sounds[kind]=player
 func _synth(kind:String)->AudioStreamWAV:
@@ -24,6 +24,8 @@ func _synth(kind:String)->AudioStreamWAV:
 			"fire": value=(rng.randf_range(-1,1)*0.7+sin(TAU*t*90)*0.4)
 			"pistol": value=rng.randf_range(-1,1)*0.55+sin(TAU*t*175)*0.4
 			"impact": value=rng.randf_range(-1,1)*0.3+sin(TAU*t*2200)*0.2
+			"enemy_hit":value=sin(TAU*t*(135-t*450))*.7+rng.randf_range(-1,1)*.24
+			"enemy_slash":value=sin(TAU*t*95)*.5+rng.randf_range(-1,1)*.6
 			"step": value=rng.randf_range(-1,1)*0.3
 			"swing":value=rng.randf_range(-1,1)*.48*sin(PI*float(i)/float(rate*duration))
 			"reload":

@@ -11,6 +11,8 @@ const HIT_DECELERATION := 22.0
 const HIT_DURATION := .25
 
 static func hit(enemy:Dictionary,direction:Vector2,melee:bool=false) -> void:
+	enemy.hurt_sound_seq=(int(enemy.get("hurt_sound_seq",0))+1)%65536
+	enemy.hurt_sound_melee=melee
 	if enemy.hp<=0 or enemy.get("kind","")=="sick_ghost":return
 	enemy.knockback=direction.normalized()*HIT_SPEED if melee or enemy.get("kind","")!="zombie" else Vector2.ZERO
 	enemy.mode="stagger";enemy.timer=HIT_DURATION

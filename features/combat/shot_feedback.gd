@@ -39,7 +39,7 @@ func observe(shot: Dictionary, age: float) -> void:
 	light.light_color = Color("ffcb7a"); light.light_energy = 2.0 if rifle else 1.0
 	light.omni_range = 2.3; light.shadow_enabled = false
 	node.add_child(light)
-	impacts.append({"node":node,"bits":bits,"dust":dust,"light":light,"energy":light.light_energy,"target_id":int(shot.get("target_id",-1)),"age":0.0,"sounded":false,"delay":maxf(0.0,Vector2(shot.from).distance_to(point)/140.0-age)})
+	impacts.append({"node":node,"bits":bits,"dust":dust,"light":light,"energy":light.light_energy,"target_id":int(shot.get("target_id",-1)),"age":0.0,"enemy":shot.get("enemy_impact",false),"sounded":false,"delay":maxf(0.0,Vector2(shot.from).distance_to(point)/140.0-age)})
 	node.visible = false
 
 func _process(delta: float) -> void:
@@ -58,7 +58,8 @@ func _process(delta: float) -> void:
 		if time < 0: continue
 		impact.node.visible = context.vision.can_see(impact.node.global_position)
 		if not impact.sounded:
-			context.sound.play("impact"); impact.sounded = true
+			if not impact.enemy:context.sound.play("impact")
+			impact.sounded = true
 			if context.world.target_nodes.has(impact.target_id):
 				context.world.target_nodes[impact.target_id].rotation.z = .12
 		if time >= .28:

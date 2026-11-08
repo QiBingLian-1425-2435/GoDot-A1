@@ -7,6 +7,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENGINE = Path('G:/.Installed/Godot_v4.5.2-stable_win64.exe/Godot_v4.5.2-stable_win64_console.exe')
 SUITES = {
+    "combat_feedback": [("combat_feedback_rules_test", True, []), ("combat_feedback_visual_test", True, []), ("combat_feedback_visual_test", False, []), ("combat_feedback_network_test", True, [])],
     "city_zombies": [("city_zombie_rules_test", True, []), ("city_zombie_world_test", True, []), ("city_zombie_world_test", False, []), ("city_zombie_network_test", True, [])],
     "throwables": [("throwable_rules_test", True, []), ("throwable_visual_test", True, []), ("throwable_visual_test", False, []), ("throwable_network_test", True, [])],
     "melee": [("melee_effect_test", True, []), ("melee_test", True, []), ("melee_visual_test", True, []), ("melee_visual_test", False, []), ("melee_integration_test", True, []), ("melee_integration_test", False, []), ("melee_network_test", True, [])],
@@ -81,7 +82,7 @@ def run(engine, suite, steam_live):
             suffix = '_visible'
         if name in ('city_buildings_test', 'city_stairs_test') and not headless:
             suffix = '_visible'
-        if name in ('melee_visual_test', 'melee_integration_test', 'throwable_visual_test', 'city_zombie_world_test') and not headless:
+        if name in ('melee_visual_test', 'melee_integration_test', 'throwable_visual_test', 'city_zombie_world_test', 'combat_feedback_visual_test') and not headless:
             suffix = '_visible'
         if arguments == ['--stairs']:
             suffix = '_stairs'

@@ -8,6 +8,7 @@ var enemy_sight: Callable
 var enemy_move: Callable
 var enemy_push: Callable
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
+const Spread=preload("res://features/combat/firearm_spread.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
 const Throwables = preload("res://features/combat/throwable_system.gd")
 var projectile_query:Callable
@@ -98,8 +99,12 @@ func enemy_damage(id: int, amount: float) -> bool:
 	var p: Dictionary = state.players.get(id,{})
 	if not world_ready or not Souls.alive(p) or not is_finite(amount) or amount<=0: return false
 	p.hp = maxf(0,float(p.hp)-amount)
+	mark_player_hurt(p)
 	Souls.reconcile(self,p)
 	return true
+
+func mark_player_hurt(p:Dictionary)->void:
+	p.hurt_seq=(int(p.get("hurt_seq",0))+1)%256
 
 func change_san(id: int, amount: float) -> bool:
 	var p: Dictionary = state.players.get(id,{})
@@ -120,6 +125,7 @@ func reset_transients(id: int) -> void:
 	p.dancing=false;p.dance_time=0.0
 	p.velocity = Vector2.ZERO
 	p.knockback=Vector2.ZERO
+	p.gun_bloom=0.0;p.gun_bloom_wait=0.0
 	p.sprint = false; p.sprint_exhausted = false; p.crouch = false; p.ads = false
 	p.anim_seq = 0; p.anim_action = ""; p.anim_time = 0.0; p.anim_duration = 0.0
 	p.reloading = false; p.reload_progress = 0.0; p.reload_timer = 0.0; p.fire_timer = 0.0
@@ -318,6 +324,7 @@ func tick(delta: float) -> void:
 			_restore_camp_status(p)
 		else:
 			p.thirst = maxf(0, p.thirst - delta * 0.018)
+		Spread.tick(p,delta)
 		p.fire_timer = maxf(0, float(p.fire_timer) - delta)
 		Melee.tick(self,p,delta)
 		if p.reloading:

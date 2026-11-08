@@ -124,37 +124,37 @@
     "app/network/session.gd:204"
   ],
   "session.014": [
-    "app/network/session.gd:631"
+    "app/network/session.gd:638"
   ],
   "session.015": [
-    "app/network/session.gd:640"
-  ],
-  "session.016": [
     "app/network/session.gd:647"
   ],
+  "session.016": [
+    "app/network/session.gd:654"
+  ],
   "session.017": [
-    "app/network/session.gd:652"
+    "app/network/session.gd:659"
   ],
   "session.018": [
-    "app/network/session.gd:658"
+    "app/network/session.gd:665"
   ],
   "session.019": [
-    "app/network/session.gd:658"
+    "app/network/session.gd:665"
   ],
   "session.020": [
-    "app/network/session.gd:665"
+    "app/network/session.gd:672"
   ],
   "session.021": [
-    "app/network/session.gd:665"
+    "app/network/session.gd:672"
   ],
   "session.022": [
-    "app/network/session.gd:673"
+    "app/network/session.gd:680"
   ],
   "session.023": [
-    "app/network/session.gd:673"
+    "app/network/session.gd:680"
   ],
   "session.024": [
-    "app/network/session.gd:723"
+    "app/network/session.gd:730"
   ],
   "steam_service.001": [
     "app/network/steam_service.gd:20",
@@ -285,52 +285,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:147"
+    "features/base/base_model.gd:153"
   ],
   "base_model.002": [
-    "features/base/base_model.gd:150"
+    "features/base/base_model.gd:156"
   ],
   "base_model.003": [
-    "features/base/base_model.gd:151"
+    "features/base/base_model.gd:157"
   ],
   "base_model.004": [
-    "features/base/base_model.gd:165"
+    "features/base/base_model.gd:171"
   ],
   "base_model.005": [
-    "features/base/base_model.gd:166"
+    "features/base/base_model.gd:172"
   ],
   "base_model.006": [
-    "features/base/base_model.gd:167"
+    "features/base/base_model.gd:173"
   ],
   "base_model.007": [
-    "features/base/base_model.gd:169"
-  ],
-  "base_model.008": [
     "features/base/base_model.gd:175"
   ],
+  "base_model.008": [
+    "features/base/base_model.gd:181"
+  ],
   "base_model.009": [
-    "features/base/base_model.gd:206"
+    "features/base/base_model.gd:212"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:214"
+    "features/base/base_model.gd:220"
   ],
   "base_model.011": [
-    "features/base/base_model.gd:218"
+    "features/base/base_model.gd:224"
   ],
   "base_model.012": [
-    "features/base/base_model.gd:223"
+    "features/base/base_model.gd:229"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:255"
+    "features/base/base_model.gd:261"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:258"
+    "features/base/base_model.gd:264"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:265"
+    "features/base/base_model.gd:271"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:267"
+    "features/base/base_model.gd:273"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -870,10 +870,10 @@
     "features/player/animation/animation_preview.gd:98"
   ],
   "base_input.001": [
-    "features/player/base_input.gd:152"
+    "features/player/base_input.gd:155"
   ],
   "base_input.002": [
-    "features/player/base_input.gd:164"
+    "features/player/base_input.gd:167"
   ],
   "soul_rules.001": [
     "features/rescue/soul_rules.gd:52"
@@ -1890,11 +1890,11 @@
     "ui/menu/menu_screen.gd:233"
   ],
   "settings.jump_chain_bonus_host_only": [
-    "features/base/base_model.gd:233"
+    "features/base/base_model.gd:239"
   ],
   "settings.jump_chain_host_only": [
-    "features/base/base_model.gd:238",
-    "features/base/base_model.gd:243"
+    "features/base/base_model.gd:244",
+    "features/base/base_model.gd:249"
   ],
   "settings.jump_chain_max_speed": [
     "ui/menu/menu_screen.gd:234"
@@ -2140,7 +2140,7 @@
     "ui/menu/menu_screen.gd:217"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:228"
+    "features/base/base_model.gd:234"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:39"
