@@ -55,7 +55,7 @@ func _gui_input(event: InputEvent) -> void:
 					action_requested.emit("unequip", {"slot": slot_index})
 				elif container_name == "bag":
 					var kind := str(item.get("kind", ""))
-					if kind in ["rifle", "pistol", "helmet", "armor"]:
+					if kind in ["rifle", "pistol", "sniper", "helmet", "armor"]:
 						action_requested.emit("equip", {"index": slot_index})
 					else:
 						action_requested.emit("use", {"index": slot_index})
@@ -131,11 +131,11 @@ func _box(bg: Color, border: Color, width: int) -> StyleBoxFlat:
 func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:
 	var center := area.get_center()
 	var s := minf(area.size.x, area.size.y) / 56.0
-	draw_set_transform(center, -0.22 if kind in ["rifle", "pistol", "ammo"] else 0.0, Vector2.ONE * s)
+	draw_set_transform(center, -0.22 if kind in ["rifle", "pistol", "sniper", "ammo"] else 0.0, Vector2.ONE * s)
 	var dark := Color("1c252b")
 	var metal := Color("a7b3b2")
 	match kind:
-		"rifle":
+		"rifle", "sniper":
 			draw_colored_polygon(PackedVector2Array([Vector2(-29,-4),Vector2(-18,-9),Vector2(-12,-6),Vector2(14,-6),Vector2(14,3),Vector2(-13,3),Vector2(-23,11),Vector2(-29,10)]), Color("8d826b"))
 			draw_rect(Rect2(-14,-7,30,11), metal)
 			draw_rect(Rect2(10,-5,22,5), dark)

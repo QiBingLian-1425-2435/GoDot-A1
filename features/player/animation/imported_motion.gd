@@ -68,6 +68,10 @@ func _legacy()->Array[Transform3D]:
   if mini(hi,mini(ki,ai))<0:continue
   var shoulder:Vector3=(_delta("Spine")*rest[hi]).origin
   var hand:Vector3=result[ai].origin
+  if actor.weapon_kind in ["rifle","pistol","sniper"]:
+   var grip_weight:float=1.0-actor._unarmed_blend
+   if side=="L" or actor._visual_action!="reload":grip_weight*=1.0-actor._visual_action_weight
+   hand=hand.lerp(actor.weapon_grip(side),grip_weight)
   var upper:float=rest[hi].origin.distance_to(rest[ki].origin)
   var lower:float=rest[ki].origin.distance_to(rest[ai].origin)
   var direction:Vector3=(hand-shoulder).normalized()
@@ -127,6 +131,10 @@ func advance(data:Dictionary,dt:float)->void:
   if last.size()==result.size():result[i]=last[i].interpolate_with(result[i],blend)
   skin.set_bone_global_pose_override(i,space.affine_inverse()*result[i],1.0,true)
  last=result
+ var left_hand:int=skin.find_bone("L_Hand")
+ if left_hand>=0:
+  var hand_world:Vector3=skin.global_transform*skin.get_bone_global_pose(left_hand).origin
+  actor.held_props.reload.global_transform=Transform3D(actor.global_basis,hand_world+actor.global_basis*Vector3(0,-.04,-.02))
  if dancing:
   actor.weapon.visible=false;actor.flash.visible=false;actor.flash_light.visible=false
   actor.animation_state="dance"

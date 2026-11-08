@@ -11,6 +11,8 @@ var gender:=""
 var current:Dictionary={}
 func configure(owner:Node3D)->void:
  actor=owner
+ # Reload props must follow the imported hand, independently of the hidden duck wing.
+ actor.held_props.reload.reparent(actor,false)
  var keep:Array=[actor.helmet,actor.backpack,actor.armor,actor.weapon]
  keep.append_array(actor.held_props.values())
  for attachment in actor.skeleton.get_children():

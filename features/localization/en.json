@@ -695,5 +695,7 @@
   "departure.cancel": "Cancel ready",
   "departure.ready_done": "Ready. Waiting for team.",
   "departure.ready_cancelled": "Readiness cancelled",
-  "departure.count": "Ready to depart  %d / %d"
+  "departure.count": "Ready to depart  %d / %d",
+  "weapon.sniper.name": "Sniper Rifle",
+  "weapon.sniper.description": "A scoped bolt-action rifle using standard ammunition."
 }

@@ -7,6 +7,7 @@ const DEFS := {
 	"poison_capsule": {"name":"⟦item_catalog.005⟧","weight":0.02,"stack":1,"color":Color("a577bf"),"category":"food","description":"⟦item_catalog.006⟧"},
 	"rifle": {"name":"⟦item_catalog.007⟧", "weight":3.4, "stack":1, "color":Color("aab8a0"), "category":"weapon", "description":"⟦item_catalog.008⟧", "magazine":30, "damage":34, "fire_interval":0.10, "reload_time":1.15},
 	"pistol": {"name":"⟦item_catalog.009⟧", "weight":1.1, "stack":1, "color":Color("b4bec5"), "category":"weapon", "description":"⟦item_catalog.010⟧", "magazine":12, "damage":20, "fire_interval":0.16, "reload_time":0.85},
+	"sniper": {"name":"⟦weapon.sniper.name⟧", "weight":4.5, "stack":1, "color":Color("ad997c"), "category":"weapon", "description":"⟦weapon.sniper.description⟧", "magazine":5, "damage":80, "fire_interval":1.0, "reload_time":2.2},
 	"ammo": {"name":"⟦item_catalog.011⟧", "weight":0.025, "stack":60, "color":Color("d5b26f"), "category":"ammo", "description":"⟦item_catalog.012⟧"},
 	"medkit": {"name":"⟦item_catalog.013⟧", "weight":0.75, "stack":3, "color":Color("e78a75"), "category":"medical", "description":"⟦item_catalog.014⟧"},
 	"bandage": {"name":"⟦item_catalog.015⟧", "weight":0.15, "stack":5, "color":Color("e0dbc3"), "category":"medical", "description":"⟦item_catalog.016⟧"},
@@ -33,7 +34,7 @@ const DEFS := {
 }
 
 const TYPES := {"food":"⟦item_catalog.059⟧","medical":"⟦item_catalog.060⟧","tool":"⟦item_catalog.061⟧","material":"⟦item_catalog.062⟧","valuable":"⟦item_catalog.063⟧","equipment":"⟦item_catalog.064⟧"}
-const VALUES := {"san_capsule":10,"revival_serum":100,"poison_capsule":10,"rifle":900,"pistol":350,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
+const VALUES := {"san_capsule":10,"revival_serum":100,"poison_capsule":10,"rifle":900,"pistol":350,"sniper":1800,"ammo":2,"medkit":180,"bandage":25,"water":30,"canned_food":45,"scrap":18,"helmet":250,"armor":800,"biscuits":35,"juice":120,"energy_bar":380,"medical_box":850,"glowstick":150,"lockpick":550,"smoke_grenade":650,"beacon":1600,"tape":40,"battery":180,"circuit_board":620,"optical_parts":1800,"pocket_watch":2400,"gold_statue":6800,"encrypted_core":18000}
 const EFFECTS := {"san_capsule":{"san":-100},"poison_capsule":{"hp":-1000},"medkit":{"hp":45},"bandage":{"hp":18},"water":{"thirst":40},"canned_food":{"hunger":35},"biscuits":{"hunger":30,"thirst":-5},"juice":{"thirst":30,"hunger":10},"energy_bar":{"hunger":55,"stamina":20},"medical_box":{"hp":80}}
 const TIERS := ["⟦item_catalog.065⟧","⟦item_catalog.066⟧","⟦item_catalog.067⟧","⟦item_catalog.068⟧","⟦item_catalog.069⟧","⟦item_catalog.070⟧"]
 const COLORS := [Color("c5ccc9"),Color("73bc81"),Color("639ee5"),Color("b183df"),Color("edc65c"),Color("ed7474")]

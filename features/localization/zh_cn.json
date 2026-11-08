@@ -695,5 +695,7 @@
   "departure.cancel": "取消准备",
   "departure.ready_done": "准备完成，等待其他玩家",
   "departure.ready_cancelled": "已取消准备",
-  "departure.count": "出发准备  %d / %d"
+  "departure.count": "出发准备  %d / %d",
+  "weapon.sniper.name": "狙击步枪",
+  "weapon.sniper.description": "配备瞄准镜的栓动步枪，使用通用弹药。"
 }

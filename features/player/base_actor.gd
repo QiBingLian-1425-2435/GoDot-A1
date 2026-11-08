@@ -20,6 +20,8 @@ var action_state := ""
 var action_time := 0.0
 var magazine: MeshInstance3D
 var rifle_mesh: Node3D
+var weapon_kind:=""
+var sniper_mesh:Node3D
 var pistol_mesh: Node3D
 var held_props: Dictionary = {}
 var _eyes: Array[MeshInstance3D] = []
@@ -225,26 +227,11 @@ func _build_gear() -> void:
 	# Soft canvas rucksack: rounded body, domed top flap and a front pouch.
 
 func _build_weapon() -> void:
-	var metal := Color("303635")
-	var wood := Color("655440")
-	rifle_mesh = Node3D.new()
-	weapon.add_child(rifle_mesh)
-	G.box(rifle_mesh,Vector3(0,0,-.08),Vector3(.15,.15,.43),metal,.6)
-	G.box(rifle_mesh,Vector3(0,-.11,.02),Vector3(.08,.24,.10),wood)
-	magazine = G.box(rifle_mesh,Vector3(0,-.16,-.20),Vector3(.095,.23,.15),metal.darkened(.18),.4)
-	magazine.rotation.x = -.20
-	G.box(rifle_mesh,Vector3(0,0,.23),Vector3(.11,.17,.28),wood)
-	G.box(rifle_mesh,Vector3(0,.015,-.37),Vector3(.13,.13,.23),wood)
-	G.rod(rifle_mesh,Vector3(0,.025,-.46),Vector3(0,.025,-.79),.036,metal,.7)
-	G.box(rifle_mesh,Vector3(0,.14,-.08),Vector3(.06,.1,.16),metal)
-	G.box(rifle_mesh,Vector3(0,.095,-.64),Vector3(.04,.12,.04),metal)
-	pistol_mesh = Node3D.new()
-	weapon.add_child(pistol_mesh)
-	G.box(pistol_mesh,Vector3(0,.015,-.10),Vector3(.12,.13,.34),metal,.65)
-	G.box(pistol_mesh,Vector3(0,-.13,.0),Vector3(.09,.24,.13),Color("554f42")).rotation.x = -.18
-	G.box(pistol_mesh,Vector3(0,.09,-.22),Vector3(.025,.035,.04),Color("b3b5a4"),.6)
-	G.rod(pistol_mesh,Vector3(0,.015,-.23),Vector3(0,.015,-.30),.027,metal,.7)
-	pistol_mesh.visible = false
+	var models=preload("res://features/player/weapon_models.gd")
+	rifle_mesh=models.create("rifle");weapon.add_child(rifle_mesh)
+	pistol_mesh=models.create("pistol");weapon.add_child(pistol_mesh)
+	sniper_mesh=models.create("sniper");weapon.add_child(sniper_mesh)
+	magazine=rifle_mesh.find_child("Magazine",true,false) as MeshInstance3D
 	var flash_shape := SphereMesh.new()
 	flash_shape.radius = .12
 	flash_shape.height = .24
@@ -280,7 +267,13 @@ func _build_props() -> void:
 				G.box(prop,Vector3(0,0,-.07),Vector3(.07,.022,.01),Color("b96651"))
 				G.box(prop,Vector3(0,0,-.071),Vector3(.023,.07,.01),Color("b96651"))
 			"reload":
-				G.box(prop,Vector3.ZERO,Vector3(.095,.23,.15),Color("282e2c"),.5)
+				if magazine!=null:
+					var spare:=MeshInstance3D.new()
+					spare.mesh=magazine.mesh
+					var spec:Dictionary=preload("res://features/player/weapon_models.gd").SPECS.rifle
+					spare.rotation.y=spec.yaw;spare.scale=Vector3.ONE*float(spec.scale)
+					spare.position=-(spare.basis*spare.get_aabb().get_center())
+					prop.add_child(spare)
 
 ## NPCs opt into independent presentation updates. Players are advanced by Main.
 func enable_idle(data: Dictionary) -> void:
@@ -314,9 +307,12 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 	if human_visual!=null:
 		human_visual.update(data.get("appearance",{}))
 		human_visual.set_helmet(helmet.visible)
+	weapon_kind=kind
+	sniper_mesh.visible=kind=="sniper"
 	rifle_mesh.visible = kind == "rifle"
 	pistol_mesh.visible = kind == "pistol"
-	flash.position.z = -.37 if kind == "pistol" else -.86
+	var active_model:Node3D={"rifle":rifle_mesh,"pistol":pistol_mesh,"sniper":sniper_mesh}.get(kind,rifle_mesh)
+	flash.position=active_model.transform*active_model.get_node("Muzzle").position
 	flash.scale = Vector3(.65,.65,1.4) if kind == "pistol" else Vector3(1.0,1.0,2.4)
 	flash_light.light_energy = 1.5 if kind == "pistol" else 3.5
 	flash_light.omni_range = 2.2 if kind == "pistol" else 4.0
@@ -467,12 +463,21 @@ func _rotate(bone: String, offset: Vector3) -> void:
 	var index := skeleton.find_bone(bone)
 	skeleton.set_bone_pose_rotation(index, skeleton.get_bone_pose_rotation(index)*Quaternion.from_euler(offset))
 
+func weapon_grip(side:String)->Vector3:
+	var index:int=skeleton.find_bone("Gun")
+	var delta:Transform3D=skeleton.get_bone_global_pose(index)*skeleton.get_bone_global_rest(index).affine_inverse()
+	var model:Node3D={"rifle":rifle_mesh,"pistol":pistol_mesh,"sniper":sniper_mesh}.get(weapon_kind,rifle_mesh)
+	var grip:Marker3D=model.get_node("RightGrip" if side=="R" else "LeftGrip")
+	return delta*Transform3D(Basis.IDENTITY,Vector3(.30,.85,-.34))*model.transform*grip.position
+
 func _update_props(action_weight: float, kind: String) -> void:
 	for prop in held_props.values(): prop.visible = false
-	magazine.visible = true
+	if magazine!=null:magazine.visible = true
 	if action_state == "reload" and action_weight > .05:
-		var exchanging := action_time > .40 and action_time < 1.04
-		magazine.visible = not exchanging
+		var duration:float=Items.definition(kind).get("reload_time",1.15)
+		var phase:float=action_time/maxf(.01,duration)
+		var exchanging := phase > .35 and phase < .90
+		if magazine!=null:magazine.visible = not exchanging or kind!="rifle"
 		held_props.reload.visible = exchanging and kind == "rifle"
 	elif held_props.has(action_state):
 		held_props[action_state].visible = action_weight > .25
