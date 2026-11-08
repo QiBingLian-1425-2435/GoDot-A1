@@ -58,8 +58,10 @@ var interaction_outline:Node3D
 var container_marks: Node3D
 
 var enemy_director:Node3D
+var display_settings=preload("res://features/settings/display_settings.gd").new()
 
 func _ready()->void:
+	add_child(display_settings)
 	interaction_outline=preload("res://features/exploration/interaction_outline.gd").new();add_child(interaction_outline)
 	container_marks=preload("res://features/exploration/container_marks.gd").new()
 	add_child(container_marks)
@@ -88,6 +90,7 @@ func _ready()->void:
 	session.local_movement.spatial_solver = player_physics.predict_spatial
 	session.notice.connect(_on_notice)
 	ui=load("res://ui/base_hud.gd").new()
+	ui.display_settings=display_settings
 	add_child(ui)
 	global_map=load("res://ui/map/global_map.gd").new()
 	ui.add_child(global_map)
@@ -241,8 +244,9 @@ func _on_action(action:String,payload:Dictionary)->void:
 				voice.set_muted(bool(payload.voice_muted));ui.voice_muted=voice.muted
 			if payload.has("volume"):
 				AudioServer.set_bus_volume_db(0,linear_to_db(maxf(0.001,float(payload.volume))))
-			if payload.has("fullscreen"):
-				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if payload.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+			if payload.has("fullscreen") or payload.has("resolution"):
+				var result:int=display_settings.change(payload)
+				if result!=OK:ui.toast("⟦settings.display_embedded_hint⟧" if result==ERR_UNAVAILABLE else "⟦settings.display_save_failed⟧")
 		"set_infinite_stamina":
 			session.send("set_infinite_stamina",payload)
 		_:

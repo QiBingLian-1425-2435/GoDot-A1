@@ -1,5 +1,6 @@
 extends RefCounted
 const Texts = preload("res://features/localization/game_text.gd")
+const Display = preload("res://features/settings/display_settings.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _build_menu(ctx) -> void:
@@ -101,13 +102,31 @@ static func _open_player_settings(ctx) -> void:
 	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,475,300,48),ctx._open_settings,ctx.GREEN,22)
 
 static func _open_audio_display_settings(ctx) -> void:
-	ctx._dialog_panel("⟦settings.category_audio_display⟧",Vector2(640,650))
+	ctx._dialog_panel("⟦settings.category_audio_display⟧",Vector2(640,720))
 	ctx._label(ctx._dialog,"⟦menu_screen.011⟧",Rect2(34,115,200,32),21,ctx.INK)
 	var volume:=HSlider.new();volume.position=Vector2(250,118);volume.size=Vector2(340,28);volume.min_value=0;volume.max_value=100;volume.value=db_to_linear(AudioServer.get_bus_volume_db(0))*100.0;volume.value_changed.connect(func(value:float)->void:AudioServer.set_bus_volume_db(0,linear_to_db(maxf(value/100.0,0.0001)));ctx.action_requested.emit("settings",{"volume":value/100.0}));ctx._dialog.add_child(volume)
-	var fullscreen:=CheckButton.new();fullscreen.position=Vector2(34,190);fullscreen.size=Vector2(570,42);Texts.bind(fullscreen,"⟦menu_screen.013⟧","text");fullscreen.button_pressed=DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN;fullscreen.toggled.connect(func(value:bool)->void:DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED);ctx.action_requested.emit("settings",{"fullscreen":value}));ctx._dialog.add_child(fullscreen)
-	var voice_mute:=CheckButton.new();voice_mute.name="VoiceMute";voice_mute.position=Vector2(34,270);voice_mute.size=Vector2(570,42);Texts.bind(voice_mute,"⟦menu_screen.020⟧","text");voice_mute.button_pressed=ctx.voice_muted;voice_mute.toggled.connect(func(value:bool)->void:ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}));ctx._dialog.add_child(voice_mute)
-	var always_on:=CheckButton.new();always_on.name="VoiceAlwaysOn";always_on.position=Vector2(34,330);always_on.size=Vector2(570,42);Texts.bind(always_on,"⟦settings.voice_always_on⟧","text");always_on.button_pressed=ctx.voice_always_on;always_on.toggled.connect(func(value:bool)->void:ctx.action_requested.emit("settings",{"voice_always_on":value}));ctx._dialog.add_child(always_on)
-	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,500,300,48),ctx._open_settings,ctx.GREEN,22)
+	var fullscreen:=CheckButton.new();fullscreen.name="FullscreenToggle";fullscreen.position=Vector2(34,180);fullscreen.size=Vector2(570,42);Texts.bind(fullscreen,"⟦menu_screen.013⟧","text");fullscreen.button_pressed=Display.is_fullscreen();fullscreen.toggled.connect(func(value:bool)->void:ctx.action_requested.emit("settings",{"fullscreen":value}));ctx._dialog.add_child(fullscreen)
+	ctx._label(ctx._dialog,"⟦settings.resolution⟧",Rect2(34,250,200,32),21,ctx.INK)
+	var resolution:=OptionButton.new();resolution.name="ResolutionSelect";resolution.position=Vector2(250,244);resolution.size=Vector2(340,42);resolution.add_theme_font_size_override("font_size",21)
+	var current:Vector2i=ctx.display_settings.resolution if is_instance_valid(ctx.display_settings) else Display.fit_resolution(ctx.get_window().size)
+	var choices:Array[Vector2i]=ctx.display_settings.options() if is_instance_valid(ctx.display_settings) else Display.PRESETS
+	for value in choices:
+		resolution.add_item("%d × %d"%[value.x,value.y]);var index:=resolution.item_count-1;resolution.set_item_metadata(index,value)
+		if value==current:resolution.select(index)
+	resolution.item_selected.connect(func(index:int)->void:ctx.action_requested.emit("settings",{"resolution":resolution.get_item_metadata(index)}));ctx._dialog.add_child(resolution)
+	var hint:Label=ctx._label(ctx._dialog,"⟦settings.display_embedded_hint⟧" if Engine.is_embedded_in_editor() else "⟦settings.resolution_hint⟧",Rect2(34,300,570,72),16,ctx.MUTED);hint.name="DisplayHint";hint.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	var voice_mute:=CheckButton.new();voice_mute.name="VoiceMute";voice_mute.position=Vector2(34,400);voice_mute.size=Vector2(570,42);Texts.bind(voice_mute,"⟦menu_screen.020⟧","text");voice_mute.button_pressed=ctx.voice_muted;voice_mute.toggled.connect(func(value:bool)->void:ctx.voice_muted=value;ctx.action_requested.emit("settings",{"voice_muted":value}));ctx._dialog.add_child(voice_mute)
+	var always_on:=CheckButton.new();always_on.name="VoiceAlwaysOn";always_on.position=Vector2(34,460);always_on.size=Vector2(570,42);Texts.bind(always_on,"⟦settings.voice_always_on⟧","text");always_on.button_pressed=ctx.voice_always_on;always_on.toggled.connect(func(value:bool)->void:ctx.action_requested.emit("settings",{"voice_always_on":value}));ctx._dialog.add_child(always_on)
+	ctx._button(ctx._dialog,"⟦settings.back_to_categories⟧",Rect2(170,590,300,48),ctx._open_settings,ctx.GREEN,22)
+	_refresh_display_controls(ctx)
+
+static func _refresh_display_controls(ctx)->void:
+	if not is_instance_valid(ctx._dialog):return
+	var toggle:CheckButton=ctx._dialog.get_node_or_null("FullscreenToggle")
+	if toggle==null:return
+	toggle.set_pressed_no_signal(Display.is_fullscreen());toggle.disabled=not Display.can_change_window()
+	var resolution:OptionButton=ctx._dialog.get_node_or_null("ResolutionSelect")
+	if resolution!=null:resolution.disabled=not Display.can_change_window() or Display.is_fullscreen()
 
 static func _open_developer_settings(ctx) -> void:
 	ctx._dialog_panel("⟦settings.category_developer⟧",Vector2(640,760))
@@ -137,9 +156,8 @@ static func _open_legacy_settings(ctx) -> void:
 	Texts.bind(fullscreen, "⟦menu_screen.013⟧", "text")
 	fullscreen.position = Vector2(250,182)
 	fullscreen.size = Vector2(340,42)
-	fullscreen.button_pressed = DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN
+	fullscreen.button_pressed = Display.is_fullscreen()
 	fullscreen.toggled.connect(func(value: bool) -> void:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
 		ctx.action_requested.emit("settings",{"fullscreen":value}))
 	ctx._dialog.add_child(fullscreen)
 	ctx._label(ctx._dialog,"⟦settings.developer_settings_section⟧",Rect2(34,225,570,28),19,ctx.GOLD)

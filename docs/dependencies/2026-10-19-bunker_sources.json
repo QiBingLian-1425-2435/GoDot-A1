@@ -946,7 +946,9 @@
     "assets/audio/footsteps/concrete_01.wav",
     "assets/audio/footsteps/concrete_02.wav",
     "assets/audio/footsteps/concrete_03.wav",
-    "assets/audio/footsteps/concrete_04.wav"
+    "assets/audio/footsteps/concrete_04.wav",
+    "features/settings/display_settings.gd",
+    "features/settings/display_settings.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

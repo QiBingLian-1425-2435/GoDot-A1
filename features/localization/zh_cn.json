@@ -718,5 +718,9 @@
   "throwable.molotov.description": "选中后手持，按住右键瞄准，左键投掷。3米范围持续燃烧5秒，每秒24伤害。",
   "throwable.controls": "%s 瞄准\n%s 投掷",
   "enemy.zombie.health": "丧尸  %d / 100%s",
-  "enemy.zombie.dead": "丧尸 · 已击倒"
+  "enemy.zombie.dead": "丧尸 · 已击倒",
+  "settings.resolution": "窗口分辨率",
+  "settings.resolution_hint": "窗口模式可调整分辨率，全屏使用显示器原生分辨率。更改后立即生效并自动保存。",
+  "settings.display_embedded_hint": "编辑器内嵌运行不支持调整窗口。请关闭“嵌入游戏”，以独立窗口运行后再调整。",
+  "settings.display_save_failed": "显示设置保存失败，请检查本机存储权限。"
 }

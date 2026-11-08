@@ -52,6 +52,7 @@ var voice_always_on:=false
 var show_movement_speed:=false
 var show_jump_chain:=false
 var display_preferences_path:="user://display_preferences.cfg"
+var display_settings:Node
 var _voice_label:Label
 var _movement_speed_label:Label
 var _jump_chain_label:Label
@@ -152,6 +153,7 @@ func _ready() -> void:
 	show_menu()
 
 func _process(delta: float) -> void:
+	MenuScreen._refresh_display_controls(self)
 	if _toast_timer > 0.0:
 		_toast_timer -= delta
 		_toast_label.visible = _toast_timer > 0.0
@@ -160,6 +162,10 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if is_instance_valid(_key_bindings_panel) and _key_bindings_panel.capture(event):
+		get_viewport().set_input_as_handled()
+		return
+	if (event is InputEventKey or event is InputEventMouseButton) and event.pressed and not (event is InputEventKey and event.echo) and Keys.matches("fullscreen",event):
+		action_requested.emit("settings",{"fullscreen":not MenuScreen.Display.is_fullscreen()})
 		get_viewport().set_input_as_handled()
 		return
 	if not _in_game:

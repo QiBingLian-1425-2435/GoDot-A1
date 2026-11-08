@@ -127,8 +127,6 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		"medkit":ctx._quick_use("medkit")
 		"water":ctx._quick_use("water")
 		"save":ctx._save(true)
-		"fullscreen":
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 static func _player(ctx)->Dictionary:
 	return ctx.session.model.state.players.get(ctx.session.local_id,{})

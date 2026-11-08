@@ -718,5 +718,9 @@
   "throwable.molotov.description": "Select to hold. Hold aim and press fire to throw. Burns within 3 m for 5 seconds, dealing 24 damage per second.",
   "throwable.controls": "%s aim\n%s throw",
   "enemy.zombie.health": "Zombie  %d / 100%s",
-  "enemy.zombie.dead": "Zombie · down"
+  "enemy.zombie.dead": "Zombie · down",
+  "settings.resolution": "Window resolution",
+  "settings.resolution_hint": "Choose a window size in windowed mode. Fullscreen uses the display's native resolution. Changes apply immediately and are saved automatically.",
+  "settings.display_embedded_hint": "Window changes are unavailable while embedded in the editor. Disable Embed Game and run in a separate window to adjust these settings.",
+  "settings.display_save_failed": "Could not save display settings. Check local storage permissions."
 }
