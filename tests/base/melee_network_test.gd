@@ -8,8 +8,8 @@ var equipped_at:=-1.0
 var next_fire:=0.0
 var phase:=0
 var remote_id:=0
-var saw_forward:=false
-var saw_back:=false
+var saw_swing:=false
+var stayed_single:=false
 var host_saw_ads:=false
 var confirmed_hits:=0
 func _initialize():call_deferred("start")
@@ -31,15 +31,18 @@ func _process(dt:float):
 		var p:Dictionary=session.model.state.players[session.local_id]
 		if phase==0 and p.bag[0].get("kind","")=="fire_axe":session.send("equip",{"index":0});phase=1
 		if phase==1 and p.equipment.weapon.get("kind","")=="fire_axe":equipped_at=elapsed;phase=2
-		if phase!=2:return
+		if phase not in [2,3]:return
 		session.send("move",{"direction":Vector2.ZERO,"aim":Vector2.UP,"ads":true})
-		if elapsed>=next_fire and elapsed-equipped_at<2.8:session.send("fire");next_fire=elapsed+.13
-		saw_forward=saw_forward or p.get("anim_action","")=="melee_forward"
-		saw_back=saw_back or p.get("anim_action","")=="melee_back"
-		if elapsed-equipped_at>3.6:
-			var ok:bool=saw_forward and saw_back and p.ammo==0 and session.model.state.targets[0].hits>=3 and p.shots==0
-			print("PASS: remote equipment, alternating swings, hits and no ammunition" if ok else "FAIL: client melee state mismatch")
-			phase=3;quit(0 if ok else 1)
+		if phase==2 and next_fire==0.0 and elapsed-equipped_at>.2:
+			session.send("fire");next_fire=elapsed
+		saw_swing=saw_swing or p.get("anim_action","")=="melee_swing"
+		if phase==2 and elapsed-equipped_at>1.6:
+			stayed_single=int(session.model.state.targets[0].hits)==1 and int(p.get("melee_chain",0))==1
+			session.send("fire");phase=3
+		if phase==3 and elapsed-equipped_at>3.2:
+			var ok:bool=saw_swing and stayed_single and p.ammo==0 and session.model.state.targets[0].hits==2 and p.shots==0
+			print("PASS: remote equipment, single clicks, slash hits and no automatic chain" if ok else "FAIL: client melee state mismatch")
+			phase=4;quit(0 if ok else 1)
 	else:
 		for id in session.model.state.players:
 			if id!=1 and remote_id==0:
@@ -52,7 +55,7 @@ func _process(dt:float):
 			confirmed_hits=int(session.model.state.targets[0].hits)
 		if remote_id!=0 and not OS.is_process_running(child_pid):
 			var report:=FileAccess.get_file_as_string("res://artifacts/melee_network_client.log")
-			finish(host_saw_ads and confirmed_hits>=3 and "PASS: remote equipment" in report and not "FAIL:" in report)
+			finish(host_saw_ads and confirmed_hits==2 and "PASS: remote equipment" in report and not "FAIL:" in report)
 func finish(ok:bool):
 	if child_pid>0 and OS.is_process_running(child_pid):OS.kill(child_pid)
 	session.offline();print("MELEE_NETWORK failures=",0 if ok else 1);quit(0 if ok else 1)

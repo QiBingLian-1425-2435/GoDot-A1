@@ -2,6 +2,7 @@ extends SceneTree
 const Model=preload("res://features/base/base_model.gd")
 const Melee=preload("res://features/combat/melee_system.gd")
 const Quick=preload("res://features/player/quick_slots.gd")
+const Sweep=preload("res://features/combat/melee_sweep.gd")
 var failures:=0
 func _initialize():call_deferred("run")
 func check(ok:bool,label:String):
@@ -26,7 +27,7 @@ func run():
 		m.command(1,"move",{"ads":false})
 		check(not m.command(1,"fire") and p.get("melee_chain",0)==0,kind+" attack without aim rejected by host")
 		m.command(1,"move",{"ads":true})
-		check(m.command(1,"fire") and p.anim_action=="melee_forward",kind+" single click starts forward swing")
+		check(m.command(1,"fire") and p.anim_action=="melee_swing",kind+" single click starts one slash")
 		m.tick(.05);check(m.state.targets[0].hp==500,kind+" windup has no premature damage")
 		for i in 20:m.command(1,"fire")
 		advance(m,float(info.fire_interval)*.5)
@@ -34,9 +35,10 @@ func run():
 		check(m.state.targets[1].hp==500 and m.state.targets[2].hp==500,kind+" rear and distant targets excluded")
 		check(p.ammo==0 and m._count(p.bag,"ammo")==reserve and p.shots==0 and m.state.shots.is_empty(),kind+" no ammo, bullets or muzzle events")
 		advance(m,float(p.fire_timer)-.10)
-		check(m.command(1,"fire"),kind+" late click buffers one return swing")
+		check(not m.command(1,"fire"),kind+" recovery click does not buffer another attack")
 		advance(m,.15)
-		check(p.anim_action=="melee_back" and int(p.melee_chain)==2,kind+" return swing alternates")
+		check(int(p.melee_chain)==1 and m.state.targets[0].hits==1,kind+" one click never chains another attack")
+		check(m.command(1,"fire") and p.anim_action=="melee_swing",kind+" new click starts same slash again")
 		advance(m,float(info.fire_interval))
 		check(m.state.targets[0].hits==2,kind+" return swing hits once")
 		var capture:Dictionary=m.Profile.capture(m,1)
@@ -47,6 +49,22 @@ func run():
 	for i in 40:m.tick(.01)
 	check(p.get("melee_chain",0)==1 and not p.has("melee_buffer"),"releasing aim discards queued follow-up")
 	check(not m.command(1,"fire"),"stale aim input cannot authorize attack")
+	m=fixture("katana");p=m.state.players[1]
+	var reach:float=Sweep.reach("katana")
+	m.state.targets=[{"id":1,"pos":Vector2(0,-reach-.02),"hp":500,"hits":0},{"id":2,"pos":Vector2(sin(deg_to_rad(72)), -cos(deg_to_rad(72))),"hp":500,"hits":0},{"id":3,"pos":Vector2(0,-reach+.02),"hp":500,"hits":0}]
+	m.command(1,"fire");advance(m,.8)
+	check(m.state.targets[0].hits==0 and m.state.targets[1].hits==0 and m.state.targets[2].hits==1,"damage matches effect radius and side boundary")
+	m=fixture("katana");p=m.state.players[1];m.state.targets=[]
+	for degrees in [-72,-69,69,72]:m.state.targets.append({"id":degrees,"pos":Vector2(sin(deg_to_rad(degrees)),-cos(deg_to_rad(degrees))),"hp":500,"hits":0})
+	m.command(1,"fire");advance(m,.8)
+	check(m.state.targets[0].hits==0 and m.state.targets[1].hits==1 and m.state.targets[2].hits==1 and m.state.targets[3].hits==0,"both visible arc side boundaries match hit rejection")
+	m=fixture("katana");p=m.state.players[1];p.aim=Vector2.RIGHT;m.state.targets[0].pos=Vector2(1,0)
+	m.command(1,"fire");advance(m,.8)
+	check(m.state.targets[0].hits==1,"effect footprint rotates with player aim")
+	m=fixture("fire_axe");p=m.state.players[1];m.state.targets[0].pos=Vector2(0,1)
+	m.command(1,"fire");advance(m,float(m.Items.definition("fire_axe").fire_interval)*.65)
+	m.state.targets[0].pos=Vector2(0,-1);advance(m,.4)
+	check(m.state.targets[0].hits==0,"fading recovery afterimage does not deal damage")
 	m=fixture("fire_axe");p=m.state.players[1]
 	m.obstacles.assign([Rect2(-.3,-.6,.6,.1)]);m.command(1,"fire");advance(m,.8)
 	check(m.state.targets[0].hp==500,"solid obstacle blocks melee")

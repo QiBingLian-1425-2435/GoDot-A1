@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v36",
+  "protocol": "a1_bunker_v37",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -921,7 +921,11 @@
     "assets/weapons/melee/baseball_bat.glb",
     "assets/weapons/melee/baton.glb",
     "assets/weapons/melee/machete.glb",
-    "assets/weapons/melee/katana.glb"
+    "assets/weapons/melee/katana.glb",
+    "features/combat/melee_sweep.gd",
+    "features/combat/melee_sweep.gd.uid",
+    "features/player/animation/melee_slash.gd",
+    "features/player/animation/melee_slash.gd.uid"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",

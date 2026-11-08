@@ -2,6 +2,7 @@ extends SceneTree
 const Actor=preload("res://features/player/base_actor.gd")
 const Model=preload("res://features/base/base_model.gd")
 const Appearance=preload("res://features/player/appearance_rules.gd")
+const Sweep=preload("res://features/combat/melee_sweep.gd")
 var failures:=0
 func _initialize():call_deferred("run")
 func check(ok:bool,label:String):
@@ -20,15 +21,16 @@ func run():
 	for kind in ["fire_axe","crowbar","baseball_bat","baton","machete","katana"]:
 		var p:Dictionary=model.state.players[1];p.equipment.weapon=model._item(kind,1);p.ammo=0
 		var swing_positions:Array[Vector3]=[]
-		for action in ["idle","aim","forward","back","run","crouch_aim"]:
+		for action in ["idle","aim","windup","slash","follow","recover","run","crouch_aim"]:
 			sequence+=1
 			for i in 2:
 				var data:Dictionary=p.duplicate(true);data.pos=Vector2(-.65 if i==0 else .65,0);data.aim=Vector2.UP;data.appearance=Appearance.defaults("male" if i==0 else "female");data.equipment.helmet={};data.equipment.armor={}
 				data.velocity=Vector2(0,-6.1) if action=="run" else Vector2.ZERO
-				data.sprint=action=="run";data.ads=action in ["aim","forward","back","crouch_aim"];data.crouch=action=="crouch_aim"
-				data.anim_seq=sequence;data.anim_action="melee_"+action if action in ["forward","back"] else ("melee_forward" if action=="one_hand_forward" else "")
-				data.anim_duration=float(model.Items.definition(kind).fire_interval) if action in ["forward","back","one_hand_forward"] else 0.0
-				data.anim_time=data.anim_duration*.36
+				data.sprint=action=="run";data.ads=action in ["aim","windup","slash","follow","recover","crouch_aim"];data.crouch=action=="crouch_aim"
+				var phases:Dictionary={"windup":.12,"slash":.43,"follow":.55,"recover":.86}
+				data.anim_seq=sequence;data.anim_action="melee_swing" if phases.has(action) else ""
+				data.anim_duration=float(model.Items.definition(kind).fire_interval) if phases.has(action) else 0.0
+				data.anim_time=data.anim_duration*float(phases.get(action,0.0))
 				for frame in 50:
 					actors[i]._event_time=maxf(0,float(data.anim_time)-.016)
 					actors[i].update_actor(data,.016,true)
@@ -42,16 +44,22 @@ func run():
 				var finite:=true
 				for mesh in actor.human_visual.meshes:finite=finite and mesh.global_transform.is_finite()
 				check(finite,"skin transforms finite")
+				check(actor.melee_pose.slash.visible==(action in ["slash","follow"]),kind+" "+action+" slash visibility matches active effect window")
+				if action in ["slash","follow"]:
+					var vertices:PackedVector3Array=actor.melee_pose.slash.geometry.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+					var inside:=true
+					for vertex in vertices:inside=inside and Sweep.contains(Vector2(vertex.x,vertex.z),kind,float(phases[action]))
+					check(inside and vertices.size()>0,kind+" effect vertices match authoritative hit footprint")
 				if action=="idle":
 					var tip:Vector3=actor.melee_pose.holder.basis*Vector3.UP
 					check(tip.dot(Vector3.FORWARD)>.98 and absf(tip.y)<.06,kind+" idle holds working end level toward front")
 					var rest_hand:Vector3=motion.rest[motion.skin.find_bone("R_Hand")].origin
 					check(right.distance_to(rest_hand)<.035 and actor.melee_pose.right_weight<.01,kind+" idle keeps original hanging hand")
-				if action in ["forward","back"] and i==0:swing_positions.append(actor.melee_pose.holder.position)
+				if action in ["slash","follow"] and i==0:swing_positions.append(actor.melee_pose.holder.position)
 			await process_frame;await process_frame
 			if DisplayServer.get_name()!="headless":
 				await RenderingServer.frame_post_draw
 				root.get_texture().get_image().save_png("res://artifacts/melee_%s_%s.png"%[kind,action])
-		check(swing_positions[0].distance_to(swing_positions[1])>.08,kind+" repeated attacks alternate direction")
+		check(swing_positions[0].distance_to(swing_positions[1])>.08,kind+" single swing follows forward slash arc")
 	world.queue_free();await process_frame
 	print("MELEE_VISUAL failures=",failures);quit(0 if failures==0 else 1)
