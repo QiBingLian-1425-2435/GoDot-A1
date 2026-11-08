@@ -29,7 +29,7 @@ static func _physics_process(ctx, delta:float)->void:
 	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Keys.held("sprint") and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Keys.held("aim") and not blocked and focused})
 	var melee:bool=Melee.is_melee(p.get("equipment",{}).get("weapon",{}).get("kind",""))
 	if melee and not Keys.held("aim"):ctx.trigger_held=false
-	if ctx.session.model.Souls.alive(p) and not blocked and focused and ctx.trigger_held and not melee and Keys.held("fire") and ctx.fire_clock<=0:
+	if ctx.session.model.Souls.alive(p) and not blocked and focused and not p.get("sprint",false) and ctx.trigger_held and not melee and Keys.held("fire") and ctx.fire_clock<=0:
 		ctx.session.send("fire")
 		ctx.fire_clock=0.13
 	ctx.crosshair.active=not blocked and ctx.session.model.Souls.mobile(p)

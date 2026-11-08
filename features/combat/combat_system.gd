@@ -15,6 +15,7 @@ static func _reload(ctx, p: Dictionary) -> bool:
 static func _fire(ctx, p: Dictionary) -> bool:
 	var weapon: Dictionary = p.equipment.weapon
 	if not weapon.is_empty() and Melee.is_melee(weapon.kind):return Melee.request(ctx,p)
+	if p.get("sprint",false):return false
 	if weapon.is_empty() or p.reloading or p.fire_timer > 0: return false
 	if p.ammo <= 0: return _reload(ctx, p)
 	p.ammo -= 1; p.magazines[weapon.uid] = p.ammo; p.shots += 1
