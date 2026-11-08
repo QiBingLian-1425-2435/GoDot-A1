@@ -434,7 +434,9 @@ func _apply_direction(velocity: Vector2, moving: float, action_weight: float) ->
 	# Aiming and recoil stay above the locomotion layer.
 	_rotate("Spine", Vector3(-.075*_recoil, 0, -local_move.x*.055*moving))
 	_rotate("Head", Vector3(.035*_recoil, 0, local_move.x*.03*moving))
-	_rotate("Gun", Vector3(.15*_recoil, 0, -.035*_recoil))
+	# Counter the crouched torso's forward lean while aiming; hands follow via IK.
+	var crouch_aim_lift:float=.30*_crouch_blend*_aim_blend*(1.0-action_weight)
+	_rotate("Gun", Vector3(.15*_recoil+crouch_aim_lift, 0, -.035*_recoil))
 	var gun := skeleton.find_bone("Gun")
 	skeleton.set_bone_pose_position(gun, skeleton.get_bone_pose_position(gun)+Vector3(0, 0, .09*_recoil))
 	var relaxed := _unarmed_blend*(1-action_weight)
