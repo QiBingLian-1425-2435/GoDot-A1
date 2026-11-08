@@ -15,7 +15,7 @@ const MOTION_INTERVAL := 1.0 / 20.0
 const STATE_INTERVAL := 0.5
 const MOTION_FIELDS := ["dancing","dance_time","pos","height","velocity","aim","sprint","sprint_exhausted","crouch","ads","reloading","reload_progress","shots","anim_seq","anim_action","anim_time","anim_duration","input_seq","input_origin","input_height","input_stamina","input_sprint_exhausted","input_weight","input_max_weight","roll","input_roll","knockback","hit_seq","jump_chain_bonus","jump_chain_max_speed","jump_reward_window_ms"]
 const DEFAULT_PORT := 24567
-const ACTIONS := ["dance","dance_cancel","appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","set_jump_chain_max_speed","set_jump_reward_window","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
+const ACTIONS := ["hold_throwable","dance","dance_cancel","appearance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","transfer","split","use","drop","pickup","sort","reload","fire","equip","unequip","select_weapon","rest","craft","buy_ammo","resupply_ammo","set_infinite_reserve","set_infinite_stamina","set_infinite_credits","set_jump_chain_bonus","set_jump_chain_max_speed","set_jump_reward_window","train","reset_targets","travel","door","unstuck","buy","sell","search","loot_view","craft_item","loot_take","loot_close","camp_upgrade"]
 var _roll_seq := 0
 var _roll_capture := false
 var _roll_direction := Vector2.UP
@@ -217,7 +217,7 @@ func send(action: String, payload: Dictionary = {}) -> void:
 			_roll_capture=false
 		payload.roll_direction=_roll_direction
 	var clean := _clean_payload(action,payload)
-	if action in ["dance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","unstuck","use","search","loot_view","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"]:clean.world_revision=int(model.state.get("world_revision",0))
+	if action in ["fire","hold_throwable","dance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","unstuck","use","search","loot_view","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"]:clean.world_revision=int(model.state.get("world_revision",0))
 	if action != "move" and not action in ACTIONS: return
 	if action == "move" and clean.is_empty(): return
 	if mode == "client":
@@ -328,7 +328,9 @@ func _clean_payload(action: String, payload: Dictionary) -> Dictionary:
 			for key in ["index","target"]:
 				if payload.get(key) is int: clean[key] = payload[key]
 				elif payload.get(key) is String: clean[key] = str(payload[key]).left(16)
-		"use","drop","equip","sell":
+		"fire":
+			if payload.get("target") is Vector3 and payload.target.is_finite():clean.target=payload.target
+		"hold_throwable","use","drop","equip","sell":
 			if action=="sell":clean.count=payload.get("count") if payload.get("count") is int else 0
 			if payload.get("index") is int: clean.index = payload.index
 			if payload.get("uid") is String:clean.uid=str(payload.uid).left(64)
@@ -385,7 +387,7 @@ func _intent(action: String, payload: Dictionary, token: int, seq: int) -> void:
 	if not _allowed(sender,token,action) or seq <= int(_last_intent.get(sender,-1)): return
 	if action=="unstuck" and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	_last_intent[sender] = seq
-	if action in ["dance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","use","search","loot_view","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
+	if action in ["fire","hold_throwable","dance","soul_speed","suicide","soul_wait","possess","release_soul","rescue","rescue_cancel","return_camp","use","search","loot_view","buy","sell","craft_item","loot_take","loot_close","camp_upgrade"] and payload.get("world_revision",-1)!=int(model.state.get("world_revision",0)):return
 	var accepted: bool=_execute_command(sender,action,_clean_payload(action,payload))
 	if accepted and action not in ["fire","camp_upgrade","dance","dance_cancel"] and not room_store.path.is_empty():save_room()
 	if not model.last_notice.is_empty():

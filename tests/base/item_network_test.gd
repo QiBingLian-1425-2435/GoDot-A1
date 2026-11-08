@@ -63,8 +63,11 @@ func run():
 			report(role+"_one")
 		report(role+"_one")
 		check(await wait_for(func():return session.model.state.get("item_phase",0)==2),"phase2")
-		if role=="a":session.send("use",{"index":0,"position":Vector3(999,99,999),"owner":1})
-		check(await wait_for(func():return session.model.state.field_effects.size()==1),"both clients receive the confirmed smoke effect")
+		if role=="a":
+			session.send("use",{"index":0,"position":Vector3(999,99,999),"owner":1})
+			session.send("move",{"ads":true});await create_timer(.1).timeout
+			session.send("fire",{"target":Vector3(0,0,-.9),"owner":1})
+		check(await wait_for(func():return session.model.state.field_effects.size()==1 and session.model.state.field_effects[0].get("phase","")=="active"),"both clients receive the confirmed smoke effect")
 		var effect:Dictionary=session.model.state.field_effects[0]
 		check(effect.pos.distance_to(Vector3(0,0,-.9))<.01 and int(effect.owner)!=1,"client cannot forge effect location or owner")
 		report(role+"_two")
@@ -131,7 +134,7 @@ func run():
 	phase(2)
 	check(await wait_for(func():return FileAccess.file_exists(path("a_two")) and FileAccess.file_exists(path("b_two"))),"both clients observe smoke")
 	check(session.model.state.field_effects.size()==1 and session.model._count(session.model.state.players[a].bag,"smoke_grenade")==0,"one remote tool consumed exactly once")
-	for i in range(81):session.model.tick(.1)
+	for i in range(151):session.model.tick(.1)
 	session.model.state.world="surface";session.model.state.world_revision+=1
 	session.model.stations=[{"kind":"loot","uid":"loot_one","world":"surface","pos":Vector2(.5,0),"height":0.0,"locked":true,"loot_pool":"food","container_name":"厕所"}]
 	session.model.loot_reachable=func(_uid,_from):return true

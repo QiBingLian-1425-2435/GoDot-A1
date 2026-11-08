@@ -324,6 +324,13 @@ func update_state(state: Dictionary, local_id: int, mode: String, status: String
 	if melee:
 		Texts.bind(_ammo_label,"⟦combat.melee.label⟧","text")
 		Texts.bind(_reload_label,"⟦combat.melee.no_ammo⟧","text")
+	var held:Dictionary=preload("res://features/combat/throwable_system.gd").held(p)
+	_reload_label.position=Vector2(110,34) if not held.is_empty() else Vector2(110,52)
+	_reload_label.size=Vector2(160,60) if not held.is_empty() else Vector2(160,28)
+	_reload_label.add_theme_font_size_override("font_size",12 if not held.is_empty() else 15)
+	if not held.is_empty():
+		Texts.bind(_ammo_label,str(held.count),"text")
+		Texts.bind(_reload_label,Texts.format("⟦throwable.controls⟧",[Keys.display("aim"),Keys.display("fire")]),"text")
 	if not p.get("pending_use",{}).is_empty():Texts.bind(_reload_label, Texts.format("⟦base_hud.021⟧", maxf(0,float(p.pending_use.remaining))), "text")
 	_update_quick_slots(p)
 	if _inventory.visible:

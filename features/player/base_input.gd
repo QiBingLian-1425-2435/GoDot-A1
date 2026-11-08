@@ -1,5 +1,6 @@
 extends RefCounted
 const Keys = preload("res://features/player/key_bindings.gd")
+const Throwables=preload("res://features/combat/throwable_system.gd")
 const Melee=preload("res://features/combat/melee_system.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
@@ -27,7 +28,12 @@ static func _physics_process(ctx, delta:float)->void:
 		if point is Vector3:
 			aim=(Vector2(point.x,point.z)-Vector2(p.get("pos",Vector2.ZERO))).normalized()
 	ctx.session.send("move",{"direction":direction,"aim":aim,"sprint":Keys.held("sprint") and not blocked and focused,"crouch":ctx.crouched and not blocked and focused,"ads":Keys.held("aim") and not blocked and focused})
-	var melee:bool=Melee.is_melee(p.get("equipment",{}).get("weapon",{}).get("kind",""))
+	var held:Dictionary=Throwables.held(p)
+	var preview=ctx.get_node_or_null("ThrowPreview")
+	if preview==null:
+		preview=preload("res://features/player/throwable_preview.gd").new();preview.name="ThrowPreview";ctx.add_child(preview)
+	preview.update(ctx,p,not held.is_empty() and Keys.held("aim") and not blocked and focused and ctx.session.model.Souls.alive(p) and not p.get("roll",{}).get("active",false) and not p.get("sprint",false) and p.get("pending_use",{}).is_empty())
+	var melee:bool=not held.is_empty() or Melee.is_melee(p.get("equipment",{}).get("weapon",{}).get("kind",""))
 	if melee and not Keys.held("aim"):ctx.trigger_held=false
 	if ctx.session.model.Souls.alive(p) and not blocked and focused and not p.get("sprint",false) and ctx.trigger_held and not melee and Keys.held("fire") and ctx.fire_clock<=0:
 		ctx.session.send("fire")
@@ -86,7 +92,7 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		"fire":
 			if not ctx.ui.is_blocking() and not ctx.world_loading and not ctx.station_dialog.visible and not (is_instance_valid(ctx.global_map) and ctx.global_map.is_open()):
 				var weapon:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{}).get("equipment",{}).get("weapon",{})
-				_fire_pressed(ctx,weapon.get("kind",""),Keys.held("aim"))
+				_fire_pressed(ctx,Throwables.held(_player(ctx)).get("kind",weapon.get("kind","")),Keys.held("aim"))
 		"rescue":
 			if not ctx.ui.is_blocking() and ctx.nearest.get("kind","")=="corpse":
 				ctx.session.send("rescue",{"target":ctx.nearest.target,"uid":ctx.nearest.uid})
@@ -121,7 +127,15 @@ static func _unhandled_input(ctx, event:InputEvent)->void:
 		"fullscreen":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED if DisplayServer.window_get_mode()==DisplayServer.WINDOW_MODE_FULLSCREEN else DisplayServer.WINDOW_MODE_FULLSCREEN)
 
+static func _player(ctx)->Dictionary:
+	return ctx.session.model.state.players.get(ctx.session.local_id,{})
+
 static func _fire_pressed(ctx,kind:String,aim_held:bool)->void:
+	if Throwables.is_throwable(kind):
+		ctx.trigger_held=false
+		var preview=ctx.get_node_or_null("ThrowPreview")
+		if aim_held and preview!=null and preview.visible:ctx.session.send("fire",{"target":preview.requested})
+		return
 	if Melee.is_melee(kind):
 		ctx.trigger_held=false
 		if aim_held:ctx.session.send("fire")
@@ -140,7 +154,8 @@ static func _quick_use(ctx, kind:String)->void:
 static func _select_weapon(ctx, kind:String)->void:
 	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
 	var equipment:Dictionary=p.get("equipment",{})
-	if equipment.get("weapon",{}).get("kind","")==kind:return
+	if equipment.get("weapon",{}).get("kind","")==kind:
+		ctx.session.send("hold_throwable",{"index":-1});return
 	var bag:Array=p.get("bag",[])
 	for i in bag.size():
 		if bag[i].get("kind","")==kind:
@@ -153,6 +168,7 @@ static func _activate_quick(ctx,index:int)->void:
 	var p:Dictionary=ctx.session.model.state.players.get(ctx.session.local_id,{})
 	var selected:Dictionary=preload("res://features/player/quick_slots.gd").resolve(p,index)
 	if selected.is_empty():return
-	if selected.equipped:return
+	if selected.equipped:
+		ctx.session.send("hold_throwable",{"index":-1});return
 	var category:String=ctx.session.model.Items.definition(selected.item.kind).category
 	ctx.session.send("equip" if category in ["weapon","helmet","armor"] else "use",{"index":selected.index})

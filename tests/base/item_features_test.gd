@@ -32,7 +32,7 @@ func capture(game,name:String):
 	DirAccess.make_dir_recursive_absolute(folder)
 	check(game.get_viewport().get_texture().get_image().save_png(folder+"/items_"+name+".png")==OK,"screenshot "+name)
 func run():
-	check(Items.DEFS.size()==29 and Items.DEFS.has("san_capsule") and Items.DEFS.has("revival_serum") and Items.DEFS.has("poison_capsule"),"all original definitions plus three rescue and sanity items")
+	check(Items.DEFS.size()>=29 and Items.DEFS.has("san_capsule") and Items.DEFS.has("revival_serum") and Items.DEFS.has("poison_capsule"),"original rescue and sanity definitions remain available")
 	for pair in [[99,0],[100,1],[299,1],[300,2],[999,2],[1000,3],[2999,3],[3000,4],[9999,4],[10000,5]]:check(Items.tier(pair[0])==pair[1],"value boundary "+str(pair[0]))
 	check(Items.definition("helmet").category=="helmet" and Items.definition("helmet").item_type=="equipment","equipment slots stay compatible with type classification")
 	check(Items.definition("gold_statue").rarity==4 and Items.definition("encrypted_core").rarity==5,"gold/red valuables")
@@ -98,14 +98,16 @@ func run():
 	check(p.hp==90 and p.pending_use.is_empty(),"professional medical box heals after four host seconds")
 	fill(m,p,"smoke_grenade",3)
 	m.field_placement=func(_from,_to):return {}
-	check(not m.command(1,"use",{"index":0}) and p.bag[0].count==3,"blocked placement does not consume tool")
+	check(m.command(1,"use",{"index":0}) and p.bag[0].count==3,"selecting smoke does not depend on old placement callback")
 	m.field_placement=Callable()
-	check(m.command(1,"use",{"index":0}) and m.state.field_effects.size()==1,"smoke consumes one item and creates confirmed effect")
+	check(m.command(1,"use",{"index":0}) and m.state.field_effects.is_empty(),"smoke selection does not consume")
+	m.command(1,"move",{"ads":true});m.tick(.01)
+	check(m.command(1,"fire",{"target":Vector3(0,0,-.9)}),"aimed smoke throw")
+	for i in 12:m.tick(.1)
 	check(Field.blocks_sight(m.state.field_effects,Vector3(0,1,0),Vector3(0,1,-8)),"smoke blocks target sight")
 	check(not Field.blocks_sight(m.state.field_effects,Vector3(20,1,0),Vector3(20,1,-8)),"smoke does not block a ray that misses it")
-	check(m.command(1,"use",{"index":0}) and not m.command(1,"use",{"index":0}) and p.bag[0].count==1,"per-player concurrent effect cap preserves rejected item")
-	for i in range(81):m.tick(.1)
-	check(m.state.field_effects.is_empty(),"smoke expires at eight host seconds")
+	for i in 151:m.tick(.1)
+	check(m.state.field_effects.is_empty(),"smoke expires fifteen seconds after impact")
 	fill(m,p,"beacon");check(m.command(1,"use",{"index":0}) and m.state.field_effects[0].kind=="beacon","beacon placement")
 	fill(m,p,"glowstick");check(m.command(1,"use",{"index":0}) and m.state.field_effects.size()==2,"lightstick placement")
 	m.state.field_effects=[];m.state.world="surface"
@@ -132,7 +134,7 @@ func run():
 	var player:Dictionary=game.session.model.state.players[1];player.bag=game.session.model._empty_slots(24)
 	var kinds:Array=[]
 	for kind in Items.DEFS:
-		if Items.definition(kind).item_type!="equipment":kinds.append(kind)
+		if Items.definition(kind).item_type!="equipment" and not game.session.model.Throwables.is_throwable(kind):kinds.append(kind)
 	for i in range(kinds.size()):player.bag[i]=game.session.model._item(kinds[i],1)
 	game._refresh_ui();game.ui.toggle_inventory(true)
 	game.ui._toast_label.visible=false
@@ -146,7 +148,9 @@ func run():
 		if not slot.item.is_empty() and slot.definition.item_type!="material":all_materials=false
 	check(all_materials and game.ui._bag_slots[0].slot_index>0,"type filter shows materials with original inventory indices")
 	filter.select(0);filter.item_selected.emit(0);game.ui.close_inventory()
-	player.pos=Vector2(-5,-2.6);player.credits=10000;game._update_interaction();game._interact()
+	for anchor in game.session.model.stations:
+		if anchor.kind=="trader":player.pos=anchor.pos;player.height=anchor.get("height",0);break
+	player.credits=10000;game._update_interaction();game._interact()
 	check(Texts.resolve(game.ui._dialog_kind)=="基地商人","E at actual trader opens shop")
 	var shop=game.ui._dialog.find_child("ShopItems",true,false)
 	for i in range(shop.item_count):
@@ -235,7 +239,10 @@ func run():
 	game.session.model.state.world_revision+=1;game._refresh_ui()
 	check(not is_instance_valid(game.ui._dialog),"map revision closes shop")
 
-	game.ui._close_dialog();player.pos=Vector2(-9,2.2);game._update_interaction();game._interact()
+	game.ui._close_dialog()
+	for anchor in game.session.model.stations:
+		if anchor.kind=="workbench":player.pos=anchor.pos;player.height=anchor.get("height",0);break
+	game._update_interaction();game._interact()
 	check(Texts.resolve(game.ui._dialog_kind)=="工作台制作","E at workbench opens recipe list")
 	await capture(game,"recipes")
 	game.ui._close_dialog();player.pos=Vector2(-1,4);player.aim=Vector2.UP

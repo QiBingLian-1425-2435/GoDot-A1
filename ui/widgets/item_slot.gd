@@ -209,6 +209,16 @@ func _draw_icon(kind: String, area: Rect2, tint: Color) -> void:
 			draw_line(Vector2(-14,22),Vector2(14,-22),tint,10);draw_circle(Vector2(14,-22),6,tint.lightened(.3))
 		"lockpick":
 			draw_line(Vector2(-21,18),Vector2(12,-17),metal,5);draw_line(Vector2(12,-17),Vector2(21,-17),metal,5)
+		"frag_grenade":
+			draw_ellipse(Vector2(0,4),Vector2(17,21),tint)
+			draw_rect(Rect2(-9,-23,18,11),metal)
+			draw_line(Vector2(8,-19),Vector2(18,15),metal,4)
+			draw_arc(Vector2(14,-18),7,0,TAU,16,metal,2)
+		"molotov":
+			draw_style_box(_box(Color("986538"),metal,2),Rect2(-12,-5,24,30))
+			draw_rect(Rect2(-5,-23,10,20),Color("ab8d63"))
+			draw_line(Vector2(0,-23),Vector2(14,-18),Color("e1d4b0"),5)
+			draw_rect(Rect2(-11,5,22,10),Color("ddd0ac"))
 		"smoke_grenade","battery":
 			draw_style_box(_box(tint,metal,2),Rect2(-15,-19,30,40));draw_rect(Rect2(-8,-25,16,7),metal)
 		"beacon","circuit_board","encrypted_core":

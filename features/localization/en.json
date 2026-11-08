@@ -214,7 +214,7 @@
   "item_catalog.039": "Basic Lockpick",
   "item_catalog.040": "Consume one to open a reachable ordinary locked container within 2.4 m.",
   "item_catalog.041": "Smoke Grenade",
-  "item_catalog.042": "Deploy smoke ahead, 6 m across for 8 seconds. Blocks vision, not bullets.",
+  "item_catalog.042": "Select to hold. Hold aim and press fire to throw. Smoke blocks enemy sight within 3 m for 15 seconds.",
   "item_catalog.043": "Team Beacon",
   "item_catalog.044": "Place a rally marker visible to the whole team for 60 seconds.",
   "item_catalog.045": "Tape",
@@ -711,5 +711,10 @@
   "weapon.katana.name": "Katana",
   "weapon.katana.description": "Hold aim and click attack for one horizontal slash. The sweeping arc shows its hit area. Holding attack does not repeat. No ammunition required.",
   "combat.melee.label": "Melee",
-  "combat.melee.no_ammo": "No ammo required"
+  "combat.melee.no_ammo": "No ammo required",
+  "throwable.frag.name": "Fragmentation grenade",
+  "throwable.frag.description": "Select to hold. Hold aim to preview the arc and 3 m radius; press fire to throw. Explodes on impact for 65 damage.",
+  "throwable.molotov.name": "Molotov cocktail",
+  "throwable.molotov.description": "Select to hold. Hold aim and press fire to throw. Burns within 3 m for 5 seconds, dealing 24 damage per second.",
+  "throwable.controls": "%s aim\n%s throw"
 }

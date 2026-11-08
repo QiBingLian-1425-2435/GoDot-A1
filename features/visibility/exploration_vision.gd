@@ -71,7 +71,7 @@ func update(ctx, delta: float) -> void:
 			roof_cutaway=not overhead.is_empty() and absf(Vector3(overhead.normal).y)>.4
 	var spheres:=PackedVector4Array()
 	for effect in field_effects:
-		if effect.kind=="smoke_grenade" and float(effect.ttl)>0:
+		if effect.kind=="smoke_grenade" and effect.get("phase","")!="flight" and float(effect.ttl)>0:
 			var center:Vector3=effect.pos+Vector3.UP
 			spheres.append(Vector4(center.x,center.y,center.z,3.0))
 	var smoke_count:=spheres.size();spheres.resize(8)

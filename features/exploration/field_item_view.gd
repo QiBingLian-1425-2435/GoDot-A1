@@ -8,6 +8,14 @@ func update(ctx) -> void:
 	for effect in ctx.session.model.state.get("field_effects",[]):
 		if effect.world!=ctx.world_id or float(effect.ttl)-ctx.session.snapshot_age()<=0:continue
 		active[effect.uid]=true
+		if preload("res://features/combat/throwable_system.gd").is_throwable(effect.kind):
+			if not nodes.has(effect.uid):
+				var node=preload("res://features/exploration/throwable_effect.gd").new();add_child(node)
+				nodes[effect.uid]={"root":node}
+			var node=nodes[effect.uid].root
+			node.update_effect(effect,ctx.session.snapshot_age())
+			node.visible=ctx.in_game and not ctx.world_loading and ctx.vision.can_see(node.position+Vector3.UP,excluded,effect.kind=="smoke_grenade")
+			continue
 		if not nodes.has(effect.uid):
 			var node:=Node3D.new();add_child(node);node.position=effect.pos
 			var mesh:=MeshInstance3D.new();var sphere:=SphereMesh.new()

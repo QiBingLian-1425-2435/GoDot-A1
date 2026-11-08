@@ -22,9 +22,11 @@ func configure(owner:Node3D)->void:
 	slash=Slash.new();actor.add_child(slash)
 
 func prepare(data:Dictionary,dt:float)->void:
-	kind=actor.weapon_kind;active=Rules.is_melee(kind)
+	kind=actor.weapon_kind;active=Rules.is_melee(kind) or preload("res://features/combat/throwable_system.gd").is_throwable(kind)
 	holder.visible=active and not data.get("dancing",false) and float(data.get("hp",100))>0
 	if not active:pose_weight=0.0;right_weight=0.0;attacking=false;slash.visible=false;return
+	if preload("res://features/combat/throwable_system.gd").is_throwable(kind):
+		_prepare_throw(data,dt);return
 	if not models.has(kind):
 		var model:Node3D=load("res://assets/weapons/melee/"+kind+".glb").instantiate()
 		# Source cutting edges/hooks face +Z; turn them toward the actor's -Z front.
@@ -68,3 +70,23 @@ func attach(skin:Skeleton3D,space:Transform3D)->void:
 	var hand:Transform3D=space*skin.get_bone_global_pose(index)
 	var origin:Vector3=(hand.origin+Vector3(0,-.07,-.01)).lerp(hand.origin-pose.basis*RIGHT_WRIST,right_weight)
 	holder.transform=Transform3D(pose.basis,origin)
+
+func _prepare_throw(data:Dictionary,dt:float)->void:
+	slash.visible=false;attacking=false
+	if not models.has(kind):
+		var model:Node3D=load("res://assets/props/throwables/"+kind+".glb").instantiate()
+		holder.add_child(model);models[kind]=model
+	for key in models:models[key].visible=key==kind
+	var throwing:bool=data.get("anim_action","")=="throw" and float(data.get("anim_time",0))<float(data.get("anim_duration",0))
+	var phase:float=float(data.get("anim_time",0))/.65
+	holder.visible=holder.visible and (not throwing or phase<.34)
+	pose_weight=0.0
+	right_weight=move_toward(right_weight,1.0,dt*15)
+	var carry:=Transform3D(Basis.IDENTITY,Vector3(.32,.79,-.10))
+	var raised:=Transform3D(Basis.from_euler(Vector3(-.35,0,0)),Vector3(.29,1.46,.02))
+	var target:=carry.interpolate_with(raised,actor._aim_blend)
+	if throwing:
+		var forward:=Transform3D(Basis.from_euler(Vector3(-1.0,0,0)),Vector3(.22,1.25,-.52))
+		target=raised.interpolate_with(forward,smoothstep(0,.4,phase)) if phase<.4 else forward.interpolate_with(carry,smoothstep(.4,1,phase))
+	target.origin.y-=.43*actor._crouch_blend
+	pose=pose.interpolate_with(target,1.0-exp(-dt*25))

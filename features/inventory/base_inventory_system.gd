@@ -82,6 +82,10 @@ static func _use(ctx, p: Dictionary, payload: Dictionary) -> bool:
 	if index < 0 or p.bag[index].is_empty(): return false
 	var item: Dictionary = p.bag[index]
 	var info:Dictionary=ctx.Items.definition(item.kind)
+	if ctx.Throwables.is_throwable(item.kind):
+		ctx.Melee.cancel(p)
+		return ctx.Throwables.select(p,index)
+	p.held_throwable=""
 	if item.kind=="revival_serum": return ctx.Souls.use_revival(ctx,p,index)
 	if not p.get("pending_use",{}).is_empty():return ctx._reject("⟦base_inventory_system.006⟧")
 	if info.item_type=="tool":return ctx.FieldItems.use(ctx,p,str(item.kind))

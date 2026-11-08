@@ -113,6 +113,8 @@ static func _apply_rules(ctx) -> void:
 	model.stations = ctx.world.interactions().duplicate(true)
 	for station in model.stations:
 		if station.get("destination","")=="bunker":station.spawn=preload("res://features/exploration/scene_points.gd").spawn("bunker")
+	model.projectile_query=func(a:Vector3,b:Vector3)->Dictionary:
+		return ctx.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(a,b,9))
 	model.field_placement=func(from:Vector3,to:Vector3)->Dictionary:
 		if ctx.world_id=="bunker":return {"position":to} if ctx.session.model._free(Vector2(to.x,to.z)) else {}
 		var query:=PhysicsRayQueryParameters3D.create(from+Vector3(0,.7,0),to+Vector3(0,.7,0),1)

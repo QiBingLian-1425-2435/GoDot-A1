@@ -3,6 +3,7 @@ const Melee=preload("res://features/combat/melee_system.gd")
 ## Migrated reference behavior; called only through the owning composition/model.
 
 static func _reload(ctx, p: Dictionary) -> bool:
+	if not ctx.Throwables.held(p).is_empty():return false
 	var weapon: Dictionary = p.equipment.weapon
 	if weapon.is_empty() or p.reloading: return false
 	if Melee.is_melee(weapon.kind):return false

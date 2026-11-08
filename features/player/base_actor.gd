@@ -307,11 +307,15 @@ func update_actor(data: Dictionary, delta: float, local: bool = false) -> void:
 		armor.visible = not equipment.get("armor", {}).is_empty()
 		kind = str(equipment.get("weapon", {}).get("kind", ""))
 		weapon.visible = not kind.is_empty()
+	var thrown:Dictionary=preload("res://features/combat/throwable_system.gd").held(data)
+	if not thrown.is_empty():kind=thrown.kind
+	elif data.get("anim_action","")=="throw" and float(data.get("anim_time",0))<float(data.get("anim_duration",0)):kind=data.get("throw_kind",kind)
+	weapon.visible=not kind.is_empty()
 	if human_visual!=null:
 		human_visual.update(data.get("appearance",{}))
 		human_visual.set_helmet(helmet.visible)
 	weapon_kind=kind
-	var melee:bool=Items.definition(kind).get("melee",false)
+	var melee:bool=Items.definition(kind).get("melee",false) or preload("res://features/combat/throwable_system.gd").is_throwable(kind)
 	sniper_mesh.visible=kind=="sniper"
 	rifle_mesh.visible = kind == "rifle"
 	pistol_mesh.visible = kind == "pistol"

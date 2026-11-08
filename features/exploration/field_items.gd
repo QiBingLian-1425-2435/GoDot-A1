@@ -1,8 +1,9 @@
 extends RefCounted
 ## Host-only tool/loot rules. Geometry arrives through explicit world callbacks.
 const Items=preload("res://features/inventory/item_catalog.gd")
-const DURATIONS={"glowstick":60.0,"smoke_grenade":8.0,"beacon":60.0}
+const DURATIONS={"glowstick":60.0,"smoke_grenade":15.0,"beacon":60.0}
 static func use(ctx, p: Dictionary, kind: String) -> bool:
+	if ctx.Throwables.is_throwable(kind):return false
 	if not ctx.world_ready:return ctx._reject("⟦field_items.001⟧")
 	if kind=="lockpick":
 		var chosen:Dictionary={};var distance:=2.4
@@ -38,7 +39,7 @@ static func open_container(ctx,p:Dictionary,station:Dictionary) -> bool:
 static func blocks_sight(effects: Array, from: Vector3, to: Vector3) -> bool:
 	var segment:=to-from;var length2:=segment.length_squared()
 	for effect in effects:
-		if effect.kind!="smoke_grenade" or float(effect.ttl)<=0:continue
+		if effect.kind!="smoke_grenade" or effect.get("phase","")=="flight" or float(effect.ttl)<=0:continue
 		var center:Vector3=effect.pos+Vector3.UP
 		var t:float=clampf((center-from).dot(segment)/maxf(length2,.00001),0,1)
 		if (from+segment*t).distance_squared_to(center)<9:return true

@@ -214,7 +214,7 @@
   "item_catalog.039": "简易开锁器",
   "item_catalog.040": "消耗一个，开启2.4米内可触及的普通上锁容器。",
   "item_catalog.041": "烟雾弹",
-  "item_catalog.042": "在面前投放直径6米、持续8秒的烟雾，遮挡视线，不阻挡子弹。",
+  "item_catalog.042": "选中后手持，按住右键瞄准，左键投掷。3米范围烟雾持续15秒，阻挡怪物视野。",
   "item_catalog.043": "队伍信标",
   "item_catalog.044": "放置全队可见的集合标记，持续60秒。",
   "item_catalog.045": "胶带",
@@ -711,5 +711,10 @@
   "weapon.katana.name": "日本刀",
   "weapon.katana.description": "近战武器；按住右键瞄准后，点击左键进行一次横斩。弧光扫过的范围可命中目标，按住左键不会连击，无需弹药。",
   "combat.melee.label": "近战",
-  "combat.melee.no_ammo": "无需弹药"
+  "combat.melee.no_ammo": "无需弹药",
+  "throwable.frag.name": "破片手雷",
+  "throwable.frag.description": "选中后手持，按住右键预览轨迹与3米范围，左键投掷。落点爆炸造成65伤害。",
+  "throwable.molotov.name": "燃烧瓶",
+  "throwable.molotov.description": "选中后手持，按住右键瞄准，左键投掷。3米范围持续燃烧5秒，每秒24伤害。",
+  "throwable.controls": "%s 瞄准\n%s 投掷"
 }

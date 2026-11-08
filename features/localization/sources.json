@@ -106,7 +106,7 @@
   ],
   "session.008": [
     "app/network/session.gd:109",
-    "ui/base_hud.gd:556"
+    "ui/base_hud.gd:563"
   ],
   "session.009": [
     "app/network/session.gd:132"
@@ -124,37 +124,37 @@
     "app/network/session.gd:204"
   ],
   "session.014": [
-    "app/network/session.gd:629"
+    "app/network/session.gd:631"
   ],
   "session.015": [
-    "app/network/session.gd:638"
+    "app/network/session.gd:640"
   ],
   "session.016": [
-    "app/network/session.gd:645"
+    "app/network/session.gd:647"
   ],
   "session.017": [
-    "app/network/session.gd:650"
+    "app/network/session.gd:652"
   ],
   "session.018": [
-    "app/network/session.gd:656"
+    "app/network/session.gd:658"
   ],
   "session.019": [
-    "app/network/session.gd:656"
+    "app/network/session.gd:658"
   ],
   "session.020": [
-    "app/network/session.gd:663"
+    "app/network/session.gd:665"
   ],
   "session.021": [
-    "app/network/session.gd:663"
+    "app/network/session.gd:665"
   ],
   "session.022": [
-    "app/network/session.gd:671"
+    "app/network/session.gd:673"
   ],
   "session.023": [
-    "app/network/session.gd:671"
+    "app/network/session.gd:673"
   ],
   "session.024": [
-    "app/network/session.gd:721"
+    "app/network/session.gd:723"
   ],
   "steam_service.001": [
     "app/network/steam_service.gd:20",
@@ -285,52 +285,52 @@
     "app/network/steam_service.gd:360"
   ],
   "base_model.001": [
-    "features/base/base_model.gd:145"
+    "features/base/base_model.gd:147"
   ],
   "base_model.002": [
-    "features/base/base_model.gd:148"
+    "features/base/base_model.gd:150"
   ],
   "base_model.003": [
-    "features/base/base_model.gd:149"
+    "features/base/base_model.gd:151"
   ],
   "base_model.004": [
-    "features/base/base_model.gd:162"
+    "features/base/base_model.gd:165"
   ],
   "base_model.005": [
-    "features/base/base_model.gd:163"
-  ],
-  "base_model.006": [
-    "features/base/base_model.gd:164"
-  ],
-  "base_model.007": [
     "features/base/base_model.gd:166"
   ],
+  "base_model.006": [
+    "features/base/base_model.gd:167"
+  ],
+  "base_model.007": [
+    "features/base/base_model.gd:169"
+  ],
   "base_model.008": [
-    "features/base/base_model.gd:172"
+    "features/base/base_model.gd:175"
   ],
   "base_model.009": [
-    "features/base/base_model.gd:203"
+    "features/base/base_model.gd:206"
   ],
   "base_model.010": [
-    "features/base/base_model.gd:210"
-  ],
-  "base_model.011": [
     "features/base/base_model.gd:214"
   ],
+  "base_model.011": [
+    "features/base/base_model.gd:218"
+  ],
   "base_model.012": [
-    "features/base/base_model.gd:219"
+    "features/base/base_model.gd:223"
   ],
   "base_model.013": [
-    "features/base/base_model.gd:251"
+    "features/base/base_model.gd:255"
   ],
   "base_model.014": [
-    "features/base/base_model.gd:254"
+    "features/base/base_model.gd:258"
   ],
   "base_model.015": [
-    "features/base/base_model.gd:261"
+    "features/base/base_model.gd:265"
   ],
   "base_model.016": [
-    "features/base/base_model.gd:263"
+    "features/base/base_model.gd:267"
   ],
   "camp_upgrades.001": [
     "features/base/camp_upgrades.gd:5"
@@ -413,10 +413,10 @@
     "features/base/facility_system.gd:45"
   ],
   "combat_system.001": [
-    "features/combat/combat_system.gd:9"
+    "features/combat/combat_system.gd:10"
   ],
   "combat_system.002": [
-    "features/combat/combat_system.gd:10"
+    "features/combat/combat_system.gd:11"
   ],
   "container_loot.001": [
     "features/exploration/container_loot.gd:39"
@@ -448,33 +448,33 @@
     "features/exploration/container_loot.gd:130"
   ],
   "field_item_view.001": [
-    "features/exploration/field_item_view.gd:22"
+    "features/exploration/field_item_view.gd:30"
   ],
   "field_item_view.002": [
-    "features/exploration/field_item_view.gd:22",
+    "features/exploration/field_item_view.gd:30",
     "features/voice/proximity_voice.gd:110",
     "ui/map/global_map.gd:191"
   ],
   "field_items.001": [
-    "features/exploration/field_items.gd:6"
+    "features/exploration/field_items.gd:7"
   ],
   "field_items.002": [
-    "features/exploration/field_items.gd:15"
+    "features/exploration/field_items.gd:16"
   ],
   "field_items.003": [
-    "features/exploration/field_items.gd:17"
+    "features/exploration/field_items.gd:18"
   ],
   "field_items.004": [
-    "features/exploration/field_items.gd:22"
+    "features/exploration/field_items.gd:23"
   ],
   "field_items.005": [
-    "features/exploration/field_items.gd:25"
+    "features/exploration/field_items.gd:26"
   ],
   "field_items.006": [
-    "features/exploration/field_items.gd:28"
+    "features/exploration/field_items.gd:29"
   ],
   "field_items.007": [
-    "features/exploration/field_items.gd:33"
+    "features/exploration/field_items.gd:34"
   ],
   "world_flow.001": [
     "features/exploration/world_flow.gd:37"
@@ -533,22 +533,22 @@
     "features/inventory/base_inventory_system.gd:73"
   ],
   "base_inventory_system.006": [
-    "features/inventory/base_inventory_system.gd:86"
+    "features/inventory/base_inventory_system.gd:90"
   ],
   "base_inventory_system.007": [
-    "features/inventory/base_inventory_system.gd:89"
-  ],
-  "base_inventory_system.008": [
     "features/inventory/base_inventory_system.gd:93"
   ],
+  "base_inventory_system.008": [
+    "features/inventory/base_inventory_system.gd:97"
+  ],
   "base_inventory_system.009": [
-    "features/inventory/base_inventory_system.gd:124"
+    "features/inventory/base_inventory_system.gd:128"
   ],
   "base_inventory_system.010": [
-    "features/inventory/base_inventory_system.gd:125"
+    "features/inventory/base_inventory_system.gd:129"
   ],
   "base_inventory_system.011": [
-    "features/inventory/base_inventory_system.gd:127"
+    "features/inventory/base_inventory_system.gd:131"
   ],
   "item_catalog.001": [
     "features/inventory/item_catalog.gd:5"
@@ -665,107 +665,107 @@
     "features/inventory/item_catalog.gd:30"
   ],
   "item_catalog.041": [
-    "features/inventory/item_catalog.gd:31"
+    "features/inventory/item_catalog.gd:33"
   ],
   "item_catalog.042": [
-    "features/inventory/item_catalog.gd:31"
+    "features/inventory/item_catalog.gd:33"
   ],
   "item_catalog.043": [
-    "features/inventory/item_catalog.gd:32"
+    "features/inventory/item_catalog.gd:34"
   ],
   "item_catalog.044": [
-    "features/inventory/item_catalog.gd:32"
+    "features/inventory/item_catalog.gd:34"
   ],
   "item_catalog.045": [
-    "features/inventory/item_catalog.gd:33"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.046": [
-    "features/inventory/item_catalog.gd:33"
+    "features/inventory/item_catalog.gd:35"
   ],
   "item_catalog.047": [
-    "features/inventory/item_catalog.gd:34"
+    "features/inventory/item_catalog.gd:36"
   ],
   "item_catalog.048": [
-    "features/inventory/item_catalog.gd:34"
+    "features/inventory/item_catalog.gd:36"
   ],
   "item_catalog.049": [
-    "features/inventory/item_catalog.gd:35"
+    "features/inventory/item_catalog.gd:37"
   ],
   "item_catalog.050": [
-    "features/inventory/item_catalog.gd:35"
+    "features/inventory/item_catalog.gd:37"
   ],
   "item_catalog.051": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.052": [
-    "features/inventory/item_catalog.gd:36"
+    "features/inventory/item_catalog.gd:38"
   ],
   "item_catalog.053": [
-    "features/inventory/item_catalog.gd:37"
+    "features/inventory/item_catalog.gd:39"
   ],
   "item_catalog.054": [
-    "features/inventory/item_catalog.gd:37"
+    "features/inventory/item_catalog.gd:39"
   ],
   "item_catalog.055": [
-    "features/inventory/item_catalog.gd:38"
+    "features/inventory/item_catalog.gd:40"
   ],
   "item_catalog.056": [
-    "features/inventory/item_catalog.gd:38"
+    "features/inventory/item_catalog.gd:40"
   ],
   "item_catalog.057": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:41"
   ],
   "item_catalog.058": [
-    "features/inventory/item_catalog.gd:39"
+    "features/inventory/item_catalog.gd:41"
   ],
   "item_catalog.059": [
-    "features/inventory/item_catalog.gd:42"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.060": [
-    "features/inventory/item_catalog.gd:42"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.061": [
-    "features/inventory/item_catalog.gd:42"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.062": [
-    "features/inventory/item_catalog.gd:42",
+    "features/inventory/item_catalog.gd:44",
     "ui/inventory/item_shop.gd:53"
   ],
   "item_catalog.063": [
-    "features/inventory/item_catalog.gd:42"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.064": [
-    "features/inventory/item_catalog.gd:42"
+    "features/inventory/item_catalog.gd:44"
   ],
   "item_catalog.065": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.066": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.067": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.068": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.069": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.070": [
-    "features/inventory/item_catalog.gd:45"
+    "features/inventory/item_catalog.gd:47"
   ],
   "item_catalog.071": [
-    "features/inventory/item_catalog.gd:51"
+    "features/inventory/item_catalog.gd:53"
   ],
   "item_catalog.072": [
-    "features/inventory/item_catalog.gd:56"
+    "features/inventory/item_catalog.gd:58"
   ],
   "item_catalog.073": [
-    "features/inventory/item_catalog.gd:75"
+    "features/inventory/item_catalog.gd:77"
   ],
   "item_catalog.074": [
-    "features/inventory/item_catalog.gd:75"
+    "features/inventory/item_catalog.gd:77"
   ],
   "item_trade.001": [
     "features/inventory/item_trade.gd:8"
@@ -870,10 +870,10 @@
     "features/player/animation/animation_preview.gd:98"
   ],
   "base_input.001": [
-    "features/player/base_input.gd:138"
+    "features/player/base_input.gd:152"
   ],
   "base_input.002": [
-    "features/player/base_input.gd:149"
+    "features/player/base_input.gd:164"
   ],
   "soul_rules.001": [
     "features/rescue/soul_rules.gd:52"
@@ -934,7 +934,7 @@
   ],
   "base_hud.007": [
     "ui/base_hud.gd:293",
-    "ui/base_hud.gd:404"
+    "ui/base_hud.gd:411"
   ],
   "base_hud.008": [
     "ui/base_hud.gd:293"
@@ -947,14 +947,14 @@
   ],
   "base_hud.011": [
     "ui/base_hud.gd:294",
-    "ui/base_hud.gd:406"
+    "ui/base_hud.gd:413"
   ],
   "base_hud.012": [
     "ui/base_hud.gd:294"
   ],
   "base_hud.013": [
     "ui/base_hud.gd:301",
-    "ui/base_hud.gd:407"
+    "ui/base_hud.gd:414"
   ],
   "base_hud.014": [
     "ui/base_hud.gd:301"
@@ -979,137 +979,137 @@
     "ui/base_hud.gd:321"
   ],
   "base_hud.021": [
-    "ui/base_hud.gd:327"
+    "ui/base_hud.gd:334"
   ],
   "base_hud.022": [
-    "ui/base_hud.gd:331",
+    "ui/base_hud.gd:338",
     "ui/inventory/camp_panel.gd:6",
     "ui/inventory/camp_panel.gd:20"
   ],
   "base_hud.023": [
-    "ui/base_hud.gd:332",
+    "ui/base_hud.gd:339",
     "ui/inventory/item_shop.gd:6",
     "ui/inventory/item_shop.gd:43"
   ],
   "base_hud.024": [
-    "ui/base_hud.gd:332",
+    "ui/base_hud.gd:339",
     "ui/inventory/item_shop.gd:6"
   ],
   "base_hud.025": [
-    "ui/base_hud.gd:412",
+    "ui/base_hud.gd:419",
     "ui/inventory/inventory_panel.gd:14",
     "ui/inventory/inventory_panel.gd:166"
   ],
   "base_hud.026": [
-    "ui/base_hud.gd:413"
+    "ui/base_hud.gd:420"
   ],
   "base_hud.027": [
-    "ui/base_hud.gd:420",
+    "ui/base_hud.gd:427",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.028": [
-    "ui/base_hud.gd:420",
+    "ui/base_hud.gd:427",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.029": [
-    "ui/base_hud.gd:420",
+    "ui/base_hud.gd:427",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.030": [
-    "ui/base_hud.gd:420",
+    "ui/base_hud.gd:427",
     "ui/inventory/inventory_panel.gd:34"
   ],
   "base_hud.031": [
-    "ui/base_hud.gd:431"
-  ],
-  "base_hud.032": [
-    "ui/base_hud.gd:435"
-  ],
-  "base_hud.033": [
     "ui/base_hud.gd:438"
   ],
+  "base_hud.032": [
+    "ui/base_hud.gd:442"
+  ],
+  "base_hud.033": [
+    "ui/base_hud.gd:445"
+  ],
   "base_hud.035": [
-    "ui/base_hud.gd:485"
+    "ui/base_hud.gd:492"
   ],
   "base_hud.036": [
-    "ui/base_hud.gd:486"
+    "ui/base_hud.gd:493"
   ],
   "base_hud.037": [
-    "ui/base_hud.gd:487",
+    "ui/base_hud.gd:494",
     "ui/menu/menu_screen.gd:47"
   ],
   "base_hud.038": [
-    "ui/base_hud.gd:488"
+    "ui/base_hud.gd:495"
   ],
   "base_hud.039": [
-    "ui/base_hud.gd:489",
+    "ui/base_hud.gd:496",
     "ui/menu/menu_screen.gd:50"
   ],
   "base_hud.040": [
-    "ui/base_hud.gd:490",
+    "ui/base_hud.gd:497",
     "ui/menu/menu_screen.gd:80",
     "ui/menu/menu_screen.gd:123"
   ],
   "base_hud.041": [
-    "ui/base_hud.gd:492",
+    "ui/base_hud.gd:499",
     "ui/network/steam_panel.gd:149"
   ],
   "base_hud.042": [
-    "ui/base_hud.gd:494"
+    "ui/base_hud.gd:501"
   ],
   "base_hud.043": [
-    "ui/base_hud.gd:495"
+    "ui/base_hud.gd:502"
   ],
   "base_hud.044": [
-    "ui/base_hud.gd:496"
+    "ui/base_hud.gd:503"
   ],
   "base_hud.045": [
-    "ui/base_hud.gd:497"
+    "ui/base_hud.gd:504"
   ],
   "base_hud.046": [
-    "ui/base_hud.gd:498"
+    "ui/base_hud.gd:505"
   ],
   "base_hud.047": [
-    "ui/base_hud.gd:529"
-  ],
-  "base_hud.048": [
-    "ui/base_hud.gd:530"
-  ],
-  "base_hud.049": [
-    "ui/base_hud.gd:531"
-  ],
-  "base_hud.050": [
-    "ui/base_hud.gd:533"
-  ],
-  "base_hud.051": [
-    "ui/base_hud.gd:534"
-  ],
-  "base_hud.052": [
     "ui/base_hud.gd:536"
   ],
-  "base_hud.053": [
+  "base_hud.048": [
     "ui/base_hud.gd:537"
   ],
-  "base_hud.054": [
+  "base_hud.049": [
     "ui/base_hud.gd:538"
   ],
-  "base_hud.055": [
-    "ui/base_hud.gd:539"
+  "base_hud.050": [
+    "ui/base_hud.gd:540"
   ],
-  "base_hud.056": [
+  "base_hud.051": [
+    "ui/base_hud.gd:541"
+  ],
+  "base_hud.052": [
+    "ui/base_hud.gd:543"
+  ],
+  "base_hud.053": [
     "ui/base_hud.gd:544"
   ],
+  "base_hud.054": [
+    "ui/base_hud.gd:545"
+  ],
+  "base_hud.055": [
+    "ui/base_hud.gd:546"
+  ],
+  "base_hud.056": [
+    "ui/base_hud.gd:551"
+  ],
   "base_hud.057": [
-    "ui/base_hud.gd:548"
+    "ui/base_hud.gd:555"
   ],
   "base_hud.058": [
-    "ui/base_hud.gd:553"
+    "ui/base_hud.gd:560"
   ],
   "base_hud.059": [
-    "ui/base_hud.gd:556"
+    "ui/base_hud.gd:563"
   ],
   "base_hud.060": [
-    "ui/base_hud.gd:558",
+    "ui/base_hud.gd:565",
     "ui/network/steam_panel.gd:69"
   ],
   "camp_panel.001": [
@@ -1868,17 +1868,17 @@
     "ui/menu/menu_screen.gd:92"
   ],
   "settings.movement_speed_value": [
-    "ui/base_hud.gd:337"
+    "ui/base_hud.gd:344"
   ],
   "settings.show_jump_chain": [
     "ui/menu/menu_screen.gd:93"
   ],
   "settings.jump_chain_value": [
-    "ui/base_hud.gd:342"
+    "ui/base_hud.gd:349"
   ],
   "settings.more_save_failed": [
-    "ui/base_hud.gd:350",
-    "ui/base_hud.gd:356"
+    "ui/base_hud.gd:357",
+    "ui/base_hud.gd:363"
   ],
   "settings.jump_chain_bonus": [
     "ui/menu/menu_screen.gd:222"
@@ -1890,11 +1890,11 @@
     "ui/menu/menu_screen.gd:233"
   ],
   "settings.jump_chain_bonus_host_only": [
-    "features/base/base_model.gd:229"
+    "features/base/base_model.gd:233"
   ],
   "settings.jump_chain_host_only": [
-    "features/base/base_model.gd:234",
-    "features/base/base_model.gd:239"
+    "features/base/base_model.gd:238",
+    "features/base/base_model.gd:243"
   ],
   "settings.jump_chain_max_speed": [
     "ui/menu/menu_screen.gd:234"
@@ -1936,7 +1936,7 @@
     "worlds/bunker/bunker.gd:303"
   ],
   "base_hud.san": [
-    "ui/base_hud.gd:420"
+    "ui/base_hud.gd:427"
   ],
   "format.base_hud.001": [
     "ui/base_hud.gd:315"
@@ -1993,7 +1993,7 @@
     "app/main.gd:431"
   ],
   "keys.title": [
-    "ui/base_hud.gd:573",
+    "ui/base_hud.gd:580",
     "ui/menu/menu_screen.gd:201"
   ],
   "keys.instructions": [
@@ -2026,7 +2026,7 @@
     "ui/menu/key_bindings_panel.gd:37"
   ],
   "keys.hud_hint": [
-    "ui/base_hud.gd:442"
+    "ui/base_hud.gd:449"
   ],
   "keys.mouse_1": [
     "features/player/key_bindings.gd:26"
@@ -2104,7 +2104,7 @@
     "features/player/key_bindings.gd:24"
   ],
   "keys.single": [
-    "ui/base_hud.gd:728"
+    "ui/base_hud.gd:735"
   ],
   "satiety.weight": [
     "ui/inventory/inventory_panel.gd:181"
@@ -2140,7 +2140,7 @@
     "ui/menu/menu_screen.gd:217"
   ],
   "settings.infinite_credits_host_only": [
-    "features/base/base_model.gd:224"
+    "features/base/base_model.gd:228"
   ],
   "soul_roaming.controls": [
     "ui/soul_panel.gd:39"
@@ -2165,8 +2165,8 @@
     "features/exploration/container_marks.gd:5"
   ],
   "appearance.title": [
-    "ui/base_hud.gd:491",
-    "ui/base_hud.gd:566"
+    "ui/base_hud.gd:498",
+    "ui/base_hud.gd:573"
   ],
   "appearance.gender": [
     "ui/menu/appearance_panel.gd:38"
@@ -2241,10 +2241,10 @@
     "ui/widgets/quick_slot.gd:15"
   ],
   "quick.empty_hint": [
-    "ui/base_hud.gd:743"
+    "ui/base_hud.gd:750"
   ],
   "quick.save_failed": [
-    "ui/base_hud.gd:736"
+    "ui/base_hud.gd:743"
   ],
   "departure.confirm": [
     "app/main.gd:400"
@@ -2308,5 +2308,20 @@
   ],
   "combat.melee.no_ammo": [
     "ui/base_hud.gd:326"
+  ],
+  "throwable.frag.name": [
+    "features/inventory/item_catalog.gd:31"
+  ],
+  "throwable.frag.description": [
+    "features/inventory/item_catalog.gd:31"
+  ],
+  "throwable.molotov.name": [
+    "features/inventory/item_catalog.gd:32"
+  ],
+  "throwable.molotov.description": [
+    "features/inventory/item_catalog.gd:32"
+  ],
+  "throwable.controls": [
+    "ui/base_hud.gd:333"
   ]
 }

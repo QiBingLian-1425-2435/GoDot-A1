@@ -68,7 +68,9 @@ func run():
 	var target:=origin+Vector3(direction.x,0,direction.y)*1.2
 	model.state.players[2].pos=Vector2(target.x,target.z);model.state.players[2].height=origin.y
 	settle();check(game.actors[2].visible,"teammate initially visible")
-	p.bag[20]=model._item("smoke_grenade",1);game.session.send("use",{"index":20});settle()
+	p.bag[20]=model._item("smoke_grenade",1);game.session.send("use",{"index":20});game.session.send("move",{"ads":true,"aim":direction});game.session.send("fire",{"target":origin+Vector3(direction.x,0,direction.y)*.9})
+	for i in 15:model.tick(.1)
+	settle()
 	check(model.state.field_effects.size()==1 and not game.actors[2].visible,"confirmed smoke hides actual teammate in local vision")
 	check(game.world._terrain_material.get_shader_parameter("vision_smoke_count")==1,"actual terrain shader receives smoke volume")
 	check(game.field_item_view.nodes.size()==1,"actual smoke cloud node renders")

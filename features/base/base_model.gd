@@ -9,6 +9,8 @@ var enemy_move: Callable
 var enemy_push: Callable
 const Inventory = preload("res://features/inventory/base_inventory_system.gd")
 const Combat = preload("res://features/combat/combat_system.gd")
+const Throwables = preload("res://features/combat/throwable_system.gd")
+var projectile_query:Callable
 const Melee = preload("res://features/combat/melee_system.gd")
 const Profile = preload("res://features/persistence/profile_store.gd")
 const Facilities = preload("res://features/base/facility_system.gd")
@@ -132,7 +134,7 @@ func _animate(p: Dictionary, action: String, duration: float) -> void:
 
 func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	last_notice = ""
-	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","buy","sell","search","loot_view","craft_item","loot_take"]: return false
+	if not world_ready and action in ["move","fire","drop","pickup","travel","door","use","hold_throwable","buy","sell","search","loot_view","craft_item","loot_take"]: return false
 	if not state.players.has(id):
 		return false
 	var p: Dictionary = state.players[id]
@@ -147,6 +149,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 	if state.get("world","bunker")!="bunker" and ((action=="transfer" and (payload.get("from")=="stash" or payload.get("to")=="stash")) or (action in ["sort","split"] and payload.get("container")=="stash")):
 		return _reject("⟦base_model.002⟧")
 	if p.get("roll",{}).get("active",false) and action not in ["move","loot_close"]:return _reject("⟦base_model.003⟧")
+	if action in ["equip","unequip","select_weapon"]:p.held_throwable=""
 	match action:
 		"dance":
 			if not world_ready or p.reloading or p.crouch or float(p.get("anim_time",0))<float(p.get("anim_duration",0)) or not p.get("pending_use",{}).is_empty() or not p.get("rescue",{}).is_empty() or not str(p.get("loot_uid","")).is_empty():return false
@@ -203,6 +206,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			if not slot in EQUIPMENT: return _reject("⟦base_model.009⟧")
 			return _transfer(id, {"from":"bag","index":index,"to":"equipment","target":slot})
 		"unequip": return _transfer(id, {"from":"equipment","slot":payload.get("slot",""),"to":"bag"})
+		"hold_throwable": return Throwables.select(p,int(payload.get("index",-2)))
 		"use": return _use(p, payload)
 		"drop": return _drop(p, payload)
 		"pickup":
@@ -241,7 +245,7 @@ func command(id: int, action: String, payload: Dictionary = {}) -> bool:
 			state.jump_reward_window_ms=int(payload.value)
 			return true
 		"reload": return _reload(p)
-		"fire": return _fire(p)
+		"fire": return Throwables.request(self,p,payload) if payload.has("target") or not Throwables.held(p).is_empty() else _fire(p)
 		"select_weapon":
 			for i in range(p.bag.size()):
 				if not p.bag[i].is_empty() and Items.definition(p.bag[i].kind).category == "weapon":
@@ -334,9 +338,7 @@ func tick(delta: float) -> void:
 		state.shots[i].ttl -= delta
 		if state.shots[i].ttl <= 0: state.shots.remove_at(i)
 
-	for i in range(state.field_effects.size()-1,-1,-1):
-		state.field_effects[i].ttl-=delta
-		if state.field_effects[i].ttl<=0:state.field_effects.remove_at(i)
+	Throwables.tick(self,delta)
 
 func _restore_camp_status(p: Dictionary) -> void:
 	p.hp = float(p.get("max_hp", 100.0))

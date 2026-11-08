@@ -1,6 +1,6 @@
 {
   "engine": "4.5.2",
-  "protocol": "a1_bunker_v39",
+  "protocol": "a1_bunker_v40",
   "entry_scene": "app/main.tscn",
   "max_players": 5,
   "external_art_required": true,
@@ -925,7 +925,16 @@
     "features/combat/melee_sweep.gd",
     "features/combat/melee_sweep.gd.uid",
     "features/player/animation/melee_slash.gd",
-    "features/player/animation/melee_slash.gd.uid"
+    "features/player/animation/melee_slash.gd.uid",
+    "features/combat/throwable_system.gd",
+    "features/combat/throwable_system.gd.uid",
+    "features/player/throwable_preview.gd",
+    "features/player/throwable_preview.gd.uid",
+    "features/exploration/throwable_effect.gd",
+    "features/exploration/throwable_effect.gd.uid",
+    "assets/props/throwables/frag_grenade.glb",
+    "assets/props/throwables/smoke_grenade.glb",
+    "assets/props/throwables/molotov.glb"
   ],
   "external_asset_manifests": [
     "assets/worlds/ground_zero/asset_manifest.json",
@@ -936,6 +945,7 @@
     "assets/characters/adventurers/asset_manifest.json",
     "assets/ui/menu/asset_manifest.json",
     "assets/props/loot_sack/asset_manifest.json",
-    "assets/worlds/survivor_base/asset_manifest.json"
+    "assets/worlds/survivor_base/asset_manifest.json",
+    "assets/props/throwables/manifest.json"
   ]
 }
