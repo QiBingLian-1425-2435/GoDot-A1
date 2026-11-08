@@ -32,7 +32,8 @@ func prepare(data:Dictionary,dt:float)->void:
 	attacking=actor._event_action in ["melee_forward","melee_back"] and actor._event_time<duration
 	var desired:float=maxf(actor._aim_blend,1.0 if attacking else 0.0)*(1.0-actor._visual_action_weight)
 	pose_weight=move_toward(pose_weight,desired,dt*12)
-	right_weight=maxf(1.0-actor._arm_move_blend,pose_weight)*(1.0-actor._visual_action_weight)
+	# Keep the original hanging arm/wrist at rest; raise it only for guard or attack.
+	right_weight=pose_weight
 	var carry:=Transform3D(Basis.from_euler(Vector3(-PI/2,0,0)),Vector3(.30,.88,-.20))
 	var right:=Transform3D(Basis.from_euler(Vector3(-.30,0,-.20)),Vector3(.24,1.08,-.26))
 	var middle:=Transform3D(Basis.from_euler(Vector3(-1.55,0,.05)),Vector3(.10,1.04,-.43))

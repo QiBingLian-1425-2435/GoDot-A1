@@ -45,7 +45,8 @@ func run():
 				if action=="idle":
 					var tip:Vector3=actor.melee_pose.holder.basis*Vector3.UP
 					check(tip.dot(Vector3.FORWARD)>.98 and absf(tip.y)<.06,kind+" idle holds working end level toward front")
-					check(actor.melee_pose.holder.position.x>.2 and actor.melee_pose.holder.position.y>.75,kind+" idle grip stays beside right waist")
+					var rest_hand:Vector3=motion.rest[motion.skin.find_bone("R_Hand")].origin
+					check(right.distance_to(rest_hand)<.035 and actor.melee_pose.right_weight<.01,kind+" idle keeps original hanging hand")
 				if action in ["forward","back"] and i==0:swing_positions.append(actor.melee_pose.holder.position)
 			await process_frame;await process_frame
 			if DisplayServer.get_name()!="headless":
