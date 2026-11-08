@@ -20,7 +20,7 @@ func run():
 	for kind in ["fire_axe","crowbar","baseball_bat","baton","machete","katana"]:
 		var p:Dictionary=model.state.players[1];p.equipment.weapon=model._item(kind,1);p.ammo=0
 		var swing_positions:Array[Vector3]=[]
-		for action in ["idle","aim","forward","back","one_hand_forward","run","crouch_aim"]:
+		for action in ["idle","aim","forward","back","run","crouch_aim"]:
 			sequence+=1
 			for i in 2:
 				var data:Dictionary=p.duplicate(true);data.pos=Vector2(-.65 if i==0 else .65,0);data.aim=Vector2.UP;data.appearance=Appearance.defaults("male" if i==0 else "female");data.equipment.helmet={};data.equipment.armor={}

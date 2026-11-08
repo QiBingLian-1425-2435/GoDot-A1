@@ -8,9 +8,13 @@ static func is_melee(kind:String)->bool:
 static func cancel(p:Dictionary)->void:
 	p.erase("melee_attack");p.erase("melee_buffer")
 
+static func aiming(ctx,p:Dictionary)->bool:
+	var input:Dictionary=ctx._inputs.get(p.id,{})
+	return bool(input.get("ads",false)) and ctx._clock-float(input.get("stamp",-100))<=ctx.INPUT_TIMEOUT
+
 static func request(ctx,p:Dictionary)->bool:
 	var weapon:Dictionary=p.equipment.weapon
-	if weapon.is_empty() or not is_melee(weapon.kind) or not p.get("pending_use",{}).is_empty():return false
+	if weapon.is_empty() or not is_melee(weapon.kind) or not p.get("pending_use",{}).is_empty() or not aiming(ctx,p):return false
 	if float(p.fire_timer)>0:
 		# One buffered click near recovery; repeated requests cannot stack damage.
 		if not p.get("melee_attack",{}).is_empty() and float(p.fire_timer)<=.24:
@@ -25,6 +29,7 @@ static func request(ctx,p:Dictionary)->bool:
 
 static func tick(ctx,p:Dictionary,dt:float)->void:
 	var attack:Dictionary=p.get("melee_attack",{})
+	if not aiming(ctx,p):p.erase("melee_buffer")
 	if not ctx.Souls.alive(p) or p.get("roll",{}).get("active",false) or not ctx.world_ready:
 		cancel(p);return
 	if not attack.is_empty():

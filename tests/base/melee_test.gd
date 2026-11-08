@@ -11,16 +11,21 @@ func fixture(kind:String):
 	var m=Model.new();m.add_player(1,"melee");m.obstacles.clear()
 	var p:Dictionary=m.state.players[1];p.pos=Vector2.ZERO;p.aim=Vector2.UP
 	p.equipment.weapon=m._item(kind,1);p.ammo=0;p.reloading=false
+	m.command(1,"move",{"ads":true})
 	m.state.targets=[{"id":1,"pos":Vector2(0,-1),"hp":500,"hits":0},{"id":2,"pos":Vector2(0,1),"hp":500,"hits":0},{"id":3,"pos":Vector2(0,-4),"hp":500,"hits":0}]
 	return m
 func advance(m,seconds:float):
-	for i in ceili(seconds/.01):m.tick(.01)
+	for i in ceili(seconds/.01):
+		m.command(1,"move",{"ads":true});m.tick(.01)
 func run():
 	for kind in ["fire_axe","crowbar","baseball_bat","baton","machete","katana"]:
 		var m=fixture(kind);var p:Dictionary=m.state.players[1];var info:Dictionary=m.Items.definition(kind)
 		check(Melee.is_melee(kind) and Quick.allowed(kind) and m.Trade.available(kind),kind+" shop and quick slot")
 		check(not m.command(1,"reload") and not p.reloading,kind+" cannot reload")
 		var reserve:int=m._count(p.bag,"ammo")
+		m.command(1,"move",{"ads":false})
+		check(not m.command(1,"fire") and p.get("melee_chain",0)==0,kind+" attack without aim rejected by host")
+		m.command(1,"move",{"ads":true})
 		check(m.command(1,"fire") and p.anim_action=="melee_forward",kind+" single click starts forward swing")
 		m.tick(.05);check(m.state.targets[0].hp==500,kind+" windup has no premature damage")
 		for i in 20:m.command(1,"fire")
@@ -37,6 +42,12 @@ func run():
 		var capture:Dictionary=m.Profile.capture(m,1)
 		check(m.Profile.valid(m,capture) and m.Profile.apply(m,capture,1)==OK and m.state.players[1].equipment.weapon.kind==kind,kind+" profile roundtrip")
 	var m=fixture("fire_axe");var p:Dictionary=m.state.players[1]
+	m.command(1,"fire");advance(m,.6);m.command(1,"fire")
+	m.command(1,"move",{"ads":false})
+	for i in 40:m.tick(.01)
+	check(p.get("melee_chain",0)==1 and not p.has("melee_buffer"),"releasing aim discards queued follow-up")
+	check(not m.command(1,"fire"),"stale aim input cannot authorize attack")
+	m=fixture("fire_axe");p=m.state.players[1]
 	m.obstacles.assign([Rect2(-.3,-.6,.6,.1)]);m.command(1,"fire");advance(m,.8)
 	check(m.state.targets[0].hp==500,"solid obstacle blocks melee")
 	m.obstacles.clear();m.shot_query=func(_a,_b):return {"position":Vector3(0,.9,-.5)}

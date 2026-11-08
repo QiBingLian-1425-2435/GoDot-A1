@@ -28,14 +28,19 @@ func run():
 	check(game.ui._ammo_label.text==Texts.resolve("⟦combat.melee.label⟧") and not p.reloading,"HUD identifies melee without ammo count")
 	var press:=InputEventMouseButton.new();press.button_index=MOUSE_BUTTON_LEFT;press.pressed=true
 	var release:=InputEventMouseButton.new();release.button_index=MOUSE_BUTTON_LEFT;release.pressed=false
-	Controller._unhandled_input(game,press);Controller._input(game,release)
-	check(p.get("melee_chain",0)==1 and not game.trigger_held,"short click starts one swing before physics polling")
+	Controller._unhandled_input(game,press)
+	check(not game.trigger_held,"unarmed aim click does not latch later melee attacks")
+	Controller._input(game,release)
+	check(p.get("melee_chain",0)==0 and not game.trigger_held,"left click without aim cannot start melee")
+	m.command(1,"move",{"ads":true});game.session.send("fire")
+	check(p.get("melee_chain",0)==1,"aim plus attack intent starts melee")
 	for i in 50:m.tick(.02)
 	check(p.melee_chain==1,"released trigger does not repeat")
-	Controller._unhandled_input(game,press)
-	for i in 140:Controller._physics_process(game,.02);m.tick(.02)
-	Controller._input(game,release)
-	check(p.melee_chain>=4,"holding attack repeats alternating swings through input controller")
+	for i in 140:
+		m.command(1,"move",{"ads":true})
+		if i%6==0:game.session.send("fire")
+		m.tick(.02)
+	check(p.melee_chain>=4,"held aim and repeated fire intents alternate swings")
 	game.ui.toggle_inventory(true)
 	var count:int=p.melee_chain
 	Controller._unhandled_input(game,press)

@@ -870,10 +870,10 @@
     "features/player/animation/animation_preview.gd:98"
   ],
   "base_input.001": [
-    "features/player/base_input.gd:133"
+    "features/player/base_input.gd:136"
   ],
   "base_input.002": [
-    "features/player/base_input.gd:144"
+    "features/player/base_input.gd:147"
   ],
   "soul_rules.001": [
     "features/rescue/soul_rules.gd:52"
